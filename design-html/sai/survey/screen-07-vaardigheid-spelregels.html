@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="nl">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Shadow AI Scan - Vaardigheid & Spelregels</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary":"#00658b","secondary":"#00658b","primary-container":"#00658b",
+                        "primary-fixed":"#c4e7ff","primary-fixed-dim":"#7dd0ff","on-primary":"#ffffff",
+                        "tertiary":"#8e0048","tertiary-container":"#b90360",
+                        "surface":"#f7fafc","surface-container-lowest":"#ffffff",
+                        "surface-container-low":"#f1f4f6","surface-container":"#ebeef0",
+                        "surface-container-high":"#e5e9eb","surface-container-highest":"#e0e3e5",
+                        "on-surface":"#181c1e","on-surface-variant":"#40484e",
+                        "outline":"#70787f","outline-variant":"#bfc7cf",
+                        "secondary-container":"#bae6ff","background":"#f7fafc"
+                    },
+                    fontFamily: { "headline":["Manrope"],"body":["Inter"],"label":["Inter"] }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; display:inline-block; }
+        .nebula-bg {
+            background: radial-gradient(ellipse at 10% 0%, #c4e7ff 0%, #f7fafc 55%),
+                        radial-gradient(ellipse at 90% 100%, #e5e9eb 0%, transparent 50%);
+        }
+        .nebula-blob { filter:blur(80px); opacity:.25; }
+        .glass-card { background:rgba(255,255,255,.85); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }
+
+        .q-title { font-family:'Manrope',sans-serif; font-weight:800; font-size:1.35rem; color:#00658b; line-height:1.25; margin-bottom:.45rem; }
+        .q-sub {
+            font-size:14.5px; color:#40484e; line-height:1.5; margin-bottom:0.9rem;
+        }
+
+        .sopt {
+            display:flex; align-items:center; gap:16px;
+            padding:16px 20px; border-radius:1rem;
+            border:1.5px solid #bfc7cf; background:rgba(255,255,255,.72);
+            cursor:pointer; transition:all .2s ease; user-select:none;
+            margin-bottom:10px;
+        }
+        .sopt:last-child { margin-bottom:0; }
+        .sopt:hover { border-color:#00658b; background:rgba(196,231,255,.2); transform:translateY(-1px); }
+        .sopt.on { border-color:#00658b; background:rgba(196,231,255,.38); }
+        .sopt-radio {
+            width:22px; height:22px; border-radius:50%; flex-shrink:0;
+            border:2px solid #bfc7cf; background:white;
+            display:flex; align-items:center; justify-content:center;
+        }
+        .sopt-radio::after { content:''; width:10px; height:10px; border-radius:50%; background:transparent; transition:all .2s ease; }
+        .sopt.on .sopt-radio { border-color:#00658b; }
+        .sopt.on .sopt-radio::after { background:#00658b; }
+        .sopt-label { flex:1; font-size:16px; font-weight:400; color:#181c1e; line-height:1.35; display:block; }
+
+        .q-divider { border:none; border-top:1px solid #e5e9eb; margin:1.75rem 0; }
+        details > summary { list-style:none; }
+        details > summary::-webkit-details-marker { display:none; }
+        details[open] .chev { transform:rotate(180deg); }
+        .chev { transition:transform .22s; }
+
+        .mid-focus-wrap {
+            margin: 1.25rem 0;
+            padding: 16px;
+            border-radius: 1.25rem;
+            background: #f1f4f6;
+            border: 1px solid rgba(191,199,207,.55);
+        }
+
+        .skill-grid {
+            display:grid; grid-template-columns:repeat(4,1fr); gap:10px;
+        }
+        .skill-opt {
+            display:flex; flex-direction:column; align-items:center; gap:6px;
+            padding:14px 10px; border-radius:1rem;
+            border:1.5px solid #bfc7cf; background:rgba(255,255,255,.72);
+            cursor:pointer; transition:all .2s ease; user-select:none; text-align:center;
+        }
+        .skill-opt:hover { border-color:#00658b; background:rgba(196,231,255,.2); transform:translateY(-1px); }
+        .skill-opt.on { border-color:#00658b; background:rgba(196,231,255,.38); }
+        .skill-icon {
+            width:32px; height:32px; border-radius:9999px;
+            background:#ffffff; border:1px solid rgba(191,199,207,.8);
+            display:flex; align-items:center; justify-content:center;
+        }
+        .skill-icon .material-symbols-outlined { font-size:20px; color:#00658b; }
+        .skill-name { font-size:16px; font-weight:500; color:#181c1e; line-height:1.2; }
+        .skill-desc { font-size:14px; color:#40484e; line-height:1.35; }
+
+    </style>
+</head>
+<body class="nebula-bg min-h-screen font-body text-on-surface antialiased">
+
+    <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+        <div class="nebula-blob absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full bg-[#7dd0ff]"></div>
+        <div class="nebula-blob absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-[#bae6ff]"></div>
+    </div>
+
+    <header class="w-full pt-[30px] pb-4 flex flex-row items-center justify-between gap-4 max-w-3xl mx-auto px-6">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shrink-0 shadow-sm">
+                <span class="material-symbols-outlined text-white text-[32px]">shield_lock</span>
+            </div>
+            <div class="flex flex-col justify-center">
+                <h1 class="font-headline font-extrabold text-2xl tracking-tight text-on-surface leading-[1.1]">Shadow AI Scan</h1>
+                <p class="text-[13px] font-medium text-ui-blue-grey tracking-wide">Veilig innoveren met AI</p>
+            </div>
+        </div>
+        <span class="text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant bg-white/80 backdrop-blur border border-outline-variant/40 px-4 py-1.5 rounded-full shadow-sm whitespace-nowrap">Vertrouwelijk &amp; anoniem</span>
+    </header>
+
+    <div class="max-w-3xl mx-auto px-6 mb-6">
+        <div class="flex items-center gap-3">
+            <div class="flex gap-1.5 flex-1">
+                <div class="h-1.5 flex-1 rounded-full bg-primary"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-primary"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-primary"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-primary"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-surface-container-high"></div>
+            </div>
+            <span class="text-xs font-label text-on-surface-variant whitespace-nowrap">Stap 4 van 5</span>
+        </div>
+    </div>
+
+    <main class="max-w-3xl mx-auto px-6 pb-24">
+        <div class="glass-card rounded-[2rem] border border-white/70 shadow-[0_8px_40px_rgba(0,101,139,0.08)] p-8 md:p-10">
+
+            <div class="mb-0">
+                <span class="inline-flex items-center gap-1.5 text-xs font-label font-semibold text-primary/70 uppercase tracking-widest mb-3">
+                    <span class="material-symbols-outlined text-[15px]">psychology_alt</span>
+                    Vaardigheid &amp; Spelregels
+                </span>
+            </div>
+
+<div class="q-block">
+                <div class="q-title">Spelregels voor AI-gebruik</div>
+                <div class="q-sub">Ben je bekend met de afspraken en het AI-beleid binnen onze organisatie?</div>
+
+                <div id="beleid">
+                    <div class="sopt" data-val="ja_goed" onclick="selectSopt(this,'beleid')">
+                        <div class="sopt-radio"></div>
+                        <span class="sopt-label">Ja, ik weet goed wat er wel en niet mag</span>
+                    </div>
+                    <div class="sopt" data-val="vaag" onclick="selectSopt(this,'beleid')">
+                        <div class="sopt-radio"></div>
+                        <span class="sopt-label">Vaag bekend - ik heb er iets over gehoord</span>
+                    </div>
+                    <div class="sopt" data-val="nee" onclick="selectSopt(this,'beleid')">
+                        <div class="sopt-radio"></div>
+                        <span class="sopt-label">Nee, ik weet niet of er al afspraken zijn</span>
+                    </div>
+                    <div class="sopt" data-val="geen_beleid" onclick="selectSopt(this,'beleid')">
+                        <div class="sopt-radio"></div>
+                        <span class="sopt-label">Voor zover ik weet is er (nog) geen officieel beleid</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mid-focus-wrap">
+                <div class="q-block" style="margin-bottom:0">
+                    <div class="q-title">Jouw voorkeur voor specifieke tools</div>
+                    <div class="q-sub">Soms werkt een tool buiten onze standaardpakketten simpelweg het best voor jouw taken. Wat is voor jou de belangrijkste reden om zelf voor een specifieke AI-tool te kiezen?</div>
+
+                    <div id="tool-reden">
+                        <div class="sopt" data-val="snelheid" onclick="selectSopt(this,'tool-reden')">
+                            <div class="sopt-radio"></div>
+                            <span class="sopt-label">Snelheid: het werkt sneller dan de huidige officiele alternatieven.</span>
+                        </div>
+                        <div class="sopt" data-val="functionaliteit" onclick="selectSopt(this,'tool-reden')">
+                            <div class="sopt-radio"></div>
+                            <span class="sopt-label">Functionaliteit: de tool kan dingen die andere software binnen de organisatie niet kan.</span>
+                        </div>
+                        <div class="sopt" data-val="kwaliteit" onclick="selectSopt(this,'tool-reden')">
+                            <div class="sopt-radio"></div>
+                            <span class="sopt-label">Kwaliteit: ik vind de resultaten (output) simpelweg beter.</span>
+                        </div>
+                        <div class="sopt" data-val="gemak" onclick="selectSopt(this,'tool-reden')">
+                            <div class="sopt-radio"></div>
+                            <span class="sopt-label">Gemak: ik heb er al een (prive)account en ben er aan gewend.</span>
+                        </div>
+                        <div class="sopt" data-val="samenwerking" onclick="selectSopt(this,'tool-reden')">
+                            <div class="sopt-radio"></div>
+                            <span class="sopt-label">Samenwerking: mijn directe collega's of externe partners gebruiken deze tool ook.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="q-divider"/>
+
+            <div class="q-block" style="margin-bottom:0">
+                <div class="q-title">Hoe schat je je eigen AI-vaardigheid in?</div>
+                <div class="q-sub">Van nieuwsgierige beginner tot pro: help ons het kennisniveau binnen de organisatie in kaart te brengen</div>
+                
+
+                <div class="skill-grid" id="skill">
+                    <div class="skill-opt" data-val="beginner" onclick="selectSkill(this)">
+                        <div class="skill-icon"><span class="material-symbols-outlined">school</span></div>
+                        <span class="skill-name">Beginner</span>
+                        <span class="skill-desc">Ik probeer het af en toe, vind het nog lastig</span>
+                    </div>
+                    <div class="skill-opt" data-val="gemiddeld" onclick="selectSkill(this)">
+                        <div class="skill-icon"><span class="material-symbols-outlined">build</span></div>
+                        <span class="skill-name">Gemiddeld</span>
+                        <span class="skill-desc">Ik gebruik het regelmatig voor standaard-taken</span>
+                    </div>
+                    <div class="skill-opt" data-val="gevorderd" onclick="selectSkill(this)">
+                        <div class="skill-icon"><span class="material-symbols-outlined">rocket_launch</span></div>
+                        <span class="skill-name">Gevorderd</span>
+                        <span class="skill-desc">Ik schrijf goede prompts en ken de mogelijkheden goed</span>
+                    </div>
+                    <div class="skill-opt" data-val="expert" onclick="selectSkill(this)">
+                        <div class="skill-icon"><span class="material-symbols-outlined">workspace_premium</span></div>
+                        <span class="skill-name">Expert</span>
+                        <span class="skill-desc">Ik experimenteer actief en help collega's ermee</span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="q-divider"/>
+
+            <div class="q-block" style="margin-bottom:0">
+                <div class="q-title">Hoe verwerk je de resultaten (output) van de AI-tool meestal in je werk?</div>
+
+                <div id="output-verwerking">
+                    <div class="sopt" data-val="direct_overnemen" onclick="selectSopt(this,'output-verwerking')">
+                        <div class="sopt-radio"></div>
+                        <span class="sopt-label">Ik neem de resultaten meestal direct over.</span>
+                    </div>
+                    <div class="sopt" data-val="controle_handmatig" onclick="selectSopt(this,'output-verwerking')">
+                        <div class="sopt-radio"></div>
+                        <span class="sopt-label">Ik controleer de feiten en informatie handmatig voordat ik het gebruik.</span>
+                    </div>
+                    <div class="sopt" data-val="ruwe_opzet_inspiratie" onclick="selectSopt(this,'output-verwerking')">
+                        <div class="sopt-radio"></div>
+                        <span class="sopt-label">Ik gebruik de output alleen als ruwe opzet of inspiratie en schrijf de definitieve tekst zelf.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 mb-2">
+                <details class="group bg-surface-container-low border border-outline-variant/30 rounded-[1.25rem] p-1 shadow-sm">
+                    <summary class="flex items-center gap-2 p-3 cursor-pointer hover:bg-surface-container rounded-xl transition-colors">
+                        <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm shrink-0">
+                            <span class="material-symbols-outlined text-primary text-[18px]">info</span>
+                        </div>
+                        <span class="text-[13px] font-label font-semibold text-primary flex-1">Hou zelf de regie: vertrouwen is goed, controleren is beter</span>
+                        <span class="material-symbols-outlined text-on-surface-variant text-[20px] chev mr-1">expand_more</span>
+                    </summary>
+                    <div class="px-4 pb-4 pt-2 text-[13.5px] text-on-surface-variant leading-relaxed space-y-3">
+                        <p>AI kan overtuigend klinken, maar ook feiten verzinnen (hallucineren) of onbewuste vooroordelen (bias) bevatten. Controle op juistheid is essentieel om de kwaliteit te waarborgen en te voorkomen dat onjuiste informatie je werk be&iuml;nvloedt.</p>
+                    </div>
+                </details>
+            </div>
+
+            <div class="flex items-center justify-between pt-8 mt-8 border-t border-outline-variant/20">
+                <button onclick="window.location.href='screen-06-accountmatrix.html'" class="group inline-flex items-center gap-2 text-on-surface-variant hover:text-primary font-label font-semibold text-sm transition-colors">
+                    <span class="material-symbols-outlined text-[20px] group-hover:-translate-x-0.5 transition-transform">arrow_back</span>
+                    Vorige
+                </button>
+                <button id="btn-next" disabled onclick="goNext()" class="group inline-flex items-center gap-2 bg-primary hover:bg-[#004c6a] text-white px-8 py-3.5 rounded-full font-headline font-bold text-sm shadow-lg transition-all duration-300 hover:-translate-y-0.5">
+                    Volgende
+                    <span class="material-symbols-outlined text-[20px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            beleid: null,
+            'tool-reden': null,
+            skill: null,
+            'output-verwerking': null
+        };
+
+        function selectSopt(el, group) {
+            document.querySelectorAll(`#${group} .sopt`).forEach(o => o.classList.remove('on'));
+            el.classList.add('on');
+            state[group] = el.dataset.val;
+            updateProgress();
+        }
+
+        function selectSkill(el) {
+            document.querySelectorAll('#skill .skill-opt').forEach(o => o.classList.remove('on'));
+            el.classList.add('on');
+            state.skill = el.dataset.val;
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const belOk = state.beleid !== null;
+            const trOk = state['tool-reden'] !== null;
+            const skOk = state.skill !== null;
+            const ovOk = state['output-verwerking'] !== null;
+            document.getElementById('btn-next').disabled = !(belOk && trOk && skOk && ovOk);
+        }
+
+        function goNext() {
+            sessionStorage.setItem('vaardigheid_spelregels', JSON.stringify({
+                beleid: state.beleid,
+                tool_reden: state['tool-reden'],
+                skill: state.skill,
+                output_verwerking: state['output-verwerking']
+            }));
+            window.location.href = 'screen-08-toekomst.html';
+        }
+    </script>
+</body>
+</html>

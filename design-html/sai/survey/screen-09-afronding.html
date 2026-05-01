@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="nl">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Shadow AI Scan - Afronding</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary":"#00658b","primary-fixed":"#c4e7ff","primary-fixed-dim":"#7dd0ff",
+                        "ui-blue-grey":"#6993aa","brand-green":"#93C942",
+                        "surface-container-high":"#e5e9eb","outline-variant":"#bfc7cf",
+                        "on-surface":"#181c1e","on-surface-variant":"#40484e"
+                    },
+                    fontFamily: { "headline":["Manrope"],"body":["Inter"],"label":["Inter"] }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; display:inline-block; }
+        .nebula-bg {
+            background: radial-gradient(ellipse at 10% 0%, #c4e7ff 0%, #f7fafc 55%),
+                        radial-gradient(ellipse at 90% 100%, #e5e9eb 0%, transparent 50%);
+        }
+        .nebula-blob { filter: blur(80px); opacity: 0.25; }
+        .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+        .mopt {
+            flex:1; padding:14px 12px; border-radius:1rem; text-align:center;
+            border:1.5px solid #bfc7cf; background:rgba(255,255,255,.72);
+            cursor:pointer; transition:all .16s; user-select:none;
+            font-family:'Manrope',sans-serif; font-weight:700; font-size:14px; color:#40484e;
+        }
+        .mopt:hover { border-color:#00658b; background:rgba(197,231,255,.2); }
+        .mopt.on-ja  { border-color:#004c6a; background:rgba(197,231,255,.38); color:#004c6a; }
+        .mopt.on-nee { border-color:#bfc7cf; background:#f1f4f6; color:#70787f; }
+        .email-reveal { max-height:0; overflow:hidden; opacity:0; transition:max-height .3s ease, opacity .25s ease; }
+        .email-reveal.open { max-height:180px; opacity:1; margin-top:12px; }
+        .email-row {
+            display:flex; align-items:center; gap:8px;
+            background:rgba(255,255,255,.9);
+            border:1.5px solid #bfc7cf;
+            border-radius:9999px;
+            padding:6px 6px 6px 12px;
+        }
+        .form-input {
+            width:100%; padding:8px 8px; border:0; border-radius:9999px;
+            font-family:'Inter',sans-serif; font-size:13px; color:#181c1e;
+            background:transparent; outline:none;
+        }
+        .email-save-btn {
+            width:34px; height:34px; border-radius:9999px;
+            border:1.5px solid #00658b; background:#00658b; color:#fff;
+            display:inline-flex; align-items:center; justify-content:center;
+            transition:all .16s;
+        }
+        .email-save-btn:hover { background:#004c6a; border-color:#004c6a; }
+        .email-saved-msg { font-size:12px; color:#00658b; margin-top:8px; display:none; }
+        .email-saved-msg.show { display:block; }
+    </style>
+</head>
+<body class="nebula-bg min-h-screen font-body text-on-surface antialiased">
+
+    <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+        <div class="nebula-blob absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full bg-[#7dd0ff]"></div>
+        <div class="nebula-blob absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-[#bae6ff]"></div>
+    </div>
+
+    <header class="w-full pt-[30px] pb-4 flex flex-row items-center justify-between gap-4 max-w-2xl mx-auto px-6">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shrink-0 shadow-sm">
+                <span class="material-symbols-outlined text-white text-[32px]">shield_lock</span>
+            </div>
+            <div class="flex flex-col justify-center">
+                <h1 class="font-headline font-extrabold text-2xl tracking-tight text-on-surface leading-[1.1]">Shadow AI Scan</h1>
+                <p class="text-[13px] font-medium text-ui-blue-grey tracking-wide">Veilig innoveren met AI</p>
+            </div>
+        </div>
+        <span class="text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant bg-white/80 backdrop-blur border border-outline-variant/40 px-4 py-1.5 rounded-full shadow-sm whitespace-nowrap">Vertrouwelijk &amp; anoniem</span>
+    </header>
+
+    <div class="max-w-2xl mx-auto px-6 mb-6">
+        <div class="flex items-center gap-3">
+            <div class="flex gap-1.5 flex-1">
+                <div class="h-1.5 flex-1 rounded-full bg-primary"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-primary"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-primary"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-primary"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-primary"></div>
+            </div>
+            <span class="text-xs font-label text-on-surface-variant whitespace-nowrap">Voltooid</span>
+        </div>
+    </div>
+
+    <main class="max-w-2xl mx-auto px-6 pb-20">
+        <div class="glass-card rounded-[2rem] border border-white/70 shadow-[0_8px_40px_rgba(0,101,139,0.08)] p-8 md:p-10 text-center">
+
+            <div class="mx-auto mb-6 w-24 h-24 rounded-full bg-[#e8f6d6] border border-[#cfe8ab] flex items-center justify-center">
+                <span class="material-symbols-outlined text-[#4d7f13] text-[44px]" style="font-variation-settings:'FILL' 1,'wght' 500,'GRAD' 0,'opsz' 24">verified</span>
+            </div>
+
+            <span class="inline-flex items-center gap-2 bg-[#eef8df] border border-[#d7edb8] px-4 py-1.5 rounded-full mb-4">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#6fa81f]"></span>
+                <span class="text-xs font-label font-bold text-[#3d6c09] uppercase tracking-widest">Scan afgerond</span>
+            </span>
+
+            <h2 class="font-headline font-extrabold text-3xl text-primary leading-tight mb-3">Bedankt voor je deelname!</h2>
+            <p class="text-[15px] text-on-surface-variant leading-relaxed max-w-lg mx-auto mb-6">
+                Je antwoorden zijn veilig en anoniem opgeslagen.
+            </p>
+
+            <div class="w-full border-t border-outline-variant/40 my-10"></div>
+
+            <div>
+                <div class="q-title text-center font-extrabold text-xl leading-tight">Meebouwen als AI-ambassadeur?</div>
+                <p class="text-sm text-on-surface-variant mt-1 mb-5 text-center">
+                    We zoeken enthousiaste collega's om mee te denken over nieuwe tools, slimme prompts en best practices. Iets voor jou?
+                </p>
+
+                <div class="flex gap-3 mb-6" id="mopt-btns">
+                    <button type="button" class="mopt bg-[#eef8ff] border-[#cfe8f7] text-[#0b5f81]" id="mopt-ja" onclick="selectMopt('ja')">Ja, lijkt me leuk</button>
+                    <button type="button" class="mopt" id="mopt-nee" onclick="selectMopt('nee')">Nee, liever niet</button>
+                </div>
+
+                <div class="email-reveal" id="amb-email-reveal">
+                    <div class="email-row">
+                        <input type="email" id="amb-email" class="form-input" placeholder="E-mailadres (optioneel)"/>
+                        <button type="button" class="email-save-btn" onclick="saveAmbEmail()" aria-label="E-mail opslaan">
+                            <span class="material-symbols-outlined text-[18px]">check</span>
+                        </button>
+                    </div>
+                    <p id="amb-email-saved" class="email-saved-msg">E-mailadres opgeslagen.</p>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-center">
+                <button onclick="window.close()" class="inline-flex items-center justify-center gap-2 text-on-surface-variant hover:text-primary font-semibold text-sm px-4 py-2 transition-colors">
+                    Venster sluiten
+                    <span class="material-symbols-outlined text-[18px]">close</span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function selectMopt(val) {
+            document.getElementById('mopt-ja').className  = 'mopt' + (val === 'ja' ? ' on-ja' : '');
+            document.getElementById('mopt-nee').className = 'mopt' + (val === 'nee' ? ' on-nee' : '');
+            const reveal = document.getElementById('amb-email-reveal');
+            reveal.classList.toggle('open', val === 'ja');
+            const email = (document.getElementById('amb-email')?.value || '').trim();
+            sessionStorage.setItem('ambassadeur_optin', JSON.stringify({ keuze: val, email, ts: Date.now() }));
+        }
+
+        function saveAmbEmail() {
+            const email = (document.getElementById('amb-email')?.value || '').trim();
+            try {
+                const raw = sessionStorage.getItem('ambassadeur_optin');
+                const cur = raw ? JSON.parse(raw) : {};
+                sessionStorage.setItem('ambassadeur_optin', JSON.stringify({ ...cur, email, ts: Date.now() }));
+                document.getElementById('amb-email-saved')?.classList.add('show');
+            } catch(_) {}
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="nl">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Shadow AI Scan - Toolpicker</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#00658b",
+                        "primary-container": "#00a1da",
+                        "ui-blue-grey": "#6993aa",
+                        "brand-green": "#93c942",
+                        "on-primary": "#ffffff",
+                        "surface-container-low": "#f1f4f6",
+                        "surface-container": "#ebeef0",
+                        "surface-container-high": "#e5e9eb",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#181c1e",
+                        "on-surface-variant": "#40484e",
+                        "outline-variant": "#bfc7cf"
+                    },
+                    fontFamily: { "headline":["Manrope"],"body":["Inter"],"label":["Inter"] }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; display:inline-block; }
+        .nebula-bg {
+            background: radial-gradient(ellipse at 10% 0%, #c4e7ff 0%, #f7fafc 55%),
+                        radial-gradient(ellipse at 90% 100%, #e5e9eb 0%, transparent 50%);
+        }
+        .nebula-blob { filter:blur(80px); opacity:.18; }
+        .glass-card { background:rgba(255,255,255,.85); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }
+
+        /* ── Tabs ── */
+        .tabs-container { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+        .tab-btn {
+            padding:8px 14px; border-radius:99px; font-size:13px; font-weight:600;
+            font-family:'Inter'; color:#40484e; background:transparent;
+            border:1px solid transparent; transition:all .2s; cursor:pointer; white-space:nowrap;
+        }
+        .tab-btn:hover { background:#ebeef0; }
+        .tab-btn.active { background:#e5e9eb; color:#00658b; border-color:#bfc7cf; }
+
+        /* ── Tool Items ── */
+        .tool-btn {
+            display:flex; align-items:center; justify-content:space-between;
+            padding:12px 16px; border-radius:12px; background:#fff; border:1px solid #bfc7cf;
+            cursor:pointer; transition:all .2s; user-select:none; font-family:'Inter';
+        }
+        .tool-btn:hover { border-color:#00658b; transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,101,139,0.06); }
+        .tool-btn.used { border-color:#00658b; background:#f1f4f6; opacity:0.6; pointer-events:none; }
+        .tool-icon-box {
+            display:flex; align-items:center; justify-content:center;
+            width:32px; height:32px; background:#f1f4f6; border-radius:8px; margin-right:12px;
+            color:#40484e;
+        }
+        .tool-icon-box > img,
+        .tool-icon-box > .material-symbols-outlined,
+        .ws-icon-box > img,
+        .ws-icon-box > .material-symbols-outlined,
+        #mod-icon > img,
+        #mod-icon > .material-symbols-outlined {
+            display:block;
+            margin:auto;
+            line-height:1;
+        }
+
+        /* ── Workspace Card ── */
+        .ws-card {
+            background:#fff; border:1.5px solid #00658b; border-radius:12px; padding:12px 16px;
+            display:flex; align-items:center; justify-content:space-between;
+            box-shadow:0 4px 12px rgba(0,101,139,0.04); cursor:pointer; transition:all .2s;
+        }
+        .ws-card:hover { transform:translateY(-1px); box-shadow:0 6px 16px rgba(0,101,139,0.08); }
+        .ws-card .ws-icon-box {
+            display:flex; align-items:center; justify-content:center;
+            width:32px; height:32px; background:#e0f2fe; border-radius:8px; margin-right:12px;
+            color:#00658b;
+        }
+        .ws-del {
+            width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+            color:#40484e; background:#f1f4f6; transition:all .2s;
+        }
+        .ws-del:hover { background:#ffe4e6; color:#e11d48; }
+
+        /* ── Modal & Chips ── */
+        #modal { display:none; }
+        #modal.open { display:flex; animation:fadeIn .2s ease; }
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+        .modal-content { animation:slideUp .3s ease forwards; }
+        @keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+        .chip {
+            position:relative;
+            display:inline-flex; align-items:center; gap:6px;
+            padding:8px 16px; border-radius:99px; background:#f1f4f6; border:1px solid #bfc7cf;
+            font-size:13px; font-weight:500; color:#181c1e; cursor:pointer; transition:all .2s; user-select:none;
+        }
+        .chip .chip-icon { font-size:16px; color:#40484e; }
+        .chip:hover { border-color:#00658b; background:#ebeef0; }
+        .chip.on { background:#00658b; color:#fff; border-color:#00658b; }
+        .chip.on .chip-icon { color:#fff; }
+        .chip-label { display:inline-flex; align-items:center; gap:6px; }
+        .chip-info {
+            width:18px; height:18px; border-radius:999px;
+            display:inline-flex; align-items:center; justify-content:center;
+            font-size:11px; font-weight:800; line-height:1;
+            background:rgba(255,255,255,0.85); color:#00658b;
+            border:1px solid rgba(0,101,139,0.18);
+            cursor:help; flex-shrink:0;
+        }
+        .chip.on .chip-info {
+            background:rgba(255,255,255,0.18); color:#fff; border-color:rgba(255,255,255,0.25);
+        }
+        .chip-tooltip {
+            position:absolute; left:0; top:calc(100% + 10px);
+            width:min(260px, calc(100vw - 64px)); padding:10px 12px; border-radius:14px;
+            background:#2f363b; color:#fff; font-size:12px; line-height:1.45;
+            box-shadow:0 12px 26px rgba(24,28,30,0.18);
+            opacity:0; visibility:hidden; pointer-events:none; transition:opacity .18s ease, visibility .18s ease;
+            z-index:20; text-align:left; font-weight:500;
+        }
+        .chip-tooltip::after {
+            content:''; position:absolute; bottom:100%; left:42px;
+            border-width:6px; border-style:solid; border-color:transparent transparent #2f363b transparent;
+        }
+        .chip.has-tooltip:hover .chip-tooltip,
+        .chip.has-tooltip.tooltip-open .chip-tooltip,
+        .chip-info:focus + .chip-tooltip,
+        .chip-info:hover + .chip-tooltip {
+            opacity:1; visibility:visible;
+        }
+
+        .btn-magic {
+            width:100%; padding:12px; border-radius:12px; border:1.5px dashed #bfc7cf;
+            background:#f7fafc; color:#40484e; font-size:13px; font-weight:600;
+            display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; transition:all .2s;
+        }
+        .btn-magic:hover { border-color:#00658b; color:#00658b; background:#f1f4f6; }
+        .btn-magic:disabled { opacity:.5; cursor:not-allowed; }
+
+        .tool-guidance {
+            display:flex; gap:14px; padding:18px 20px; margin-bottom:20px;
+            border-radius:24px; border:1px solid rgba(0,101,139,0.12);
+            background:linear-gradient(180deg, rgba(241,244,246,0.95), rgba(235,238,240,0.95));
+            box-shadow:0 8px 24px rgba(0,101,139,0.06);
+        }
+        .tool-guidance__icon {
+            width:40px; height:40px; flex-shrink:0; border-radius:999px;
+            display:flex; align-items:center; justify-content:center;
+            background:#fff; color:#00658b; box-shadow:0 1px 2px rgba(24,28,30,0.08);
+        }
+        .tool-guidance__title {
+            color:#00658b; font-family:'Manrope'; font-size:1.05rem; font-weight:800; line-height:1.35;
+        }
+        .tool-guidance__text {
+            margin-top:10px; color:#40484e; font-size:15px; line-height:1.7;
+        }
+    </style>
+</head>
+<body class="nebula-bg min-h-screen font-body text-on-surface antialiased">
+
+    <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+        <div class="nebula-blob absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full bg-[#7dd0ff]"></div>
+        <div class="nebula-blob absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-[#bae6ff]"></div>
+    </div>
+
+    <!-- ── HEADER (identiek aan screen-04) ── -->
+    <header class="w-full pt-[30px] pb-4 flex flex-row items-center justify-between gap-4 max-w-5xl mx-auto px-6">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shrink-0 shadow-sm">
+                <span class="material-symbols-outlined text-white text-[32px]">shield_lock</span>
+            </div>
+            <div class="flex flex-col justify-center">
+                <h1 class="font-headline font-extrabold text-2xl tracking-tight text-on-surface leading-[1.1]">
+                    Shadow AI Scan
+                </h1>
+                <p class="text-[13px] font-medium text-ui-blue-grey tracking-wide">
+                    Veilig innoveren met AI
+                </p>
+            </div>
+        </div>
+        <span class="text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant bg-white/80 backdrop-blur border border-outline-variant/40 px-4 py-1.5 rounded-full shadow-sm whitespace-nowrap">
+            Vertrouwelijk &amp; anoniem
+        </span>
+    </header>
+
+    <!-- ── PROGRESS BAR — max-w-5xl, aligned met content ── -->
+    <div class="max-w-5xl mx-auto px-6 mb-6">
+        <div class="flex items-center gap-2">
+            <div class="flex gap-1.5 flex-1">
+                <div class="h-1.5 flex-1 rounded-full bg-primary"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-primary"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-primary"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-surface-container-high"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-surface-container-high"></div>
+            </div>
+            <span class="text-xs font-label text-on-surface-variant whitespace-nowrap">Stap 3 van 5</span>
+        </div>
+    </div>
+
+    <main class="max-w-5xl mx-auto px-6 pb-24">
+
+        <!-- ── VRAAG IN GLASS CARD — consistent met screen-04 ── -->
+        <div class="glass-card rounded-[2rem] border border-white/70 shadow-[0_8px_40px_rgba(0,101,139,0.08)] p-8 mb-6">
+            <span class="inline-flex items-center gap-1.5 text-xs font-label font-semibold text-primary/70 uppercase tracking-widest mb-3">
+                <span class="material-symbols-outlined text-[15px]">apps</span>
+                Mijn AI gereedschapskist
+            </span>
+            <h2 class="font-headline font-extrabold text-[1.35rem] text-primary leading-[1.25]">
+                Welke AI-tools gebruik je wel eens in je dagelijkse werk?
+            </h2>
+            <p class="text-sm text-on-surface-variant mt-2 max-w-xl">
+                Selecteer de tools uit de catalogus en geef per tool aan waarvoor je hem gebruikt.
+            </p>
+        </div>
+
+        <!-- ── TWEE KOLOMMEN: CATALOGUS + WERKRUIMTE ── -->
+        <div class="flex flex-col lg:flex-row gap-6 items-start">
+
+            <!-- Catalogus -->
+            <div class="w-full lg:w-[460px] flex-shrink-0 glass-card rounded-[2rem] border border-white/70 shadow-[0_8px_40px_rgba(0,101,139,0.06)] p-6">
+                <h3 class="font-headline font-bold text-lg mb-4 text-primary">Catalogus</h3>
+
+                <div class="tabs-container" id="tabs"></div>
+
+                <div class="flex flex-col gap-3 min-h-[250px] overflow-y-auto pr-1 pt-1" id="lib-list" style="max-height:350px;"></div>
+
+                <div class="mt-6 pt-5 border-t border-outline-variant/30">
+                    <p class="text-[12px] font-semibold text-on-surface-variant mb-2 uppercase tracking-wide">Ontbreekt er één?</p>
+                    <div class="flex gap-2">
+                        <input type="text" id="custom-input" placeholder="Naam van eigen tool"
+                            class="flex-1 rounded-xl border-outline-variant/50 text-sm focus:ring-primary focus:border-primary shadow-sm"/>
+                        <button onclick="addCustom()" class="bg-surface-container hover:bg-surface-container-high text-primary px-4 rounded-xl font-semibold text-sm transition-colors">
+                            <span class="material-symbols-outlined text-[20px]">add</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Werkruimte -->
+            <div class="flex-1 w-full glass-card rounded-[2rem] border-2 border-dashed border-outline-variant/50 bg-white/40 p-6 min-h-[500px] flex flex-col relative">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="font-headline font-bold text-lg text-primary">Jouw selectie</h3>
+                    <span id="ws-count" class="text-xs font-bold bg-primary text-white px-2.5 py-1 rounded-full">0 tools</span>
+                </div>
+
+                <div id="ws-empty" class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+                    <span class="material-symbols-outlined text-[48px] text-primary/20 mb-3">auto_awesome_mosaic</span>
+                    <p class="text-primary/40 font-semibold font-headline text-lg">Nog geen tools geselecteerd</p>
+                    <p class="text-on-surface-variant/50 text-sm mt-1">Klik op een tool in de catalogus</p>
+                </div>
+
+                <div id="ws-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3 z-10"></div>
+
+                <div class="mt-auto pt-8 flex items-center justify-between z-10">
+                    <button onclick="window.location.href='screen-03-frequentie.html'"
+                        class="group inline-flex items-center gap-2 text-on-surface-variant hover:text-primary font-label font-semibold text-sm transition-colors">
+                        <span class="material-symbols-outlined text-[20px] group-hover:-translate-x-0.5 transition-transform">arrow_back</span>
+                        Vorige
+                    </button>
+                    <button id="btn-next" disabled onclick="goNext()"
+                        class="group inline-flex items-center gap-2 bg-primary hover:bg-[#004c6a] text-white px-8 py-3.5 rounded-full font-headline font-bold text-sm shadow-lg transition-all duration-300 hover:-translate-y-0.5">
+                        Volgende
+                        <span class="material-symbols-outlined text-[20px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ── MODAL ── -->
+    <div id="modal" class="fixed inset-0 z-50 items-center justify-center p-4 bg-on-surface/40 backdrop-blur-sm">
+        <div class="modal-content w-full max-w-lg bg-white rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="flex items-center justify-between px-6 py-5 border-b border-surface-container">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-primary" id="mod-icon"></div>
+                    <div>
+                        <h3 class="font-headline font-bold text-lg text-on-surface" id="mod-title">Tool naam</h3>
+                        <p class="text-[12px] text-on-surface-variant font-medium">Configureer toepassingen</p>
+                    </div>
+                </div>
+                <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container text-on-surface-variant transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto">
+                <p class="text-sm font-semibold text-on-surface-variant mb-4 uppercase tracking-wider">Waarvoor gebruik je deze tool?</p>
+                <div id="mod-pills" class="flex flex-wrap gap-2.5 mb-6"></div>
+                <div id="mod-guidance" class="hidden"></div>
+                <div id="ai-msg" class="hidden"></div>
+                <button id="btn-magic" class="btn-magic" onclick="doMagic()">
+                    <span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+                    <span id="magic-txt">Laat AI toepassingen voorstellen</span>
+                    <span id="magic-spin" class="material-symbols-outlined hidden animate-spin">progress_activity</span>
+                </button>
+            </div>
+            <div class="px-6 py-5 bg-surface-container-lowest border-t border-surface-container flex justify-end gap-3">
+                <button onclick="closeModal()" class="px-5 py-2.5 rounded-full font-semibold text-sm text-on-surface-variant hover:bg-surface-container transition-colors">Annuleren</button>
+                <button onclick="saveModal()" class="px-6 py-2.5 rounded-full font-bold text-sm bg-primary text-white hover:bg-[#004c6a] shadow-md transition-colors">Opslaan</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const JSON_BASE_PATH = '../03. Tools & usecases/JSON';
+        const CATEGORY_CODE_MAP = {
+            algemene_ai: 'conversatie',
+            agentic_ai: 'agentic',
+            schrijven: 'schrijven',
+            presentaties: 'presentaties',
+            beeld_video: 'beeld',
+            audio_spraak: 'audio',
+            notulen: 'notulen',
+            code: 'code',
+            data_auto: 'data',
+            werkplek: 'embedded',
+            crm_klant: 'crm'
+        };
+        const TOOL_CODE_MAP = {
+            chatgpt: 'chatgpt',
+            claude: 'claude',
+            gemini: 'gemini',
+            microsoft_copilot: 'copilot',
+            notebooklm: 'notebooklm',
+            perplexity: 'perplexity',
+            deepseek: 'deepseek',
+            mistral_le_chat: 'mistral',
+            perplexity_computer: 'perplexity_computer',
+            claude_cowork: 'claude_cowork',
+            grammarly: 'grammarly',
+            jasper: 'jasper',
+            copy_ai: 'copyai',
+            notion_ai: 'notion',
+            gamma: 'gamma',
+            canva_ai: 'canva',
+            google_stitch: 'stitch',
+            adobe_firefly: 'firefly',
+            midjourney: 'midjourney',
+            dall_e: 'dalle',
+            runway: 'runway',
+            synthesia: 'synthesia',
+            nano_banana_pro: 'nanobanana',
+            elevenlabs: 'elevenlabs',
+            murf_ai: 'murf',
+            otter_ai: 'otter',
+            fireflies_ai: 'fireflies',
+            tldv: 'tldv',
+            fathom: 'fathom',
+            tactiq: 'tactiq',
+            jamie: 'jamie',
+            github_copilot: 'github_copilot',
+            cursor: 'cursor',
+            claude_code: 'claude_code',
+            tabnine: 'tabnine',
+            julius_ai: 'julius',
+            akkio: 'akkio',
+            n8n: 'n8n',
+            make: 'make',
+            zapier_ai: 'zapier',
+            m365_copilot: 'm365',
+            google_workspace_ai: 'gworkspace',
+            salesforce_einstein: 'sfeinstein',
+            hubspot_ai: 'hubspotai',
+            hubspot: 'hubspot',
+            salesforce: 'salesforce',
+            pipedrive_ai: 'pipedrive',
+            monday_com_ai: 'monday'
+        };
+        const USE_CASE_CODE_MAP = {
+            teksten_schrijven: 'schrijven',
+            samenvatten_redigeren: 'samenvatten',
+            brainstormen: 'brainstorm',
+            informatie_opzoeken: 'research',
+            vertalen: 'vertalen',
+            klantenservice: 'klant',
+            data_analyseren: 'analyse',
+            code_schrijven: 'code',
+            afbeeldingen_genereren: 'beeld',
+            presentaties_design: 'presentatie',
+            automatisering: 'automatisering',
+            hr_evaluatie: 'hr',
+            financieel_juridisch: 'juridisch',
+            audio_genereren: 'audio',
+            video_genereren: 'video',
+            vergaderingen_notuleren: 'notulen',
+            workflow_uitvoeren: 'workflow',
+            systemen_aansturen: 'systemen',
+            taken_automatisch_afhandelen: 'taken_auto'
+        };
+        const CONTEXT_CODE_MAP = {
+            intern_gebruik: 'intern',
+            klantgerichte_toepassing: 'klantgericht',
+            beslisondersteuning: 'beslisondersteuning',
+            besluiten_over_personen: 'personenbesluit',
+            financieel_juridisch: 'finjur',
+            kritieke_systemen: 'kritiek',
+            nog_niet_duidelijk: 'onbekend',
+            hr_evaluatie: 'hr_context',
+            autonome_uitvoering: 'autonoom',
+            menselijke_review_verplicht: 'menselijke_review',
+            externe_systemen: 'externe_systemen'
+        };
+
+        let CATEGORY_TABS = [
+            { id:'conversatie', label:'Algemene AI' },
+            { id:'agentic', label:'Agentic AI' },
+            { id:'schrijven', label:'Schrijven' },
+            { id:'presentaties', label:'Presentaties' },
+            { id:'beeld', label:'Beeld & Video' },
+            { id:'audio', label:'Audio & Spraak' },
+            { id:'notulen', label:'Notulen' },
+            { id:'code', label:'Code' },
+            { id:'data', label:'Data & Auto' },
+            { id:'embedded', label:'Werkplek' },
+            { id:'crm', label:'CRM & Klant' }
+        ];
+
+        let TOOLS = [
+            { id:'chatgpt', cat:'conversatie', icon:'forum', name:'ChatGPT', def:['schrijven','brainstorm','research','samenvatten','vertalen','analyse','code'] },
+            { id:'claude', cat:'conversatie', icon:'psychology', name:'Claude', def:['schrijven','samenvatten','brainstorm','research','vertalen','analyse','code'] },
+            { id:'gemini', cat:'conversatie', icon:'auto_awesome', name:'Gemini', def:['schrijven','samenvatten','vertalen','brainstorm','research','analyse','code','beeld'] },
+            { id:'copilot', cat:'conversatie', icon:'window', name:'Microsoft Copilot', def:['schrijven','samenvatten','brainstorm','research','vertalen','analyse','code','beeld'] },
+            { id:'notebooklm', cat:'conversatie', icon:'menu_book', name:'NotebookLM', def:['schrijven','samenvatten','brainstorm','research','analyse','presentatie'] },
+            { id:'perplexity', cat:'conversatie', icon:'travel_explore', name:'Perplexity', def:['research','samenvatten'] },
+            { id:'deepseek', cat:'conversatie', icon:'search', name:'DeepSeek', def:['schrijven','samenvatten','brainstorm','research','vertalen','analyse','code'] },
+            { id:'mistral', cat:'conversatie', icon:'air', name:'Mistral Le Chat', def:['schrijven','samenvatten','brainstorm','research','vertalen','analyse','code'] },
+            { id:'perplexity_computer', cat:'agentic', icon:'computer', name:'Perplexity Computer', def:['research','analyse','automatisering','workflow','systemen','taken_auto'] },
+            { id:'claude_cowork', cat:'agentic', icon:'smart_toy', name:'Claude Cowork', def:['schrijven','samenvatten','research','analyse','code','automatisering','workflow','systemen','taken_auto'] },
+            { id:'grammarly', cat:'schrijven', icon:'spellcheck', name:'Grammarly', def:['schrijven','samenvatten','vertalen'] },
+            { id:'jasper', cat:'schrijven', icon:'edit_note', name:'Jasper', def:['schrijven','brainstorm','klant'] },
+            { id:'copyai', cat:'schrijven', icon:'content_copy', name:'Copy.ai', def:['schrijven','brainstorm','klant'] },
+            { id:'notion', cat:'schrijven', icon:'book', name:'Notion AI', def:['schrijven','samenvatten','brainstorm'] },
+            { id:'gamma', cat:'presentaties', icon:'slideshow', name:'Gamma', def:['presentatie','schrijven','brainstorm'] },
+            { id:'canva', cat:'presentaties', icon:'palette', name:'Canva AI', def:['presentatie','beeld'] },
+            { id:'stitch', cat:'presentaties', icon:'texture', name:'Google Stitch', def:['presentatie','beeld'] },
+            { id:'firefly', cat:'presentaties', icon:'brush', name:'Adobe Firefly', def:['beeld','presentatie'] },
+            { id:'midjourney', cat:'beeld', icon:'image_search', name:'Midjourney', def:['beeld'] },
+            { id:'dalle', cat:'beeld', icon:'imagesmode', name:'DALL·E', def:['beeld'] },
+            { id:'runway', cat:'beeld', icon:'videocam', name:'Runway', def:['video','beeld'] },
+            { id:'synthesia', cat:'beeld', icon:'personal_video', name:'Synthesia', def:['video','klant'] },
+            { id:'nanobanana', cat:'beeld', icon:'nutrition', name:'Nano Banana Pro', def:['beeld','video'] },
+            { id:'elevenlabs', cat:'audio', icon:'record_voice_over', name:'ElevenLabs', def:['audio'] },
+            { id:'murf', cat:'audio', icon:'speaker', name:'Murf AI', def:['audio'] },
+            { id:'otter', cat:'notulen', icon:'mic', name:'Otter.ai', def:['samenvatten','notulen'] },
+            { id:'fireflies', cat:'notulen', icon:'graphic_eq', name:'Fireflies.ai', def:['samenvatten','notulen'] },
+            { id:'tldv', cat:'notulen', icon:'fast_forward', name:'tl;dv', def:['samenvatten','notulen','video'] },
+            { id:'fathom', cat:'notulen', icon:'water', name:'Fathom', def:['samenvatten','notulen'] },
+            { id:'tactiq', cat:'notulen', icon:'push_pin', name:'Tactiq', def:['samenvatten','notulen'] },
+            { id:'jamie', cat:'notulen', icon:'headphones', name:'Jamie', def:['samenvatten','notulen'] },
+            { id:'github_copilot', cat:'code', icon:'code_blocks', name:'GitHub Copilot', def:['code'] },
+            { id:'cursor', cat:'code', icon:'terminal', name:'Cursor', def:['code'] },
+            { id:'claude_code', cat:'code', icon:'developer_mode', name:'Claude Code', def:['code'] },
+            { id:'tabnine', cat:'code', icon:'integration_instructions', name:'Tabnine', def:['code'] },
+            { id:'julius', cat:'data', icon:'query_stats', name:'Julius AI', def:['analyse'] },
+            { id:'akkio', cat:'data', icon:'calculate', name:'Akkio', def:['analyse'] },
+            { id:'n8n', cat:'data', icon:'account_tree', name:'n8n', def:['automatisering'] },
+            { id:'make', cat:'data', icon:'settings', name:'Make', def:['automatisering'] },
+            { id:'zapier', cat:'data', icon:'bolt', name:'Zapier AI', def:['automatisering'] },
+            { id:'m365', cat:'embedded', icon:'work', name:'M365 Copilot', def:['schrijven','samenvatten','analyse','notulen'] },
+            { id:'gworkspace', cat:'embedded', icon:'folder_shared', name:'Google Workspace AI', def:['schrijven','samenvatten','analyse','research'] },
+            { id:'sfeinstein', cat:'embedded', icon:'cloud', name:'Salesforce Einstein', def:['klant','analyse','automatisering'] },
+            { id:'hubspotai', cat:'embedded', icon:'hub', name:'HubSpot AI', def:['klant','analyse','automatisering'] },
+            { id:'hubspot', cat:'crm', icon:'hub', name:'HubSpot', def:['klant','analyse','hr'] },
+            { id:'salesforce', cat:'crm', icon:'cloud', name:'Salesforce', def:['klant','analyse','hr'] },
+            { id:'pipedrive', cat:'crm', icon:'timeline', name:'Pipedrive AI', def:['klant','analyse'] },
+            { id:'monday', cat:'crm', icon:'calendar_month', name:'monday.com AI', def:['automatisering','analyse','hr'] }
+        ];
+
+        let TOEP = [
+            { id:'schrijven', icon:'edit', label:'Teksten schrijven' },
+            { id:'samenvatten', icon:'short_text', label:'Samenvatten & redigeren' },
+            { id:'brainstorm', icon:'lightbulb', label:'Brainstormen' },
+            { id:'research', icon:'travel_explore', label:'Informatie opzoeken' },
+            { id:'vertalen', icon:'translate', label:'Vertalen' },
+            { id:'klant', icon:'support_agent', label:'Klantenservice' },
+            { id:'analyse', icon:'analytics', label:'Data analyseren' },
+            { id:'code', icon:'data_object', label:'Code schrijven' },
+            { id:'beeld', icon:'wallpaper', label:'Afbeeldingen genereren' },
+            { id:'presentatie', icon:'present_to_all', label:'Presentaties & design' },
+            { id:'automatisering', icon:'smart_toy', label:'Automatisering' },
+            { id:'hr', icon:'group', label:'HR & evaluatie' },
+            { id:'juridisch', icon:'gavel', label:'Financieel & juridisch' },
+            { id:'audio', icon:'volume_up', label:'Audio genereren' },
+            { id:'video', icon:'movie', label:'Video genereren' },
+            { id:'notulen', icon:'mic', label:'Vergaderingen notuleren' },
+            { id:'workflow', icon:'route', label:'Workflow uitvoeren' },
+            { id:'systemen', icon:'hub', label:'Systemen aansturen' },
+            { id:'taken_auto', icon:'task_alt', label:'Taken automatisch afhandelen' }
+        ];
+
+        let CODE_TOEP = [
+            { id:'intern', icon:'apartment', label:'Intern gebruik', help:'Voor interne dashboards, scripts, automatisering of developer-tooling.' },
+            { id:'klantgericht', icon:'storefront', label:'Klantgerichte toepassing', help:'Voor software waar externe gebruikers direct mee werken, zoals portalen, apps of websites.' },
+            { id:'beslisondersteuning', icon:'analytics', label:'Beslisondersteuning', help:'Voor code die helpt bij planning, voorspellingen of analyses als input voor een menselijke afweging.' },
+            { id:'personenbesluit', icon:'group', label:'Besluiten over personen', help:'Voor recruitment, personeelsbeheer of software die profielen opstelt voor individuele trajecten.' },
+            { id:'finjur', icon:'gavel', label:'Financieel & juridisch', help:'Voor contractverwerking, premieberekeningen, risico-inschattingen of financiële validatie.' },
+            { id:'kritiek', icon:'shield_lock', label:'Kritieke systemen', help:'Voor software in zorg, logistiek, energie of primaire veiligheidsprocessen.' },
+            { id:'onbekend', icon:'help', label:'Nog niet duidelijk', help:'Voor experimenten of projecten waarvan de uiteindelijke bestemming nog in verkenning is.' }
+        ];
+
+        let activeCat = 'conversatie';
+        let ws = {};
+        let currentModalId = null;
+        let currentModalOptions = [];
+
+        let CATEGORY_GUIDANCE = {
+            code: {
+                title: 'Waar wordt de software voor gebruikt?',
+                text: 'Deze tools helpen bij het schrijven van code. Het risico zit niet in de tool zelf, maar in wat je ermee bouwt. Kies de categorie die het beste past bij de uiteindelijke toepassing.'
+            },
+            agentic: {
+                title: 'Voert de tool ook acties uit?',
+                text: 'Bij agentic tools is niet alleen de output relevant, maar ook of de tool zelfstandig stappen uitvoert of andere systemen aanstuurt.'
+            }
+        };
+
+        let TOOL_OPTION_OVERRIDES = {
+            chatgpt: ['schrijven','brainstorm','research','samenvatten','vertalen','analyse','code'],
+            claude: ['schrijven','samenvatten','brainstorm','research','vertalen','analyse','code'],
+            gemini: ['schrijven','samenvatten','vertalen','brainstorm','research','analyse','code','beeld'],
+            copilot: ['schrijven','samenvatten','brainstorm','research','vertalen','analyse','code','beeld'],
+            notebooklm: ['schrijven','samenvatten','brainstorm','research','analyse','presentatie'],
+            perplexity: ['research','samenvatten'],
+            deepseek: ['schrijven','samenvatten','brainstorm','research','vertalen','analyse','code'],
+            mistral: ['schrijven','samenvatten','brainstorm','research','vertalen','analyse','code'],
+            perplexity_computer: ['research','analyse','automatisering','workflow','systemen','taken_auto'],
+            claude_cowork: ['schrijven','samenvatten','research','analyse','code','automatisering','workflow','systemen','taken_auto'],
+            grammarly: ['brainstorm','klant','research','samenvatten','schrijven','vertalen'],
+            jasper: ['automatisering','brainstorm','klant','research','samenvatten','schrijven','vertalen'],
+            copyai: ['automatisering','brainstorm','klant','research','samenvatten','schrijven','vertalen'],
+            notion: ['automatisering','brainstorm','notulen','research','samenvatten','schrijven'],
+            gamma: ['beeld','brainstorm','presentatie','samenvatten'],
+            canva: ['beeld','brainstorm','presentatie','samenvatten','video'],
+            stitch: ['beeld','brainstorm','presentatie'],
+            firefly: ['audio','beeld','brainstorm','presentatie','samenvatten','video'],
+            midjourney: ['brainstorm','beeld','presentatie'],
+            dalle: ['brainstorm','beeld','presentatie'],
+            runway: ['beeld','presentatie','juridisch','video'],
+            synthesia: ['klant','beeld','presentatie','hr','video'],
+            nanobanana: ['beeld','video'],
+            elevenlabs: ['klant','presentatie','hr','audio','video'],
+            murf: ['klant','presentatie','audio','video'],
+            otter: ['samenvatten','brainstorm','research','klant','analyse','automatisering','hr','juridisch','notulen'],
+            fireflies: ['samenvatten','brainstorm','research','klant','analyse','automatisering','hr','juridisch','notulen'],
+            tldv: ['samenvatten','brainstorm','research','vertalen','klant','analyse','presentatie','automatisering','hr','juridisch','video','notulen'],
+            fathom: ['samenvatten','brainstorm','research','klant','analyse','automatisering','hr','juridisch','notulen'],
+            tactiq: ['samenvatten','brainstorm','research','klant','analyse','automatisering','hr','juridisch','notulen'],
+            jamie: ['samenvatten','brainstorm','research','klant','analyse','automatisering','hr','juridisch','notulen'],
+            github_copilot: ['intern','klantgericht','beslisondersteuning','personenbesluit','finjur','kritiek','onbekend'],
+            cursor: ['intern','klantgericht','beslisondersteuning','personenbesluit','finjur','kritiek','onbekend'],
+            claude_code: ['intern','klantgericht','beslisondersteuning','personenbesluit','finjur','kritiek','onbekend'],
+            tabnine: ['intern','klantgericht','beslisondersteuning','personenbesluit','finjur','kritiek','onbekend'],
+            julius: ['analyse','automatisering','code','research','samenvatten'],
+            akkio: ['analyse','automatisering','research'],
+            n8n: ['analyse','audio','automatisering','beeld','brainstorm','code','klant','research','samenvatten','schrijven','vertalen','video'],
+            make: ['analyse','audio','automatisering','beeld','brainstorm','code','klant','research','samenvatten','schrijven','vertalen','video'],
+            zapier: ['analyse','audio','automatisering','beeld','brainstorm','code','klant','research','samenvatten','schrijven','vertalen','video'],
+            m365: ['analyse','audio','automatisering','beeld','brainstorm','code','hr','juridisch','klant','notulen','presentatie','research','samenvatten','schrijven','vertalen','video'],
+            gworkspace: ['analyse','audio','automatisering','beeld','brainstorm','hr','juridisch','klant','notulen','presentatie','research','samenvatten','schrijven','vertalen','video'],
+            sfeinstein: ['analyse','audio','automatisering','brainstorm','code','hr','klant','notulen','research','samenvatten','schrijven'],
+            hubspotai: ['analyse','automatisering','klant'],
+            hubspot: ['analyse','automatisering','brainstorm','klant','notulen','research','samenvatten','schrijven','vertalen'],
+            salesforce: ['analyse','automatisering','brainstorm','hr','klant','notulen','research','samenvatten','schrijven'],
+            pipedrive: ['analyse','automatisering','hr'],
+            monday: ['analyse','automatisering','brainstorm','hr','notulen','samenvatten','schrijven']
+        };
+
+        function renderTabs() {
+            const tabs = document.getElementById('tabs');
+            tabs.innerHTML = '';
+            CATEGORY_TABS.forEach((tab, index) => {
+                const btn = document.createElement('button');
+                btn.className = `tab-btn ${tab.id === activeCat || (!CATEGORY_TABS.some(x => x.id === activeCat) && index === 0) ? 'active' : ''}`;
+                btn.dataset.cat = tab.id;
+                btn.textContent = tab.label;
+                tabs.appendChild(btn);
+            });
+        }
+
+        function mapJsonToolsData(jsonData) {
+            const useCaseMeta = new Map((jsonData.use_cases || []).map(item => [item.code, item]));
+            const contextMeta = new Map((jsonData.contexts || []).map(item => [item.code, item]));
+            const mappingByTool = new Map((jsonData.toolpicker_mapping || []).map(item => [item.tool_code, item]));
+
+            CATEGORY_TABS = (jsonData.categories || [])
+                .slice()
+                .sort((a, b) => (a.order || 0) - (b.order || 0))
+                .map(category => ({
+                    id: CATEGORY_CODE_MAP[category.code] || category.code,
+                    label: category.label
+                }));
+
+            TOEP = (jsonData.use_cases || [])
+                .slice()
+                .sort((a, b) => (a.order || 0) - (b.order || 0))
+                .map(useCase => ({
+                    id: USE_CASE_CODE_MAP[useCase.code] || useCase.code,
+                    icon: useCase.icon || 'category',
+                    label: useCase.label,
+                    help: useCase.description || ''
+                }));
+
+            CODE_TOEP = (jsonData.contexts || [])
+                .filter(context => [
+                    'intern_gebruik',
+                    'klantgerichte_toepassing',
+                    'beslisondersteuning',
+                    'besluiten_over_personen',
+                    'financieel_juridisch',
+                    'kritieke_systemen',
+                    'nog_niet_duidelijk'
+                ].includes(context.code))
+                .slice()
+                .sort((a, b) => (a.order || 0) - (b.order || 0))
+                .map(context => ({
+                    id: CONTEXT_CODE_MAP[context.code] || context.code,
+                    icon: {
+                        intern_gebruik: 'apartment',
+                        klantgerichte_toepassing: 'storefront',
+                        beslisondersteuning: 'analytics',
+                        besluiten_over_personen: 'group',
+                        financieel_juridisch: 'gavel',
+                        kritieke_systemen: 'shield_lock',
+                        nog_niet_duidelijk: 'help'
+                    }[context.code] || 'category',
+                    label: context.label,
+                    help: context.description || ''
+                }));
+
+            TOOLS = (jsonData.tools || []).map(tool => {
+                const mappedId = TOOL_CODE_MAP[tool.code] || tool.code;
+                const mapping = mappingByTool.get(tool.code);
+                const fallbackDefs = (mapping?.use_case_codes || [])
+                    .map(code => USE_CASE_CODE_MAP[code] || code)
+                    .filter(Boolean);
+                return {
+                    id: mappedId,
+                    cat: CATEGORY_CODE_MAP[tool.category_code] || tool.category_code,
+                    icon: tool.icon || 'build',
+                    name: tool.label,
+                    def: fallbackDefs
+                };
+            });
+
+            TOOL_OPTION_OVERRIDES = {};
+            (jsonData.toolpicker_mapping || []).forEach(mapping => {
+                const toolId = TOOL_CODE_MAP[mapping.tool_code] || mapping.tool_code;
+                const targetTool = TOOLS.find(tool => tool.id === toolId);
+                if (!targetTool) return;
+                const isCodeTool = targetTool.cat === 'code';
+                const sourceCodes = isCodeTool ? (mapping.context_codes || []) : (mapping.use_case_codes || []);
+                const normalized = sourceCodes
+                    .map(code => isCodeTool ? (CONTEXT_CODE_MAP[code] || code) : (USE_CASE_CODE_MAP[code] || code))
+                    .filter(Boolean);
+                TOOL_OPTION_OVERRIDES[toolId] = normalized;
+            });
+        }
+
+        async function loadPickerData() {
+            try {
+                const [categoriesRes, toolsRes, useCasesRes, contextsRes, mappingRes] = await Promise.all([
+                    fetch(`${JSON_BASE_PATH}/categories.json`),
+                    fetch(`${JSON_BASE_PATH}/tools.json`),
+                    fetch(`${JSON_BASE_PATH}/use_cases.json`),
+                    fetch(`${JSON_BASE_PATH}/contexts.json`),
+                    fetch(`${JSON_BASE_PATH}/toolpicker_mapping.json`)
+                ]);
+                if (![categoriesRes, toolsRes, useCasesRes, contextsRes, mappingRes].every(res => res.ok)) {
+                    throw new Error('JSON-bestanden konden niet geladen worden.');
+                }
+                const [categories, tools, use_cases, contexts, toolpicker_mapping] = await Promise.all([
+                    categoriesRes.json(),
+                    toolsRes.json(),
+                    useCasesRes.json(),
+                    contextsRes.json(),
+                    mappingRes.json()
+                ]);
+                mapJsonToolsData({
+                    categories: categories.categories || [],
+                    tools: tools.tools || [],
+                    use_cases: use_cases.use_cases || [],
+                    contexts: contexts.contexts || [],
+                    toolpicker_mapping: toolpicker_mapping.toolpicker_mapping || []
+                });
+            } catch (error) {
+                console.warn('JSON-laden niet beschikbaar; fallback-configuratie blijft actief.', error);
+            }
+        }
+
+        function getToolOptionIds(tool) {
+            return TOOL_OPTION_OVERRIDES[tool.id] || tool.def || [];
+        }
+
+        function getToolOptions(tool) {
+            const baseOptions = tool.cat === 'code' ? CODE_TOEP : TOEP;
+            const optionMap = new Map(baseOptions.map(option => [option.id, option]));
+            const optionIds = getToolOptionIds(tool);
+            if (!optionIds.length) return baseOptions;
+            return optionIds.map(id => optionMap.get(id)).filter(Boolean);
+        }
+
+        // Simple Icons slugs (fallback naar Material Symbol blijft actief)
+        const SIMPLE_ICON_SLUGS = {
+            chatgpt: 'openai',
+            claude: 'anthropic',
+            gemini: 'googlegemini',
+            copilot: 'microsoftcopilot',
+            notebooklm: 'google',
+            perplexity: 'perplexity',
+            deepseek: 'deepseek',
+            mistral: 'mistralai',
+            grammarly: 'grammarly',
+            jasper: 'jasper',
+            copyai: 'copyai',
+            notion: 'notion',
+            gamma: 'gamma',
+            canva: 'canva',
+            stitch: 'google',
+            firefly: 'adobe',
+            midjourney: 'midjourney',
+            dalle: 'openai',
+            sora: 'openai',
+            runway: 'runway',
+            synthesia: 'synthesia',
+            nanobanana: 'bananapi',
+            elevenlabs: 'elevenlabs',
+            murf: 'murf',
+            otter: 'otter',
+            fireflies: 'firefox',
+            github_copilot: 'githubcopilot',
+            cursor: 'cursor',
+            claude_code: 'anthropic',
+            tabnine: 'tabnine',
+            n8n: 'n8n',
+            make: 'make',
+            zapier: 'zapier',
+            m365: 'microsoftoffice',
+            gworkspace: 'googleworkspace',
+            sfeinstein: 'salesforce',
+            hubspotai: 'hubspot',
+            hubspot: 'hubspot',
+            salesforce: 'salesforce',
+            pipedrive: 'pipedrive',
+            monday: 'mondaydotcom'
+        };
+
+        // Merkkleuren voor Simple Icons (hex zonder #)
+        const SIMPLE_ICON_COLORS = {
+            openai: '10a37f',
+            anthropic: 'd4a373',
+            googlegemini: '8e75ff',
+            microsoftcopilot: '4f8cff',
+            perplexity: '1fb8cd',
+            deepseek: '1e3a8a',
+            mistralai: 'ff7000',
+            grammarly: '15c39a',
+            jasper: 'ff6b35',
+            copyai: '5b6cff',
+            notion: '4f46e5',
+            gamma: '6e56cf',
+            canva: '00c4cc',
+            google: '4285f4',
+            adobe: 'ff0000',
+            midjourney: '2563eb',
+            runway: 'f43f5e',
+            synthesia: '635bff',
+            elevenlabs: '7c3aed',
+            murf: '5b5bff',
+            otter: '1f8fff',
+            firefox: 'ff7139',
+            githubcopilot: '8b5cf6',
+            cursor: '4f46e5',
+            tabnine: '5c6cff',
+            julia: '1e3a8a',
+            databricks: 'ff3621',
+            n8n: 'ea4b71',
+            make: '6d5bd0',
+            zapier: 'ff4f00',
+            microsoftoffice: 'd83b01',
+            googleworkspace: '4285f4',
+            googlemeet: '0f9d58',
+            fathom: '06b6d4',
+            salesforce: '00a1e0',
+            hubspot: 'ff7a59',
+            pipedrive: '1f8f63',
+            mondaydotcom: 'ff3d57',
+            bananapi: 'f4c430'
+        };
+
+        function toolIconHTML(tool, classes) {
+            if (tool.id === 'nanobanana') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;font-size:18px;line-height:1;">🍌</span>`;
+            }
+            if (tool.id === 'm365') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><defs><linearGradient id="m365a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00A4EF"/><stop offset="100%" stop-color="#0078D4"/></linearGradient><linearGradient id="m365b" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#F25022"/><stop offset="100%" stop-color="#FF8C00"/></linearGradient><linearGradient id="m365c" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7FBA00"/><stop offset="100%" stop-color="#00A300"/></linearGradient><linearGradient id="m365d" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#8E44AD"/><stop offset="100%" stop-color="#C239B3"/></linearGradient></defs><path fill="url(#m365a)" d="M4 7.2C4 5.43 5.43 4 7.2 4h5.1c.78 0 1.42.64 1.42 1.42v2.66H7.2A3.2 3.2 0 0 0 4 11.28z"/><path fill="url(#m365c)" d="M4 11.28A3.2 3.2 0 0 1 7.2 8.08h6.52v4.52H7.2A3.2 3.2 0 0 1 4 9.4z" opacity=".9"/><path fill="url(#m365b)" d="M4 12.6h9.72v5.98c0 .78-.64 1.42-1.42 1.42H7.2A3.2 3.2 0 0 1 4 16.8z"/><path fill="url(#m365d)" d="M13.72 8.08h3.08A3.2 3.2 0 0 1 20 11.28v5.52A3.2 3.2 0 0 1 16.8 20h-3.08z"/></svg></span>`;
+            }
+            if (tool.id === 'copilot') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;transform:scale(1.28);transform-origin:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><defs><linearGradient id="copiA" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#2563eb"/></linearGradient><linearGradient id="copiB" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#f97316"/><stop offset="100%" stop-color="#fb7185"/></linearGradient><linearGradient id="copiC" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#eab308"/><stop offset="100%" stop-color="#22c55e"/></linearGradient><linearGradient id="copiD" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#a855f7"/><stop offset="100%" stop-color="#ec4899"/></linearGradient></defs><path d="M4.2 8.4A4.2 4.2 0 0 1 8.4 4.2h6.2L13 11H4.2z" fill="url(#copiA)"/><path d="M4.2 11H13v7.2H8.4A4.2 4.2 0 0 1 4.2 14z" fill="url(#copiC)"/><path d="M13 11l1.6-6.8h1A4.2 4.2 0 0 1 19.8 8.4V11z" fill="url(#copiA)" opacity=".95"/><path d="M13 11h6.8V14a4.2 4.2 0 0 1-4.2 4.2h-1z" fill="url(#copiD)"/><path d="M13 11v7.2l-2.2 1.6h2.7L16 11z" fill="#fff" opacity=".95"/><path d="M10.8 19.8 13 18.2V11L8.2 14.4v1.2a4.2 4.2 0 0 0 2.6 4.2z" fill="url(#copiB)"/></svg></span>`;
+            }
+            if (tool.id === 'gemini') {
+                const fallbackGemini = `<span class=&quot;material-symbols-outlined ${classes}&quot;>auto_awesome</span>`;
+                return `<img src="https://cdn.simpleicons.org/googlegemini/8e75ff" alt="${tool.name} logo" class="${classes} object-contain" style="transform:scale(1.28);transform-origin:center;" loading="lazy" onerror="this.onerror=null;this.outerHTML='${fallbackGemini}';">`;
+            }
+            if (tool.id === 'jasper') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><defs><linearGradient id="jaspG" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#ec4899"/><stop offset="50%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#22d3ee"/></linearGradient></defs><path d="M12 3.2c-4.9 0-8.8 3.9-8.8 8.8s3.9 8.8 8.8 8.8 8.8-3.9 8.8-8.8S16.9 3.2 12 3.2z" fill="none" stroke="url(#jaspG)" stroke-width="3.2" stroke-linecap="round"/><path d="M8.8 13.3c1 .9 2 .9 3.2 0 1.2.9 2.2.9 3.2 0" fill="none" stroke="#111827" stroke-width="1.6" stroke-linecap="round"/></svg></span>`;
+            }
+            if (tool.id === 'gamma') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;transform:scale(1.22);transform-origin:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><defs><linearGradient id="gammaBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#172a68"/><stop offset="100%" stop-color="#3f5bd8"/></linearGradient></defs><rect x="2.5" y="2.5" width="19" height="19" rx="2.8" fill="url(#gammaBg)"/><path d="M12.8 6.3c2 0 3.8.6 5 1.8l-1.7 1.6c-.8-.8-2-1.2-3.3-1.2-2.3 0-4 1.6-4 3.7s1.7 3.7 4 3.7c1.8 0 3.1-.8 3.5-2.1h-3.8v-2.1h6.2c.1.4.1.8.1 1.2 0 3.2-2.4 5.4-6 5.4-3.6 0-6.3-2.6-6.3-6.1s2.7-6 6.3-6z" fill="#fff"/></svg></span>`;
+            }
+            if (tool.id === 'gworkspace') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><rect x="3" y="3" width="18" height="18" rx="4" fill="#fff"/><path d="M3 7a4 4 0 0 1 4-4h5v7H3z" fill="#EA4335"/><path d="M12 3h5a4 4 0 0 1 4 4v5h-9z" fill="#FBBC05"/><path d="M12 12h9v5a4 4 0 0 1-4 4h-5z" fill="#34A853"/><path d="M3 12h9v9H7a4 4 0 0 1-4-4z" fill="#4285F4"/></svg></span>`;
+            }
+            if (tool.id === 'salesforce' || tool.id === 'sfeinstein') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><path fill="#38bdf8" d="M7.5 18.5a4.5 4.5 0 1 1 .3-8.99A5.5 5.5 0 0 1 18.4 8a4.1 4.1 0 0 1 .1 8.2H7.5z"/><path fill="#bae6fd" d="M8.2 17.3a3.2 3.2 0 0 1 .2-6.39 4.2 4.2 0 0 1 8.1-1.1 3.1 3.1 0 0 1 .1 6.2H8.2z"/></svg></span>`;
+            }
+            if (tool.id === 'dalle') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;transform:scale(1.58);transform-origin:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><defs><linearGradient id="dalleg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2dd4bf"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><path d="M8.5 4.5c3.9 0 7 3.1 7 7s-3.1 7-7 7H7.2V5.7c0-.66.54-1.2 1.2-1.2h.1zm0 2.2h-.1v9.6h.1a4.8 4.8 0 0 0 0-9.6z" fill="url(#dalleg)"/><path d="M5.2 7.2a5.3 5.3 0 0 1 5.3-5.3v2.2a3.1 3.1 0 0 0-3.1 3.1H5.2z" fill="url(#dalleg)" opacity=".85"/></svg></span>`;
+            }
+            if (tool.id === 'synthesia') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><path fill="#3f57d4" d="M4 7.2A3.2 3.2 0 0 1 7.2 4h11.2l-.5 4.2H8.1a1.1 1.1 0 0 0-1.1 1.1v1.4H4z"/><path fill="#3f57d4" d="M20 16.8A3.2 3.2 0 0 1 16.8 20H5.6l.5-4.2h9.8a1.1 1.1 0 0 0 1.1-1.1v-1.4H20z"/></svg></span>`;
+            }
+            if (tool.id === 'runway') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><path fill="#000" d="M7.2 3C4.9 3 3 4.9 3 7.2v9.6C3 19.1 4.9 21 7.2 21H8V3h-.8zm4.1 0v8.5h4.9c.5 0 .9-.4.9-.9V7.2c0-2.3-1.9-4.2-4.2-4.2h-1.6zm0 10.8V21h1.7c1 0 1.8-.3 2.5-.8l-4.2-6.4zm5.9-1.1c-.4.5-.9.9-1.6 1.1l3 4.5c1.5-1 2.4-2.6 2.4-4.4v-1.2h-3.8z"/></svg></span>`;
+            }
+            if (tool.id === 'otter') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><g fill="#1a73e8"><path d="M6.3 7.2a4.8 4.8 0 1 0 0 9.6 4.8 4.8 0 0 0 0-9.6zm0 2.6a2.2 2.2 0 1 1 0 4.4 2.2 2.2 0 0 1 0-4.4z"/><rect x="11.1" y="7.2" width="2.4" height="9.6" rx="1.2"/><rect x="14.7" y="7.2" width="2.4" height="9.6" rx="1.2"/><rect x="18.4" y="9.4" width="2.6" height="5.2" rx="1.3"/></g></svg></span>`;
+            }
+            if (tool.id === 'pipedrive') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><rect x="2.5" y="2.5" width="19" height="19" rx="2.2" fill="#0a7d3b"/><path fill="#fff" d="M8.2 6.5h4.2a4.2 4.2 0 1 1 0 8.4h-1.7v3.6H8.2V6.5zm2.5 2.2v4h1.5a2 2 0 1 0 0-4h-1.5z"/></svg></span>`;
+            }
+            if (tool.id === 'canva') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;transform:scale(1.22);transform-origin:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><defs><linearGradient id="canvaG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#14b8c4"/><stop offset="100%" stop-color="#6d28d9"/></linearGradient></defs><circle cx="12" cy="12" r="9.2" fill="url(#canvaG)"/><path d="M14.6 8.2c-.6-.7-1.6-1.2-2.8-1.2-2.4 0-4.1 1.8-4.1 4.3s1.7 4.3 4.1 4.3c1.1 0 2.1-.4 2.8-1.1l-.9-1.2c-.5.5-1.2.8-1.9.8-1.4 0-2.4-1.1-2.4-2.8s1-2.8 2.4-2.8c.8 0 1.5.3 2 .9z" fill="#fff"/></svg></span>`;
+            }
+            if (tool.id === 'julius') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><path fill="#000" d="M13 4h2.5v10.2c0 3-1.8 4.8-4.8 4.8-2.5 0-4.1-1.4-4.7-3.7h2.4c.5 1 1.3 1.5 2.4 1.5 1.6 0 2.2-1 2.2-2.7z"/></svg></span>`;
+            }
+            if (tool.id === 'jamie') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><defs><linearGradient id="jamieG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#312e81"/><stop offset="100%" stop-color="#8b5cf6"/></linearGradient></defs><rect x="2.5" y="2.5" width="19" height="19" rx="2.4" fill="url(#jamieG)"/><path fill="#fff" d="M6.7 8.2h2.8v5.3c0 1.8-1 2.9-2.8 2.9-1.6 0-2.5-.9-2.8-2.2h2.1c.2.3.4.5.8.5.5 0 .7-.3.7-.9z"/><path fill="#fff" d="M12.3 5.7h2.8v8.1c0 1.9-1.1 3-3 3-.8 0-1.5-.2-2-.7l1.1-1.4c.2.2.5.3.8.3.6 0 .9-.4.9-1.2z"/></svg></span>`;
+            }
+            if (tool.id === 'fathom') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><rect x="5.2" y="4.4" width="14.8" height="3.7" rx="1.8" transform="rotate(30 12.6 6.25)" fill="#1ea7e1"/><rect x="6" y="11" width="9.6" height="3.7" rx="1.8" transform="rotate(30 10.8 12.85)" fill="#1ea7e1"/><rect x="5.1" y="12.2" width="3.8" height="7.6" rx="1.9" fill="#7ecce8"/></svg></span>`;
+            }
+            if (tool.id === 'akkio') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;transform:scale(1.24);transform-origin:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><defs><linearGradient id="akk1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c7ddff"/><stop offset="100%" stop-color="#8eb8ff"/></linearGradient><linearGradient id="akk2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#a8c7ff"/><stop offset="100%" stop-color="#5f93f1"/></linearGradient><linearGradient id="akk3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8bb3ff"/><stop offset="100%" stop-color="#3f7de8"/></linearGradient></defs><rect x="9" y="2.8" width="6" height="6" rx="0.9" transform="rotate(45 12 5.8)" fill="url(#akk1)"/><rect x="3.8" y="8" width="6" height="6" rx="0.9" transform="rotate(45 6.8 11)" fill="url(#akk2)"/><rect x="14.2" y="8" width="6" height="6" rx="0.9" transform="rotate(45 17.2 11)" fill="url(#akk2)"/><rect x="9" y="13.2" width="6" height="6" rx="0.9" transform="rotate(45 12 16.2)" fill="url(#akk3)"/></svg></span>`;
+            }
+            if (tool.id === 'tactiq') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><defs><linearGradient id="tactiqG" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#fb7185"/></linearGradient></defs><path d="M5.2 17.8A3.2 3.2 0 0 1 5.4 11.4a4.6 4.6 0 0 1 8.8-.8 3.1 3.1 0 0 1 .4 6.2H5.2z" fill="none" stroke="url(#tactiqG)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="4.1" cy="9.3" r="1.5" fill="none" stroke="url(#tactiqG)" stroke-width="1.6"/><circle cx="12" cy="5" r="1.5" fill="none" stroke="url(#tactiqG)" stroke-width="1.6"/><circle cx="19.2" cy="9.4" r="1.5" fill="none" stroke="url(#tactiqG)" stroke-width="1.6"/></svg></span>`;
+            }
+            if (tool.id === 'copyai') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;transform:scale(1.24);transform-origin:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><circle cx="12" cy="12" r="9" fill="#5b4de6"/><path d="M14.6 8.2c-.6-.7-1.6-1.2-2.8-1.2-2.4 0-4.1 1.8-4.1 4.3s1.7 4.3 4.1 4.3c1.1 0 2.1-.4 2.8-1.1l-.9-1.2c-.5.5-1.2.8-1.9.8-1.4 0-2.4-1.1-2.4-2.8s1-2.8 2.4-2.8c.8 0 1.5.3 2 .9z" fill="#fff"/><rect x="12.2" y="10.9" width="3.6" height="1.8" rx="0.9" fill="#fff"/></svg></span>`;
+            }
+            if (tool.id === 'murf') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><g fill="#facc15"><rect x="4" y="4.2" width="4.2" height="15.6" rx="2.1"/><rect x="9.9" y="8.2" width="4.2" height="7.6" rx="2.1"/><rect x="15.8" y="4.2" width="4.2" height="15.6" rx="2.1"/></g></svg></span>`;
+            }
+            if (tool.id === 'monday') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><rect x="4.2" y="5.8" width="4.2" height="12.4" rx="2.1" transform="rotate(30 6.3 12)" fill="#ff3d57"/><rect x="10.2" y="5.8" width="4.2" height="12.4" rx="2.1" transform="rotate(30 12.3 12)" fill="#ffcc00"/><circle cx="18.5" cy="15.8" r="2.3" fill="#00ca72"/></svg></span>`;
+            }
+            if (tool.id === 'tabnine') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;transform:scale(1.26);transform-origin:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><defs><linearGradient id="tabnineG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d946ef"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient></defs><path d="M12 3.2 19.2 7.3v9.4L12 20.8 4.8 16.7V7.3z" fill="none" stroke="url(#tabnineG)" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.2 8.9v6.2M8.2 8.9l8.5 4.2M8.2 15.1l8.5-4.2" fill="none" stroke="url(#tabnineG)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+            }
+            if (tool.id === 'tldv') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;transform:scale(1.28);transform-origin:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><circle cx="12" cy="12" r="9.2" fill="#2f2df7"/><circle cx="12" cy="8.2" r="1.7" fill="#fff"/><path d="M10.5 12.7a2.3 2.3 0 1 1 2.7 3.6l-1.9 1.4-1.1-1.5 1.7-1.2a.6.6 0 1 0-.8-.9z" fill="#fff"/></svg></span>`;
+            }
+            if (tool.id === 'firefly') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><rect x="2.5" y="2.5" width="19" height="19" rx="2.2" fill="#ea1000"/><path fill="#fff" d="M6.7 7h8.6v2.4H9.2v2.6h5.4v2.3H9.2V17H6.7z"/><rect x="15.4" y="11.4" width="2.1" height="5.6" fill="#fff"/><circle cx="16.45" cy="9.4" r="1" fill="#fff"/><path fill="#fff" d="m17.5 5.6.8 1.6 1.8.2-1.3 1.2.3 1.8-1.6-.9-1.6.9.3-1.8-1.3-1.2 1.8-.2z"/></svg></span>`;
+            }
+            if (tool.id === 'chatgpt') {
+                const fallbackChat = `<span class=&quot;material-symbols-outlined ${classes}&quot;>forum</span>`;
+                return `<img src="https://cdn.simpleicons.org/openai/000000?v=4" alt="${tool.name} logo" class="${classes} object-contain" style="transform:scale(1.14);transform-origin:center;" loading="lazy" onerror="this.onerror=null;this.outerHTML='${fallbackChat}';">`;
+            }
+            if (tool.id === 'midjourney') {
+                return `<span class="${classes}" style="display:inline-flex;align-items:center;justify-content:center;transform:scale(1.38);transform-origin:center;"><svg viewBox="0 0 24 24" width="100%" height="100%" aria-label="${tool.name} logo" role="img"><g fill="none" stroke="#111827" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15.4h16"/><path d="M6.5 15.2 9 5.3c.1-.5.8-.7 1.2-.3 1.8 1.8 2.9 4.3 3.1 7l-6.8 3.2z"/><path d="M13.6 7.2c2.2 1.1 3.9 3.1 4.6 5.5l-3.9 1.8"/><path d="M3.8 17.5c1 .6 1.9.6 2.9 0s1.9-.6 2.9 0 1.9.6 2.9 0 1.9-.6 2.9 0 1.9.6 2.9 0"/></g></svg></span>`;
+            }
+            if (tool.id === 'deepseek') {
+                const fallbackWhale = `<span class=&quot;${classes}&quot; style=&quot;display:inline-flex;align-items:center;justify-content:center;font-size:17px;line-height:1;color:#1e3a8a;&quot;>🐋</span>`;
+                return `<img src="https://cdn.simpleicons.org/deepseek/1e3a8a?v=2" alt="${tool.name} logo" class="${classes} object-contain" loading="lazy" onerror="this.onerror=null;this.outerHTML='${fallbackWhale}';">`;
+            }
+            const slug = SIMPLE_ICON_SLUGS[tool.id];
+            if (!slug) {
+                return `<span class="material-symbols-outlined ${classes}">${tool.icon}</span>`;
+            }
+            const color = SIMPLE_ICON_COLORS[slug] || '40484e';
+            const fallback = `<span class=&quot;material-symbols-outlined ${classes}&quot;>${tool.icon}</span>`;
+            return `<img src="https://cdn.simpleicons.org/${slug}/${color}" alt="${tool.name} logo" class="${classes} object-contain" loading="lazy" onerror="this.onerror=null;this.outerHTML='${fallback}';">`;
+        }
+
+        // ── INIT TABS ──
+        document.getElementById('tabs').addEventListener('click', (e) => {
+            const t = e.target.closest('.tab-btn');
+            if (!t) return;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            t.classList.add('active');
+            activeCat = t.dataset.cat;
+            buildTools(activeCat);
+        });
+
+        async function initPicker() {
+            await loadPickerData();
+            if (!CATEGORY_TABS.some(tab => tab.id === activeCat) && CATEGORY_TABS.length) {
+                activeCat = CATEGORY_TABS[0].id;
+            }
+            renderTabs();
+            buildTools(activeCat);
+            updateWsCount();
+        }
+
+        // ── RENDER LIBRARY ──
+        function buildTools(cat) {
+            const list = document.getElementById('lib-list');
+            list.innerHTML = '';
+            const filtered = TOOLS.filter(t => t.cat === cat);
+            if (filtered.length === 0) {
+                list.innerHTML = '<p class="text-sm text-on-surface-variant italic p-2">Voeg handmatig een tool toe hieronder.</p>';
+                return;
+            }
+            filtered.forEach(t => {
+                const isUsed = !!ws[t.id];
+                const div = document.createElement('div');
+                div.className = `tool-btn ${isUsed ? 'used' : ''}`;
+                div.onclick = () => addToWs(t);
+                div.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="tool-icon-box">
+                            ${toolIconHTML(t, 'w-[18px] h-[18px]')}
+                        </div>
+                        <span class="font-semibold text-on-surface text-[15px]">${t.name}</span>
+                    </div>
+                    <span class="material-symbols-outlined text-outline-variant text-[20px]">
+                        ${isUsed ? 'check_circle' : 'add_circle'}
+                    </span>`;
+                list.appendChild(div);
+            });
+        }
+
+        // ── WORKSPACE ──
+        function addToWs(t) {
+            if (ws[t.id]) return;
+            ws[t.id] = { id:t.id, name:t.name, icon:t.icon, cat:t.cat, sel:[] };
+            renderCard(t.id);
+            updateWsCount();
+            buildTools(activeCat);
+            openModal(t.id);
+        }
+
+        function removeWs(id, event) {
+            event.stopPropagation();
+            delete ws[id];
+            document.getElementById(`ws-${id}`).remove();
+            updateWsCount();
+            buildTools(activeCat);
+        }
+
+        function renderCard(id) {
+            const grid = document.getElementById('ws-grid');
+            let div = document.getElementById(`ws-${id}`);
+            const t = ws[id];
+            if (!div) {
+                div = document.createElement('div');
+                div.id = `ws-${id}`;
+                div.className = 'ws-card';
+                div.onclick = () => openModal(id);
+                grid.appendChild(div);
+            }
+            const count = t.sel.length;
+            const subtitle = count > 0
+                ? `<span class="text-primary font-medium">${count} toepassing${count>1?'en':''}</span>`
+                : `<span class="text-orange-600 font-medium flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">warning</span> Instellen</span>`;
+            div.innerHTML = `
+                <div class="flex items-center overflow-hidden">
+                    <div class="ws-icon-box">
+                        ${toolIconHTML(t, 'w-[18px] h-[18px]')}
+                    </div>
+                    <div class="flex flex-col truncate pr-2">
+                        <span class="font-bold text-[14px] text-on-surface truncate">${t.name}</span>
+                        <span class="text-[12px]">${subtitle}</span>
+                    </div>
+                </div>
+                <button class="ws-del" onclick="removeWs('${id}', event)">
+                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                </button>`;
+        }
+
+        function updateWsCount() {
+            const count = Object.keys(ws).length;
+            document.getElementById('ws-count').textContent = `${count} tool${count!==1?'s':''}`;
+            const empty = document.getElementById('ws-empty');
+            const btn = document.getElementById('btn-next');
+            if (count > 0) { empty.classList.add('hidden'); btn.disabled = false; }
+            else { empty.classList.remove('hidden'); btn.disabled = true; }
+        }
+
+        // ── MODAL ──
+        function openModal(id) {
+            currentModalId = id;
+            const t = ws[id];
+            document.getElementById('mod-title').textContent = t.name;
+            document.getElementById('mod-icon').innerHTML = toolIconHTML(t, 'w-6 h-6');
+            const cont = document.getElementById('mod-pills');
+            cont.innerHTML = '';
+            const options = getToolOptions(t);
+            currentModalOptions = options;
+            options.forEach(toep => {
+                const isOn = t.sel.some(item => item.id === toep.id);
+                const chip = document.createElement('div');
+                chip.className = `chip ${isOn ? 'on' : ''} ${toep.help ? 'has-tooltip' : ''}`;
+                chip.dataset.id = toep.id;
+                chip.onclick = () => chip.classList.toggle('on');
+                chip.innerHTML = `
+                    <span class="material-symbols-outlined chip-icon">${toep.icon}</span>
+                    <span class="chip-label">
+                        <span>${toep.label}</span>
+                        ${toep.help ? `<button type="button" class="chip-info" aria-label="Toelichting bij ${toep.label}" title="${toep.label}">i</button><span class="chip-tooltip" role="tooltip">${toep.help}</span>` : ''}
+                    </span>
+                `;
+                if (toep.help) {
+                    const infoBtn = chip.querySelector('.chip-info');
+                    infoBtn.onclick = (event) => {
+                        event.stopPropagation();
+                        document.querySelectorAll('.chip.tooltip-open').forEach(el => {
+                            if (el !== chip) el.classList.remove('tooltip-open');
+                        });
+                        chip.classList.toggle('tooltip-open');
+                    };
+                    infoBtn.onblur = () => {
+                        setTimeout(() => chip.classList.remove('tooltip-open'), 120);
+                    };
+                }
+                cont.appendChild(chip);
+            });
+            renderGuidance(t.cat);
+            document.getElementById('ai-msg').classList.add('hidden');
+            document.getElementById('btn-magic').disabled = false;
+            document.getElementById('magic-txt').textContent = 'Laat AI toepassingen voorstellen';
+            document.getElementById('modal').classList.add('open');
+        }
+
+        function renderGuidance(category) {
+            const guidance = CATEGORY_GUIDANCE[category];
+            const box = document.getElementById('mod-guidance');
+            if (!guidance) {
+                box.className = 'hidden';
+                box.innerHTML = '';
+                return;
+            }
+            box.className = 'tool-guidance';
+            box.innerHTML = `
+                <div class="tool-guidance__icon">
+                    <span class="material-symbols-outlined text-[21px]">info</span>
+                </div>
+                <div>
+                    <h4 class="tool-guidance__title">${guidance.title}</h4>
+                    <p class="tool-guidance__text">${guidance.text}</p>
+                </div>
+            `;
+        }
+
+        function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+        function saveModal() {
+            const selected = [];
+            document.querySelectorAll('.chip.on').forEach(c => {
+                const match = currentModalOptions.find(t => t.id === c.dataset.id);
+                if (match) selected.push({ id: match.id, label: match.label });
+            });
+            ws[currentModalId].sel = selected;
+            renderCard(currentModalId);
+            closeModal();
+        }
+
+        async function doMagic() {
+            const btn = document.getElementById('btn-magic');
+            const spin = document.getElementById('magic-spin');
+            const txt = document.getElementById('magic-txt');
+            const msg = document.getElementById('ai-msg');
+            btn.disabled = true; spin.classList.remove('hidden'); txt.textContent = 'Analyseren...';
+            msg.classList.remove('hidden'); msg.className = ''; msg.textContent = '';
+            const tOrig = TOOLS.find(x => x.id === currentModalId);
+            const suggs = tOrig ? getToolOptionIds(tOrig) : ['schrijven'];
+            await new Promise(r => setTimeout(r, 600));
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+            suggs.forEach(s_id => {
+                document.querySelector(`.chip[data-id="${s_id}"]`)?.classList.add('on');
+            });
+            msg.innerHTML = `<span class="material-symbols-outlined text-[16px] mr-1">check_circle</span> ${suggs.length} toepassingen voorgesteld`;
+            msg.className = 'flex items-center text-[12px] font-semibold px-3 py-2 rounded-xl mb-4 bg-[#f0fdf4] text-[#15803d] border border-[#bbf7d0]';
+            txt.textContent = 'Suggesties geladen';
+            spin.classList.add('hidden');
+        }
+
+        // ── CUSTOM TOOL ──
+        function addCustom() {
+            const inp = document.getElementById('custom-input');
+            const name = inp.value.trim(); if (!name) return;
+            const id = 'custom_' + Date.now();
+            TOOLS.push({ id, cat:activeCat, icon:'build', name, def:[] });
+            ws[id] = { id, name, icon:'build', cat:activeCat, sel:[] };
+            renderCard(id); updateWsCount();
+            buildTools(activeCat);
+            inp.value = '';
+            openModal(id);
+        }
+
+        function goNext() {
+            const finalData = Object.keys(ws).map(k => {
+                const tool = ws[k];
+                const isCodeTool = tool.cat === 'code';
+                const selections = tool.sel.map(item => ({
+                    code: item.id,
+                    label: item.label,
+                    kind: isCodeTool ? 'context' : 'use_case'
+                }));
+                return {
+                    id: k,
+                    tool_code: k,
+                    name: tool.name,
+                    tool_label: tool.name,
+                    category_code: tool.cat,
+                    icon: tool.icon,
+                    iconHtml: toolIconHTML(tool, 'w-[18px] h-[18px]'),
+                    toepassingen: selections.map(item => item.label),
+                    selection_kind: isCodeTool ? 'context' : 'use_case',
+                    selected_codes: selections.map(item => item.code),
+                    selected_labels: selections.map(item => item.label),
+                    use_case_codes: isCodeTool ? [] : selections.map(item => item.code),
+                    context_codes: isCodeTool ? selections.map(item => item.code) : [],
+                    selections
+                };
+            });
+            sessionStorage.setItem('geselecteerde_tools', JSON.stringify(finalData));
+            window.location.href = 'screen-05-datatype.html';
+        }
+
+        initPicker();
+    </script>
+</body>
+</html>

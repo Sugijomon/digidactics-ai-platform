@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="nl">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Shadow AI Scan - Gebruik en frequentie</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#00658b",
+                        "primary-container": "#00a1da",
+                        "ui-blue-grey": "#6993aa",
+                        "brand-green": "#93c942",
+                        "on-surface": "#181c1e",
+                        "on-surface-variant": "#40484e",
+                        "outline-variant": "#bfc7cf",
+                        "surface-container-high": "#e5e9eb",
+                        "surface-container-low": "#f1f4f6"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; display:inline-block; }
+        .nebula-bg {
+            background: radial-gradient(ellipse at 10% 0%, #c4e7ff 0%, #f7fafc 55%),
+                        radial-gradient(ellipse at 90% 100%, #e5e9eb 0%, transparent 50%);
+        }
+        .nebula-blob { filter: blur(80px); opacity: 0.25; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+        .freq-opt, .exit-opt {
+            display:flex; align-items:center; gap:16px;
+            padding:16px 20px; border-radius:1rem;
+            border:1.5px solid #bfc7cf;
+            background:rgba(255,255,255,.72);
+            cursor:pointer; transition:all .2s ease;
+            margin-bottom: 10px;
+        }
+        .freq-opt:hover, .exit-opt:hover {
+            border-color:#00658b;
+            background:rgba(196,231,255,.2);
+            transform:translateY(-1px);
+        }
+        .radio-ring {
+            width:22px; height:22px; border-radius:50%; flex-shrink:0;
+            border:2px solid #bfc7cf; background: white;
+            display:flex; align-items:center; justify-content:center;
+        }
+        .radio-dot { width:10px; height:10px; border-radius:50%; background:transparent; transition:all .2s ease; }
+        .selected { border-color:#00658b; background:rgba(196,231,255,.38) !important; }
+        .selected .radio-dot { background:#00658b; }
+        .selected .radio-ring { border-color:#00658b; }
+        .exit-reveal { max-height:0; overflow:hidden; transition:all .4s ease; opacity:0; }
+        .exit-reveal.open { max-height:500px; opacity:1; margin-top:20px; }
+
+        .mot-wrap { margin-top: 18px; }
+        .mot-title { font-family:'Manrope',sans-serif; font-weight:800; font-size:1.35rem; line-height:1.25; color:#00658b; margin-bottom:.45rem; }
+        .mot-pill { display:inline-block; font-size:.875rem; color:#40484e; background:#f1f4f6; border:1px solid rgba(191,199,207,.7); border-radius:9999px; padding:6px 12px; margin-bottom:12px; }
+        .mot-grid { display:grid; grid-template-columns:1fr; gap:10px; }
+        .mot-opt {
+            display:flex; align-items:center; gap:14px;
+            padding:14px 16px; border-radius:1rem;
+            border:1.5px solid #bfc7cf; background:rgba(255,255,255,.72);
+            cursor:pointer; transition:all .2s ease;
+        }
+        .mot-opt:hover { border-color:#00658b; background:rgba(196,231,255,.2); transform:translateY(-1px); }
+        .mot-opt.on { border-color:#00658b; background:rgba(196,231,255,.35); }
+        .mot-check {
+            width:20px; height:20px; border-radius:6px; border:2px solid #bfc7cf; background:#fff;
+            flex-shrink:0; position:relative; transition:all .2s ease;
+        }
+        .mot-opt.on .mot-check { border-color:#00658b; }
+        .mot-opt.on .mot-check:after {
+            content:''; position:absolute; left:5px; top:1px; width:6px; height:11px;
+            border:solid #00658b; border-width:0 2px 2px 0; transform:rotate(45deg);
+        }
+        .mot-label { font-size:15px; line-height:1.35; color:#181c1e; }
+        .mot-other-wrap { max-height:0; overflow:hidden; opacity:0; transition:all .25s ease; }
+        .mot-other-wrap.open { max-height:80px; opacity:1; margin-top:8px; }
+        .mot-other-input {
+            width:100%; border:1.5px solid #bfc7cf; border-radius:0.85rem; padding:10px 12px; font-size:14px;
+            color:#181c1e; background:#fff;
+        }
+        .mot-other-input:focus { outline:none; border-color:#00658b; box-shadow:0 0 0 3px rgba(0,101,139,.14); }
+        details > summary { list-style:none; }
+        details > summary::-webkit-details-marker { display:none; }
+        details[open] .chev { transform:rotate(180deg); }
+        .chev { transition:transform .22s; }
+    </style>
+</head>
+<body class="nebula-bg min-h-screen font-body text-on-surface antialiased">
+
+    <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+        <div class="nebula-blob absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full bg-[#7dd0ff]"></div>
+        <div class="nebula-blob absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-[#bae6ff]"></div>
+    </div>
+
+    <div class="max-w-2xl mx-auto px-6">
+        
+        <header class="w-full pt-[30px] pb-4 flex flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shrink-0 shadow-sm">
+                    <span class="material-symbols-outlined text-white text-[32px]">shield_lock</span>
+                </div>
+                <div class="flex flex-col justify-center">
+                    <h1 class="font-headline font-extrabold text-2xl tracking-tight text-on-surface leading-[1.1]">
+                        Shadow AI Scan
+                    </h1>
+                    <p class="text-[13px] font-medium text-ui-blue-grey tracking-wide">
+                        Veilig innoveren met AI
+                    </p>
+                </div>
+            </div>
+            <span class="text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant bg-white/80 backdrop-blur border border-outline-variant/40 px-4 py-1.5 rounded-full shadow-sm whitespace-nowrap">
+                Vertrouwelijk &amp; anoniem
+            </span>
+        </header>
+
+        <div class="w-full mb-6">
+            <div class="flex items-center gap-3">
+                <div class="flex gap-1.5 flex-1">
+                    <div class="h-1.5 flex-1 rounded-full bg-primary"></div>
+                    <div class="h-1.5 flex-1 rounded-full bg-primary"></div>
+                    <div class="h-1.5 flex-1 rounded-full bg-surface-container-high"></div>
+                    <div class="h-1.5 flex-1 rounded-full bg-surface-container-high"></div>
+                    <div class="h-1.5 flex-1 rounded-full bg-surface-container-high"></div>
+                </div>
+                <span class="text-xs font-label text-on-surface-variant whitespace-nowrap">Stap 2 van 5</span>
+            </div>
+        </div>
+
+        <main class="pb-24">
+            <div class="glass-card rounded-[2rem] border border-white/70 shadow-[0_8px_40px_rgba(0,101,139,0.06)] p-8 md:p-10">
+                
+                <div class="mb-8">
+                    <span class="inline-flex items-center gap-1.5 text-xs font-label font-semibold text-primary/70 uppercase tracking-widest mb-3">
+                        <span class="material-symbols-outlined text-[15px]">update</span>
+                        Gebruik & frequentie
+                    </span>
+                    <h2 class="font-headline font-extrabold text-[1.35rem] text-primary leading-[1.25]">
+                        Hoe vaak gebruik je AI-tools voor je werk?
+                    </h2>
+
+                    <details class="group bg-surface-container-low border border-outline-variant/30 rounded-[1.25rem] p-3 mt-3 mb-4">
+                        <summary class="flex items-center gap-2 cursor-pointer px-1 py-0.5">
+                            <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm shrink-0">
+                                <span class="material-symbols-outlined text-primary text-[18px]">info</span>
+                            </div>
+                            <span class="text-[13px] font-label font-semibold text-primary flex-1">Wat zijn AI-tools en toepassingen?</span>
+                            <span class="material-symbols-outlined text-primary text-[18px] chev">expand_more</span>
+                        </summary>
+                        <div class="mt-3 pt-3 border-t border-outline-variant/20 text-[13px] text-on-surface-variant leading-relaxed space-y-2">
+                            <p>Onder AI-tools verstaan we slimme software die tekst, afbeeldingen, code of berekeningen voor je kan genereren of verbeteren. Het gaat niet alleen om grote projecten; ook het af en toe herschrijven van een e-mail, het samenvatten van een vergadering of het vertalen van een kort tekstblok via tools als ChatGPT, Gemini of Grammarly telt als AI-gebruik.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="flex flex-col">
+                    <div class="freq-opt" data-value="Dagelijks" onclick="selectFreq(this)">
+                        <div class="radio-ring"><div class="radio-dot"></div></div>
+                        <span class="opt-label">Dagelijks (meerdere keren per dag)</span>
+                    </div>
+                    <div class="freq-opt" data-value="Wekelijks" onclick="selectFreq(this)">
+                        <div class="radio-ring"><div class="radio-dot"></div></div>
+                        <span class="opt-label">Wekelijks (een paar keer per week)</span>
+                    </div>
+                    <div class="freq-opt" data-value="Maandelijks" onclick="selectFreq(this)">
+                        <div class="radio-ring"><div class="radio-dot"></div></div>
+                        <span class="opt-label">Maandelijks (incidenteel)</span>
+                    </div>
+                    <div class="freq-opt" data-value="Nooit" data-exit="true" onclick="selectFreq(this)">
+                        <div class="radio-ring"><div class="radio-dot"></div></div>
+                        <span class="opt-label">Ik gebruik momenteel geen AI-tools</span>
+                    </div>
+                </div>
+<div id="exit-block" class="exit-reveal">
+    <div class="p-3 rounded-2xl bg-primary/5 border border-primary/10">
+        <h3 class="font-headline font-bold text-primary mb-2 text-xs uppercase tracking-wider leading-tight">
+            Wat is de belangrijkste reden?
+        </h3>
+        
+        <div class="grid grid-cols-1 gap-1.5">
+            <div class="exit-opt !py-2.5 !px-4 !mb-0" data-exit="geen_behoefte" onclick="selectExit(this)">
+                <div class="radio-ring !w-4 !h-4"><div class="radio-dot !w-2 !h-2"></div></div>
+                <span class="opt-label text-sm">Ik zie de toegevoegde waarde nog niet</span>
+            </div>
+
+            <div class="exit-opt !py-2.5 !px-4 !mb-0" data-exit="mag_niet" onclick="selectExit(this)">
+                <div class="radio-ring !w-4 !h-4"><div class="radio-dot !w-2 !h-2"></div></div>
+                <span class="opt-label text-sm">Het is expliciet verboden op mijn afdeling</span>
+            </div>
+
+            <div class="exit-opt !py-2.5 !px-4 !mb-0" data-exit="te_complex" onclick="selectExit(this)">
+                <div class="radio-ring !w-4 !h-4"><div class="radio-dot !w-2 !h-2"></div></div>
+                <span class="opt-label text-sm">Ik weet niet hoe ik moet beginnen</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+                <div class="mot-wrap" id="mot-wrap">
+                    <h3 class="mot-title">Waarom gebruik je AI-tools in je werk?</h3>
+                    <p class="mot-pill">Meerdere antwoorden mogelijk.</p>
+
+                    <div class="mot-grid" id="motivatie-chips">
+                        <div class="mot-opt" data-val="tijdswinst" onclick="toggleMot(this)">
+                            <div class="mot-check"></div>
+                            <span class="mot-label">Tijdswinst - Ik krijg mijn taken sneller af.</span>
+                        </div>
+                        <div class="mot-opt" data-val="kwaliteit" onclick="toggleMot(this)">
+                            <div class="mot-check"></div>
+                            <span class="mot-label">Kwaliteitsverbetering - De output is beter, creatiever of foutlozer.</span>
+                        </div>
+                        <div class="mot-opt" data-val="complexe_taken" onclick="toggleMot(this)">
+                            <div class="mot-check"></div>
+                            <span class="mot-label">Complexe taken - Het helpt me bij zaken die ik (vrijwel) niet zelf kan.</span>
+                        </div>
+                        <div class="mot-opt" data-val="inspiratie" onclick="toggleMot(this)">
+                            <div class="mot-check"></div>
+                            <span class="mot-label">Inspiratie &amp; Brainstormen - Het helpt me om over een 'leeg vel' heen te komen.</span>
+                        </div>
+                        <div class="mot-opt" data-val="experimenteren" onclick="toggleMot(this)">
+                            <div class="mot-check"></div>
+                            <span class="mot-label">Experimenteren - Ik wil ontdekken wat de techniek voor mijn rol kan betekenen.</span>
+                        </div>
+                        <div class="mot-opt" data-val="anders_mot" id="mot-anders" onclick="toggleMot(this)">
+                            <div class="mot-check"></div>
+                            <span class="mot-label">Anders...</span>
+                        </div>
+                        <div class="mot-other-wrap" id="mot-other-wrap">
+                            <input type="text" id="mot-other-input" class="mot-other-input" placeholder="Toelichting..." onclick="event.stopPropagation()" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-8 mt-4 border-t border-outline-variant/20">
+                    <button onclick="window.history.back()" class="group inline-flex items-center gap-2 text-on-surface-variant hover:text-primary font-semibold text-sm transition-colors">
+                        <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+                        Vorige
+                    </button>
+                    <button id="btn-next" disabled onclick="goNext()"
+                        class="group inline-flex items-center gap-2 bg-primary hover:bg-[#004c6a] text-white px-8 py-3.5 rounded-full font-headline font-bold text-sm shadow-lg transition-all duration-300 hover:-translate-y-0.5">
+                        Volgende
+                        <span class="material-symbols-outlined text-[20px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let freqSelected = null;
+        let exitSelected = null;
+        let isExitPath = false;
+        let motivatieSelected = new Set();
+
+
+        function toggleMot(el) {
+            el.classList.toggle('on');
+            const val = el.dataset.value || el.dataset.val;
+            if (el.classList.contains('on')) motivatieSelected.add(val);
+            else motivatieSelected.delete(val);
+
+            if (val === 'anders_mot') {
+                document.getElementById('mot-other-wrap').classList.toggle('open', el.classList.contains('on'));
+            }
+            updateNextButton();
+        }
+
+        function updateNextButton() {
+            const hasFreq = !!freqSelected;
+            const hasMot = isExitPath || motivatieSelected.size > 0;
+            const hasExitReason = !isExitPath || !!exitSelected;
+            document.getElementById('btn-next').disabled = !(hasFreq && hasMot && hasExitReason);
+        }
+
+        function selectFreq(el) {
+            document.querySelectorAll('.freq-opt').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
+            freqSelected = el.dataset.value;
+            isExitPath = el.dataset.exit === 'true';
+
+            const block = document.getElementById('exit-block');
+            const motWrap = document.getElementById('mot-wrap');
+            if (isExitPath) {
+                block.classList.add('open');
+                motWrap.classList.add('hidden');
+                updateNextButton();
+            } else {
+                block.classList.remove('open');
+                motWrap.classList.remove('hidden');
+                updateNextButton();
+            }
+        }
+
+        function selectExit(el) {
+            document.querySelectorAll('.exit-opt').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
+            exitSelected = el.dataset.exit;
+            updateNextButton();
+        }
+
+        updateNextButton();
+
+        function goNext() {
+            sessionStorage.setItem('frequentie', freqSelected);
+            sessionStorage.setItem('motivatie', JSON.stringify({
+                keuzes: [...motivatieSelected],
+                anders: (document.getElementById('mot-other-input')?.value || '').trim()
+            }));
+            if (isExitPath) {
+                sessionStorage.setItem('exit_reden', exitSelected);
+                window.location.href = 'screen-08-toekomst.html';
+            } else {
+                window.location.href = 'screen-04-toolpicker-fixed.html';
+            }
+        }
+    </script>
+</body>
+</html>

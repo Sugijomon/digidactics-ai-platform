@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="nl">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Shadow AI Scan - Datatype</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#00658b",
+                        "primary-container": "#00a1da",
+                        "ui-blue-grey": "#6993aa",
+                        "brand-green": "#93c942",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f1f4f6",
+                        "surface-container": "#ebeef0",
+                        "surface-container-high": "#e5e9eb",
+                        "on-surface": "#181c1e",
+                        "on-surface-variant": "#40484e",
+                        "outline-variant": "#bfc7cf"
+                    },
+                    fontFamily: { "headline":["Manrope"],"body":["Inter"],"label":["Inter"] }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; }
+        .nebula-bg {
+            background: radial-gradient(ellipse at 10% 0%, #c4e7ff 0%, #f7fafc 55%),
+                        radial-gradient(ellipse at 90% 100%, #e5e9eb 0%, transparent 50%);
+        }
+        .nebula-blob { filter:blur(80px); opacity:.18; }
+        .glass-card { background:rgba(255,255,255,.85); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }
+
+        /* ── Neutrale kaart — Clean Design ── */
+        .data-opt {
+            display:flex; align-items:flex-start; gap:16px;
+            padding:16px 20px; border-radius:1rem;
+            border:1.5px solid #bfc7cf;
+            background:rgba(255,255,255,.72);
+            cursor:pointer; transition:all .18s; user-select:none;
+        }
+        .data-opt:hover {
+            border-color:#00658b;
+            background:rgba(197,231,255,.2);
+            transform:translateY(-1px);
+        }
+
+        /* Selected states */
+        .data-opt.sel-neutral { border-color:#004c6a; background:rgba(197,231,255,.38); }
+        .data-opt.sel-mid     { border-color:#0369a1; background:rgba(224,242,254,.5); }
+        .data-opt.sel-high    { border-color:#0c4a6e; background:rgba(186,230,253,.48); }
+
+        .data-main { flex:1; }
+        .data-label { font-size:16px; font-weight:400; color:#181c1e; transition:color .18s; display:block; line-height:1.35; }
+        .data-opt.sel-neutral .data-label,
+        .data-opt.sel-mid     .data-label,
+        .data-opt.sel-high    .data-label { color:#004c6a; }
+
+        /* Custom vierkante checkbox (Links gepositioneerd) */
+        .data-check {
+            width:22px; height:22px; border-radius:6px; flex-shrink:0;
+            border:2px solid #bfc7cf; margin-top: -1px;
+            display:flex; align-items:center; justify-content:center;
+            transition:all .18s; background: white;
+        }
+        .data-opt.sel-neutral .data-check,
+        .data-opt.sel-mid     .data-check,
+        .data-opt.sel-high    .data-check { background:#004c6a; border-color:#004c6a; }
+        .data-opt.sel-neutral .data-check::after,
+        .data-opt.sel-mid     .data-check::after,
+        .data-opt.sel-high    .data-check::after {
+            content:''; width:10px; height:6px;
+            border-left:2.5px solid white; border-bottom:2.5px solid white;
+            transform:rotate(-45deg) translate(1px,-1px);
+        }
+
+        /* Post-selection reveal tip */
+        .reveal-tip {
+            display:none; margin-top:8px;
+            padding:10px 12px; border-radius:.75rem;
+            font-size:12px; font-weight:500; line-height:1.5;
+            animation: tipIn .22s ease both;
+        }
+        @keyframes tipIn {
+            from { opacity:0; transform:translateY(-3px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+        .reveal-tip.tip-mid  { background:#e0f2fe; color:#0c4a6e; border:1px solid #bae6fd; }
+        .reveal-tip.tip-high { background:#dbeafe; color:#1e3a5f; border:1px solid #93c5fd; }
+        .data-opt.sel-mid  .reveal-tip.tip-mid  { display:block; }
+        .data-opt.sel-high .reveal-tip.tip-high { display:block; }
+
+        /* Wist-je-dat accordion */
+        details > summary { list-style:none; }
+        details > summary::-webkit-details-marker { display:none; }
+        details[open] .chev { transform:rotate(180deg); }
+        .chev { transition:transform .22s; }
+
+        .anon-wrap { margin-top:10px; margin-bottom:24px; }
+        .anon-opt { display:flex; align-items:center; gap:16px; padding:16px 20px; border-radius:1rem; border:1.5px solid #bfc7cf; background:rgba(255,255,255,.72); cursor:pointer; transition:all .2s ease; margin-bottom:10px; }
+        .anon-opt:last-child { margin-bottom:0; }
+        .anon-opt:hover { border-color:#00658b; background:rgba(197,231,255,.2); transform:translateY(-1px); }
+        .anon-opt.on { border-color:#00658b; background:rgba(197,231,255,.38); }
+        .anon-radio { width:20px; height:20px; border-radius:50%; border:2px solid #bfc7cf; background:#fff; display:flex; align-items:center; justify-content:center; }
+        .anon-radio::after { content:''; width:8px; height:8px; border-radius:50%; background:transparent; }
+        .anon-opt.on .anon-radio { border-color:#00658b; }
+        .anon-opt.on .anon-radio::after { background:#00658b; }
+
+        .aware-wrap { margin-top:8px; margin-bottom:22px; padding:16px; border-radius:1.25rem; background:#f1f4f6; border:1px solid rgba(191,199,207,.55); }
+        .aware-title {
+            font-family:'Manrope',sans-serif; font-weight:800;
+            font-size:1.35rem; line-height:1.25; color:#00658b;
+            margin-bottom:.45rem;
+        }
+        .aware-opt { display:flex; align-items:center; gap:16px; padding:16px 20px; border-radius:1rem; border:1.5px solid #bfc7cf; background:rgba(255,255,255,.72); cursor:pointer; transition:all .2s ease; margin-bottom:10px; }
+        .aware-opt:last-child { margin-bottom:0; }
+        .aware-opt:hover { border-color:#00658b; background:rgba(197,231,255,.2); transform:translateY(-1px); }
+        .aware-opt.on { border-color:#00658b; background:rgba(197,231,255,.38); }
+        .aware-radio {
+            width:20px; height:20px; border-radius:50%; border:2px solid #bfc7cf;
+            background:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;
+        }
+        .aware-radio::after { content:''; width:8px; height:8px; border-radius:50%; background:transparent; }
+        .aware-opt.on .aware-radio { border-color:#00658b; }
+        .aware-opt.on .aware-radio::after { background:#00658b; }
+        .aware-opt span, .anon-opt span { font-size:16px; font-weight:400; line-height:1.35; color:#181c1e; }
+    </style>
+</head>
+<body class="nebula-bg min-h-screen font-body text-on-surface antialiased">
+
+    <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+        <div class="nebula-blob absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full bg-[#7dd0ff]"></div>
+        <div class="nebula-blob absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-[#bae6ff]"></div>
+    </div>
+
+        <header class="w-full pt-[30px] pb-4 flex flex-row items-center justify-between gap-4 max-w-3xl mx-auto px-6">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shrink-0 shadow-sm">
+                <span class="material-symbols-outlined text-white text-[32px]">shield_lock</span>
+            </div>
+            <div class="flex flex-col justify-center">
+                <h1 class="font-headline font-extrabold text-2xl tracking-tight text-on-surface leading-[1.1]">
+                    Shadow AI Scan
+                </h1>
+                <p class="text-[13px] font-medium text-ui-blue-grey tracking-wide">
+                    Veilig innoveren met AI
+                </p>
+            </div>
+        </div>
+        <span class="text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant bg-white/80 backdrop-blur border border-outline-variant/40 px-4 py-1.5 rounded-full shadow-sm whitespace-nowrap">Vertrouwelijk &amp; anoniem</span>
+    </header>
+
+    <div class="max-w-3xl mx-auto px-6 mb-6">
+        <div class="flex items-center gap-3">
+            <div class="flex gap-1.5 flex-1">
+                <div class="h-1.5 flex-1 rounded-full bg-primary"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-primary"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-primary"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-surface-container-high"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-surface-container-high"></div>
+            </div>
+            <span class="text-xs font-label text-on-surface-variant whitespace-nowrap">Stap 3 van 5</span>
+        </div>
+    </div>
+
+    <main class="max-w-3xl mx-auto px-6 pb-24">
+        <div class="glass-card rounded-[2rem] border border-white/70 shadow-[0_8px_40px_rgba(0,101,139,0.08)] p-8 md:p-10">
+
+            <div class="mb-5">
+                <span class="inline-flex items-center gap-1.5 text-xs font-label font-semibold text-primary/70 uppercase tracking-widest mb-3">
+                    <span class="material-symbols-outlined text-[15px]">database</span>
+                    Data &amp; risico
+                </span>
+                <h2 class="font-headline font-extrabold text-[1.35rem] text-primary leading-[1.25] mb-1">
+                    Welk type informatie voer je wel eens in bij AI-tools?
+                </h2>
+                <p class="text-sm text-on-surface-variant mt-2 bg-surface-container-low inline-block px-3 py-1.5 rounded-lg border border-outline-variant/30">
+                    Meerdere antwoorden mogelijk. Kies bij overlappende informatie altijd de <strong>meest gevoelige</strong> categorie.
+                </p>
+            </div>
+
+            <details class="group bg-surface-container-low border border-outline-variant/30 rounded-[1.25rem] p-4 mb-6">
+                <summary class="flex items-center gap-2 cursor-pointer">
+                    <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm shrink-0">
+                        <span class="material-symbols-outlined text-primary text-[18px]">info</span>
+                    </div>
+                    <span class="text-[13px] font-label font-semibold text-primary flex-1">De juiste bescherming voor jouw werk.</span>
+                    <span class="material-symbols-outlined text-primary text-[18px] chev">expand_more</span>
+                </summary>
+                <div class="mt-3 pt-3 border-t border-outline-variant/20 text-[13px] text-on-surface-variant leading-relaxed space-y-2">
+                    <p>Niet alle informatie is hetzelfde. Een concept-mail voor het bedrijfsuitje vraagt om een andere beveiliging dan een strategisch plan met bedrijfsgegevens.</p>
+                </div>
+            </details>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6" id="data-options">
+
+                <div class="data-opt" data-value="publiek" data-risk="neutral" onclick="toggleOpt(this)">
+                    <div class="data-check"></div>
+                    <div class="data-main">
+                        <span class="data-label">Publieke informatie</span>
+                    </div>
+                </div>
+
+                <div class="data-opt" data-value="namen" data-risk="mid" onclick="toggleOpt(this)">
+                    <div class="data-check"></div>
+                    <div class="data-main">
+                        <span class="data-label">Namen van personen</span>
+                    </div>
+                </div>
+
+                <div class="data-opt" data-value="emails" data-risk="mid" onclick="toggleOpt(this)">
+                    <div class="data-check"></div>
+                    <div class="data-main">
+                        <span class="data-label">Interne e-mails</span>
+                    </div>
+                </div>
+
+                <div class="data-opt" data-value="documenten" data-risk="mid" onclick="toggleOpt(this)">
+                    <div class="data-check"></div>
+                    <div class="data-main">
+                        <span class="data-label">Interne documenten</span>
+                    </div>
+                </div>
+
+                <div class="data-opt" data-value="notulen" data-risk="mid" onclick="toggleOpt(this)">
+                    <div class="data-check"></div>
+                    <div class="data-main">
+                        <span class="data-label">Notulen van vergaderingen</span>
+                    </div>
+                </div>
+
+                <div class="data-opt" data-value="strategie" data-risk="mid" onclick="toggleOpt(this)">
+                    <div class="data-check"></div>
+                    <div class="data-main">
+                        <span class="data-label">Broncode & logica</span>
+                    </div>
+                </div>
+
+                <div class="data-opt" data-value="klantdata" data-risk="high" onclick="toggleOpt(this)">
+                    <div class="data-check"></div>
+                    <div class="data-main">
+                        <span class="data-label">Klantdata</span>
+                    </div>
+                </div>
+
+                <div class="data-opt" data-value="financieel" data-risk="high" onclick="toggleOpt(this)">
+                    <div class="data-check"></div>
+                    <div class="data-main">
+                        <span class="data-label">Financiële data</span>
+                    </div>
+                </div>
+
+                <div class="data-opt" data-value="persoonsgegevens" data-risk="high" onclick="toggleOpt(this)">
+                    <div class="data-check"></div>
+                    <div class="data-main">
+                        <span class="data-label">Gevoelige persoonsgegevens</span>
+                    </div>
+                </div>
+
+                <div class="data-opt" data-value="code" data-risk="mid" onclick="toggleOpt(this)">
+                    <div class="data-check"></div>
+                    <div class="data-main">
+                        <span class="data-label">Excel sheets</span>
+                    </div>
+                </div>
+
+                <div class="data-opt" data-value="contracten" data-risk="high" onclick="toggleOpt(this)">
+                    <div class="data-check"></div>
+                    <div class="data-main">
+                        <span class="data-label">Juridische documenten</span>
+                    </div>
+                </div>
+
+                <div class="data-opt" data-value="geen" data-risk="neutral" onclick="toggleOpt(this)">
+                    <div class="data-check"></div>
+                    <div class="data-main">
+                        <span class="data-label">Ik voer dit niet in</span>
+                    </div>
+                </div>
+
+                <div class="data-opt sm:col-span-2" data-value="weet_niet" data-risk="neutral" onclick="toggleOpt(this)">
+                    <div class="data-check"></div>
+                    <div class="data-main">
+                        <span class="data-label">Weet ik niet zeker</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="aware-wrap">
+                <div class="aware-title">Ben je op de hoogte van hoe AI-tools omgaan met de informatie die jij invoert?</div>
+                <div id="awareness-vraag">
+                    <div class="aware-opt" data-val="ja_controle" onclick="selectAwareness(this)"><div class="aware-radio"></div><span>Ja - Ik controleer altijd de voorwaarden over privacy en data-opslag.</span></div>
+                    <div class="aware-opt" data-val="gedeeltelijk" onclick="selectAwareness(this)"><div class="aware-radio"></div><span>Gedeeltelijk - Ik weet dat data opgeslagen kan worden, maar check de details niet per tool.</span></div>
+                    <div class="aware-opt" data-val="nee_prive" onclick="selectAwareness(this)"><div class="aware-radio"></div><span>Nee - Ik ga er eigenlijk vanuit dat mijn gegevens prive blijven.</span></div>
+                    <div class="aware-opt" data-val="nee_niet_verdiept" onclick="selectAwareness(this)"><div class="aware-radio"></div><span>Nee - Ik heb me hier nog niet in verdiept.</span></div>
+                </div>
+            </div>
+
+            <div class="anon-wrap">
+                <div class="font-headline font-extrabold text-[1.35rem] text-primary leading-[1.25] mb-1">Maak je informatie anoniem?</div>
+                <p class="text-sm text-on-surface-variant mb-3">Bijvoorbeeld door namen of klantnummers verwijderen voordat je het in een AI-tool deelt.</p>
+                <div id="anon-vraag">
+                    <div class="anon-opt" data-val="altijd" onclick="selectAnon(this)"><div class="anon-radio"></div><span>Ja, altijd.</span></div>
+                    <div class="anon-opt" data-val="soms" onclick="selectAnon(this)"><div class="anon-radio"></div><span>Soms, als de informatie erg gevoelig is.</span></div>
+                    <div class="anon-opt" data-val="nee" onclick="selectAnon(this)"><div class="anon-radio"></div><span>Nee, ik voer de informatie direct in.</span></div>
+                    <div class="anon-opt" data-val="wist_niet" onclick="selectAnon(this)"><div class="anon-radio"></div><span>Ik wist niet dat dit nodig/mogelijk was.</span></div>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <details class="group bg-surface-container-low border border-outline-variant/30 rounded-[1.25rem] p-4 mb-6">
+                    <summary class="flex items-center gap-2 cursor-pointer">
+                        <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm shrink-0">
+                            <span class="material-symbols-outlined text-primary text-[18px]">info</span>
+                        </div>
+                        <span class="text-[13px] font-label font-semibold text-primary flex-1">Waarom is anonimiseren belangrijk?</span>
+                        <span class="material-symbols-outlined text-primary text-[18px] chev">expand_more</span>
+                    </summary>
+                    <div class="mt-3 pt-3 border-t border-outline-variant/20 text-[13px] text-on-surface-variant leading-relaxed space-y-2">
+                        <p>Zodra je gegevens invoert in een gratis AI-tool, kunnen deze onderdeel worden van de trainingsset van de aanbieder. Door namen te vervangen door "Persoon A" of "Bedrijf X" bescherm je de privacy van onze klanten en collega's, terwijl de AI je nog steeds perfect kan helpen met de inhoud.</p>
+                    </div>
+                </details>
+            </div>
+
+
+            <div class="flex items-center justify-between pt-6 border-t border-outline-variant/20">
+                <button onclick="window.location.href='screen-04-toolpicker-fixed.html'"
+                    class="group inline-flex items-center gap-3 text-on-surface-variant hover:text-primary font-label font-semibold text-sm transition-colors">
+                    <span class="material-symbols-outlined text-[20px] group-hover:-translate-x-0.5 transition-transform">arrow_back</span>
+                    Vorige
+                </button>
+                <button id="btn-next" disabled onclick="goNext()"
+                    class="group inline-flex items-center gap-2 bg-primary hover:bg-[#004c6a] text-white px-8 py-3.5 rounded-full font-headline font-bold text-sm shadow-lg transition-all duration-300 hover:-translate-y-0.5">
+                    Volgende
+                    <span class="material-symbols-outlined text-[20px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        const selected = new Set();
+        let anonChoice = null;
+        let awarenessChoice = null;
+        const EXCLUSIVE = new Set(['geen','weet_niet']);
+
+        function toggleOpt(el) {
+            const val  = el.dataset.value;
+            const risk = el.dataset.risk;
+            const isExcl = EXCLUSIVE.has(val);
+
+            if (isExcl) {
+                selected.clear();
+                document.querySelectorAll('.data-opt').forEach(o =>
+                    o.classList.remove('sel-neutral','sel-mid','sel-high'));
+                selected.add(val);
+                el.classList.add('sel-neutral');
+            } else {
+                EXCLUSIVE.forEach(ev => {
+                    selected.delete(ev);
+                    document.querySelector(`.data-opt[data-value="${ev}"]`)
+                        ?.classList.remove('sel-neutral','sel-mid','sel-high');
+                });
+                if (selected.has(val)) {
+                    selected.delete(val);
+                    el.classList.remove('sel-neutral','sel-mid','sel-high');
+                } else {
+                    selected.add(val);
+                    if      (risk==='high') el.classList.add('sel-high');
+                    else if (risk==='mid')  el.classList.add('sel-mid');
+                    else                    el.classList.add('sel-neutral');
+                }
+            }
+            updateUI();
+        }
+
+        function selectAnon(el) {
+            document.querySelectorAll('.anon-opt').forEach(o => o.classList.remove('on'));
+            el.classList.add('on');
+            anonChoice = el.dataset.val;
+            updateUI();
+        }
+
+
+        function selectAwareness(el) {
+            document.querySelectorAll('.aware-opt').forEach(o => o.classList.remove('on'));
+            el.classList.add('on');
+            awarenessChoice = el.dataset.val;
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('btn-next').disabled = selected.size === 0 || !anonChoice || !awarenessChoice;
+        }
+
+        function goNext() {
+            sessionStorage.setItem('datatype', JSON.stringify([...selected]));
+            sessionStorage.setItem('anonimisering', anonChoice || '');
+            sessionStorage.setItem('data_vaardigheid_spelregels', awarenessChoice || '');
+            window.location.href = 'screen-06-accountmatrix.html';
+        }
+    </script>
+</body>
+</html>

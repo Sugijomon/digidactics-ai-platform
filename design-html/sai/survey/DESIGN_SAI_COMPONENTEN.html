@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Shadow AI Scan — Component Spec</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary":                  "#004c6a",
+                        "secondary":                "#00658b",
+                        "on-primary":               "#ffffff",
+                        "ui-blue-grey":             "#6993aa",
+                        "surface-container-high":   "#e5e9eb",
+                        "surface-container":        "#ebeef0",
+                        "on-surface":               "#181c1e",
+                        "on-surface-variant":       "#40484e",
+                        "outline-variant":          "#bfc7cf",
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope","sans-serif"],
+                        "body":     ["Inter","sans-serif"],
+                        "label":    ["Inter","sans-serif"],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; display:inline-block; }
+        body { background: #f0f4f8; font-family: 'Inter', sans-serif; }
+
+        /* spec layout */
+        .spec-section { background: white; border-radius: 16px; padding: 32px; margin-bottom: 24px; border: 1px solid #e2e8f0; }
+        .spec-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #6993aa; margin-bottom: 6px; }
+        .spec-name  { font-size: 20px; font-weight: 800; color: #181c1e; margin-bottom: 4px; font-family: 'Manrope', sans-serif; }
+        .spec-desc  { font-size: 13px; color: #40484e; margin-bottom: 24px; line-height: 1.6; }
+        .spec-divider { border: none; border-top: 1px solid #e5e9eb; margin: 24px 0; }
+        .preview-bg { background: radial-gradient(ellipse at 10% 0%, #c4e7ff 0%, #f7fafc 55%); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+
+        /* annotation boxes */
+        .ann { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 20px; }
+        .ann-item { flex: 1; min-width: 180px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; }
+        .ann-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #6993aa; margin-bottom: 6px; }
+        .ann-val   { font-size: 12px; font-weight: 600; color: #181c1e; line-height: 1.5; font-family: 'Courier New', monospace; }
+        .ann-plain { font-size: 12px; color: #40484e; line-height: 1.5; font-family: 'Inter', sans-serif; font-weight: 500; }
+
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 700; margin-right: 4px; margin-bottom: 4px; }
+        .tag-blue   { background: #dbeafe; color: #1e40af; }
+        .tag-green  { background: #dcfce7; color: #15803d; }
+        .tag-amber  { background: #fef3c7; color: #92400e; }
+        .tag-purple { background: #ede9fe; color: #5b21b6; }
+
+        /* component badge */
+        .comp-badge { display: inline-flex; align-items: center; gap: 6px; background: #004c6a; color: white; padding: 4px 12px; border-radius: 99px; font-size: 11px; font-weight: 700; margin-bottom: 16px; }
+
+        /* spacing indicators */
+        .spacing-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #40484e; margin-bottom: 6px; }
+        .spacing-box { background: #fef3c7; border: 1px solid #fde68a; border-radius: 4px; padding: 2px 8px; font-family: monospace; font-size: 11px; font-weight: 700; color: #92400e; }
+
+        /* actual rendered nav bar */
+        .glass-card { background: rgba(255,255,255,.85); backdrop-filter: blur(16px); }
+
+        /* Vorige button */
+        .btn-back { display: inline-flex; align-items: center; gap: 8px; color: #40484e; font-weight: 600; font-size: 14px; cursor: pointer; transition: all .2s; background: none; border: none; font-family: 'Inter'; }
+        .btn-back:hover { color: #004c6a; }
+
+        .lovable-box { background: #004c6a; color: white; border-radius: 12px; padding: 20px 24px; margin-top: 8px; }
+        .lovable-box h4 { font-family: 'Manrope'; font-weight: 800; font-size: 16px; margin-bottom: 8px; }
+        .lovable-box p  { font-size: 13px; line-height: 1.6; opacity: .9; margin-bottom: 0; }
+        .code-inline { background: rgba(255,255,255,.15); border-radius: 4px; padding: 1px 6px; font-family: monospace; font-size: 12px; }
+    </style>
+</head>
+<body class="p-6 md:p-10">
+
+    <div class="max-w-3xl mx-auto">
+
+        <div class="mb-8">
+            <p class="spec-title">Shadow AI Scan</p>
+            <h1 style="font-family:'Manrope'; font-size:28px; font-weight:800; color:#181c1e; margin-bottom:8px;">Component Specificaties</h1>
+            <p style="font-size:14px; color:#40484e; line-height:1.6;">
+                Drie gedeelde componenten die identiek zijn op elk scherm van de scan.
+                Te gebruiken als directe Lovable-promptbasis en als visuele referentie.
+            </p>
+        </div>
+
+        <!-- ════════════════════════════════════════════════
+             COMPONENT 1 — SCAN HEADER
+        ════════════════════════════════════════════════ -->
+        <div class="spec-section">
+            <div class="comp-badge">
+                <span class="material-symbols-outlined" style="font-size:14px;">widgets</span>
+                Component 1 — ScanHeader
+            </div>
+            <div class="spec-name">Header</div>
+            <div class="spec-desc">Bovenaan elk scherm. Bevat logo-blok links en vertrouwelijkheidspill rechts. Hoogte en padding zijn vast.</div>
+
+            <!-- Live preview -->
+            <div class="preview-bg">
+                <header style="max-width:100%; display:flex; align-items:center; justify-content:space-between; gap:16px; padding: 0;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div style="width:48px; height:48px; border-radius:10px; background:#004c6a; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(0,0,0,.12);">
+                            <span class="material-symbols-outlined" style="color:white; font-size:28px;">shield_lock</span>
+                        </div>
+                        <div style="display:flex; flex-direction:column;">
+                            <span style="font-family:'Manrope'; font-weight:800; font-size:22px; color:#181c1e; line-height:1.1; letter-spacing:-.02em;">Shadow AI Scan</span>
+                            <span style="font-size:13px; font-weight:500; color:#6993aa; letter-spacing:.01em;">Veilig innoveren met AI</span>
+                        </div>
+                    </div>
+                    <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#40484e; background:rgba(255,255,255,.8); border:1px solid rgba(191,199,207,.4); padding:6px 16px; border-radius:99px; box-shadow:0 1px 2px rgba(0,0,0,.06); white-space:nowrap;">
+                        Vertrouwelijk &amp; anoniem
+                    </span>
+                </header>
+            </div>
+
+            <hr class="spec-divider"/>
+
+            <!-- Annotaties -->
+            <div class="ann">
+                <div class="ann-item">
+                    <div class="ann-label">Container</div>
+                    <div class="ann-val">max-w-2xl mx-auto px-6<br/>pt-8 pb-4<br/>flex items-center justify-between gap-4</div>
+                </div>
+                <div class="ann-item">
+                    <div class="ann-label">Logo box</div>
+                    <div class="ann-val">w-12 h-12 (48×48px)<br/>rounded-xl<br/>bg-primary (#004c6a)<br/>shadow-sm</div>
+                </div>
+                <div class="ann-item">
+                    <div class="ann-label">Icoon</div>
+                    <div class="ann-val">material-symbols-outlined<br/>text-[32px]<br/>shield_lock<br/>text-white</div>
+                </div>
+            </div>
+            <div class="ann" style="margin-top:12px;">
+                <div class="ann-item">
+                    <div class="ann-label">Titel</div>
+                    <div class="ann-val">font-headline font-extrabold<br/>text-2xl tracking-tight<br/>text-on-surface<br/>leading-[1.1]</div>
+                </div>
+                <div class="ann-item">
+                    <div class="ann-label">Ondertitel</div>
+                    <div class="ann-val">text-[13px] font-medium<br/>text-ui-blue-grey (#6993aa)<br/>tracking-wide</div>
+                </div>
+                <div class="ann-item">
+                    <div class="ann-label">Pill (rechts)</div>
+                    <div class="ann-val">text-[11px] font-bold<br/>uppercase tracking-wider<br/>bg-white/80 backdrop-blur<br/>border border-outline-variant/40<br/>px-4 py-1.5 rounded-full shadow-sm</div>
+                </div>
+            </div>
+
+            <hr class="spec-divider"/>
+            <div style="margin-top:4px;">
+                <div class="spacing-row">
+                    <div class="spacing-box">pt-8</div>
+                    <span>Ruimte boven header (32px)</span>
+                </div>
+                <div class="spacing-row">
+                    <div class="spacing-box">pb-4</div>
+                    <span>Ruimte onder header, boven progress bar (16px)</span>
+                </div>
+                <div class="spacing-row">
+                    <div class="spacing-box">gap-3</div>
+                    <span>Ruimte tussen logo-box en tekst (12px)</span>
+                </div>
+                <div class="spacing-row">
+                    <div class="spacing-box">px-6</div>
+                    <span>Horizontale pagina-marge (24px) — zelfde op alle elementen</span>
+                </div>
+            </div>
+
+            <hr class="spec-divider"/>
+            <div class="lovable-box">
+                <h4>Lovable component: ScanHeader.tsx</h4>
+                <p>Props: geen (statisch). Importeer op elk scherm bovenaan. Tekst en icoon zijn altijd identiek — geen props nodig tenzij je later org-naam wil injecteren.</p>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════
+             COMPONENT 2 — PROGRESS BAR
+        ════════════════════════════════════════════════ -->
+        <div class="spec-section">
+            <div class="comp-badge">
+                <span class="material-symbols-outlined" style="font-size:14px;">widgets</span>
+                Component 2 — ScanProgress
+            </div>
+            <div class="spec-name">Voortgangsbalk</div>
+            <div class="spec-desc">Direct onder de header. Toont visueel en tekstueel in welke stap de gebruiker zit. Twee segmenten: gevuld (primary) en leeg (surface-container-high).</div>
+
+            <!-- Live preview — stap 2 van 5 -->
+            <div class="preview-bg">
+                <div style="display:flex; align-items:center; gap:8px; max-width:100%;">
+                    <div style="display:flex; gap:6px; flex:1;">
+                        <div style="height:6px; flex:1; border-radius:99px; background:#004c6a;"></div>
+                        <div style="height:6px; flex:1; border-radius:99px; background:#004c6a;"></div>
+                        <div style="height:6px; flex:1; border-radius:99px; background:#e5e9eb;"></div>
+                        <div style="height:6px; flex:1; border-radius:99px; background:#e5e9eb;"></div>
+                        <div style="height:6px; flex:1; border-radius:99px; background:#e5e9eb;"></div>
+                    </div>
+                    <span style="font-size:12px; font-family:'Inter'; font-weight:500; color:#40484e; white-space:nowrap;">Stap 2 van 5</span>
+                </div>
+                <div style="margin-top:16px; display:flex; align-items:center; gap:8px; max-width:100%; opacity:.5;">
+                    <div style="display:flex; gap:6px; flex:1;">
+                        <div style="height:6px; flex:1; border-radius:99px; background:#004c6a;"></div>
+                        <div style="height:6px; flex:1; border-radius:99px; background:#e5e9eb;"></div>
+                        <div style="height:6px; flex:1; border-radius:99px; background:#e5e9eb;"></div>
+                        <div style="height:6px; flex:1; border-radius:99px; background:#e5e9eb;"></div>
+                        <div style="height:6px; flex:1; border-radius:99px; background:#e5e9eb;"></div>
+                    </div>
+                    <span style="font-size:12px; font-family:'Inter'; font-weight:500; color:#40484e; white-space:nowrap;">Stap 1 van 5</span>
+                </div>
+                <p style="font-size:11px; color:#40484e; margin-top:8px; opacity:.6;">↑ Stap 1 (1 gevuld) &nbsp;·&nbsp; Stap 2 (2 gevuld) — beide ter referentie</p>
+            </div>
+
+            <hr class="spec-divider"/>
+
+            <div class="ann">
+                <div class="ann-item">
+                    <div class="ann-label">Container</div>
+                    <div class="ann-val">max-w-2xl mx-auto px-6 mb-6</div>
+                    <div class="ann-plain" style="margin-top:6px;">mb-6 = 24px ruimte naar de textbox</div>
+                </div>
+                <div class="ann-item">
+                    <div class="ann-label">Balk (gevuld)</div>
+                    <div class="ann-val">h-1.5 flex-1 rounded-full<br/>bg-primary (#004c6a)</div>
+                </div>
+                <div class="ann-item">
+                    <div class="ann-label">Balk (leeg)</div>
+                    <div class="ann-val">h-1.5 flex-1 rounded-full<br/>bg-surface-container-high (#e5e9eb)</div>
+                </div>
+            </div>
+            <div class="ann" style="margin-top:12px;">
+                <div class="ann-item">
+                    <div class="ann-label">Gap tussen segmenten</div>
+                    <div class="ann-val">gap-1.5 (6px)</div>
+                </div>
+                <div class="ann-item">
+                    <div class="ann-label">Gap balk → label</div>
+                    <div class="ann-val">gap-2 (8px)</div>
+                </div>
+                <div class="ann-item">
+                    <div class="ann-label">Label stijl</div>
+                    <div class="ann-val">text-xs font-label<br/>text-on-surface-variant<br/>whitespace-nowrap</div>
+                </div>
+            </div>
+
+            <hr class="spec-divider"/>
+            <div style="margin-top:4px;">
+                <div class="spacing-row">
+                    <div class="spacing-box">pb-4</div>
+                    <span>Ruimte onder header (via header padding)</span>
+                </div>
+                <div class="spacing-row">
+                    <div class="spacing-box">mb-6</div>
+                    <span>Ruimte onder progress bar, boven glass card (24px)</span>
+                </div>
+                <div class="spacing-row">
+                    <div class="spacing-box">totaal</div>
+                    <span>Header onderkant → glass card bovenkant = 40px (pb-4 + mb-6)</span>
+                </div>
+            </div>
+
+            <hr class="spec-divider"/>
+            <div class="lovable-box">
+                <h4>Lovable component: ScanProgress.tsx</h4>
+                <p>Props: <span class="code-inline">current: number</span> en <span class="code-inline">total: number</span>. Component rendert automatisch het juiste aantal gevulde en lege segmenten op basis van de props. Label genereert zichzelf: "Stap {current} van {total}".</p>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════
+             COMPONENT 3 — SCAN NAV (footer inside card)
+        ════════════════════════════════════════════════ -->
+        <div class="spec-section">
+            <div class="comp-badge">
+                <span class="material-symbols-outlined" style="font-size:14px;">widgets</span>
+                Component 3 — ScanNav
+            </div>
+            <div class="spec-name">Navigatiebalk (in kaart)</div>
+            <div class="spec-desc">Onderaan de glass card, gescheiden door een lichte horizontale lijn. Links een tekstuele terugknop, rechts de primaire Volgende-pill. De Volgende-knop is standaard disabled en wordt enabled zodra de vraag beantwoord is.</div>
+
+            <!-- Live preview -->
+            <div class="preview-bg">
+                <div style="background:rgba(255,255,255,.85); backdrop-filter:blur(16px); border-radius:24px; border:1px solid rgba(255,255,255,.7); padding:32px;">
+                    <!-- fake content -->
+                    <div style="height:60px; background:#f1f4f6; border-radius:12px; margin-bottom:24px; display:flex; align-items:center; justify-content:center;">
+                        <span style="font-size:13px; color:#40484e; font-family:'Inter';">[ inhoud van het scherm ]</span>
+                    </div>
+
+                    <!-- nav bar -->
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding-top:32px; margin-top:16px; border-top:1px solid rgba(191,199,207,.2);">
+                        <button class="btn-back">
+                            <span class="material-symbols-outlined" style="font-size:20px; transition:transform .2s;">arrow_back</span>
+                            Vorige
+                        </button>
+                        <button style="display:inline-flex; align-items:center; gap:8px; background:#004c6a; color:white; padding:14px 32px; border-radius:99px; font-family:'Manrope'; font-weight:700; font-size:14px; border:none; cursor:pointer; box-shadow:0 4px 6px rgba(0,76,106,.2); transition:all .2s;">
+                            Volgende
+                            <span class="material-symbols-outlined" style="font-size:20px;">arrow_forward</span>
+                        </button>
+                    </div>
+                </div>
+                <p style="font-size:11px; color:#40484e; margin-top:12px; opacity:.7;">↑ Enabled state — disabled state is identiek maar opacity: 40%</p>
+            </div>
+
+            <hr class="spec-divider"/>
+
+            <div class="ann">
+                <div class="ann-item">
+                    <div class="ann-label">Nav container</div>
+                    <div class="ann-val">flex items-center justify-between<br/>pt-8 mt-4<br/>border-t border-outline-variant/20</div>
+                </div>
+                <div class="ann-item">
+                    <div class="ann-label">Scheidingslijn</div>
+                    <div class="ann-val">border-t border-outline-variant/20<br/>= rgba(191,199,207,0.2)</div>
+                    <div class="ann-plain" style="margin-top:6px;">Zeer subtiel — alleen zichtbaar op wit</div>
+                </div>
+                <div class="ann-item">
+                    <div class="ann-label">Ruimte boven lijn</div>
+                    <div class="ann-val">mt-4 (16px) na content<br/>pt-8 (32px) boven knoppen</div>
+                </div>
+            </div>
+
+            <hr class="spec-divider"/>
+
+            <!-- Vorige knop detail -->
+            <p style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#6993aa; margin-bottom:12px;">Vorige-knop (links)</p>
+            <div class="ann">
+                <div class="ann-item">
+                    <div class="ann-label">Classes</div>
+                    <div class="ann-val">group inline-flex items-center gap-2<br/>text-on-surface-variant<br/>hover:text-primary<br/>font-label font-semibold text-sm<br/>transition-colors</div>
+                </div>
+                <div class="ann-item">
+                    <div class="ann-label">Icoon</div>
+                    <div class="ann-val">material-symbols-outlined text-[20px]<br/>arrow_back<br/>group-hover:-translate-x-0.5<br/>transition-transform</div>
+                </div>
+                <div class="ann-item">
+                    <div class="ann-label">Hover effect</div>
+                    <div class="ann-plain">Tekstkleur: grijs → primary blauw<br/>Icoon: 2px naar links</div>
+                </div>
+            </div>
+
+            <div style="height:16px;"></div>
+
+            <!-- Volgende knop detail -->
+            <p style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#6993aa; margin-bottom:12px;">Volgende-knop (rechts)</p>
+            <div class="ann">
+                <div class="ann-item">
+                    <div class="ann-label">Classes</div>
+                    <div class="ann-val">group inline-flex items-center gap-2<br/>bg-primary hover:bg-secondary<br/>text-on-primary<br/>px-8 py-3.5 rounded-full<br/>font-headline font-bold text-sm<br/>shadow-md shadow-primary/20<br/>hover:shadow-lg<br/>hover:-translate-y-0.5<br/>transition-all</div>
+                </div>
+                <div class="ann-item">
+                    <div class="ann-label">Icoon</div>
+                    <div class="ann-val">material-symbols-outlined text-[20px]<br/>arrow_forward<br/>group-hover:translate-x-0.5<br/>transition-transform</div>
+                </div>
+                <div class="ann-item">
+                    <div class="ann-label">Disabled state</div>
+                    <div class="ann-val">opacity:.4<br/>cursor:not-allowed<br/>transform:none !important<br/>box-shadow:none !important</div>
+                    <div class="ann-plain" style="margin-top:6px;">Disabled totdat vraag beantwoord is</div>
+                </div>
+            </div>
+            <div class="ann" style="margin-top:12px;">
+                <div class="ann-item">
+                    <div class="ann-label">Kleur — rust</div>
+                    <div class="ann-val">bg-primary = #004c6a</div>
+                </div>
+                <div class="ann-item">
+                    <div class="ann-label">Kleur — hover</div>
+                    <div class="ann-val">hover:bg-secondary = #00658b</div>
+                </div>
+                <div class="ann-item">
+                    <div class="ann-label">Hover effecten</div>
+                    <div class="ann-plain">Kleur lichter blauw<br/>Schaduw groter (shadow-lg)<br/>2px omhoog (-translate-y-0.5)<br/>Icoon 2px naar rechts</div>
+                </div>
+            </div>
+
+            <hr class="spec-divider"/>
+            <div class="lovable-box">
+                <h4>Lovable component: ScanNav.tsx</h4>
+                <p>Props: <span class="code-inline">onBack: () => void</span> · <span class="code-inline">onNext: () => void</span> · <span class="code-inline">nextDisabled: boolean</span> · optioneel <span class="code-inline">nextLabel?: string</span> (default "Volgende"). De scheidingslijn en padding zitten IN de component — niet in het scherm zelf.</p>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════
+             LOVABLE STRATEGIE
+        ════════════════════════════════════════════════ -->
+        <div class="spec-section" style="border-color:#004c6a; border-width:2px;">
+            <div class="spec-title">Implementatiestrategie</div>
+            <div class="spec-name">Lovable: drie componenten, één keer bouwen</div>
+            <div class="spec-desc">
+                Ja — dit zijn precies de componenten die je in Lovable als gedeelde React-componenten bouwt. 
+                Zelfde principe als een HTML-layout met vaste header en footer. 
+                Elk scherm importeert de drie componenten en vult alleen de <em>inhoud</em> van de glass card in.
+            </div>
+
+            <div style="background:#f8fafc; border-radius:12px; padding:20px; font-family:'Courier New', monospace; font-size:12px; line-height:1.8; color:#181c1e; border:1px solid #e2e8f0; margin-bottom:20px;">
+                <span style="color:#6993aa;">// Elke stap-pagina ziet er zo uit:</span><br/>
+                &lt;<span style="color:#004c6a;">ScanHeader</span> /&gt;<br/>
+                &lt;<span style="color:#004c6a;">ScanProgress</span> <span style="color:#92400e;">current</span>={2} <span style="color:#92400e;">total</span>={5} /&gt;<br/>
+                <br/>
+                &lt;div className="glass-card ..."&gt;<br/>
+                &nbsp;&nbsp;<span style="color:#6993aa;">// Sectielabel + H2 + subtekst</span><br/>
+                &nbsp;&nbsp;<span style="color:#6993aa;">// Vragen / opties / content</span><br/>
+                &nbsp;&nbsp;<br/>
+                &nbsp;&nbsp;&lt;<span style="color:#004c6a;">ScanNav</span><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#92400e;">onBack</span>={() => navigate(-1)}<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#92400e;">onNext</span>={() => navigate('/stap-3')}<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#92400e;">nextDisabled</span>={!antwoordGekozen}<br/>
+                &nbsp;&nbsp;/&gt;<br/>
+                &lt;/div&gt;
+            </div>
+
+            <div class="ann">
+                <div class="ann-item">
+                    <div class="ann-label">Voordeel</div>
+                    <div class="ann-plain">Logo-wissel, kleurwijziging of knoptekst later aanpassen? Één bestand, alle schermen bijgewerkt.</div>
+                </div>
+                <div class="ann-item">
+                    <div class="ann-label">Lovable prompt</div>
+                    <div class="ann-plain">Geef dit spec-document + de HTML van één scherm mee. Zeg: "Extraheer ScanHeader, ScanProgress en ScanNav als gedeelde componenten."</div>
+                </div>
+                <div class="ann-item">
+                    <div class="ann-label">Volgorde</div>
+                    <div class="ann-plain">Bouw eerst de drie componenten. Dan pas de schermen — anders bouw je ze inline en moet je later refactoren.</div>
+                </div>
+            </div>
+        </div>
+
+            <p style="font-size:11px; color:#6993aa; text-align:center; margin-top:8px;">Shadow AI Scan — Component Spec · Gegenereerd op basis van screen-02-werkplek.html</p>
+
+    </div>
+</body>
+</html>

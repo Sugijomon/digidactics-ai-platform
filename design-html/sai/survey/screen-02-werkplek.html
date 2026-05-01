@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="nl">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Shadow AI Scan - Jouw werkplek</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#00658b",
+                        "primary-container": "#00a1da",
+                        "ui-blue-grey": "#6993aa",
+                        "brand-green": "#93c942",
+                        "on-surface": "#181c1e",
+                        "on-surface-variant": "#40484e",
+                        "outline-variant": "#bfc7cf",
+                        "surface-container-high": "#e5e9eb",
+                        "surface-container-low": "#f1f4f6"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; display:inline-block; }
+        .nebula-bg {
+            background: radial-gradient(ellipse at 10% 0%, #c4e7ff 0%, #f7fafc 55%),
+                        radial-gradient(ellipse at 90% 100%, #e5e9eb 0%, transparent 50%);
+        }
+        .nebula-blob { filter: blur(80px); opacity: 0.25; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+        .dept-opt {
+            display:flex; align-items:center; gap:16px;
+            padding:16px 20px; border-radius:1rem;
+            border:1.5px solid #bfc7cf;
+            background:rgba(255,255,255,.72);
+            cursor:pointer; transition:all .2s ease;
+            margin-bottom: 10px;
+        }
+        .dept-opt:hover {
+            border-color:#00658b;
+            background:rgba(196,231,255,.2);
+            transform:translateY(-1px);
+        }
+        .radio-ring {
+            width:22px; height:22px; border-radius:50%; flex-shrink:0;
+            border:2px solid #bfc7cf; background: white;
+            display:flex; align-items:center; justify-content:center;
+        }
+        .radio-dot { width:10px; height:10px; border-radius:50%; background:transparent; transition:all .2s ease; }
+        .selected { border-color:#00658b; background:rgba(196,231,255,.38) !important; }
+        .selected .radio-dot { background:#00658b; }
+        .selected .radio-ring { border-color:#00658b; }
+                        .anders-reveal { max-height:0; overflow:hidden; transition:max-height .3s ease, opacity .25s ease; opacity:0; }
+        .anders-reveal.open { max-height:80px; opacity:1; margin-top:10px; }
+        .anders-input {
+            width:100%; padding:10px 14px;
+            border:1.5px solid #bfc7cf; border-radius:.875rem;
+            font-size:14px; outline:none; background:rgba(255,255,255,.9);
+        }
+    </style>
+</head>
+<body class="nebula-bg min-h-screen font-body text-on-surface antialiased">
+
+    <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+        <div class="nebula-blob absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full bg-[#7dd0ff]"></div>
+        <div class="nebula-blob absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-[#bae6ff]"></div>
+    </div>
+
+    <div class="max-w-2xl mx-auto px-6">
+        
+        <header class="w-full pt-[30px] pb-4 flex flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shrink-0 shadow-sm">
+                    <span class="material-symbols-outlined text-white text-[32px]">shield_lock</span>
+                </div>
+                <div class="flex flex-col justify-center">
+                    <h1 class="font-headline font-extrabold text-2xl tracking-tight text-on-surface leading-[1.1]">
+                        Shadow AI Scan
+                    </h1>
+                    <p class="text-[13px] font-medium text-ui-blue-grey tracking-wide">
+                        Veilig innoveren met AI
+                    </p>
+                </div>
+            </div>
+            <span class="text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant bg-white/80 backdrop-blur border border-outline-variant/40 px-4 py-1.5 rounded-full shadow-sm whitespace-nowrap">
+                Vertrouwelijk &amp; anoniem
+            </span>
+        </header>
+
+        <div class="w-full mb-6">
+            <div class="flex items-center gap-3">
+                <div class="flex gap-1.5 flex-1">
+                    <div class="h-1.5 flex-1 rounded-full bg-primary"></div>
+                    <div class="h-1.5 flex-1 rounded-full bg-surface-container-high"></div>
+                    <div class="h-1.5 flex-1 rounded-full bg-surface-container-high"></div>
+                    <div class="h-1.5 flex-1 rounded-full bg-surface-container-high"></div>
+                    <div class="h-1.5 flex-1 rounded-full bg-surface-container-high"></div>
+                </div>
+                <span class="text-xs font-label text-on-surface-variant whitespace-nowrap">Stap 1 van 5</span>
+            </div>
+        </div>
+
+        <main class="pb-24">
+            <div class="glass-card rounded-[2rem] border border-white/70 shadow-[0_8px_40px_rgba(0,101,139,0.06)] p-8 md:p-10">
+                
+                <div class="mb-8">
+                    <span class="inline-flex items-center gap-1.5 text-xs font-label font-semibold text-primary/70 uppercase tracking-widest mb-3">
+                        <span class="material-symbols-outlined text-[15px]">badge</span>
+                        Jouw werkplek
+                    </span>
+                    <h2 class="font-headline font-extrabold text-[1.35rem] text-primary leading-[1.25]">
+                        Binnen welk vakgebied ben je voornamelijk actief?
+                    </h2>
+                    <p class="text-sm text-on-surface-variant mt-2">
+                        Kies het domein dat het beste aansluit bij jouw rol of expertise, ook als je in wisselende projectteams werkt.
+                    </p>
+                </div>
+
+                <div class="flex flex-col">
+                    <div class="dept-opt" data-value="IT" onclick="selectOpt(this)">
+                        <div class="radio-ring"><div class="radio-dot"></div></div>
+                        <span class="opt-label">IT, Data & Development</span>
+                    </div>
+                    <div class="dept-opt" data-value="Marketing" onclick="selectOpt(this)">
+                        <div class="radio-ring"><div class="radio-dot"></div></div>
+                        <span class="opt-label">Marketing & Communicatie</span>
+                    </div>
+                    
+                <div class="dept-opt" data-value="HR & Recruitment" onclick="selectOpt(this)">
+                    <div class="radio-ring"><div class="radio-dot"></div></div>
+                    <span class="opt-label">HR & Recruitment</span>
+                </div>
+
+                <div class="dept-opt" data-value="Finance & Legal" onclick="selectOpt(this)">
+                    <div class="radio-ring"><div class="radio-dot"></div></div>
+                    <span class="opt-label">Finance & Legal</span>
+                </div>
+
+                <div class="dept-opt" data-value="Sales & Accountmanagement" onclick="selectOpt(this)">
+                    <div class="radio-ring"><div class="radio-dot"></div></div>
+                    <span class="opt-label">Sales & Accountmanagement</span>
+                </div>
+
+                <div class="dept-opt" data-value="Operations & Support" onclick="selectOpt(this)">
+                    <div class="radio-ring"><div class="radio-dot"></div></div>
+                    <span class="opt-label">Operations & Support</span>
+                </div>
+                
+                <div class="dept-opt" data-value="Directie & Management" onclick="selectOpt(this)">
+                    <div class="radio-ring"><div class="radio-dot"></div></div>
+                    <span class="opt-label">Directie & Management</span>
+                </div>
+                    <div class="dept-opt" data-value="Anders" onclick="selectOpt(this)" id="opt-anders">
+                    <div class="radio-ring"><div class="radio-dot"></div></div>
+                    <span class="opt-label">Anders...</span>
+                </div>
+                <div class="anders-reveal" id="anders-reveal" style="width:100%">
+                    <input type="text" class="anders-input" id="anders-text" placeholder="Vul jouw vakgebied in..." onclick="event.stopPropagation()"/>
+                </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-8 mt-4 border-t border-outline-variant/20">
+                    <button onclick="window.history.back()" class="group inline-flex items-center gap-2 text-on-surface-variant hover:text-primary font-semibold text-sm transition-colors">
+                        <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+                        Vorige
+                    </button>
+                    <button id="btn-next" disabled onclick="goNext()"
+                        class="group inline-flex items-center gap-2 bg-primary hover:bg-[#004c6a] text-white px-8 py-3.5 rounded-full font-headline font-bold text-sm shadow-lg transition-all duration-300 hover:-translate-y-0.5">
+                        Volgende
+                        <span class="material-symbols-outlined text-[20px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let selected = null;
+        function selectOpt(el) {
+            if (selected) selected.classList.remove('selected');
+            el.classList.add('selected');
+            selected = el;
+            document.getElementById('btn-next').disabled = false;
+            
+            const rev = document.getElementById('anders-reveal');
+            if (el.dataset.value === 'Anders') {
+                rev.classList.add('open');
+                setTimeout(() => document.getElementById('anders-text').focus(), 320);
+            } else {
+                rev.classList.remove('open');
+            }
+        }
+
+        function goNext() {
+            if (!selected) return;
+            const afdeling = selected.dataset.value || '';
+            const afdelingAnders = (document.getElementById('anders-text')?.value || '').trim();
+            const payload = {
+                afdeling: afdeling,
+                afdeling_anders: afdeling === 'Anders' ? afdelingAnders : ''
+            };
+            sessionStorage.setItem('werkplek', JSON.stringify(payload));
+            sessionStorage.setItem('afdeling', payload.afdeling);
+            sessionStorage.setItem('afdeling_anders', payload.afdeling_anders);
+            window.location.href = 'screen-03-frequentie.html';
+        }
+    </script>
+</body>
+</html>
+

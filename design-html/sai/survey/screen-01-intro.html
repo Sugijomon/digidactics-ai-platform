@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="nl">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Shadow AI Scan - Welkom</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // Exacte kleuren uit D2_VISUAL_DESIGN.md
+                        "primary":                    "#00658b",
+                        "primary-container":          "#00a1da",
+                        "primary-fixed":              "#c4e7ff",
+                        "primary-fixed-dim":          "#7dd0ff",
+                        "secondary":                  "#396379",
+                        "secondary-container":        "#bae6ff",
+                        "secondary-fixed":            "#c1e8ff",
+                        "tertiary":                   "#b90360",
+                        "tertiary-container":         "#ff5898",
+                        "ui-blue-grey":               "#6993aa",
+                        "brand-green":                "#93c942",
+                        "brand-yellow":               "#ca8a04",
+                        
+                        // Surface & Text
+                        "surface":                    "#f7fafc",
+                        "surface-container-lowest":   "#ffffff",
+                        "surface-container-low":      "#f1f4f6",
+                        "surface-container":          "#ebeef0",
+                        "surface-container-high":     "#e5e9eb",
+                        "on-surface":                 "#181c1e",
+                        "on-surface-variant":         "#40484e",
+                        "outline-variant":            "#bfc7cf"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope", "sans-serif"],
+                        "body":     ["Inter", "sans-serif"],
+                        "label":    ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+            display: inline-block;
+        }
+        /* Aangepaste Nebula glow, passend bij "Calm Tech" */
+        .nebula-bg {
+            background: radial-gradient(ellipse at 10% 0%, #c4e7ff 0%, #f7fafc 55%),
+                        radial-gradient(ellipse at 90% 100%, #e5e9eb 0%, transparent 50%);
+        }
+        .nebula-blob { filter: blur(80px); opacity: 0.25; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+        
+        /* Animatie voor details/summary */
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        details[open] summary ~ * { animation: sweep .3s ease-in-out; }
+        @keyframes sweep {
+            0%    {opacity: 0; transform: translateY(-8px)}
+            100%  {opacity: 1; transform: translateY(0)}
+        }
+        .chev { transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+        details[open] .chev { transform: rotate(180deg); }
+    </style>
+</head>
+<body class="nebula-bg min-h-screen font-body text-on-surface antialiased relative flex flex-col">
+
+    <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+        <div class="nebula-blob absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full bg-primary-fixed-dim"></div>
+        <div class="nebula-blob absolute top-1/2 -right-40 w-[500px] h-[500px] rounded-full bg-secondary-container"></div>
+    </div>
+
+    <header class="w-full px-6 py-5 flex items-center justify-between max-w-3xl mx-auto">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shrink-0 shadow-sm">
+                <span class="material-symbols-outlined text-white text-[32px]">shield_lock</span>
+            </div>
+            <div class="flex flex-col justify-center">
+                <h1 class="font-headline font-extrabold text-2xl tracking-tight text-on-surface leading-[1.1]">
+                    Shadow AI Scan
+                </h1>
+                <p class="text-[13px] font-medium text-ui-blue-grey tracking-wide">
+                    Veilig innoveren met AI
+                </p>
+            </div>
+        </div>
+        <span class="text-xs font-label font-semibold text-on-surface-variant bg-white border border-outline-variant/40 px-3 py-1.5 rounded-full shadow-sm">
+            Intern Onderzoek
+        </span>
+    </header>
+
+    <main class="flex-1 flex flex-col justify-center max-w-3xl mx-auto px-6 py-8 md:py-12 w-full">
+        
+        <div class="text-center mb-10">
+            
+            <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#faf5e8] border border-[#e5c687] text-brand-yellow text-xs font-label font-bold mb-6 shadow-sm">
+                <span class="material-symbols-outlined text-[16px]">timer</span>
+                Scan is open t/m <span id="deadline-date">15 mei</span>
+            </div>
+
+            <h1 class="font-headline font-extrabold text-3xl md:text-5xl text-primary leading-[1.15] mb-4">
+                Breng <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">jouw AI-gebruik</span><br/>veilig in kaart
+            </h1>
+            <p class="text-base md:text-lg text-on-surface-variant max-w-xl mx-auto leading-relaxed">
+                AI-tools bieden enorme kansen, maar brengen ook vragen met zich mee over dataveiligheid. Met deze korte scan inventariseren we welke tools we binnen de organisatie gebruiken. Jouw input helpt ons om de juiste, veilige faciliteiten en licenties voor je te regelen.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+            
+            <div class="glass-card p-5 rounded-[1.25rem] border border-white/80 shadow-[0_4px_20px_rgba(0,101,139,0.04)] hover:-translate-y-1 transition-transform duration-300">
+                <div class="w-10 h-10 rounded-xl bg-primary-fixed flex items-center justify-center mb-3">
+                    <span class="material-symbols-outlined text-primary text-[22px]">lightbulb</span>
+                </div>
+                <h3 class="font-headline font-bold text-primary mb-1.5">Wat levert het op?</h3>
+                <p class="text-[13px] text-on-surface-variant leading-relaxed">
+                    Door de behoeften in kaart te brengen, kunnen we gericht investeren in de juiste zakelijke licenties en gerichte AI-trainingen.
+                </p>
+            </div>
+
+            <div class="glass-card p-5 rounded-[1.25rem] border border-white/80 shadow-[0_4px_20px_rgba(0,101,139,0.04)] hover:-translate-y-1 transition-transform duration-300">
+                <div class="w-10 h-10 rounded-xl bg-[#eef7e1] flex items-center justify-center mb-3">
+                    <span class="material-symbols-outlined text-[#527a1b] text-[22px]">gpp_good</span>
+                </div>
+                <h3 class="font-headline font-bold text-[#527a1b] mb-1.5">Privacy & Veiligheid</h3>
+                <p class="text-[13px] text-on-surface-variant leading-relaxed">
+                    Inzicht in datastromen helpt ons datalekken via onbeveiligde 'gratis' AI-tools te voorkomen en veilig beleid op te stellen.
+                </p>
+            </div>
+
+            <div class="glass-card p-5 rounded-[1.25rem] border border-white/80 shadow-[0_4px_20px_rgba(0,101,139,0.04)] hover:-translate-y-1 transition-transform duration-300">
+                <div class="w-10 h-10 rounded-xl bg-secondary-container flex items-center justify-center mb-3">
+                    <span class="material-symbols-outlined text-secondary text-[22px]">diversity_3</span>
+                </div>
+                <h3 class="font-headline font-bold text-secondary mb-1.5">Bouw mee</h3>
+                <p class="text-[13px] text-on-surface-variant leading-relaxed">
+                    Bouw mee aan onze AI-roadmap. Jouw feedback bepaalt welke tools we gaan ondersteunen. Er zijn geen foute antwoorden!
+                </p>
+            </div>
+
+        </div>
+
+        <div class="mb-10 max-w-2xl mx-auto w-full">
+            <details class="group bg-surface-container-lowest border border-outline-variant/40 shadow-sm rounded-[1.25rem] p-1">
+                <summary class="flex items-center gap-3 p-3 cursor-pointer hover:bg-surface-container-low rounded-xl transition-colors">
+                    <div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-on-surface-variant text-[18px]">visibility_off</span>
+                    </div>
+                    <span class="text-[14px] font-label font-bold text-on-surface flex-1">Jouw privacy is 100% gewaarborgd</span>
+                    <span class="material-symbols-outlined text-on-surface-variant text-[20px] chev mr-1">expand_more</span>
+                </summary>
+                                <div class="px-4 pb-4 pt-2 text-[13.5px] text-on-surface-variant leading-relaxed space-y-3">
+                    <p>
+                        Geen controle, maar inzicht. Het doel van deze scan is niet om te kijken wie wat doet, maar om te begrijpen wat we als organisatie nodig hebben.
+                    </p>
+                    <p>
+                        We begrijpen dat je voorzichtig bent met het delen van je werkwijze. Daarom wordt jouw input technisch volledig losgekoppeld van je naam. De resultaten zijn 100% anoniem en worden alleen op groepsniveau geanalyseerd door de DPO en het management.
+                    </p>
+                    <p>
+                        Aan het einde van de survey kun je er vrijwillig voor kiezen om je naam achter te laten als je wilt meedenken als AI-ambassadeur.
+                    </p>
+                </div>
+            </details>
+        </div>
+
+     <div class="text-center">
+            <button
+                        onclick="window.location.href='screen-02-werkplek.html'"
+                class="group inline-flex items-center gap-3 bg-[#004c6a] hover:bg-[#003d55] text-white px-10 py-4 rounded-full font-headline font-bold text-lg shadow-lg hover:-translate-y-1 transition-all duration-300"
+            >
+                Start de scan
+                <span class="material-symbols-outlined text-[22px] group-hover:translate-x-1 transition-transform duration-200">arrow_forward</span>
+            </button>
+            <p class="text-xs text-on-surface-variant mt-4 font-medium">
+                Duurt ca. 8-10 minuten &nbsp;·&nbsp; Anoniem &nbsp;·&nbsp; Geen verplichte velden
+            </p>
+        </div>
+
+    </main>
+
+    <footer class="w-full text-center py-6 mt-auto">
+        <span class="text-[11px] text-outline-variant font-label uppercase tracking-widest font-semibold">
+            Powered by Projectgroep AI
+        </span>
+    </footer>
+
+</body>
+</html>
+

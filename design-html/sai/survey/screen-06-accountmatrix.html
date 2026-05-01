@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="nl">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Shadow AI Scan - Toegang en automatisering</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // Exacte kleuren uit D2_VISUAL_DESIGN.md
+                        "primary":                    "#00658b",
+                        "primary-container":          "#00a1da",
+                        "primary-fixed":              "#c4e7ff",
+                        "primary-fixed-dim":          "#7dd0ff",
+                        "secondary":                  "#396379",
+                        "secondary-container":        "#bae6ff",
+                        "secondary-fixed":            "#c1e8ff",
+                        "tertiary":                   "#b90360",
+                        "tertiary-container":         "#ff5898",
+                        "ui-blue-grey":               "#6993aa",
+                        "brand-green":                "#93c942",
+                        "brand-yellow":               "#ca8a04",
+                        
+                        // Surface & Text
+                        "surface":                    "#f7fafc",
+                        "surface-container-lowest":   "#ffffff",
+                        "surface-container-low":      "#f1f4f6",
+                        "surface-container":          "#ebeef0",
+                        "surface-container-high":     "#e5e9eb",
+                        "on-surface":                 "#181c1e",
+                        "on-surface-variant":         "#40484e",
+                        "outline-variant":            "#bfc7cf"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope", "sans-serif"],
+                        "body":     ["Inter", "sans-serif"],
+                        "label":    ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; display:inline-block; }
+        
+        .nebula-bg {
+            background: radial-gradient(ellipse at 10% 0%, #c4e7ff 0%, #f7fafc 55%),
+                        radial-gradient(ellipse at 90% 100%, #e5e9eb 0%, transparent 50%);
+        }
+        .nebula-blob { filter: blur(80px); opacity: 0.25; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        /* -- Matrix UI -- */
+        .matrix-wrap {
+            width: 100%; overflow-x: auto;
+            border-radius: 1.25rem; border: 1px solid #bfc7cf;
+            background: #ffffff;
+            box-shadow: 0 4px 20px rgba(0,101,139,0.03);
+            -ms-overflow-style: none; scrollbar-width: none;
+        }
+        .matrix-wrap::-webkit-scrollbar { display: none; }
+
+        table { width: 100%; min-width: 0; border-collapse: collapse; text-align: left; table-layout: fixed; }
+        th {
+            padding: 12px 10px; background: #f1f4f6;
+            font-family: 'Inter'; font-weight: 600; font-size: 13px; color: #40484e;
+            border-bottom: 1px solid #bfc7cf; white-space: normal; line-height: 1.2; word-break: break-word;
+        }
+        td {
+            padding: 12px 10px; border-bottom: 1px solid #ebeef0;
+            transition: background 0.2s;
+            vertical-align: middle;
+        }
+        tr:hover td { background: rgba(196,231,255,0.15); }
+        tr:last-child td { border-bottom: none; }
+
+        .tool-cell { display: flex; align-items: flex-start; gap: 12px; font-weight: 600; color: #181c1e; font-size: 14.5px; }
+        .tool-icon-box {
+            width: 36px; height: 36px; border-radius: 10px; background: #f1f4f6;
+            display: flex; align-items: center; justify-content: center; color: #40484e; flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .tool-meta { display:flex; flex-direction:column; gap:0; min-height:auto; justify-content:center; }
+
+        .tool-icon-box img,
+        .tool-icon-box svg,
+        .tool-icon-box .material-symbols-outlined {
+            width:18px;
+            height:18px;
+            display:block;
+            margin:auto;
+            object-fit:contain;
+            line-height:1;
+        }
+        .tool-name { font-size: 33px; }
+
+        .radio-cell { cursor: pointer; text-align: center; }
+        .radio-ring {
+            width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+            border: 3px solid #c2c9d2; background: #ffffff; transition: all 0.2s ease; margin: 0 auto;
+        }
+        .radio-dot {
+            width: 12px; height: 12px; border-radius: 50%; background: transparent; transition: all 0.2s ease;
+        }
+        .radio-cell.checked .radio-ring { border-color: #00658b; }
+        .radio-cell.checked .radio-dot { background: #00658b; }
+        .radio-cell:hover .radio-ring { border-color: #00658b; background: #f7fafc; }
+
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        details[open] .chev { transform: rotate(180deg); }
+        .chev { transition: transform .22s; }
+
+
+        .scroll-hint { display: none; }
+
+
+        .ext-opt { display:flex; align-items:center; gap:16px; padding:16px 20px; border-radius:1rem; border:1.5px solid #bfc7cf; background:rgba(255,255,255,.72); cursor:pointer; transition:all .2s ease; margin-bottom:10px; }
+        .ext-opt:last-child { margin-bottom:0; }
+        .ext-opt:hover { border-color:#00658b; background:rgba(196,231,255,.2); transform:translateY(-1px); }
+        .ext-opt.on { border-color:#00658b; background:rgba(196,231,255,.38); }
+        .ext-opt .radio-ring {
+            width:22px; height:22px; border-radius:50%; flex-shrink:0;
+            border:2px solid #bfc7cf; background:white;
+            display:flex; align-items:center; justify-content:center;
+            margin:0;
+        }
+        .ext-opt .radio-dot { width:10px; height:10px; border-radius:50%; background:transparent; transition:all .2s ease; }
+        .ext-opt span { font-size:16px; font-weight:400; line-height:1.35; color:#181c1e; }
+        .ext-opt.on .radio-ring { border-color:#00658b; }
+        .ext-opt.on .radio-dot { background:#00658b; }
+    </style>
+</head>
+<body class="nebula-bg min-h-screen font-body text-on-surface antialiased flex flex-col">
+
+    <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+        <div class="nebula-blob absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full bg-[#7dd0ff]"></div>
+        <div class="nebula-blob absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-[#bae6ff]"></div>
+    </div>
+
+        <header class="w-full pt-[30px] pb-4 flex flex-row items-center justify-between gap-4 max-w-3xl mx-auto px-6 z-50 relative">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shrink-0 shadow-sm">
+                <span class="material-symbols-outlined text-white text-[32px]">shield_lock</span>
+            </div>
+            <div class="flex flex-col justify-center">
+                <h1 class="font-headline font-extrabold text-2xl tracking-tight text-on-surface leading-[1.1]">
+                    Shadow AI Scan
+                </h1>
+                <p class="text-[13px] font-medium text-ui-blue-grey tracking-wide">
+                    Veilig innoveren met AI
+                </p>
+            </div>
+        </div>
+        <span class="text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant bg-white/80 backdrop-blur border border-outline-variant/40 px-4 py-1.5 rounded-full shadow-sm whitespace-nowrap">
+            Vertrouwelijk &amp; anoniem
+        </span>
+    </header>
+
+    <div class="max-w-3xl mx-auto px-6 mb-6 w-full">
+        <div class="flex items-center gap-3">
+            <div class="flex gap-1.5 flex-1">
+                <div class="h-1.5 flex-1 rounded-full bg-primary"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-primary"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-primary"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-primary"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-surface-container-high"></div>
+            </div>
+            <span class="text-xs font-label text-on-surface-variant whitespace-nowrap">Stap 4 van 5</span>
+        </div>
+    </div>
+
+    <main class="flex-1 flex flex-col justify-center max-w-3xl mx-auto px-6 pb-24 w-full">
+        
+        <div class="glass-card rounded-[2rem] border border-white/80 shadow-[0_8px_40px_rgba(0,101,139,0.06)] p-8 md:p-10 relative">
+
+            <div class="mb-6">
+                <span class="inline-flex items-center gap-1.5 text-xs font-label font-semibold text-primary/70 uppercase tracking-widest mb-3">
+                    <span class="material-symbols-outlined text-[15px]">key</span>
+                    Toegang & Automatisering
+                </span>
+                <h2 class="font-headline font-extrabold text-[1.35rem] text-primary leading-[1.25]">
+                    Hoe gebruik je deze tools: via een zakelijke licentie of een privéaccount?
+                </h2>
+                <p class="text-[14.5px] text-on-surface-variant mt-2 max-w-xl leading-relaxed">
+                    Geef per tool aan wie het account beheert. We gebruiken dit overzicht om te bepalen waar de organisatie al regie heeft en voor welke tools veilige bedrijfslicenties nodig zijn.
+                </p>
+            </div>
+
+            <div class="mb-8">
+                <details class="group bg-surface-container-low border border-outline-variant/30 rounded-[1.25rem] p-1 shadow-sm">
+                    <summary class="flex items-center gap-2 p-3 cursor-pointer hover:bg-surface-container rounded-xl transition-colors">
+                        <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm shrink-0">
+                            <span class="material-symbols-outlined text-primary text-[18px]">info</span>
+                        </div>
+                        <span class="text-[13px] font-label font-semibold text-primary flex-1">Jouw data is  trainingsmateriaal voor AI</span>
+                        <span class="material-symbols-outlined text-on-surface-variant text-[20px] chev mr-1">expand_more</span>
+                    </summary>
+                    <div class="px-4 pb-4 pt-2 text-[13.5px] text-on-surface-variant leading-relaxed space-y-3">
+                        <p><strong>Let op:</strong> Het belangrijkste verschil is niet alleen gratis versus betaald, maar vooral wie het account beheert. Bij een privéaccount heeft de organisatie meestal geen grip op contracten, logging of bewaartermijnen. Zeker bij gratis varianten is jouw data vaak onderdeel van het verdienmodel. Help ons dit in kaart te brengen, zodat veilig gebruik beter gefaciliteerd kan worden.</p>
+                    </div>
+                </details>
+            </div>
+
+            <div class="scroll-hint items-center gap-2 text-xs text-on-surface-variant font-medium mb-3 bg-[#f7fafc] border border-outline-variant/30 py-2 px-3 rounded-lg w-max">
+                <span class="material-symbols-outlined text-[16px]">swipe</span>
+                <span>Veeg horizontaal om alle opties te zien</span>
+            </div>
+
+            <div id="matrix-container" class="matrix-wrap mb-6">
+                <table id="matrix-table">
+                    <thead>
+                        <tr>
+                            <th class="w-[30%]">Geselecteerde Tool</th>
+                            <th class="text-center w-[17%]">
+                                <div class="text-[#181c1e]">Zakelijke licentie</div>
+                            </th>
+                            <th class="text-center w-[17%]">
+                                <div class="text-[#181c1e]">Privéaccount (gratis)</div>
+                            </th>
+                            <th class="text-center w-[17%]">
+                                <div class="text-[#181c1e]">Privéaccount (betaald)</div>
+                            </th>
+                            <th class="text-center w-[17%]">
+                                <div class="text-[#181c1e]">Beide</div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="matrix-body"></tbody>
+                </table>
+            </div>
+
+
+
+            <div class="mt-7 mb-6 p-5 rounded-2xl border border-outline-variant/45 bg-surface-container-low">
+                <h3 class="font-headline font-extrabold text-[1.35rem] text-primary leading-[1.25] mb-3">
+                    Gebruik je AI-browserextensies die mogelijk meekijken tijdens je werk?
+                </h3>
+                <div id="ext-options">
+                    <div class="ext-opt" data-val="ja_bewust" onclick="selectExtOpt(this)">
+                        <div class="radio-ring"><div class="radio-dot"></div></div>
+                        <span>Ja, ik gebruik deze bewust (bijv. voor samenvattingen of vertalingen).</span>
+                    </div>
+                    <div class="ext-opt" data-val="ja_onzeker" onclick="selectExtOpt(this)">
+                        <div class="radio-ring"><div class="radio-dot"></div></div>
+                        <span>Ik heb ze geinstalleerd, maar weet niet zeker of ze meekijken.</span>
+                    </div>
+                    <div class="ext-opt" data-val="nee" onclick="selectExtOpt(this)">
+                        <div class="radio-ring"><div class="radio-dot"></div></div>
+                        <span>Nee, ik gebruik geen AI-extensies.</span>
+                    </div>
+                    <div class="ext-opt" data-val="weet_niet" onclick="selectExtOpt(this)">
+                        <div class="radio-ring"><div class="radio-dot"></div></div>
+                        <span>Ik weet niet precies wat dit zijn.</span>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="mt-7 mb-6">
+                <h3 class="font-headline font-extrabold text-[1.35rem] text-primary leading-[1.25] mb-1">
+                    Experimenteer je met AI-agents of automatisering?
+                </h3>
+                <p class="text-sm text-on-surface-variant mb-3">
+                    Gebruik je tools die zelfstandig taken voor je uitvoeren (zoals AutoGPT, agents in Poe, of gekoppelde AI-workflows via Zapier/Make)?
+                </p>
+                <div id="automation-options">
+                    <div class="ext-opt" data-val="alleen_chatbot" onclick="selectAutomationOpt(this)">
+                        <div class="radio-ring"><div class="radio-dot"></div></div>
+                        <span>Nee, ik gebruik AI alleen als chatbot (vraag &amp; antwoord).</span>
+                    </div>
+                    <div class="ext-opt" data-val="agents_reeks_taken" onclick="selectAutomationOpt(this)">
+                        <div class="radio-ring"><div class="radio-dot"></div></div>
+                        <span>Ja, ik experimenteer met agents die zelfstandig een reeks taken uitvoeren.</span>
+                    </div>
+                    <div class="ext-opt" data-val="gekoppeld_apps" onclick="selectAutomationOpt(this)">
+                        <div class="radio-ring"><div class="radio-dot"></div></div>
+                        <span>Ja, ik heb AI gekoppeld aan andere apps (bijv. e-mail, agenda of spreadsheets).</span>
+                    </div>
+                    <div class="ext-opt" data-val="weet_niet_zeker" onclick="selectAutomationOpt(this)">
+                        <div class="radio-ring"><div class="radio-dot"></div></div>
+                        <span>Ik weet het niet zeker, maar ik gebruik tools die automatisch werkzaamheden uitvoeren.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-6 border-t border-outline-variant/30">
+                <button onclick="window.history.back()"
+                    class="group inline-flex items-center gap-2 text-on-surface-variant hover:text-primary font-label font-semibold text-sm transition-colors">
+                    <span class="material-symbols-outlined text-[20px] group-hover:-translate-x-0.5 transition-transform">arrow_back</span>
+                    Vorige
+                </button>
+                
+                <button id="btn-next" disabled onclick="goNext()"
+                    class="group inline-flex items-center gap-2 bg-primary hover:bg-[#004c6a] text-white px-8 py-3.5 rounded-full font-headline font-bold text-sm shadow-lg transition-all duration-300 hover:-translate-y-0.5">
+                    Volgende stap
+                    <span class="material-symbols-outlined text-[20px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        const COLS = [
+            { id: 'zakelijke_licentie', label: 'Zakelijke licentie' },
+            { id: 'prive_gratis', label: 'Privéaccount (gratis)' },
+            { id: 'prive_betaald', label: 'Privéaccount (betaald)' },
+            { id: 'beide', label: 'Beide' },
+        ];
+
+        const DEFAULT_TOOLS = [
+            { id: 'gpt', tool_code: 'gpt', name: 'ChatGPT', tool_label: 'ChatGPT', icon: 'forum', selections: [], selection_kind: 'use_case' },
+            { id: 'midjourney', tool_code: 'midjourney', name: 'Midjourney', tool_label: 'Midjourney', icon: 'image_search', selections: [], selection_kind: 'use_case' },
+            { id: 'notion', tool_code: 'notion', name: 'Notion AI', tool_label: 'Notion AI', icon: 'book', selections: [], selection_kind: 'use_case' },
+            { id: 'canva', tool_code: 'canva', name: 'Canva', tool_label: 'Canva', icon: 'palette', selections: [], selection_kind: 'use_case' }
+        ];
+
+        let tools = [];
+        let matrixState = {};
+        let extSelected = sessionStorage.getItem('browser_extensie') || null;
+        let automationSelected = sessionStorage.getItem('ai_automatisering') || null;
+
+        function normalizeToolEntry(entry, fallbackId) {
+            const id = entry.id || entry.tool_code || fallbackId || `tool_${Date.now()}`;
+            const name = entry.name || entry.tool_label || entry.label || id;
+            const selections = Array.isArray(entry.selections)
+                ? entry.selections
+                : Array.isArray(entry.selected_labels)
+                    ? entry.selected_labels.map((label, index) => ({
+                        code: Array.isArray(entry.selected_codes) ? entry.selected_codes[index] || label : label,
+                        label,
+                        kind: entry.selection_kind || 'use_case'
+                    }))
+                    : Array.isArray(entry.toepassingen)
+                        ? entry.toepassingen.map(label => ({ code: label, label, kind: entry.selection_kind || 'use_case' }))
+                        : [];
+
+            return {
+                id,
+                tool_code: entry.tool_code || id,
+                name,
+                tool_label: entry.tool_label || name,
+                icon: entry.icon || 'smart_toy',
+                iconHtml: entry.iconHtml || '',
+                category_code: entry.category_code || null,
+                selection_kind: entry.selection_kind || (entry.context_codes?.length ? 'context' : 'use_case'),
+                selected_codes: Array.isArray(entry.selected_codes) ? entry.selected_codes : selections.map(item => item.code),
+                selected_labels: Array.isArray(entry.selected_labels) ? entry.selected_labels : selections.map(item => item.label),
+                use_case_codes: Array.isArray(entry.use_case_codes) ? entry.use_case_codes : [],
+                context_codes: Array.isArray(entry.context_codes) ? entry.context_codes : [],
+                selections
+            };
+        }
+
+        try {
+            const raw = sessionStorage.getItem('geselecteerde_tools') || sessionStorage.getItem('tools');
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    tools = parsed.map((entry, index) => normalizeToolEntry(entry, `tool_${index}`));
+                } else if (Object.keys(parsed).length > 0) {
+                    tools = Object.entries(parsed).map(([id, data]) => normalizeToolEntry(data, id));
+                }
+            }
+        } catch(e) { console.error("Kon tools niet laden:", e); }
+
+        if (tools.length === 0) tools = DEFAULT_TOOLS;
+
+        const tbody = document.getElementById('matrix-body');
+        const nextBtn = document.getElementById('btn-next');
+
+        const SIMPLE_ICON_SLUGS = {
+            gpt: 'openai',
+            chatgpt: 'openai',
+            claude: 'anthropic',
+            gemini: 'googlegemini',
+            copilot: 'microsoftcopilot',
+            perplexity: 'perplexity',
+            deepseek: 'deepseek',
+            mistral: 'mistralai',
+            grammarly: 'grammarly',
+            jasper: 'jasper',
+            notion: 'notion',
+            gamma: 'gamma',
+            canva: 'canva',
+            firefly: 'adobefirefly',
+            midjourney: 'midjourney',
+            dalle: 'openai',
+            runway: 'runway',
+            synthesia: 'synthesia',
+            elevenlabs: 'elevenlabs',
+            otter: 'otterai',
+            tldv: 'tldv',
+            tactiq: 'tactiq',
+            github_copilot: 'githubcopilot',
+            cursor: 'cursor',
+            tabnine: 'tabnine',
+            n8n: 'n8n',
+            make: 'make',
+            zapier: 'zapier',
+            m365: 'microsoft365',
+            gworkspace: 'googleworkspace',
+            hubspot: 'hubspot',
+            salesforce: 'salesforce',
+            pipedrive: 'pipedrive',
+            monday: 'mondaydotcom'
+        };
+
+        const SIMPLE_ICON_COLORS = {
+            openai: '000000',
+            anthropic: '191919',
+            googlegemini: '4285F4',
+            microsoftcopilot: '0078D4',
+            githubcopilot: '181717',
+            canva: '00C4CC',
+            salesforce: '00A1E0',
+            pipedrive: '0A7D3B',
+            mondaydotcom: 'FF3D57'
+        };
+
+        function getFallbackLogoHtml(tool) {
+            const id = (tool.id || '').toLowerCase();
+            const displayIcon = tool.icon || 'smart_toy';
+
+            if (id === 'm365') {
+                return `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;"><svg viewBox="0 0 24 24" width="18" height="18" aria-label="M365 logo" role="img"><defs><linearGradient id="m365g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0ea5e9"/><stop offset="45%" stop-color="#84cc16"/><stop offset="100%" stop-color="#f43f5e"/></linearGradient></defs><path fill="url(#m365g)" d="M5.2 5.4c0-1.3 1.4-2.1 2.5-1.4l4.4 2.7c.9.5 1.4 1.4 1.4 2.4v5.8c0 1.3-1.4 2.1-2.5 1.4l-4.4-2.7c-.9-.5-1.4-1.4-1.4-2.4z"/><path fill="#2563eb" d="M13.2 7.3 18.8 4c1.1-.7 2.5.1 2.5 1.4v8.2c0 1-.5 1.9-1.4 2.4l-5.6 3.3c-1.1.7-2.5-.1-2.5-1.4V9.7c0-1 .5-1.9 1.4-2.4z"/></svg></span>`;
+            }
+            if (id === 'gworkspace') {
+                return `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;"><svg viewBox="0 0 24 24" width="18" height="18" aria-label="Google Workspace logo" role="img"><rect x="4" y="4" width="16" height="16" rx="3" fill="#fff"/><path d="M4 10h8V4H7a3 3 0 0 0-3 3z" fill="#ea4335"/><path d="M12 4v6h8V7a3 3 0 0 0-3-3z" fill="#fbbc05"/><path d="M20 10h-8v10h5a3 3 0 0 0 3-3z" fill="#34a853"/><path d="M12 20V10H4v7a3 3 0 0 0 3 3z" fill="#4285f4"/></svg></span>`;
+            }
+
+            const slug = SIMPLE_ICON_SLUGS[id] || SIMPLE_ICON_SLUGS[(tool.name || '').toLowerCase()];
+            if (!slug) {
+                return `<span class="material-symbols-outlined text-[18px]">${displayIcon}</span>`;
+            }
+            const color = SIMPLE_ICON_COLORS[slug] || '111827';
+            return `<img src="https://cdn.simpleicons.org/${slug}/${color}?v=4" alt="${tool.name || id} logo" style="width:18px;height:18px;object-fit:contain;display:block;" loading="lazy" referrerpolicy="no-referrer" data-fallback-icon="${displayIcon}">`;
+        }
+
+        function sanitizeIconMarkup(raw, tool) {
+            if (!raw || typeof raw !== 'string') return getFallbackLogoHtml(tool);
+            const wrap = document.createElement('div');
+            wrap.innerHTML = raw;
+            const el = wrap.querySelector('img,svg,span');
+            if (!el) return getFallbackLogoHtml(tool);
+
+            if (el.tagName === 'IMG') {
+                const src = el.getAttribute('src') || '';
+                if (!src) return getFallbackLogoHtml(tool);
+                const alt = el.getAttribute('alt') || `${tool.name || tool.id || 'tool'} logo`;
+                return `<img src="${src}" alt="${alt}" style="width:18px;height:18px;object-fit:contain;display:block;" loading="lazy" referrerpolicy="no-referrer" data-fallback-icon="${tool.icon || 'smart_toy'}">`;
+            }
+            if (el.tagName === 'SVG') {
+                return `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;">${el.outerHTML}</span>`;
+            }
+            if (el.tagName === 'SPAN') {
+                if (el.classList.contains('material-symbols-outlined')) {
+                    const iconName = (el.textContent || tool.icon || 'smart_toy').trim();
+                    return `<span class="material-symbols-outlined text-[18px]">${iconName}</span>`;
+                }
+                return `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;">${el.innerHTML}</span>`;
+            }
+            return getFallbackLogoHtml(tool);
+        }
+
+        function attachIconFallbacks() {
+            document.querySelectorAll('.tool-icon-box img[data-fallback-icon]').forEach(img => {
+                img.onerror = () => {
+                    const sp = document.createElement('span');
+                    sp.className = 'material-symbols-outlined text-[18px]';
+                    sp.textContent = img.getAttribute('data-fallback-icon') || 'smart_toy';
+                    img.replaceWith(sp);
+                };
+            });
+        }
+
+        tools.forEach(t => {
+            matrixState[t.id] = {
+                tool_id: t.id,
+                tool_code: t.tool_code || t.id,
+                tool_label: t.tool_label || t.name,
+                account_type_code: null,
+                category_code: t.category_code || null,
+                selection_kind: t.selection_kind || 'use_case',
+                selected_codes: t.selected_codes || [],
+                selected_labels: t.selected_labels || [],
+                use_case_codes: t.use_case_codes || [],
+                context_codes: t.context_codes || [],
+                selections: t.selections || []
+            };
+            const tr = document.createElement('tr');
+            const iconMarkup = t.iconHtml && t.iconHtml.trim().length > 0
+                ? sanitizeIconMarkup(t.iconHtml, t)
+                : getFallbackLogoHtml(t);
+            const selectionSummary = (t.selected_labels || []).length
+                ? `<div class="text-[12px] text-on-surface-variant mt-1">${(t.selected_labels || []).join(', ')}</div>`
+                : '';
+            let html = `
+                <td>
+                    <div class="tool-cell">
+                        <div class="tool-icon-box">
+                            ${iconMarkup}
+                        </div>
+                        <div class="tool-meta">
+                            <span class="text-[16px] text-on-surface">${t.name}</span>
+                            ${selectionSummary}
+                        </div>
+                    </div>
+                </td>
+            `;
+            COLS.forEach(c => {
+                html += `
+                    <td class="radio-cell" id="rb-${t.id}-${c.id}" onclick="selectCol('${t.id}', '${c.id}')">
+                        <div class="radio-ring"><div class="radio-dot"></div></div>
+                    </td>
+                `;
+            });
+            tr.innerHTML = html;
+            tbody.appendChild(tr);
+        });
+
+        attachIconFallbacks();
+
+        if (extSelected) {
+            const extEl = document.querySelector(`.ext-opt[data-val="${extSelected}"]`);
+            if (extEl) extEl.classList.add('on');
+        }
+
+        if (automationSelected) {
+            const autoEl = document.querySelector(`#automation-options .ext-opt[data-val="${automationSelected}"]`);
+            if (autoEl) autoEl.classList.add('on');
+        }
+
+        function selectCol(toolId, colId) {
+            COLS.forEach(c => {
+                document.getElementById(`rb-${toolId}-${c.id}`)?.classList.remove('checked');
+            });
+            document.getElementById(`rb-${toolId}-${colId}`)?.classList.add('checked');
+            matrixState[toolId].account_type_code = colId;
+            updateUI();
+        }
+
+        function selectExtOpt(el) {
+            document.querySelectorAll('#ext-options .ext-opt').forEach(o => o.classList.remove('on')); 
+            el.classList.add('on');
+            extSelected = el.dataset.val;
+            updateUI();
+        }
+
+        function selectAutomationOpt(el) {
+            document.querySelectorAll('#automation-options .ext-opt').forEach(o => o.classList.remove('on'));
+            el.classList.add('on');
+            automationSelected = el.dataset.val;
+            updateUI();
+        }
+
+        function updateUI() {
+            const vals = Object.values(matrixState);
+            const allFilled  = vals.every(v => v.account_type_code !== null);
+            const hasExt = !!extSelected;
+            const hasAutomation = !!automationSelected;
+            document.getElementById('btn-next').disabled = !(allFilled && hasExt && hasAutomation);
+        }
+
+        function goNext() {
+            const legacyMatrixState = Object.fromEntries(
+                Object.entries(matrixState).map(([toolId, value]) => [toolId, value.account_type_code])
+            );
+            sessionStorage.setItem('accounttype', JSON.stringify(legacyMatrixState));
+            sessionStorage.setItem('accounttype_by_tool', JSON.stringify(matrixState));
+            sessionStorage.setItem('browser_extensie', extSelected || '');
+            sessionStorage.setItem('ai_automatisering', automationSelected || '');
+            window.location.href = 'screen-07-vaardigheid-spelregels.html';
+        }
+    </script>
+</body>
+</html>
+

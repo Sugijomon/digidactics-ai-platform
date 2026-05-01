@@ -10,7 +10,7 @@ Voor de toolpicker (scherm 04) is de dubbele structuur expliciet opgenomen: geko
 
 ## Scherm 02 - Jouw werkplek
 
-* Vraag: In welk vakgebied werk je voornamelijk?
+* Vraag: Binnen welk vakgebied ben je voornamelijk actief?
 * Antwoordopties:
 
   * IT, Data \& Development

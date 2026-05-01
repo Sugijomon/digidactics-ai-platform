@@ -45,7 +45,7 @@ Rationale:
 Recommended Q2 copy:
 
 ```txt
-Vraag: In welk vakgebied werk je voornamelijk?
+Vraag: Binnen welk vakgebied ben je voornamelijk actief?
 ```
 
 Suggested option values can still map to stable internal codes, for example:

@@ -2,7 +2,7 @@
 
 This document is the active product specification for the Shadow AI Scan respondent survey.
 
-Source references, including older question/answer overviews, live under `references/source-docs/sai/survey/`. Those files are historical input, not the active source of truth.
+Source references and question/answer overviews live under `references/source-docs/sai/survey/`. Active implementation decisions are summarized in this spec.
 
 ## Product Boundary
 
@@ -41,11 +41,6 @@ Rationale:
 - “Afdeling” sounds like a formal org chart unit.
 - “Vakgebied” is broader and works better for smaller organizations, hybrid roles, and cross-functional work.
 - It reduces the feeling that the scan is identifying a person by department.
-
-Historical reference note:
-
-- `references/source-docs/sai/survey/vragen-antwoorden-overzicht-V8.md` still uses “afdeling” in Q2.
-- Production copy should use “vakgebied” unless a later decision changes this.
 
 Recommended Q2 copy:
 

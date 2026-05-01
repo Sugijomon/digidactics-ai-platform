@@ -10,7 +10,7 @@ Voor de toolpicker (scherm 04) is de dubbele structuur expliciet opgenomen: geko
 
 ## Scherm 02 - Jouw werkplek
 
-* Vraag: Op welke afdeling werk je voornamelijk?
+* Vraag: In welk vakgebied werk je voornamelijk?
 * Antwoordopties:
 
   * IT, Data \& Development
@@ -33,7 +33,7 @@ Voor de toolpicker (scherm 04) is de dubbele structuur expliciet opgenomen: geko
 * Vraag 2 (conditioneel als 'geen AI-tools'): Wat is de belangrijkste reden?
 
   * Ik zie de toegevoegde waarde nog niet
-  * Het is expliciet verboden op mijn afdeling
+  * Het is expliciet verboden binnen mijn vakgebied
   * Ik weet niet hoe ik moet beginnen
 * Vraag 3: Waarom gebruik je AI-tools in je werk?
 

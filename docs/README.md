@@ -10,6 +10,6 @@ Core documents:
 - `domain-decisions.md` — durable product, domain, compliance, and architecture decisions.
 - `development-workflow.md` — how Codex, ChatGPT, GitHub, Vercel, and Supabase are used together.
 - `risk-engine-spec.md` — Shadow AI Scan scoring and risk logic.
+- `survey-flow-spec.md` — respondent survey flow, terminology, and implementation notes.
 
 Rule of thumb: if a decision would be painful to rediscover later, document it here.
-

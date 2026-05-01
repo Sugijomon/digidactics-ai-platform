@@ -30,7 +30,7 @@ Update Supabase migration files when schema or RLS changes.
 
 ## Architecture
 
-- Monorepo with Next.js apps.
+- Lean monorepo with Next.js apps.
 - Apps live in `apps/`.
 - Shared logic lives in `packages/`.
 - Supabase migrations live in `supabase/migrations/`.
@@ -41,8 +41,6 @@ Expected structure:
 ```txt
 apps/
   sai/
-  rai/
-  marketing/
 packages/
   auth/
   database/
@@ -51,13 +49,15 @@ packages/
   config/
 supabase/
   migrations/
-  functions/
 docs/
+design-html/
+  sai/
+references/
 ```
 
-Start with `apps/sai`, `packages/domain`, `packages/database`, `packages/auth`, `packages/ui`, `supabase/migrations`, and `docs`.
+Start with `apps/sai`, `packages/domain`, `packages/database`, `packages/auth`, `packages/ui`, `supabase/migrations`, `docs`, `design-html/sai`, and `references`.
 
-`apps/rai` may start as a placeholder until the RouteAI platform surface is ready.
+Do not scaffold `apps/rai` or `apps/marketing` as full applications in phase 1. They are future app surfaces and should be added when there is real implementation work.
 
 ## Development Rules
 
@@ -68,6 +68,8 @@ Start with `apps/sai`, `packages/domain`, `packages/database`, `packages/auth`, 
 - Shared UI primitives belong in `packages/ui`.
 - App-specific pages and composed experiences live under the relevant app, starting with `apps/sai`.
 - Keep SAI commercially simple, but build it on the same technical foundation as RAI.
+- Keep phase 1 lean. Do not build the full RAI governance suite before SAI works.
+- Keep Next.js, React, TypeScript, Tailwind, shadcn/ui, and related tooling on the same major versions across apps unless a documented decision says otherwise.
 - Inspect existing schema, types, and docs before changing implementation.
 - Prefer minimal, targeted changes.
 - Do not change unrelated UI.
@@ -108,4 +110,3 @@ Before making domain-level changes, read:
 - `docs/architecture.md`
 - `docs/risk-engine-spec.md`
 - `docs/development-workflow.md`
-

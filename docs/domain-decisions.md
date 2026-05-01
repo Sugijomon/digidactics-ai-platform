@@ -25,6 +25,10 @@ SAI will be developed as the first product/module of the broader RAI / RouteAI p
 
 The codebase will use a monorepo structure with separate Next.js apps under `apps/` and shared packages under `packages/`.
 
+In phase 1, only `apps/sai` will be built as a real Next.js application.
+
+RAI and marketing will not be scaffolded as full applications yet. They are future platform surfaces and will be added when the SAI foundation is stable.
+
 SAI and RAI will share:
 
 - Supabase database schema
@@ -42,10 +46,14 @@ RAI later exposes the broader governance platform, including policy management, 
 
 Rationale:
 
+- reduces early complexity
 - prevents rebuilding SAI when moving toward RAI
 - keeps scoring and governance logic consistent
 - supports commercial separation while preserving technical coherence
+- avoids premature maintenance of multiple apps
 - enables shared auditability and future compliance reporting
+
+All apps should use the same major versions of Next.js, React, TypeScript, Tailwind, shadcn/ui, and related tooling unless there is a documented reason to diverge.
 
 ## Decision: SAI Is Sold Separately But Not Built Separately
 
@@ -60,6 +68,36 @@ Technically, SAI must remain on the same foundation as RAI:
 - same reusable UI language
 
 This avoids a future migration from a scan prototype into a governance platform.
+
+## Decision: Keep Phase 1 Lean
+
+The phase 1 goal is a working SAI product foundation:
+
+- auth and organization basis
+- Shadow AI Scan survey flow
+- tool inventory capture
+- account type, data type, use case, and context registration
+- server-side or server-trusted risk scoring
+- Supabase persistence
+- basic DPO dashboard
+- audit-friendly result storage
+
+The phase 1 goal is not the full RAI governance suite.
+
+Avoid creating empty or half-maintained apps and packages before they are needed. `apps/rai` and `apps/marketing` should be introduced only when there is real implementation work for those surfaces.
+
+## Decision: `design-html` And `references` Are Not Product Specs
+
+`design-html/sai` stores high-fidelity HTML prototypes. These are visual references for production React components, not production implementation.
+
+`references` stores source material, Lovable exports, architecture inputs, and historical context. It is read-only context.
+
+Active product decisions and specifications belong in `docs/`, especially:
+
+- `docs/domain-decisions.md`
+- `docs/architecture.md`
+- `docs/risk-engine-spec.md`
+- `docs/database-model.md`
 
 ## Decision: Next.js App Router And Server/Client Boundary
 
@@ -151,4 +189,3 @@ Risk emerges from combinations of:
 - governance maturity
 
 UI copy must not present legal conclusions without documented rationale.
-

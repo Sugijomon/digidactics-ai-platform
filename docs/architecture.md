@@ -16,14 +16,12 @@ SAI apart verkopen, maar niet apart bouwen.
 
 ## Repository Model
 
-This repository uses a monorepo model:
+This repository uses a lean monorepo model. In phase 1, only SAI is built as a real Next.js app. RAI and marketing are future platform surfaces and should not be scaffolded as full apps until SAI is stable.
 
 ```txt
 digidactics-ai-platform/
   apps/
     sai/
-    rai/
-    marketing/
   packages/
     auth/
     database/
@@ -32,9 +30,20 @@ digidactics-ai-platform/
     config/
   supabase/
     migrations/
-    functions/
   docs/
+  design-html/
+    sai/
+  references/
 ```
+
+Future app folders:
+
+```txt
+apps/rai
+apps/marketing
+```
+
+These are documented as future surfaces, not maintained as placeholder applications in phase 1.
 
 ## Apps
 
@@ -53,7 +62,7 @@ The first product surface:
 
 ### `apps/rai`
 
-The broader RouteAI platform, added later:
+Future app. The broader RouteAI platform, added later:
 
 - organization AI policy
 - tool approval workflows
@@ -66,7 +75,21 @@ The broader RouteAI platform, added later:
 
 ### `apps/marketing`
 
-Optional future Next.js marketing surface. Marketing can remain outside this monorepo for now if WordPress/DigitalOcean stays in place.
+Future app. Optional Next.js marketing surface. Marketing can remain outside this monorepo for now if WordPress/DigitalOcean stays in place.
+
+## Design Prototypes And References
+
+### `design-html/sai`
+
+Stores high-fidelity HTML prototypes for SAI dashboards and flows.
+
+These files are design references, not production code. They are the visual source of truth while React components are built in `apps/sai`.
+
+### `references`
+
+Stores source material and historical references such as Lovable exports, RouteAI source notes, architecture documents, and research inputs.
+
+References are read-only context. Decisions and active product specifications must live in `docs/`.
 
 ## Shared Packages
 
@@ -127,7 +150,7 @@ SAI and RAI should share a visual language, while allowing different product com
 
 ## Next.js App Router
 
-Each app uses the Next.js App Router. Example for SAI:
+SAI uses the Next.js App Router:
 
 ```txt
 apps/sai/
@@ -211,13 +234,17 @@ RLS is mandatory for all product tables.
 
 ## Deployment
 
-Vercel should use separate projects per app inside the monorepo:
+In phase 1, only SAI is deployed from the monorepo:
 
 ```txt
 Vercel project: sai -> Root Directory: apps/sai
+```
+
+Later, Vercel can use separate projects per app inside the same monorepo:
+
+```txt
 Vercel project: rai -> Root Directory: apps/rai
 Vercel project: marketing -> Root Directory: apps/marketing
 ```
 
 This allows independent deployments from one shared codebase.
-

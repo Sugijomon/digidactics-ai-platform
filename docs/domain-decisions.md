@@ -176,6 +176,8 @@ Unknown tools are not automatically prohibited.
 
 GPAI status is descriptive metadata and does not by itself determine the user route or risk tier.
 
+SAI does not use a separate `catalog_beheerstatus` field. Tool governance in SAI is based on organization-specific policy status. Future RouteAI Model Library statuses, such as curator review status, adapter source status, typekaart update status, or model/typekaart linkage, are separate metadata layers and must not be used as SAI scoring inputs.
+
 Risk emerges from combinations of:
 
 - tool status

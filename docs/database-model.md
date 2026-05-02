@@ -303,6 +303,16 @@ sort_order
 
 ## Tool Catalog And Organization Policy
 
+SAI does not use a separate `catalog_beheerstatus` field.
+
+For SAI, the operational governance field is the organization-specific tool status:
+
+```txt
+org_policy_status_code
+```
+
+Future RouteAI Model Library status fields, such as typekaart curation status, adapter status, or update review status, belong to the Model Library layer and must not be mixed into the SAI scoring model.
+
 ### `tool_catalog`
 
 Global tool catalog.

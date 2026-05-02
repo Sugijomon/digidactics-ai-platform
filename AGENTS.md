@@ -109,4 +109,5 @@ Before making domain-level changes, read:
 - `docs/domain-decisions.md`
 - `docs/architecture.md`
 - `docs/risk-engine-spec.md`
+- `docs/database-model.md`
 - `docs/development-workflow.md`

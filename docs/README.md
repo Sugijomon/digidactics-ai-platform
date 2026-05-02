@@ -11,5 +11,6 @@ Core documents:
 - `development-workflow.md` — how Codex, ChatGPT, GitHub, Vercel, and Supabase are used together.
 - `risk-engine-spec.md` — Shadow AI Scan scoring and risk logic.
 - `survey-flow-spec.md` — respondent survey flow, terminology, and implementation notes.
+- `database-model.md` — active product-level database model before executable migrations.
 
 Rule of thumb: if a decision would be painful to rediscover later, document it here.

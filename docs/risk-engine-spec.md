@@ -43,13 +43,15 @@ The engine works from source observations toward DPO action in this order:
 4. exposure score: use and data risk
 5. priority score and aggregation: DPO triage and respondent/run-level output
 
-Scoring should preserve the heaviest contributing combination. Conceptually, the method evaluates:
+Scoring should preserve the heaviest contributing usage pattern. The proportional exposure layer is:
 
 ```txt
-tool x use case x context x account type x data type
+use_case_base x context_multiplier x account_multiplier
 ```
 
-The implementation may simplify parts of this in the MVP, but dashboards and audit output should still explain the highest-risk contributing combination where possible.
+Data type is not part of that multiplier layer. It is asked generically for the run and becomes an additive `data_boost`. Frequency, automation, browser extension use, and agentic behavior are also additive boosts.
+
+Dashboards and audit output should explain the highest-risk contributing tool/use-case/context/account pattern where possible, plus the generic additive boosts that raised the exposure score.
 
 ## Scores
 
@@ -126,6 +128,8 @@ These signals are additive boosts:
 
 Frequency belongs in `exposure_score` as `frequency_boost`, not as a late priority correction. It represents cumulative exposure and should remain visible on the exposure axis.
 
+Account type is a multiplier because it is captured per selected tool and expresses organization control over that specific tool use. Data type is a boost because it is captured generically for the run and acts as a sensitivity proxy.
+
 ### 2. Toxic Combination Cap
 
 The toxic boost is controlled and additive:
@@ -146,7 +150,7 @@ Principle:
 - additional tools may contribute only through a dampened addition
 - final run-level/person score is capped at 100
 
-Rationale: one critical tool/use-case/data combination should not disappear into an average, and ten low-risk tools should not outweigh one urgent DPO case.
+Rationale: one critical tool/use-case/context/account pattern with high additive boosts should not disappear into an average, and ten low-risk tools should not outweigh one urgent DPO case.
 
 The exact dampening formula may be finalized during implementation, but the methodological rule is fixed: quality of risk dominates quantity of tools.
 

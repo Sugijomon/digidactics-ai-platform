@@ -233,9 +233,11 @@ created_at
 
 Implementation note:
 
-- V8.1 scoring is methodologically based on the combination of tool, use case, context, account type, and data type.
+- V8.1 scoring separates proportional exposure inputs from generic additive boosts.
+- The proportional exposure layer is based on use case, context, and account type.
+- Data type is asked generically for the run and is used as an additive `data_boost`, not as a multiplier.
 - If a context is asked for a specific use case, implementation should preserve that relation where feasible.
-- For the MVP, context may be simplified when it is only asked for specific diagnostic cases, but the risk engine and dashboard should still identify the highest-risk contributing combination as far as the stored data allows.
+- For the MVP, context may be simplified when it is only asked for specific diagnostic cases, but the risk engine and dashboard should still identify the highest-risk contributing tool/use-case/context/account pattern plus the generic additive boosts as far as the stored data allows.
 
 ## Data Types
 

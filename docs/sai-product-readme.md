@@ -80,7 +80,7 @@ RouteAI blijft de vervolglaag voor use-casebeoordeling, compliance passport, mod
 De scan rekent niet met een enkel oud risicogetal. V8.1 splitst de uitkomst in:
 
 - `shadow_score`: governance-afwijking op basis van organisatiebeleid/toolstatus;
-- `exposure_score`: blootstelling vanuit toepassing, context, account, datatype, frequentie en technische versnellers;
+- `exposure_score`: blootstelling vanuit toepassing, context en account als proportionele laag, aangevuld met datatype, frequentie en technische versnellers als additieve boosts;
 - `priority_score`: DPO-triage op basis van shadow, exposure, toxic boost en reviewtriggers.
 
 Een goedgekeurde tool kan dus `shadow_score = 0` hebben en toch een hoge `exposure_score` of reviewtrigger krijgen, bijvoorbeeld bij gevoelige data.

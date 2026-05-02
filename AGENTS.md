@@ -81,7 +81,9 @@ Do not scaffold `apps/rai` or `apps/marketing` as full applications in phase 1. 
 - Unknown tools are not automatically prohibited.
 - Keep `org_policy_status` separate from EU AI Act prohibited or high-risk signals.
 - GPAI status is metadata, not a route factor by itself.
-- Risk emerges from the combination of tool status, use case, data type, account type, context, frequency, automation, extensions, and governance maturity.
+- Scoring uses separate shadow, exposure, and priority scores.
+- Proportional exposure inputs are `use_case_base`, `context_multiplier`, and `account_multiplier`.
+- Data type, frequency, automation, extensions, and agentic behavior are additive boosts, not extra multipliers.
 - Human-in-the-loop review is required for uncertain, low-confidence, prohibited, or high-impact cases.
 - Do not hard-code legal conclusions in UI copy without documenting the rationale.
 

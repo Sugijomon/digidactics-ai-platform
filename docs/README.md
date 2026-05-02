@@ -36,4 +36,8 @@ When a decision changes, update the leading source first. Then update only the d
 
 Historical documents, Lovable exports, and older source material may be kept locally or under `references/` when needed, but they are not active product specifications.
 
+Current source references include:
+
+- `references/source-docs/sai/methodology/Shadow_AI_Scan_Scoring_V8_1.docx` - original V8.1 methodology source for scoring, safeguards, and DPO interpretation.
+
 Rule of thumb: if a decision would be painful to rediscover later, document it here.

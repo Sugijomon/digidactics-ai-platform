@@ -231,6 +231,12 @@ context_code
 created_at
 ```
 
+Implementation note:
+
+- V8.1 scoring is methodologically based on the combination of tool, use case, context, account type, and data type.
+- If a context is asked for a specific use case, implementation should preserve that relation where feasible.
+- For the MVP, context may be simplified when it is only asked for specific diagnostic cases, but the risk engine and dashboard should still identify the highest-risk contributing combination as far as the stored data allows.
+
 ## Data Types
 
 ### `survey_data_type`

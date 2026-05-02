@@ -50,6 +50,8 @@ Use:
 6. Supabase migration files
 7. `AGENTS.md`
 
+Use `docs/sai-build-plan.md` as the practical checklist for the current SAI build sequence. Use `docs/domain-decisions.md` for durable decisions that affect product behavior, compliance, schema, scoring, or dashboard language.
+
 ## Codex Instructions
 
 Codex reads repository instructions from `AGENTS.md`.
@@ -117,4 +119,3 @@ Use migrations for schema and RLS.
 RLS is the security boundary. Client-side checks are for UX only.
 
 New product tables should be designed with SAI and RAI modularity in mind.
-

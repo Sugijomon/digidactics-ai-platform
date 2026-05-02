@@ -191,3 +191,34 @@ Risk emerges from combinations of:
 - governance maturity
 
 UI copy must not present legal conclusions without documented rationale.
+
+## Decision: Separate Runtime Configuration From Maintenance Content
+
+SAI should keep runtime scan configuration separate from maintenance and governance content.
+
+Runtime configuration is content the respondent flow directly needs, such as:
+
+- survey answer codes
+- toolpicker options
+- use case codes
+- data type codes
+- account type codes
+- context options used in the scan
+
+Maintenance content is content used to update, govern, enrich, or interpret the system, such as:
+
+- risk definitions
+- mapping rules
+- tool catalog enrichment
+- Model Library/typekaart metadata
+- prompt templates
+- legal or DPO review notes
+
+Rationale:
+
+- keeps the respondent flow stable and simple
+- allows tool and risk mappings to evolve without rewriting the scan UX
+- prevents future RouteAI Model Library metadata from becoming accidental SAI scoring input
+- supports auditability because runtime scoring inputs remain explicit
+
+The exact technical shape can be decided later. The principle is fixed: production scoring and survey runtime must not depend on informal maintenance notes or unreviewed catalog metadata.

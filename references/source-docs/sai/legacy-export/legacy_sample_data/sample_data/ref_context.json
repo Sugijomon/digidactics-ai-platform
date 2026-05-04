@@ -1,0 +1,57 @@
+[
+  {
+    "code": "intern_gebruik",
+    "label": "Intern gebruik",
+    "context_multiplier": 1.0
+  },
+  {
+    "code": "klantgerichte_toepassing",
+    "label": "Klantgerichte toepassing",
+    "context_multiplier": 1.3
+  },
+  {
+    "code": "beslisondersteuning",
+    "label": "Beslisondersteuning",
+    "context_multiplier": 1.4
+  },
+  {
+    "code": "besluiten_over_personen",
+    "label": "Besluiten over personen",
+    "context_multiplier": 1.8
+  },
+  {
+    "code": "hr_evaluatie",
+    "label": "HR & evaluatie",
+    "context_multiplier": 1.8
+  },
+  {
+    "code": "financieel_juridisch",
+    "label": "Financieel & juridisch",
+    "context_multiplier": 1.6
+  },
+  {
+    "code": "kritieke_systemen",
+    "label": "Kritieke systemen",
+    "context_multiplier": 2.0
+  },
+  {
+    "code": "nog_niet_duidelijk",
+    "label": "Nog niet duidelijk",
+    "context_multiplier": 1.1
+  },
+  {
+    "code": "autonome_uitvoering",
+    "label": "Autonome uitvoering",
+    "context_multiplier": 1.9
+  },
+  {
+    "code": "menselijke_review_verplicht",
+    "label": "Menselijke review verplicht",
+    "context_multiplier": 1.0
+  },
+  {
+    "code": "externe_systemen",
+    "label": "Externe systemen",
+    "context_multiplier": 1.3
+  }
+]

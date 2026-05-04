@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Shadow AI — Voortgang & Referentie Overzicht</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800;900&family=Inter:wght@400;500;600&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #f7f9fb;
+  --ink: #111827;
+  --muted: #64748b;
+  --rule: #e2e8f0;
+  --rule2: #f1f5f9;
+  --surface: #ffffff;
+  --green: #3e6a00; --green-bg: #edf7df; --green-border: #c3e89a;
+  --amber: #b45309; --amber-bg: #fff7ed; --amber-border: #fed7aa;
+  --red:   #b4292d; --red-bg:   #fdecea; --red-border: #fca5a5;
+  --blue:  #0e5a75; --blue-bg:  #e8f4fb; --blue-border: #93c5fd;
+  --violet: #6d28d9; --violet-bg: #f3edff;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.6;
+}
+main { max-width: 1240px; margin: 0 auto; padding: 36px 32px 80px; }
+
+/* ── Typography ── */
+.eyebrow {
+  font: 800 10px/1 'Manrope', sans-serif;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  display: block;
+  margin-bottom: 6px;
+}
+h1 { font: 900 32px/1.08 'Manrope', sans-serif; letter-spacing: -.03em; }
+h2 { font: 800 19px/1.2 'Manrope', sans-serif; letter-spacing: -.015em; }
+h3 { font: 700 14px/1.3 'Manrope', sans-serif; }
+.mono { font-family: 'DM Mono', monospace; }
+
+/* ── Page header ── */
+.page-head {
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 32px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+.page-head p { color: var(--muted); max-width: 680px; font-size: 13.5px; margin-top: 8px; line-height: 1.65; }
+
+/* ── Pill tags ── */
+.pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  border-radius: 999px; padding: 4px 10px;
+  font: 800 10.5px/1 'Manrope', sans-serif;
+  white-space: nowrap;
+}
+.pill-green  { background: var(--green-bg);  color: var(--green); }
+.pill-amber  { background: var(--amber-bg);  color: var(--amber); }
+.pill-red    { background: var(--red-bg);    color: var(--red);   }
+.pill-blue   { background: var(--blue-bg);   color: var(--blue);  }
+.pill-violet { background: var(--violet-bg); color: var(--violet);}
+.pill-gray   { background: #f1f5f9; color: var(--muted); }
+
+/* ── Blocks & cards ── */
+.block {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  padding: 24px 26px;
+  box-shadow: 0 4px 16px rgba(15,23,42,.05);
+  margin-bottom: 28px;
+}
+.block-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px; margin-bottom: 18px; padding-bottom: 16px;
+  border-bottom: 1px solid var(--rule2);
+}
+.block-head h2 { margin: 0; }
+.block-head p  { margin: 4px 0 0; color: var(--muted); font-size: 12.5px; }
+
+/* ── Section divider ── */
+.section-divider {
+  display: flex; align-items: center; gap: 14px;
+  margin: 36px 0 22px;
+}
+.section-divider h2 {
+  font: 800 13px/1 'Manrope', sans-serif;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); white-space: nowrap;
+}
+.section-divider::before, .section-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--rule);
+}
+
+/* ── Grid ── */
+.g2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.g4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.full { grid-column: 1/-1; }
+
+/* ── Verdict cards (oordeel per bestand) ── */
+.file-card {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(15,23,42,.04);
+}
+.file-card-head {
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--rule2);
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+}
+.file-name {
+  font: 700 12px/1.3 'DM Mono', monospace;
+  color: var(--blue);
+  display: block;
+  margin-bottom: 4px;
+}
+.file-card-body { padding: 14px 16px; }
+.verdict-item {
+  display: flex; gap: 8px; align-items: flex-start;
+  padding: 7px 0; border-bottom: 1px solid var(--rule2);
+  font-size: 12.5px; line-height: 1.45;
+}
+.verdict-item:last-child { border-bottom: 0; padding-bottom: 0; }
+.verdict-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  margin-top: 4px; flex-shrink: 0;
+}
+
+/* ── Chart catalogue ── */
+.chart-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.chart-table th {
+  font: 800 10px/1 'Manrope', sans-serif;
+  text-transform: uppercase; letter-spacing: .08em;
+  color: #94a3b8; text-align: left;
+  padding: 10px 12px; border-bottom: 2px solid var(--rule);
+  background: #f8fafc;
+}
+.chart-table td {
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--rule2);
+  vertical-align: top;
+  line-height: 1.45;
+}
+.chart-table tr:last-child td { border-bottom: 0; }
+.chart-table tr:hover td { background: #fafbfc; }
+.chart-type {
+  font: 700 12px/1.3 'Manrope', sans-serif;
+  color: var(--ink); display: block;
+}
+.chart-file {
+  font: 500 10px/1.2 'DM Mono', monospace;
+  color: #94a3b8; display: block; margin-top: 2px;
+}
+
+/* ── Recommendation matrix ── */
+.rec-matrix { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12.5px; }
+.rec-matrix th {
+  font: 800 10px/1 'Manrope', sans-serif;
+  text-transform: uppercase; letter-spacing: .08em;
+  color: #94a3b8; padding: 10px 14px;
+  border-bottom: 2px solid var(--rule);
+  background: #f8fafc;
+  text-align: left;
+}
+.rec-matrix td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--rule2);
+  vertical-align: top;
+  line-height: 1.5;
+}
+.rec-matrix tr:last-child td { border-bottom: 0; }
+.rec-matrix .pos { font-weight: 700; font-size: 13px; color: var(--ink); }
+
+/* ── Dumbbell mini-preview ── */
+.dumbbell-preview { padding: 8px 0; }
+.db-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 60px;
+  gap: 10px; align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--rule2);
+  font-size: 12px;
+}
+.db-row:last-child { border-bottom: 0; }
+.db-label b { display: block; font-weight: 700; font-size: 12px; }
+.db-label span { font-size: 10px; color: var(--muted); }
+.db-track {
+  height: 6px; background: #edf2f7; border-radius: 999px; position: relative;
+}
+.db-segment {
+  position: absolute; top: 50%; height: 4px;
+  border-radius: 999px; transform: translateY(-50%);
+}
+.db-dot {
+  position: absolute; top: 50%; transform: translate(-50%,-50%);
+  width: 11px; height: 11px; border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(15,23,42,.2);
+}
+.db-delta {
+  font: 700 11px/1 'Manrope', sans-serif;
+  padding: 3px 8px; border-radius: 999px;
+  display: inline-block; text-align: center;
+}
+
+/* ── Quadrant mini-preview ── */
+.quad-wrap { position: relative; }
+
+/* ── Priority indicators ── */
+.star { color: #f59e0b; }
+
+/* ── Notes ── */
+.note {
+  background: var(--blue-bg);
+  border-left: 3px solid var(--blue);
+  border-radius: 0 8px 8px 0;
+  padding: 12px 16px;
+  font-size: 12.5px;
+  color: var(--blue);
+  margin-top: 16px;
+  line-height: 1.55;
+}
+.warn-note {
+  background: var(--amber-bg);
+  border-left: 3px solid var(--amber);
+  border-radius: 0 8px 8px 0;
+  padding: 12px 16px;
+  font-size: 12.5px;
+  color: var(--amber);
+  margin-top: 12px;
+  line-height: 1.55;
+}
+
+/* ── Final recommendation block ── */
+.final-rec {
+  background: var(--ink);
+  color: #f1f5f9;
+  border-radius: 14px;
+  padding: 28px 30px;
+  margin-top: 0;
+}
+.final-rec h2 { color: #fff; margin-bottom: 6px; }
+.final-rec p  { color: rgba(255,255,255,.65); font-size: 13px; margin-bottom: 20px; }
+.final-step {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 12px 0; border-top: 1px solid rgba(255,255,255,.1);
+}
+.final-step:first-of-type { border-top: 0; padding-top: 0; }
+.step-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: rgba(255,255,255,.12);
+  display: flex; align-items: center; justify-content: center;
+  font: 800 12px/1 'DM Mono', monospace;
+  color: #fff; flex-shrink: 0; margin-top: 1px;
+}
+.step-body b { display: block; font-size: 13.5px; color: #fff; margin-bottom: 3px; }
+.step-body span { font-size: 12px; color: rgba(255,255,255,.6); line-height: 1.5; }
+</style>
+</head>
+<body>
+<main>
+
+<!-- ══ PAGE HEADER ══ -->
+<div class="page-head">
+  <div>
+    <span class="eyebrow">Shadow AI Scan · DPO Dashboard</span>
+    <h1>Oordeel & Chartoverzicht</h1>
+    <p>Beoordeling van alle aangeleverde referentiebestanden — wat is bruikbaar, wat is te complex, en welke visualisaties passen het best bij welk onderdeel van de Voortgangspagina.</p>
+  </div>
+  <div style="text-align:right;flex-shrink:0">
+    <span class="mono" style="font-size:10px;color:#94a3b8;display:block">10 bestanden beoordeeld</span>
+    <span class="mono" style="font-size:10px;color:#94a3b8;display:block;margin-top:2px">mei 2025</span>
+  </div>
+</div>
+
+<!-- ══ SECTIE 1: OORDEEL VOORTGANG ADVIES PAGINA ══ -->
+<div class="section-divider"><h2>Deel 1 — Oordeel op de Voortgang-advies pagina (06__Voortgang_advies_visualisaties)</h2></div>
+
+<div class="block">
+  <div class="block-head">
+    <div>
+      <h2>Wat vind ik hiervan?</h2>
+      <p>De advies-pagina is een sterke, eerlijke zelfreflectie op de t=2 Voortgangspagina. Hieronder per aandachtspunt.</p>
+    </div>
+    <span class="pill pill-green">Solide vertrekpunt</span>
+  </div>
+
+  <div class="g3" style="margin-bottom:20px">
+    <div class="file-card">
+      <div class="file-card-head">
+        <div>
+          <span class="file-name">Analyse (Welke data hoort hier)</span>
+          <h3>Inhoudstabel is goed</h3>
+        </div>
+        <span class="pill pill-green">Behouden</span>
+      </div>
+      <div class="file-card-body">
+        <div class="verdict-item">
+          <div class="verdict-dot" style="background:var(--green)"></div>
+          <div>De indeling in <b>risico / gedrag / toolbeheer / adoptie</b> is methodologisch juist en voorkomt dat de pagina een herhaling wordt van de andere dashboardtabs.</div>
+        </div>
+        <div class="verdict-item">
+          <div class="verdict-dot" style="background:var(--green)"></div>
+          <div>De notitie dat <b>adoptie alleen als context</b> moet verschijnen (niet als hoofdmetric) is de belangrijkste inhoudelijke correctie op de huidige pagina.</div>
+        </div>
+        <div class="verdict-item">
+          <div class="verdict-dot" style="background:var(--amber)"></div>
+          <div>De aanbeveling om <b>Datakwaliteit</b> bovenaan te zetten (n, responsgraad, scoring_config) is correct maar in de praktijk moeilijk scanbaar — dit vraagt een compacte "scan-contextstempel", geen volledige sectie.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="file-card">
+      <div class="file-card-head">
+        <div>
+          <span class="file-name">Variant A — Executive delta strip</span>
+          <h3>Directe keuze voor bovenaan</h3>
+        </div>
+        <span class="pill pill-green">★ Absoluut uitvoeren</span>
+      </div>
+      <div class="file-card-body">
+        <div class="verdict-item">
+          <div class="verdict-dot" style="background:var(--green)"></div>
+          <div>4 KPI-kaartjes (shadow-ratio, toxic combos, anonimisering, reviewbacklog) zijn de <b>beste opening</b>. Antwoord in 10 seconden op: "gaat het beter?"</div>
+        </div>
+        <div class="verdict-item">
+          <div class="verdict-dot" style="background:var(--green)"></div>
+          <div>De <b>richting-kleuring</b> (amber voor backlog-stijging) is precies goed — niet alles groen verven.</div>
+        </div>
+        <div class="verdict-item">
+          <div class="verdict-dot" style="background:var(--amber)"></div>
+          <div>Voeg een <b>doelwaarde</b> toe aan elke KPI (bijv. "doel: &lt;25%"). Anders weet de DPO niet of 34% goed of matig is.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="file-card">
+      <div class="file-card-head">
+        <div>
+          <span class="file-name">Variant B — Dumbbell chart</span>
+          <h3>De sterkste vergelijkingsvorm</h3>
+        </div>
+        <span class="pill pill-green">★ Absoluut uitvoeren</span>
+      </div>
+      <div class="file-card-body">
+        <div class="verdict-item">
+          <div class="verdict-dot" style="background:var(--green)"></div>
+          <div>Een dumbbell toont t=1, t=2, richting én delta in één rij. <b>Superieur aan de huidige tabel</b> voor vergelijking — minder kolommen, meer signaal.</div>
+        </div>
+        <div class="verdict-item">
+          <div class="verdict-dot" style="background:var(--green)"></div>
+          <div>De "lager is beter / hoger is beter" annotatie per rij is een essentieel detail dat de huidige pagina mist.</div>
+        </div>
+        <div class="verdict-item">
+          <div class="verdict-dot" style="background:var(--amber)"></div>
+          <div>Beperk tot <b>6–7 metrics</b> max. Meer dan dat en de dumbbell wordt een scrolllijst die de kracht verliest.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g3">
+    <div class="file-card">
+      <div class="file-card-head">
+        <div>
+          <span class="file-name">Variant C — Small multiples</span>
+          <h3>Goed als structuur, zwak als grafiek</h3>
+        </div>
+        <span class="pill pill-amber">Gebruik als indeling</span>
+      </div>
+      <div class="file-card-body">
+        <div class="verdict-item">
+          <div class="verdict-dot" style="background:var(--green)"></div>
+          <div>De <b>driedeling risico / gedrag / toolbeheer</b> als groepering is sterk. Dit is de juiste mentale structuur voor de DPO.</div>
+        </div>
+        <div class="verdict-item">
+          <div class="verdict-dot" style="background:var(--amber)"></div>
+          <div>De enkelvoudige balkjes per domein tonen <b>geen vergelijking</b> — alleen t=2. Combineer met dumbbell voor de werkelijke kracht.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="file-card">
+      <div class="file-card-head">
+        <div>
+          <span class="file-name">Variant D — Waterfall chart</span>
+          <h3>Krachtig maar gevaarlijk</h3>
+        </div>
+        <span class="pill pill-red">Alleen als index bestaat</span>
+      </div>
+      <div class="file-card-body">
+        <div class="verdict-item">
+          <div class="verdict-dot" style="background:var(--amber)"></div>
+          <div>Visueel sterk voor het verhaal "waardoor daalt het risico?" maar vereist een <b>echte samengestelde index</b>. Zonder die definitie is het misleidend.</div>
+        </div>
+        <div class="verdict-item">
+          <div class="verdict-dot" style="background:var(--red)"></div>
+          <div>De advies-pagina zelf waarschuwt hier al correct voor. <b>Niet uitvoeren</b> tenzij V8.1 een gewogen totaalscore definieert.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="file-card">
+      <div class="file-card-head">
+        <div>
+          <span class="file-name">Variant E — Quadrant afdelingen</span>
+          <h3>Beste vervanging voor Hall of Fame</h3>
+        </div>
+        <span class="pill pill-green">★ Uitvoeren</span>
+      </div>
+      <div class="file-card-body">
+        <div class="verdict-item">
+          <div class="verdict-dot" style="background:var(--green)"></div>
+          <div>Het quadrant (X = richting delta, Y = risicohoogte) is <b>analytischer en minder beschuldigend</b> dan de huidige "achterblijvers" lijst. Betere bestuurlijke taal.</div>
+        </div>
+        <div class="verdict-item">
+          <div class="verdict-dot" style="background:var(--green)"></div>
+          <div>Cirkelgrootte = n respondenten is een verstandige toevoeging voor kleine vs. grote afdelingen.</div>
+        </div>
+        <div class="verdict-item">
+          <div class="verdict-dot" style="background:var(--amber)"></div>
+          <div>De SVG in de advies-pagina werkt al goed. Voeg een tooltip toe per cirkel voor de echte implementatie.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Aanbevolen structuur tabel -->
+  <h3 style="margin:22px 0 12px;font-size:14px">Aanbevolen volgorde Voortgangspagina (uit de advies-pagina) — oordeel</h3>
+  <table class="chart-table">
+    <thead><tr>
+      <th style="width:32px">#</th>
+      <th>Blok</th>
+      <th>Beste visualisatie</th>
+      <th>Uitvoeren?</th>
+      <th>Opmerking</th>
+    </tr></thead>
+    <tbody>
+      <tr><td class="mono" style="color:#94a3b8">1</td><td><b>Scan-contextstempel</b><br><span style="color:var(--muted);font-size:11px">n, responsgraad, versie, scoring_config</span></td><td>Compacte info-balk, geen sectie</td><td><span class="pill pill-green">Ja, compact</span></td><td style="font-size:11.5px">Niet breder dan één rij. DPO moet dit zien maar niet lezen.</td></tr>
+      <tr><td class="mono" style="color:#94a3b8">2</td><td><b>Kern-delta's</b><br><span style="color:var(--muted);font-size:11px">4–6 KPI's met t=1, t=2, delta, doel</span></td><td>Executive delta strip (Variant A)</td><td><span class="pill pill-green">★ Ja, prioriteit 1</span></td><td style="font-size:11.5px">Voeg doelwaarde toe. Shadow-ratio, toxic combos, anonimisering, backlog.</td></tr>
+      <tr><td class="mono" style="color:#94a3b8">3</td><td><b>Risico & gedrag</b><br><span style="color:var(--muted);font-size:11px">7 metrics naast elkaar</span></td><td>Dumbbell chart (Variant B)</td><td><span class="pill pill-green">★ Ja, prioriteit 1</span></td><td style="font-size:11.5px">Groepeer in risico-rijen vs. gedragsrijen via tussentitel.</td></tr>
+      <tr><td class="mono" style="color:#94a3b8">4</td><td><b>Afdelingen</b><br><span style="color:var(--muted);font-size:11px">Risico × trend per afdeling</span></td><td>Quadrant (Variant E)</td><td><span class="pill pill-green">★ Ja, prioriteit 2</span></td><td style="font-size:11.5px">Vervangt huidige "stijgers/achterblijvers" volledig.</td></tr>
+      <tr><td class="mono" style="color:#94a3b8">5</td><td><b>Restrisico's</b><br><span style="color:var(--muted);font-size:11px">Top 3 openstaande signalen</span></td><td>Signal cards (huidige opzet, verbeterd)</td><td><span class="pill pill-blue">Ja, aanpassen taalgebruik</span></td><td style="font-size:11.5px">Vermijd "bewijs". Gebruik: indicatief signaal, samenhang, restsignaal.</td></tr>
+      <tr><td class="mono" style="color:#94a3b8">6</td><td><b>Detailtabellen</b><br><span style="color:var(--muted);font-size:11px">Tool-delta, afdeling-details</span></td><td>Inklapbaar / accordion</td><td><span class="pill pill-gray">Secundair</span></td><td style="font-size:11.5px">Audit-gebruik, niet primaire visuele laag.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Dumbbell live preview -->
+<div class="block">
+  <div class="block-head">
+    <div>
+      <h2>Live preview: Dumbbell chart (Variant B)</h2>
+      <p>Dit is hoe de aanbevolen dumbbell eruit ziet met de werkelijke data uit de huidige Voortgangspagina.</p>
+    </div>
+    <span class="pill pill-green">★ Absoluut uitvoeren</span>
+  </div>
+  <div class="dumbbell-preview">
+    <div class="db-row" style="font:800 10px/1 'Manrope';text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;padding-bottom:8px;border-bottom:2px solid var(--rule)">
+      <div>Metric</div><div style="padding-left:4px">Visuele verschuiving t=1 → t=2</div><div>Delta</div>
+    </div>
+    <!-- Risico-groep -->
+    <div style="font:800 10px/1 'Manrope';text-transform:uppercase;color:#94a3b8;letter-spacing:.06em;padding:10px 0 4px;border-bottom:1px solid var(--rule2)">Risico-indicatoren — lager is beter</div>
+    <div class="db-row">
+      <div class="db-label"><b>Shadow AI-ratio</b><span>41% → 34%</span></div>
+      <div class="db-track">
+        <span class="db-segment" style="left:34%;width:7%;background:var(--green)"></span>
+        <span class="db-dot" style="left:41%;background:#94a3b8"></span>
+        <span class="db-dot" style="left:34%;background:var(--green)"></span>
+      </div>
+      <div><span class="db-delta" style="background:var(--green-bg);color:var(--green)">−7pp</span></div>
+    </div>
+    <div class="db-row">
+      <div class="db-label"><b>Datablootstelling</b><span>68% → 61%</span></div>
+      <div class="db-track">
+        <span class="db-segment" style="left:61%;width:7%;background:var(--green)"></span>
+        <span class="db-dot" style="left:68%;background:#94a3b8"></span>
+        <span class="db-dot" style="left:61%;background:var(--green)"></span>
+      </div>
+      <div><span class="db-delta" style="background:var(--green-bg);color:var(--green)">−7pp</span></div>
+    </div>
+    <div class="db-row">
+      <div class="db-label"><b>Toxic combos</b><span>24 → 5</span></div>
+      <div class="db-track">
+        <span class="db-segment" style="left:20%;width:76%;background:var(--green)"></span>
+        <span class="db-dot" style="left:96%;background:#94a3b8"></span>
+        <span class="db-dot" style="left:20%;background:var(--green)"></span>
+      </div>
+      <div><span class="db-delta" style="background:var(--green-bg);color:var(--green)">−19</span></div>
+    </div>
+    <div class="db-row">
+      <div class="db-label"><b>Juridische signalen</b><span>13 → 5</span></div>
+      <div class="db-track">
+        <span class="db-segment" style="left:38%;width:62%;background:var(--green)"></span>
+        <span class="db-dot" style="left:100%" style="background:#94a3b8"></span>
+        <span class="db-dot" style="left:38%;background:var(--green)"></span>
+      </div>
+      <div><span class="db-delta" style="background:var(--green-bg);color:var(--green)">−8</span></div>
+    </div>
+    <!-- Gedrag-groep -->
+    <div style="font:800 10px/1 'Manrope';text-transform:uppercase;color:#94a3b8;letter-spacing:.06em;padding:10px 0 4px;border-bottom:1px solid var(--rule2)">Gedragsindicatoren — hoger is beter</div>
+    <div class="db-row">
+      <div class="db-label"><b>Anonimisering</b><span>29% → 62%</span></div>
+      <div class="db-track">
+        <span class="db-segment" style="left:29%;width:33%;background:var(--green)"></span>
+        <span class="db-dot" style="left:29%;background:#94a3b8"></span>
+        <span class="db-dot" style="left:62%;background:var(--green)"></span>
+      </div>
+      <div><span class="db-delta" style="background:var(--green-bg);color:var(--green)">+33pp</span></div>
+    </div>
+    <div class="db-row">
+      <div class="db-label"><b>Output-verificatie</b><span>64% → 81%</span></div>
+      <div class="db-track">
+        <span class="db-segment" style="left:64%;width:17%;background:var(--green)"></span>
+        <span class="db-dot" style="left:64%;background:#94a3b8"></span>
+        <span class="db-dot" style="left:81%;background:var(--green)"></span>
+      </div>
+      <div><span class="db-delta" style="background:var(--green-bg);color:var(--green)">+17pp</span></div>
+    </div>
+    <!-- Capaciteit-groep -->
+    <div style="font:800 10px/1 'Manrope';text-transform:uppercase;color:#94a3b8;letter-spacing:.06em;padding:10px 0 4px;border-bottom:1px solid var(--rule2)">Governancecapaciteit — let op richting per metric</div>
+    <div class="db-row">
+      <div class="db-label"><b>DPIA-backlog</b><span style="color:var(--amber)">12 → 15 ⚠</span></div>
+      <div class="db-track">
+        <span class="db-segment" style="left:55%;width:10%;background:var(--amber)"></span>
+        <span class="db-dot" style="left:55%;background:#94a3b8"></span>
+        <span class="db-dot" style="left:65%;background:var(--amber)"></span>
+      </div>
+      <div><span class="db-delta" style="background:var(--amber-bg);color:var(--amber)">+3 ⚠</span></div>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;font:700 10px/1 'DM Mono';color:#94a3b8;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule2)">
+    <span>lager / minder ←</span><span>→ hoger / meer</span>
+  </div>
+  <div class="note">Dit is de dumbbell uit de advies-pagina (Variant B), aangevuld met groepering per domein. Direct implementeerbaar in de echte Voortgangspagina.</div>
+</div>
+
+<!-- ══ SECTIE 2: CHART INVENTARIS REFERENTIE-BESTANDEN ══ -->
+<div class="section-divider"><h2>Deel 2 — Chartoverzicht referentiebestanden (kansrijkheid per use-case)</h2></div>
+
+<div class="block">
+  <div class="block-head">
+    <div>
+      <h2>Welke charts zijn kansrijk — en waarvoor?</h2>
+      <p>Alle charttypen uit de aangeleverde referentiebestanden, beoordeeld op bruikbaarheid voor de Voortgangspagina én de Governance-pagina.</p>
+    </div>
+  </div>
+
+  <table class="chart-table">
+    <thead><tr>
+      <th style="width:180px">Charttype</th>
+      <th style="width:160px">Bestand(en)</th>
+      <th style="width:90px">Kansrijkheid</th>
+      <th style="width:120px">Beste voor</th>
+      <th>Oordeel & aanbeveling</th>
+    </tr></thead>
+    <tbody>
+
+      <!-- DUMBBELL -->
+      <tr>
+        <td>
+          <span class="chart-type">Dumbbell chart</span>
+          <span class="chart-file">combinatiesignalen_5_variants<br>06__Voortgang_advies</span>
+        </td>
+        <td><span class="pill pill-green">★★★ Topkeuze</span></td>
+        <td><span class="pill pill-green">Voortgang</span></td>
+        <td style="font-size:12px"><b>t=1 vs t=2 vergelijking</b> van 5–8 metrics. Beste enkelvoudige vervanger voor de huidige losse kaarten + tabel.</td>
+        <td style="font-size:12px"><b>Absoluut uitvoeren.</b> Signaal (t=1) als lege cirkel links, interventie (t=2) als gevulde cirkel rechts. Kleur = richting (groen/amber/rood). Groepeer in risico / gedrag / capaciteit.</td>
+      </tr>
+
+      <!-- QUADRANT SCATTER -->
+      <tr>
+        <td>
+          <span class="chart-type">Quadrant scatter</span>
+          <span class="chart-file">awareness_gaps_5x (V3)<br>06__Voortgang_advies (E)</span>
+        </td>
+        <td><span class="pill pill-green">★★★ Topkeuze</span></td>
+        <td><span class="pill pill-green">Voortgang</span> <span class="pill pill-blue">Governance</span></td>
+        <td style="font-size:12px"><b>Afdelingen</b> (X=trend, Y=risicohoogte, grootte=n). <b>Awareness gaps</b> (X=activiteit, Y=ernst).</td>
+        <td style="font-size:12px"><b>Uitvoeren voor afdelingssectie.</b> Vervangt Hall of Fame/Shame volledig. Minder normatief, meer analytisch. Tooltips toevoegen per cirkel.</td>
+      </tr>
+
+      <!-- SPARKLINE KPI STRIP -->
+      <tr>
+        <td>
+          <span class="chart-type">Sparkline KPI strip</span>
+          <span class="chart-file">04__Governance_tufteNEW (§1)</span>
+        </td>
+        <td><span class="pill pill-green">★★★ Topkeuze</span></td>
+        <td><span class="pill pill-green">Voortgang</span> <span class="pill pill-blue">Governance</span></td>
+        <td style="font-size:12px"><b>Executive openingsrij.</b> 4–6 KPI's met inline trend, t=2 waarde, delta-pill.</td>
+        <td style="font-size:12px"><b>Directe implementatie.</b> Tufte-aanpak: data-intense, design-minimal. Combineer met doelwaarden. Dit is de meest informatiedichte bovenste rij mogelijk.</td>
+      </tr>
+
+      <!-- LOLLIPOP CHART -->
+      <tr>
+        <td>
+          <span class="chart-type">Lollipop chart</span>
+          <span class="chart-file">04__Governance_v2NEW (§1)</span>
+        </td>
+        <td><span class="pill pill-blue">★★ Sterk</span></td>
+        <td><span class="pill pill-blue">Governance</span></td>
+        <td style="font-size:12px"><b>KPI + divergentie</b> op Governance-pagina. Lollipops + kleurband = duidelijke richting.</td>
+        <td style="font-size:12px">Goed voor de Governance-pagina, minder sterk dan dumbbell voor t=1 vs t=2 vergelijking. Gebruik voor absolute KPI's zonder tijdsvergelijking.</td>
+      </tr>
+
+      <!-- CONNECTED DOT PLOT / SLOPE -->
+      <tr>
+        <td>
+          <span class="chart-type">Connected dot plot<br><small style="font-weight:400">(variant van slope)</small></span>
+          <span class="chart-file">04__Governance_tufteNEW (§3)</span>
+        </td>
+        <td><span class="pill pill-blue">★★ Sterk</span></td>
+        <td><span class="pill pill-blue">Governance</span></td>
+        <td style="font-size:12px"><b>Awareness gaps</b> — welke gaps zijn het grootst, en van welk type?</td>
+        <td style="font-size:12px">Goed alternatief voor de awareness-sectie op Governance. Tufte-stijl: geen assen, alleen positionering. Werkt het best bij 5–10 punten.</td>
+      </tr>
+
+      <!-- SANKEY FLOW -->
+      <tr>
+        <td>
+          <span class="chart-type">Sankey flow diagram</span>
+          <span class="chart-file">combinatiesignalen_5x (Viz 1)</span>
+        </td>
+        <td><span class="pill pill-amber">★★ Context vereist</span></td>
+        <td><span class="pill pill-blue">Governance</span></td>
+        <td style="font-size:12px"><b>Combinatiesignalen:</b> patroon → tooltype → interventie. Laat relaties zien die tabellen niet kunnen.</td>
+        <td style="font-size:12px">Visueel indrukwekkend maar vraagt uitleg. <b>Niet op Voortgang.</b> Wel kansrijk op Governance als interactief element voor "Van patroon naar interventie". Technisch al goed uitgewerkt in SVG.</td>
+      </tr>
+
+      <!-- TREEMAP -->
+      <tr>
+        <td>
+          <span class="chart-type">Treemap (urgentie)</span>
+          <span class="chart-file">combinatiesignalen_5x (Viz 2)</span>
+        </td>
+        <td><span class="pill pill-amber">★★ Situationeel</span></td>
+        <td><span class="pill pill-blue">Governance</span></td>
+        <td style="font-size:12px"><b>Urgentie als oppervlak</b> — welke combinatiesignalen hebben de grootste impact?</td>
+        <td style="font-size:12px">Goed voor toolinventaris of combinatiesignalen op Governance. <b>Niet</b> geschikt voor Voortgang — toont geen tijdsvergelijking.</td>
+      </tr>
+
+      <!-- HORIZON CHART -->
+      <tr>
+        <td>
+          <span class="chart-type">Horizon chart</span>
+          <span class="chart-file">awareness_gaps_5x (V1)<br>04__Governance_verzamelpagina</span>
+        </td>
+        <td><span class="pill pill-amber">★★ Situationeel</span></td>
+        <td><span class="pill pill-blue">Governance</span></td>
+        <td style="font-size:12px"><b>Ernst van awareness-gaps</b> als dieptelaag. Meest informatiedicht voor meerdere gaps tegelijk.</td>
+        <td style="font-size:12px">Krachtig maar onbekend voor de meeste DPO's. Voeg altijd een legenda toe. Kansrijk op Governance als alternatief voor de lange awareness-tabel.</td>
+      </tr>
+
+      <!-- RADIAL ARC GAUGES -->
+      <tr>
+        <td>
+          <span class="chart-type">Radiale arc gauges</span>
+          <span class="chart-file">awareness_gaps_5x (V2)<br>04__Governance_v2NEW (§2b)</span>
+        </td>
+        <td><span class="pill pill-amber">★ Visueel sterk, beperkt</span></td>
+        <td><span class="pill pill-blue">Governance</span></td>
+        <td style="font-size:12px"><b>Policy awareness per domein</b> (4 halve cirkels). Literacy als waffle.</td>
+        <td style="font-size:12px">Visueel aantrekkelijk maar moeilijk te vergelijken tussen ringen. Beter voor absolute percentages dan voor vergelijking. Gebruiken als decoratief kader naast een tabel.</td>
+      </tr>
+
+      <!-- WAFFLE CHART -->
+      <tr>
+        <td>
+          <span class="chart-type">Waffle chart</span>
+          <span class="chart-file">04__Governance_v2NEW (§2a)<br>04__Governance_tufteNEW</span>
+        </td>
+        <td><span class="pill pill-blue">★★ Sterk voor eenvoud</span></td>
+        <td><span class="pill pill-blue">Governance</span></td>
+        <td style="font-size:12px"><b>Literacy-verdeling</b> (10×4 grid), <b>niet-gebruik barrières</b> als segmentstrip.</td>
+        <td style="font-size:12px">Goed leesbaar voor niet-technische lezers. Gebruik voor enkelvoudige percentages (bijv. 62% anonimiseert). Geen tijdsvergelijking mogelijk — daarvoor dumbbell.</td>
+      </tr>
+
+      <!-- BUMP/RANKING CHART -->
+      <tr>
+        <td>
+          <span class="chart-type">Bubble rank chart</span>
+          <span class="chart-file">04__Governance_v2NEW (§3)</span>
+        </td>
+        <td><span class="pill pill-amber">★ Leuk, beperkt</span></td>
+        <td><span class="pill pill-blue">Governance</span></td>
+        <td style="font-size:12px"><b>Awareness-gaps gesorteerd</b> op n, met grootte = ernst.</td>
+        <td style="font-size:12px">Visueel interessant maar moeilijk precies te lezen. Overweeg liever de connected dot plot (tufteNEW §3) die dezelfde informatie toont met minder chartjunk.</td>
+      </tr>
+
+      <!-- UNIT CHART -->
+      <tr>
+        <td>
+          <span class="chart-type">Unit chart (icon array)</span>
+          <span class="chart-file">04__Governance_v2NEW (§5)</span>
+        </td>
+        <td><span class="pill pill-blue">★★ Sterk voor triggers</span></td>
+        <td><span class="pill pill-blue">Governance</span></td>
+        <td style="font-size:12px"><b>Hard triggers</b> — elk stipje = één respondent. Maakt abstracte aantallen concreet.</td>
+        <td style="font-size:12px">Zeer krachtig voor het gevoel van schaal. "29 van de 163 respondenten vereisen review" als grid van stipjes is overtuigender dan het getal alleen. Kansrijk op Governance én Voortgang (restrisico's).</td>
+      </tr>
+
+      <!-- SLOPE DIAGRAM (tufteNEW §4) -->
+      <tr>
+        <td>
+          <span class="chart-type">Slope diagram<br><small style="font-weight:400">(Tufte-stijl)</small></span>
+          <span class="chart-file">04__Governance_tufteNEW (§4)</span>
+        </td>
+        <td><span class="pill pill-blue">★★ Sterk</span></td>
+        <td><span class="pill pill-blue">Governance</span></td>
+        <td style="font-size:12px"><b>Combinatiesignalen:</b> patroon links → interventie rechts, verbonden met lijn.</td>
+        <td style="font-size:12px">Eleganter en leesbaarder dan de sankey voor dezelfde data. Werkt ook als vervanging van de huidige compliance-tabel op Voortgang bij 5–6 gedragsmetrics.</td>
+      </tr>
+
+      <!-- RADAR SMALL MULTIPLES -->
+      <tr>
+        <td>
+          <span class="chart-type">Radar small multiples</span>
+          <span class="chart-file">04__Governance_v2NEW (§8)<br>04__Governance_Gemini</span>
+        </td>
+        <td><span class="pill pill-gray">★ Niet aanbevolen</span></td>
+        <td><span class="pill pill-gray">Geen voorkeur</span></td>
+        <td style="font-size:12px"><b>Stakeholderprofielen</b> per afdeling op 4 assen.</td>
+        <td style="font-size:12px">Radargrafieken zijn moeilijk te lezen en te vergelijken. Zelfs small multiples lossen dat niet op. Vervang door de heatmap (tabel) of het quadrant. <b>Niet uitvoeren.</b></td>
+      </tr>
+
+      <!-- MEMBRANE/RIBBON -->
+      <tr>
+        <td>
+          <span class="chart-type">Ribbon/membrane chart</span>
+          <span class="chart-file">combinatiesignalen_5_variants (V2)</span>
+        </td>
+        <td><span class="pill pill-gray">★ Experimenteel</span></td>
+        <td><span class="pill pill-gray">Geen voorkeur</span></td>
+        <td style="font-size:12px"><b>Groepering combinatiesignalen</b> via gekoppelde banden.</td>
+        <td style="font-size:12px">Conceptueel interessant maar te abstract voor een DPO-dashboard. Bewaar als experiment. Geen implementatie aanbevolen voor de huidige scope.</td>
+      </tr>
+
+      <!-- DIVERGING BAR -->
+      <tr>
+        <td>
+          <span class="chart-type">Diverging bar chart</span>
+          <span class="chart-file">04__Governance_v2NEW (§6)</span>
+        </td>
+        <td><span class="pill pill-blue">★★ Sterk situationeel</span></td>
+        <td><span class="pill pill-green">Voortgang</span> <span class="pill pill-blue">Governance</span></td>
+        <td style="font-size:12px"><b>Innovatie vs. barrières</b> (Governance). <b>Gedragsvergelijking</b> als alternatief voor compliance-tabel (Voortgang).</td>
+        <td style="font-size:12px">Goed leesbaar voor voor/na-vergelijking van enkelvoudige percentages. Minder sterk dan dumbbell voor multi-metric vergelijking. Gebruik als aanvulling, niet als vervanging.</td>
+      </tr>
+
+    </tbody>
+  </table>
+</div>
+
+<!-- ══ SECTIE 3: WAT ABSOLUUT UITVOEREN ══ -->
+<div class="section-divider"><h2>Deel 3 — Wat zou ik absoluut uitvoeren?</h2></div>
+
+<div class="final-rec">
+  <h2>Top 5 concrete implementaties</h2>
+  <p>Gebaseerd op het oordeel over alle bestanden. Alleen wat echt meerwaarde heeft boven de huidige pagina.</p>
+
+  <div class="final-step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <b>Dumbbell chart voor Risico & Gedrag (Voortgang §3)</b>
+      <span>Vervang de huidige compliance-tabel + losse kaartjes door één dumbbell met 7–8 rijen, gegroepeerd in "risico-indicatoren" en "gedragsindicatoren". Broncode is al aanwezig in <code style="font-family:'DM Mono';font-size:11px;opacity:.8">combinatiesignalen_5_variants</code> en de advies-pagina. Richting-kleur en "lager/hoger is beter" annotatie zijn essentieel.</span>
+    </div>
+  </div>
+
+  <div class="final-step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <b>Quadrant scatter voor Afdelingen (Voortgang §4)</b>
+      <span>Vervangt de Hall of Fame / Hall of Shame volledig. X-as = richting delta (verbetert ↔ verslechtert), Y-as = huidig risiconiveau. Cirkelgrootte = n respondenten. SVG-implementatie staat al in de advies-pagina (Variant E) — voeg alleen tooltips toe.</span>
+    </div>
+  </div>
+
+  <div class="final-step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <b>Sparkline KPI strip bovenaan (tufteNEW §1) voor Voortgang §2</b>
+      <span>Meest informatiedichte openingsrij mogelijk. Elke KPI krijgt: waarde t=2, kleine inline sparkline (trend over eventuele tussenmetingen), t=1 als grijs referentiepunt, delta-pill, en doelwaarde. Direct overnemen uit tufteNEW — die implementatie is al productierijp.</span>
+    </div>
+  </div>
+
+  <div class="final-step">
+    <div class="step-num">4</div>
+    <div class="step-body">
+      <b>Sankey flow (combinatiesignalen_5x Viz 1) voor Governance — "Van patroon naar interventie"</b>
+      <span>Dit is de sterkste visualisatie in alle aangeleverde bestanden voor het tonen van relaties tussen risicopatronen en aanbevolen interventies. Niet voor Voortgang, maar voor de Governance-pagina als vervanging van de huidige interventie-tabel. De SVG-implementatie in combinatiesignalen_5x is al technisch solide.</span>
+    </div>
+  </div>
+
+  <div class="final-step">
+    <div class="step-num">5</div>
+    <div class="step-body">
+      <b>Unit chart (icon array) voor hard triggers (v2NEW §5)</b>
+      <span>Gebruik een unit chart (grid van stipjes) voor de restrisico-sectie en/of de hard-trigger sectie. "29 respondenten vereisen DPO-review" als 29 stipjes in een grid is overtuigender dan het getal alleen voor bestuurlijke lezers. Direct kopieerbaar uit v2NEW §5.</span>
+    </div>
+  </div>
+</div>
+
+<!-- Niet uitvoeren -->
+<div class="block" style="margin-top:24px">
+  <h2 style="margin-bottom:14px">Expliciet <span style="color:var(--red)">niet</span> uitvoeren</h2>
+  <div class="g3">
+    <div style="border:1px solid var(--red-border);background:var(--red-bg);border-radius:10px;padding:16px">
+      <h3 style="color:var(--red);margin-bottom:6px">Radar small multiples</h3>
+      <p style="font-size:12px;color:var(--muted);line-height:1.5">Slecht leesbaar, slecht vergelijkbaar. Vervang door heatmap of quadrant. Geen enkele implementatie in de referentiebestanden maakt radargrafieken goed.</p>
+    </div>
+    <div style="border:1px solid var(--red-border);background:var(--red-bg);border-radius:10px;padding:16px">
+      <h3 style="color:var(--red);margin-bottom:6px">Waterfall chart (Variant D)</h3>
+      <p style="font-size:12px;color:var(--muted);line-height:1.5">Alleen inzetten als V8.1 een echte gewogen samengestelde risico-index definieert. Die bestaat nu niet. Zonder die definitie is een waterfall misleidend.</p>
+    </div>
+    <div style="border:1px solid var(--red-border);background:var(--red-bg);border-radius:10px;padding:16px">
+      <h3 style="color:var(--red);margin-bottom:6px">Ribbon/membrane chart</h3>
+      <p style="font-size:12px;color:var(--muted);line-height:1.5">Te abstract voor een DPO-dashboard. Interessant experiment maar geen productiewaarde voor de huidige context.</p>
+    </div>
+  </div>
+  <div class="warn-note">
+    <b>Let op encoding-bugs in de huidige Voortgangspagina:</b> de advies-pagina signaleert terecht dat er mojibake voorkomt (â†', âˆ', financiÃ«le). Dit moet gerepareerd worden voor elke publicatie — los van de visualisatiekeuzes.
+  </div>
+</div>
+
+</main>
+</body>
+</html>

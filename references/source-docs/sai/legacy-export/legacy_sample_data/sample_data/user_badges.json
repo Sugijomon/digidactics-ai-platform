@@ -1,0 +1,16 @@
+[
+  {
+    "id": "6a4ee36a-f5e5-4bff-bbce-ec7b27bbb2ce",
+    "user_id": "91e483b7-05bb-497e-bbe2-3dd4518bfa57",
+    "org_id": "34f89abf-ba18-4e7c-83aa-d4bc7e845c00",
+    "badge_type": "ai_scout",
+    "earned_at": "2026-04-01T12:48:10.024929+00:00"
+  },
+  {
+    "id": "bb6df0e1-c00e-4756-a92a-1137ffc0d3e8",
+    "user_id": "91e483b7-05bb-497e-bbe2-3dd4518bfa57",
+    "org_id": "34f89abf-ba18-4e7c-83aa-d4bc7e845c00",
+    "badge_type": "early_adopter",
+    "earned_at": "2026-04-01T12:48:10.553398+00:00"
+  }
+]

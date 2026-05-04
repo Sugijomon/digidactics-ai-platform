@@ -1,0 +1,123 @@
+[
+  {
+    "id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+    "wave_id": null,
+    "org_id": "34f89abf-ba18-4e7c-83aa-d4bc7e845c00",
+    "started_at": "2026-04-29T01:41:33.02976+00:00",
+    "completed_at": "2026-04-29T01:50:01.055+00:00",
+    "locale": "nl",
+    "source": "web",
+    "consent_ambassador": true,
+    "ambassador_email": "hash:977e2aa85f43"
+  },
+  {
+    "id": "f7cdde50-5501-4dfd-a5cf-1a67a8e00e39",
+    "wave_id": null,
+    "org_id": "34f89abf-ba18-4e7c-83aa-d4bc7e845c00",
+    "started_at": "2026-04-29T02:47:49.781604+00:00",
+    "completed_at": "2026-04-29T02:48:17.966+00:00",
+    "locale": "nl",
+    "source": "web",
+    "consent_ambassador": null,
+    "ambassador_email": null
+  },
+  {
+    "id": "83547878-8777-4b39-87ff-7e8322fc9cb9",
+    "wave_id": null,
+    "org_id": "34f89abf-ba18-4e7c-83aa-d4bc7e845c00",
+    "started_at": "2026-04-29T03:08:16.542284+00:00",
+    "completed_at": null,
+    "locale": "nl",
+    "source": "web",
+    "consent_ambassador": null,
+    "ambassador_email": null
+  },
+  {
+    "id": "5d1a23e7-2f84-4bc3-ac0b-5d8512eb8f10",
+    "wave_id": null,
+    "org_id": "34f89abf-ba18-4e7c-83aa-d4bc7e845c00",
+    "started_at": "2026-04-29T03:31:29.673221+00:00",
+    "completed_at": null,
+    "locale": "nl",
+    "source": "web",
+    "consent_ambassador": null,
+    "ambassador_email": null
+  },
+  {
+    "id": "b470cc44-1a0e-4b71-9515-6715944fe33b",
+    "wave_id": null,
+    "org_id": "00000000-0000-0000-0000-000000000001",
+    "started_at": "2026-04-29T04:16:39.700183+00:00",
+    "completed_at": null,
+    "locale": "nl",
+    "source": "web",
+    "consent_ambassador": null,
+    "ambassador_email": null
+  },
+  {
+    "id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+    "wave_id": null,
+    "org_id": "34f89abf-ba18-4e7c-83aa-d4bc7e845c00",
+    "started_at": "2026-04-29T04:43:43.521698+00:00",
+    "completed_at": "2026-04-29T04:50:50.756+00:00",
+    "locale": "nl",
+    "source": "web",
+    "consent_ambassador": true,
+    "ambassador_email": "hash:d2e5f78f7c76"
+  },
+  {
+    "id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+    "wave_id": null,
+    "org_id": "34f89abf-ba18-4e7c-83aa-d4bc7e845c00",
+    "started_at": "2026-04-29T06:50:54.02194+00:00",
+    "completed_at": "2026-04-29T06:58:03.262+00:00",
+    "locale": "nl",
+    "source": "web",
+    "consent_ambassador": true,
+    "ambassador_email": "hash:2be0681c05df"
+  },
+  {
+    "id": "fc97c28f-711a-4e6d-a4b6-d8e4800c439b",
+    "wave_id": null,
+    "org_id": "34f89abf-ba18-4e7c-83aa-d4bc7e845c00",
+    "started_at": "2026-04-29T13:54:14.143831+00:00",
+    "completed_at": "2026-04-29T13:54:49.947+00:00",
+    "locale": "nl",
+    "source": "web",
+    "consent_ambassador": true,
+    "ambassador_email": "hash:3071c5026d4d"
+  },
+  {
+    "id": "d863cf34-e668-463b-b184-f09403d51454",
+    "wave_id": null,
+    "org_id": "40792936-2800-432a-a748-cefe3c7c8dd3",
+    "started_at": "2026-04-30T01:27:54.247+00:00",
+    "completed_at": "2026-04-30T01:27:54.247+00:00",
+    "locale": "nl",
+    "source": "debug_fixture",
+    "consent_ambassador": false,
+    "ambassador_email": null
+  },
+  {
+    "id": "e7c2cec6-3196-49b7-9677-d4229e7a0d19",
+    "wave_id": null,
+    "org_id": "40792936-2800-432a-a748-cefe3c7c8dd3",
+    "started_at": "2026-04-30T01:29:37.452+00:00",
+    "completed_at": "2026-04-30T01:29:37.452+00:00",
+    "locale": "nl",
+    "source": "debug_fixture",
+    "consent_ambassador": false,
+    "ambassador_email": null
+  },
+  {
+    "id": "39f60073-61d1-4503-b108-f8e052a15e78",
+    "wave_id": null,
+    "org_id": "40792936-2800-432a-a748-cefe3c7c8dd3",
+    "started_at": "2026-04-30T01:30:43.049+00:00",
+    "completed_at": "2026-04-30T01:30:43.049+00:00",
+    "locale": "nl",
+    "source": "debug_fixture",
+    "consent_ambassador": false,
+    "ambassador_email": null
+  }
+]

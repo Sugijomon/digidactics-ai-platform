@@ -1,0 +1,262 @@
+[
+  {
+    "table": "_legacy_tools_catalog",
+    "exported_rows": 2
+  },
+  {
+    "table": "admin_audit_log",
+    "exported_rows": 39
+  },
+  {
+    "table": "archetype_ml_map",
+    "exported_rows": 3
+  },
+  {
+    "table": "assessment_ml_assignments",
+    "exported_rows": 0
+  },
+  {
+    "table": "assessment_ml_completions",
+    "exported_rows": 0
+  },
+  {
+    "table": "assessments",
+    "exported_rows": 0
+  },
+  {
+    "table": "course_lessons",
+    "exported_rows": 15
+  },
+  {
+    "table": "courses",
+    "exported_rows": 4
+  },
+  {
+    "table": "dpo_notifications",
+    "exported_rows": 0
+  },
+  {
+    "table": "incidents",
+    "exported_rows": 0
+  },
+  {
+    "table": "learning_answers",
+    "exported_rows": 0
+  },
+  {
+    "table": "learning_catalog",
+    "exported_rows": 1
+  },
+  {
+    "table": "learning_library",
+    "exported_rows": 4
+  },
+  {
+    "table": "learning_questions",
+    "exported_rows": 2
+  },
+  {
+    "table": "lesson_attempts",
+    "exported_rows": 46
+  },
+  {
+    "table": "lessons",
+    "exported_rows": 15
+  },
+  {
+    "table": "model_typekaart_updates",
+    "exported_rows": 0
+  },
+  {
+    "table": "model_typekaarten",
+    "exported_rows": 19
+  },
+  {
+    "table": "org_notifications",
+    "exported_rows": 0
+  },
+  {
+    "table": "org_tool_policy",
+    "exported_rows": 0
+  },
+  {
+    "table": "org_tools_catalog",
+    "exported_rows": 12
+  },
+  {
+    "table": "organizations",
+    "exported_rows": 3
+  },
+  {
+    "table": "passport_identity",
+    "exported_rows": 0
+  },
+  {
+    "table": "profiles",
+    "exported_rows": 10
+  },
+  {
+    "table": "ref_account_type",
+    "exported_rows": 4
+  },
+  {
+    "table": "ref_ai_frequency",
+    "exported_rows": 4
+  },
+  {
+    "table": "ref_catalog_beheerstatus",
+    "exported_rows": 5
+  },
+  {
+    "table": "ref_context",
+    "exported_rows": 11
+  },
+  {
+    "table": "ref_data_type",
+    "exported_rows": 13
+  },
+  {
+    "table": "ref_department",
+    "exported_rows": 8
+  },
+  {
+    "table": "ref_eu_ai_act_flag",
+    "exported_rows": 3
+  },
+  {
+    "table": "ref_governance_flag",
+    "exported_rows": 8
+  },
+  {
+    "table": "ref_no_ai_reason",
+    "exported_rows": 3
+  },
+  {
+    "table": "ref_org_policy_status",
+    "exported_rows": 5
+  },
+  {
+    "table": "ref_review_trigger",
+    "exported_rows": 8
+  },
+  {
+    "table": "ref_use_case",
+    "exported_rows": 17
+  },
+  {
+    "table": "rijbewijs_records",
+    "exported_rows": 0
+  },
+  {
+    "table": "risk_result",
+    "exported_rows": 8
+  },
+  {
+    "table": "risk_result_tool",
+    "exported_rows": 19
+  },
+  {
+    "table": "scan_scoring_config",
+    "exported_rows": 0
+  },
+  {
+    "table": "shadow_survey_runs",
+    "exported_rows": 1
+  },
+  {
+    "table": "survey_data_type",
+    "exported_rows": 14
+  },
+  {
+    "table": "survey_invite",
+    "exported_rows": 0
+  },
+  {
+    "table": "survey_motivation",
+    "exported_rows": 10
+  },
+  {
+    "table": "survey_participation",
+    "exported_rows": 0
+  },
+  {
+    "table": "survey_profile",
+    "exported_rows": 11
+  },
+  {
+    "table": "survey_run",
+    "exported_rows": 11
+  },
+  {
+    "table": "survey_support_need",
+    "exported_rows": 8
+  },
+  {
+    "table": "survey_tool",
+    "exported_rows": 26
+  },
+  {
+    "table": "survey_tool_account",
+    "exported_rows": 19
+  },
+  {
+    "table": "survey_tool_preference_reason",
+    "exported_rows": 6
+  },
+  {
+    "table": "survey_tool_use_case",
+    "exported_rows": 34
+  },
+  {
+    "table": "survey_tool_use_case_context",
+    "exported_rows": 2
+  },
+  {
+    "table": "survey_tool_use_case_flag",
+    "exported_rows": 0
+  },
+  {
+    "table": "survey_top_concern",
+    "exported_rows": 4
+  },
+  {
+    "table": "survey_wave",
+    "exported_rows": 0
+  },
+  {
+    "table": "tool_catalog_discovery",
+    "exported_rows": 1
+  },
+  {
+    "table": "tool_discoveries",
+    "exported_rows": 20
+  },
+  {
+    "table": "tools_library",
+    "exported_rows": 55
+  },
+  {
+    "table": "user_badges",
+    "exported_rows": 2
+  },
+  {
+    "table": "user_course_completions",
+    "exported_rows": 1
+  },
+  {
+    "table": "user_course_progress",
+    "exported_rows": 1
+  },
+  {
+    "table": "user_lesson_completions",
+    "exported_rows": 3
+  },
+  {
+    "table": "user_lesson_progress",
+    "exported_rows": 8
+  },
+  {
+    "table": "user_roles",
+    "exported_rows": 14
+  }
+]

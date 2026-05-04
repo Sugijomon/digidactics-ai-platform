@@ -1,0 +1,262 @@
+[
+  {
+    "id": "049b6d72-1cc9-4751-8fa3-300c061e1b8a",
+    "survey_run_id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+    "tool_code": "99d83f5f-d80f-4a7e-9f77-86297dafaf1e",
+    "tool_name": "ChatGPT",
+    "is_custom": false,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "360469b6-75bc-4b17-bbf4-b6c4de93b64e",
+    "survey_run_id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+    "tool_code": "4a0d75a4-c13f-460c-a276-4e1de5794f22",
+    "tool_name": "Perplexity AI",
+    "is_custom": false,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "d3588572-08d0-4ffd-8fa0-5b5c58044783",
+    "survey_run_id": "b470cc44-1a0e-4b71-9515-6715944fe33b",
+    "tool_code": "99d83f5f-d80f-4a7e-9f77-86297dafaf1e",
+    "tool_name": "ChatGPT",
+    "is_custom": false,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "1d01256a-6807-4b6b-a1fa-d69d1d3a0255",
+    "survey_run_id": "b470cc44-1a0e-4b71-9515-6715944fe33b",
+    "tool_code": "921b393c-92e0-4d58-8686-db8cb6cc4989",
+    "tool_name": "Claude Cowork",
+    "is_custom": false,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "79224905-d9dd-4c94-9517-e7e0666ad1a0",
+    "survey_run_id": "b470cc44-1a0e-4b71-9515-6715944fe33b",
+    "tool_code": "28f52eb6-3393-4d71-bf35-6b1e6003c07e",
+    "tool_name": "Gamma",
+    "is_custom": false,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "b527021f-e50b-4d7b-956b-aa472a9b9584",
+    "survey_run_id": "b470cc44-1a0e-4b71-9515-6715944fe33b",
+    "tool_code": "e6afc03a-8fcf-4eb5-98d5-47f231ce4b96",
+    "tool_name": "ElevenLabs",
+    "is_custom": false,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "5da582b0-f920-4060-a748-987822a2dab7",
+    "survey_run_id": "b470cc44-1a0e-4b71-9515-6715944fe33b",
+    "tool_code": "7239398b-ceb9-4545-afa6-39e7456fb5f2",
+    "tool_name": "Cursor",
+    "is_custom": false,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "b336a0ba-b96e-4d7b-a120-7004d1ef1a24",
+    "survey_run_id": "b470cc44-1a0e-4b71-9515-6715944fe33b",
+    "tool_code": "5411a2b0-ee9d-4d75-a09f-5ed25b79e05f",
+    "tool_name": "M365 Copilot",
+    "is_custom": false,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "bf29093b-b59b-4af7-b23c-181d43f07e42",
+    "survey_run_id": "b470cc44-1a0e-4b71-9515-6715944fe33b",
+    "tool_code": "cfa8504c-934a-48bd-ab3b-a2c6767ac35b",
+    "tool_name": "HubSpot AI",
+    "is_custom": false,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "5454da18-adf1-40ba-a229-8652bacfe410",
+    "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+    "tool_code": "cfa8504c-934a-48bd-ab3b-a2c6767ac35b",
+    "tool_name": "HubSpot AI",
+    "is_custom": false,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "2caca5b2-c963-4df3-bf71-019cd595e33d",
+    "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+    "tool_code": "669107dd-b385-47f5-92d6-74503f0c501a",
+    "tool_name": "DALL-E 3",
+    "is_custom": false,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "d9c46840-bd6d-4a28-8578-fdbae024f560",
+    "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+    "tool_code": "edfa0d4a-f2b1-415d-a3bf-30f72d946f15",
+    "tool_name": "Microsoft Copilot for Excel",
+    "is_custom": false,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "47fcb8a1-2f1e-404e-864c-67d7c9c043de",
+    "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+    "tool_code": "5411a2b0-ee9d-4d75-a09f-5ed25b79e05f",
+    "tool_name": "M365 Copilot",
+    "is_custom": false,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "7537e528-0eab-43ff-b44c-1b52143e910d",
+    "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+    "tool_code": "28f52eb6-3393-4d71-bf35-6b1e6003c07e",
+    "tool_name": "Gamma",
+    "is_custom": false,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "6d966f29-7773-49da-a1ac-c3b78cd1c56a",
+    "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+    "tool_code": "921b393c-92e0-4d58-8686-db8cb6cc4989",
+    "tool_name": "Claude Cowork",
+    "is_custom": false,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "f87789ab-a03b-4a4f-b1d1-7888ac9ea2fb",
+    "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+    "tool_code": null,
+    "tool_name": "Claude Code",
+    "is_custom": true,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "f3deeddd-9e75-4151-b664-509e746417ca",
+    "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+    "tool_code": "4a0d75a4-c13f-460c-a276-4e1de5794f22",
+    "tool_name": "Perplexity",
+    "is_custom": false,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "15c5f7fa-5d37-402a-8eaa-af314b1ae34d",
+    "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+    "tool_code": "3000685b-676d-4edc-82c8-45a91ff14273",
+    "tool_name": "Microsoft Copilot",
+    "is_custom": false,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "b2bb88e5-5011-4582-b0d1-c4e8e521986a",
+    "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+    "tool_code": "b467e53f-b7dc-4219-938c-54440307de8d",
+    "tool_name": "Claude",
+    "is_custom": false,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "b03115dd-156d-4852-9e67-c6ef178eb963",
+    "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+    "tool_code": "096f3079-a71a-4a29-acf5-0dadfbc940cf",
+    "tool_name": "Grammarly",
+    "is_custom": false,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "f0428d0a-e333-452a-9fcf-9f7cca659c61",
+    "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+    "tool_code": "28f52eb6-3393-4d71-bf35-6b1e6003c07e",
+    "tool_name": "Gamma",
+    "is_custom": false,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "f0638bf6-6b08-4a3f-9d02-b63164448367",
+    "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+    "tool_code": "669107dd-b385-47f5-92d6-74503f0c501a",
+    "tool_name": "DALL·E",
+    "is_custom": false,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "e7874c0d-5929-41b6-bc72-83e00ed04fad",
+    "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+    "tool_code": "6dc3a5e6-53f0-4006-8bf4-9f43691aa1d8",
+    "tool_name": "Claude Code",
+    "is_custom": false,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "31c58cd0-583d-4ad7-9c6e-faf0070ec68c",
+    "survey_run_id": "d863cf34-e668-463b-b184-f09403d51454",
+    "tool_code": null,
+    "tool_name": "TEST: approved + gevoelige data",
+    "is_custom": true,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "approved",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "44054311-8898-48cf-be02-70a4e3f03cb9",
+    "survey_run_id": "e7c2cec6-3196-49b7-9677-d4229e7a0d19",
+    "tool_code": null,
+    "tool_name": "TEST: prohibited tool",
+    "is_custom": true,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "prohibited",
+    "eu_ai_act_flag_code_snapshot": "none"
+  },
+  {
+    "id": "f895432f-6aaf-4266-81ea-7cd19e24e995",
+    "survey_run_id": "39f60073-61d1-4503-b108-f8e052a15e78",
+    "tool_code": null,
+    "tool_name": "TEST: agentic use case",
+    "is_custom": true,
+    "catalog_beheerstatus_code": null,
+    "org_policy_status_code_snapshot": "newly_discovered",
+    "eu_ai_act_flag_code_snapshot": "none"
+  }
+]

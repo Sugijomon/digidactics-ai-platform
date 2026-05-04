@@ -1,0 +1,172 @@
+[
+  {
+    "id": "16b1d4e2-d51c-4b0a-bd27-cf450f68b79d",
+    "survey_tool_id": "049b6d72-1cc9-4751-8fa3-300c061e1b8a",
+    "use_case_code": "brainstormen"
+  },
+  {
+    "id": "818fce1b-0139-4516-960f-d91520411267",
+    "survey_tool_id": "049b6d72-1cc9-4751-8fa3-300c061e1b8a",
+    "use_case_code": "informatie_opzoeken"
+  },
+  {
+    "id": "655762b5-c505-4f03-947e-4829603132d0",
+    "survey_tool_id": "049b6d72-1cc9-4751-8fa3-300c061e1b8a",
+    "use_case_code": "klantenservice"
+  },
+  {
+    "id": "6d9cf8c1-f4ba-4cc3-97a5-8898d8084dde",
+    "survey_tool_id": "360469b6-75bc-4b17-bbf4-b6c4de93b64e",
+    "use_case_code": "brainstormen"
+  },
+  {
+    "id": "f6c1adf8-4215-4761-ba5a-71f027876db2",
+    "survey_tool_id": "360469b6-75bc-4b17-bbf4-b6c4de93b64e",
+    "use_case_code": "informatie_opzoeken"
+  },
+  {
+    "id": "c6ee975a-699d-4876-89ed-1d7082fda7c5",
+    "survey_tool_id": "d3588572-08d0-4ffd-8fa0-5b5c58044783",
+    "use_case_code": "teksten_schrijven"
+  },
+  {
+    "id": "05361cd7-e075-4cd1-a747-070bec9c0120",
+    "survey_tool_id": "1d01256a-6807-4b6b-a1fa-d69d1d3a0255",
+    "use_case_code": "informatie_opzoeken"
+  },
+  {
+    "id": "c0fe41fb-fc1c-4736-987f-ed77139582f3",
+    "survey_tool_id": "79224905-d9dd-4c94-9517-e7e0666ad1a0",
+    "use_case_code": "presentaties_design"
+  },
+  {
+    "id": "fd00e766-a7c7-4438-b869-a78ecacd514c",
+    "survey_tool_id": "b527021f-e50b-4d7b-956b-aa472a9b9584",
+    "use_case_code": "audio_genereren"
+  },
+  {
+    "id": "358d4463-d665-4970-8ab6-177f96b4055d",
+    "survey_tool_id": "5da582b0-f920-4060-a748-987822a2dab7",
+    "use_case_code": "code_schrijven"
+  },
+  {
+    "id": "197ace74-3eee-4b7f-804f-92653928b15d",
+    "survey_tool_id": "b336a0ba-b96e-4d7b-a120-7004d1ef1a24",
+    "use_case_code": "vergaderingen_notuleren"
+  },
+  {
+    "id": "74bbe192-6e54-47cf-8ad6-b8345acc6a8b",
+    "survey_tool_id": "bf29093b-b59b-4af7-b23c-181d43f07e42",
+    "use_case_code": "klantenservice"
+  },
+  {
+    "id": "4ba0c50f-4c8a-4d75-9612-cbcfc47bc7de",
+    "survey_tool_id": "5454da18-adf1-40ba-a229-8652bacfe410",
+    "use_case_code": "data_analyseren"
+  },
+  {
+    "id": "cafab00f-4c7e-4def-85af-3363d07ac50a",
+    "survey_tool_id": "2caca5b2-c963-4df3-bf71-019cd595e33d",
+    "use_case_code": "presentaties_design"
+  },
+  {
+    "id": "3d22810f-2da8-484d-b125-769e6ce83e8c",
+    "survey_tool_id": "2caca5b2-c963-4df3-bf71-019cd595e33d",
+    "use_case_code": "video_genereren"
+  },
+  {
+    "id": "d7ec65db-dcf0-4b2c-b646-1561eecb6479",
+    "survey_tool_id": "d9c46840-bd6d-4a28-8578-fdbae024f560",
+    "use_case_code": "code_schrijven"
+  },
+  {
+    "id": "763e4bf8-57f2-4a87-ab11-87b1980ea4a7",
+    "survey_tool_id": "47fcb8a1-2f1e-404e-864c-67d7c9c043de",
+    "use_case_code": "presentaties_design"
+  },
+  {
+    "id": "37265814-48d0-40b7-941c-545c03eae66f",
+    "survey_tool_id": "47fcb8a1-2f1e-404e-864c-67d7c9c043de",
+    "use_case_code": "vergaderingen_notuleren"
+  },
+  {
+    "id": "35e51f2a-2624-49e5-b3fb-05ae6daacc86",
+    "survey_tool_id": "7537e528-0eab-43ff-b44c-1b52143e910d",
+    "use_case_code": "afbeeldingen_genereren"
+  },
+  {
+    "id": "51462f6d-d21a-4a61-a0d5-b1e12c1fd53a",
+    "survey_tool_id": "7537e528-0eab-43ff-b44c-1b52143e910d",
+    "use_case_code": "presentaties_design"
+  },
+  {
+    "id": "cdc285f5-d039-4569-8ad1-42e61f9fedbd",
+    "survey_tool_id": "6d966f29-7773-49da-a1ac-c3b78cd1c56a",
+    "use_case_code": "informatie_opzoeken"
+  },
+  {
+    "id": "ac6f8d6d-ef4c-4e68-9211-f5146cb9c9b7",
+    "survey_tool_id": "6d966f29-7773-49da-a1ac-c3b78cd1c56a",
+    "use_case_code": "samenvatten_redigeren"
+  },
+  {
+    "id": "61b5c4af-ba9c-452b-a1a5-3e2e3ba197e4",
+    "survey_tool_id": "f87789ab-a03b-4a4f-b1d1-7888ac9ea2fb",
+    "use_case_code": "data_analyseren"
+  },
+  {
+    "id": "60a416ea-fe23-4d28-bc70-13ee47356d3e",
+    "survey_tool_id": "f3deeddd-9e75-4151-b664-509e746417ca",
+    "use_case_code": "brainstormen"
+  },
+  {
+    "id": "c82a4d26-5ff1-4569-a0bd-41c5a2836526",
+    "survey_tool_id": "f3deeddd-9e75-4151-b664-509e746417ca",
+    "use_case_code": "klantenservice"
+  },
+  {
+    "id": "b586acce-bd36-40ac-a366-3492e05e2735",
+    "survey_tool_id": "15c5f7fa-5d37-402a-8eaa-af314b1ae34d",
+    "use_case_code": "teksten_schrijven"
+  },
+  {
+    "id": "962ee090-a9aa-4fd7-9c34-5facacbb5f6f",
+    "survey_tool_id": "b2bb88e5-5011-4582-b0d1-c4e8e521986a",
+    "use_case_code": "data_analyseren"
+  },
+  {
+    "id": "41ee674d-b33b-44a1-914e-267922d32114",
+    "survey_tool_id": "b03115dd-156d-4852-9e67-c6ef178eb963",
+    "use_case_code": "samenvatten_redigeren"
+  },
+  {
+    "id": "8e1b6646-cd08-423e-9b0b-9befdff3ed2d",
+    "survey_tool_id": "f0428d0a-e333-452a-9fcf-9f7cca659c61",
+    "use_case_code": "presentaties_design"
+  },
+  {
+    "id": "30114d80-2b11-4a8d-b228-f5cf8229e3bd",
+    "survey_tool_id": "f0638bf6-6b08-4a3f-9d02-b63164448367",
+    "use_case_code": "video_genereren"
+  },
+  {
+    "id": "6b6b9328-f135-4a94-b89e-5381c6889669",
+    "survey_tool_id": "e7874c0d-5929-41b6-bc72-83e00ed04fad",
+    "use_case_code": "code_schrijven"
+  },
+  {
+    "id": "df409fbd-a42e-45e4-9c31-f3bfd90fc8c6",
+    "survey_tool_id": "31c58cd0-583d-4ad7-9c6e-faf0070ec68c",
+    "use_case_code": "teksten_schrijven"
+  },
+  {
+    "id": "c4fb76d7-cad2-4e2a-b4cb-8f9e50e8eb79",
+    "survey_tool_id": "44054311-8898-48cf-be02-70a4e3f03cb9",
+    "use_case_code": "teksten_schrijven"
+  },
+  {
+    "id": "78473429-df5f-42ae-86bb-4ad8d972b2e1",
+    "survey_tool_id": "f895432f-6aaf-4266-81ea-7cd19e24e995",
+    "use_case_code": "workflow_uitvoeren"
+  }
+]

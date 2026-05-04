@@ -1,0 +1,157 @@
+[
+  {
+    "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+    "person_score_raw": 49.95,
+    "person_score": 49.95,
+    "assigned_tier": "priority_review",
+    "dpo_review_required": true,
+    "toxic_combination": false,
+    "shadow_tool_count": 7,
+    "review_trigger_codes": [
+      "extension_unmanaged",
+      "priority_threshold"
+    ],
+    "highest_risk_tool": "5411a2b0-ee9d-4d75-a09f-5ed25b79e05f",
+    "highest_risk_use_case": null,
+    "highest_risk_context": null,
+    "highest_priority_score": 49.95,
+    "hard_override": false,
+    "override_reason": null,
+    "created_at": "2026-04-30T01:05:47.127453+00:00"
+  },
+  {
+    "survey_run_id": "f7cdde50-5501-4dfd-a5cf-1a67a8e00e39",
+    "person_score_raw": 0.0,
+    "person_score": 0.0,
+    "assigned_tier": "standard",
+    "dpo_review_required": false,
+    "toxic_combination": false,
+    "shadow_tool_count": 0,
+    "review_trigger_codes": [],
+    "highest_risk_tool": null,
+    "highest_risk_use_case": null,
+    "highest_risk_context": null,
+    "highest_priority_score": 0.0,
+    "hard_override": false,
+    "override_reason": null,
+    "created_at": "2026-04-30T01:05:47.768808+00:00"
+  },
+  {
+    "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+    "person_score_raw": 54.0,
+    "person_score": 54.0,
+    "assigned_tier": "priority_review",
+    "dpo_review_required": true,
+    "toxic_combination": false,
+    "shadow_tool_count": 7,
+    "review_trigger_codes": [
+      "automation_unmanaged",
+      "extension_unmanaged",
+      "priority_threshold"
+    ],
+    "highest_risk_tool": "6dc3a5e6-53f0-4006-8bf4-9f43691aa1d8",
+    "highest_risk_use_case": null,
+    "highest_risk_context": null,
+    "highest_priority_score": 54.0,
+    "hard_override": false,
+    "override_reason": null,
+    "created_at": "2026-04-30T01:04:16.369745+00:00"
+  },
+  {
+    "survey_run_id": "fc97c28f-711a-4e6d-a4b6-d8e4800c439b",
+    "person_score_raw": 0.0,
+    "person_score": 0.0,
+    "assigned_tier": "standard",
+    "dpo_review_required": false,
+    "toxic_combination": false,
+    "shadow_tool_count": 0,
+    "review_trigger_codes": [],
+    "highest_risk_tool": null,
+    "highest_risk_use_case": null,
+    "highest_risk_context": null,
+    "highest_priority_score": 0.0,
+    "hard_override": false,
+    "override_reason": null,
+    "created_at": "2026-04-30T01:04:01.144082+00:00"
+  },
+  {
+    "survey_run_id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+    "person_score_raw": 49.05,
+    "person_score": 49.05,
+    "assigned_tier": "priority_review",
+    "dpo_review_required": true,
+    "toxic_combination": false,
+    "shadow_tool_count": 2,
+    "review_trigger_codes": [
+      "automation_unmanaged",
+      "extension_unmanaged",
+      "priority_threshold"
+    ],
+    "highest_risk_tool": "99d83f5f-d80f-4a7e-9f77-86297dafaf1e",
+    "highest_risk_use_case": null,
+    "highest_risk_context": null,
+    "highest_priority_score": 49.05,
+    "hard_override": false,
+    "override_reason": null,
+    "created_at": "2026-04-30T01:04:42.196045+00:00"
+  },
+  {
+    "survey_run_id": "d863cf34-e668-463b-b184-f09403d51454",
+    "person_score_raw": 21.6,
+    "person_score": 21.6,
+    "assigned_tier": "standard",
+    "dpo_review_required": false,
+    "toxic_combination": false,
+    "shadow_tool_count": 1,
+    "review_trigger_codes": [
+      "special_category_data"
+    ],
+    "highest_risk_tool": "TEST: approved + gevoelige data",
+    "highest_risk_use_case": null,
+    "highest_risk_context": null,
+    "highest_priority_score": 21.6,
+    "hard_override": false,
+    "override_reason": null,
+    "created_at": "2026-04-30T01:28:09.17513+00:00"
+  },
+  {
+    "survey_run_id": "e7c2cec6-3196-49b7-9677-d4229e7a0d19",
+    "person_score_raw": 52.65,
+    "person_score": 52.65,
+    "assigned_tier": "priority_review",
+    "dpo_review_required": true,
+    "toxic_combination": false,
+    "shadow_tool_count": 1,
+    "review_trigger_codes": [
+      "prohibited_tool",
+      "priority_threshold"
+    ],
+    "highest_risk_tool": "TEST: prohibited tool",
+    "highest_risk_use_case": null,
+    "highest_risk_context": null,
+    "highest_priority_score": 52.65,
+    "hard_override": false,
+    "override_reason": null,
+    "created_at": "2026-04-30T01:29:49.990167+00:00"
+  },
+  {
+    "survey_run_id": "39f60073-61d1-4503-b108-f8e052a15e78",
+    "person_score_raw": 44.1,
+    "person_score": 44.1,
+    "assigned_tier": "priority_review",
+    "dpo_review_required": true,
+    "toxic_combination": false,
+    "shadow_tool_count": 1,
+    "review_trigger_codes": [
+      "agentic_usage",
+      "priority_threshold"
+    ],
+    "highest_risk_tool": "TEST: agentic use case",
+    "highest_risk_use_case": null,
+    "highest_risk_context": null,
+    "highest_priority_score": 44.1,
+    "hard_override": false,
+    "override_reason": null,
+    "created_at": "2026-04-30T01:30:55.477264+00:00"
+  }
+]

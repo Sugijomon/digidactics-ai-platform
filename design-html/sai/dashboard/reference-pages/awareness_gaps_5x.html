@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html class="light" lang="nl">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Awareness Gaps — 5 varianten</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<script>tailwind.config={darkMode:"class",theme:{extend:{colors:{surface:"#f7f9fb",ink:"#1a2028",muted:"#566166",primary:"#0E5A75",green:"#3e6a00",amber:"#C06000",red:"#b4292d",blue:"#0369a1",violet:"#6d28d9",cyan:"#0e7490"},fontFamily:{headline:["Manrope","sans-serif"],body:["Inter","sans-serif"],mono:["DM Mono","monospace"]}}}}</script>
+<style>
+*{box-sizing:border-box}
+body{font-family:"Inter",sans-serif;background:#f7f9fb;color:#1a2028;padding:32px 40px 80px;max-width:880px;margin:0 auto}
+h2{font-family:"Manrope",sans-serif;font-size:18px;font-weight:800;letter-spacing:-.01em;margin:0}
+.ms{font-family:"Material Symbols Outlined";font-variation-settings:"FILL" 0,"wght" 400,"GRAD" 0,"opsz" 24;vertical-align:middle;line-height:1}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 4px 20px rgba(26,32,44,.06)}
+.num{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#94a3b8;font-family:"DM Mono";margin-bottom:4px}
+.sub{font-size:11px;color:#64748b;margin:2px 0 18px;line-height:1.55}
+.variant{margin-bottom:44px}
+svg{display:block}
+.tip{position:fixed;background:#1a2028;color:#f8fafc;font-size:10.5px;font-family:"DM Mono",monospace;padding:7px 12px;border-radius:9px;pointer-events:none;display:none;z-index:999;line-height:1.6;max-width:230px;box-shadow:0 4px 16px rgba(0,0,0,.25)}
+</style>
+</head>
+<body>
+
+<div style="margin-bottom:36px">
+  <p class="num mb-1">Governance — Awareness Gaps</p>
+  <h1 style="font-size:24px;font-weight:900;letter-spacing:-.02em;color:#1a2028;font-family:'Manrope'">Awareness Gaps — 5 varianten</h1>
+  <p style="font-size:12px;color:#64748b;margin-top:4px">Zes gaps, elk met label · var-code · n respondenten · ernst (amber/rood) · interventienoot. Dezelfde data, vijf fundamenteel andere visuele grammatica's.</p>
+  <div style="height:2px;background:linear-gradient(90deg,#1a2028 0%,#e2e8f0 70%);margin-top:12px;border-radius:1px"></div>
+</div>
+
+<!-- ═══ V1 ═══ -->
+<div class="variant">
+  <p class="num">Variant 01 — Horizon chart</p>
+  <h2>Ernst als dieptelaag</h2>
+  <p class="sub">Elke gap = één horizontale band. De band heeft twee dieptelagen: amber (matig) en rood (kritiek). Laagdikte toont n. Direct vergelijkbaar op één schaal. Hover voor noot.</p>
+  <div class="card" style="padding:22px 26px" id="v1"></div>
+</div>
+
+<!-- ═══ V2 ═══ -->
+<div class="variant">
+  <p class="num">Variant 02 — Radiale arc gauge</p>
+  <h2>Elke gap als eigen ring</h2>
+  <p class="sub">Zes concentrische ringen — buiten = grootste gap, binnen = kleinste. Vulsgraad van de arc = n als percentage van het maximum. Kleur = ernst. De gaten lezen als bewuste leegte.</p>
+  <div class="card" style="padding:22px 26px;display:flex;align-items:flex-start;gap:28px;flex-wrap:wrap" id="v2"></div>
+</div>
+
+<!-- ═══ V3 ═══ -->
+<div class="variant">
+  <p class="num">Variant 03 — Kwadrant scatter</p>
+  <h2>Type onwetendheid × zichtbaarheid voor de DPO</h2>
+  <p class="sub">X-as: onbewust (passief) → bewust (actief). Y-as: laag risico → hoog risico voor DPO. Elke gap staat op zijn coördinaat. Grootte = n. Kwadrant bepaalt urgentie van de interventie.</p>
+  <div class="card" style="padding:22px 26px;overflow-x:auto" id="v3"></div>
+</div>
+
+<!-- ═══ V4 ═══ -->
+<div class="variant">
+  <p class="num">Variant 04 — Constellation</p>
+  <h2>Gedeelde var-code als verbinding</h2>
+  <p class="sub">Donker veld. Elke gap = een ster (grootte = n). Gaps die dezelfde var-code delen zijn verbonden — zo wordt zichtbaar dat meerdere symptomen één onderliggende oorzaak hebben. Hover voor detail.</p>
+  <div class="card" style="padding:4px;background:#0f172a;border-color:#1e293b;overflow:hidden;border-radius:14px" id="v4"></div>
+</div>
+
+<!-- ═══ V5 ═══ -->
+<div class="variant">
+  <p class="num">Variant 05 — Proportional strip (Tufte-stijl)</p>
+  <h2>Gerangschikte strip met directe labeling</h2>
+  <p class="sub">Geen assen, geen kader. Elke gap staat als evenredig blok in een gestapelde strip. Breedte = n. Kleur = ernst. Labels direct op het blok. Geheel leest als één proportioneel geheel van 151 gaps.</p>
+  <div class="card" style="padding:22px 26px" id="v5"></div>
+</div>
+
+<div id="tip" class="tip"></div>
+
+<script>
+/* ── DATA ── */
+const GAPS = [
+  { label:"Data-onzekerheid",        var:"data_awareness",       n:39, sev:"amber", icon:"help_outline",   note:'"Weet ik niet zeker" bij datatype-vraag',         x:.25, y:.65 },
+  { label:"Output direct overnemen", var:"processing_output",    n:31, sev:"amber", icon:"output",         note:"Neemt AI-resultaten direct over zonder check",     x:.70, y:.80 },
+  { label:"Extensie-onwetendheid",   var:"extension_awareness",  n:24, sev:"red",   icon:"extension_off",  note:"Geïnstalleerd, weet niet of ze meekijken",         x:.55, y:.90 },
+  { label:"Anonimisering onbekend",  var:"data_awareness",       n:22, sev:"amber", icon:"no_encryption",  note:"Wist niet dat anonimiseren nodig/mogelijk was",    x:.35, y:.50 },
+  { label:"Automatisering onbekend", var:"automation_awareness", n:18, sev:"red",   icon:"sync_problem",   note:"Tools werken automatisch, maar weet het niet",     x:.75, y:.55 },
+  { label:"Data-opslag aanname",     var:"data_awareness",       n:17, sev:"amber", icon:"cloud_off",      note:'"Mijn gegevens blijven privé" — aanname zonder basis', x:.15, y:.35 }
+];
+const TOTAL = GAPS.reduce((s,g)=>s+g.n,0);
+const MAX_N = Math.max(...GAPS.map(g=>g.n));
+const COL = { red:"#b4292d", amber:"#C06000" };
+const BG  = { red:"#fdecea", amber:"#fff7ed" };
+
+/* ── TOOLTIP ── */
+const TIP = document.getElementById("tip");
+function showTip(e,html){ TIP.style.display="block"; TIP.innerHTML=html; mv(e); }
+function mv(e){ TIP.style.left=(e.clientX+14)+"px"; TIP.style.top=(e.clientY-8)+"px"; }
+function hideTip(){ TIP.style.display="none"; }
+
+/* ══════════════════════════════════════════
+   V1 — HORIZON CHART
+   Elke gap = een rij met twee gekleurde lagen
+   Layer 1 (amber fill) = percentage van totaal
+   Layer 2 (red overlay, harder) = severity boost
+   ══════════════════════════════════════════ */
+(function(){
+  const el = document.getElementById("v1");
+  const sorted = [...GAPS].sort((a,b)=>b.n-a.n);
+
+  // Header
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:160px 1fr 38px;gap:10px;align-items:center;padding-bottom:8px;border-bottom:1px solid #f1f5f9;margin-bottom:10px">
+      <span style="font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8;font-family:'DM Mono'">Gap</span>
+      <span style="font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8;font-family:'DM Mono'">← n respondenten / schaal 0–${MAX_N}</span>
+      <span style="font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8;font-family:'DM Mono';text-align:right">n</span>
+    </div>`;
+
+  sorted.forEach((g, i) => {
+    const pct = g.n / MAX_N * 100;
+    // Amber base layer + red severity cap
+    const amberPct = g.sev === "amber" ? pct : pct * .55;
+    const redPct   = g.sev === "red"   ? pct : 0;
+
+    const row = document.createElement("div");
+    row.style.cssText = "display:grid;grid-template-columns:160px 1fr 38px;gap:10px;align-items:center;padding:5px 0;border-bottom:1px solid #f8fafc;cursor:default";
+
+    row.innerHTML = `
+      <div>
+        <p style="font-size:11px;font-weight:700;color:#1a2028;line-height:1.2">${g.label}</p>
+        <p style="font-size:9.5px;font-family:'DM Mono',monospace;color:#94a3b8;margin-top:1px">${g.var}</p>
+      </div>
+      <div style="position:relative;height:18px;background:#f8fafc;border-radius:3px;overflow:hidden">
+        <!-- amber base -->
+        <div style="position:absolute;left:0;top:0;height:100%;width:${amberPct}%;background:#C06000;opacity:.22;border-radius:3px;transition:width .7s cubic-bezier(.4,0,.2,1)"></div>
+        <!-- red severity overlay -->
+        ${redPct ? `<div style="position:absolute;left:0;top:0;height:100%;width:${redPct}%;background:#b4292d;opacity:.35;border-radius:3px;transition:width .7s .05s cubic-bezier(.4,0,.2,1)"></div>` : ""}
+        <!-- solid leading edge -->
+        <div style="position:absolute;left:0;top:0;height:100%;width:${pct}%;display:flex;align-items:center;justify-content:flex-end;padding-right:4px">
+          <div style="width:3px;height:12px;background:${COL[g.sev]};border-radius:2px;opacity:.8"></div>
+        </div>
+        <!-- n label inside -->
+        <span style="position:absolute;left:${Math.min(pct+1,55)}%;top:50%;transform:translateY(-50%);font-size:9px;font-weight:700;font-family:'DM Mono',monospace;color:${COL[g.sev]}">${g.n}</span>
+      </div>
+      <div style="text-align:right;font-size:12px;font-weight:800;font-family:'DM Mono',monospace;color:${COL[g.sev]}">${g.n}</div>`;
+
+    row.addEventListener("mouseenter", e => showTip(e,
+      `<strong>${g.label}</strong><br><span style="color:#94a3b8">${g.var}</span><br>${g.note}<br>Ernst: <span style="color:${COL[g.sev]}">${g.sev}</span>`));
+    row.addEventListener("mousemove", mv);
+    row.addEventListener("mouseleave", hideTip);
+    el.appendChild(row);
+  });
+
+  // Scale markers
+  const scaleDiv = document.createElement("div");
+  scaleDiv.style.cssText = "display:grid;grid-template-columns:160px 1fr 38px;gap:10px;margin-top:8px;padding-top:4px;border-top:1px solid #f1f5f9";
+  scaleDiv.innerHTML = `<div></div>
+    <div style="display:flex;justify-content:space-between">
+      ${[0,10,20,30,39].map(v=>`<span style="font-size:8.5px;font-family:'DM Mono',monospace;color:#cbd5e1">${v}</span>`).join("")}
+    </div>
+    <div></div>`;
+  el.appendChild(scaleDiv);
+
+  // Legend
+  const legend = document.createElement("div");
+  legend.style.cssText = "display:flex;gap:16px;margin-top:12px";
+  legend.innerHTML = [
+    {label:"Amber — matig", c:"#C06000", o:.4},
+    {label:"Rood — kritiek (extensie, automation)", c:"#b4292d", o:.5}
+  ].map(l=>`<div style="display:flex;align-items:center;gap:6px">
+    <div style="width:20px;height:6px;border-radius:2px;background:${l.c};opacity:${l.o}"></div>
+    <span style="font-size:10px;color:#64748b">${l.label}</span>
+  </div>`).join("");
+  el.appendChild(legend);
+})();
+
+/* ══════════════════════════════════════════
+   V2 — RADIALE ARC GAUGES
+   Zes concentrische ringen, buiten = grootste gap
+   Vulsgraad = n/MAX_N als hoek
+   ══════════════════════════════════════════ */
+(function(){
+  const el = document.getElementById("v2");
+  const SIZE = 280, CX=SIZE/2, CY=SIZE/2;
+  const sorted = [...GAPS].sort((a,b)=>b.n-a.n);
+  const N = sorted.length;
+  const RMAX = CY-16, RMIN = 36;
+  const ringW = (RMAX-RMIN)/N - 4;
+
+  let svgStr = `<svg viewBox="0 0 ${SIZE} ${SIZE}" style="width:min(${SIZE}px,100%);height:auto;flex-shrink:0" role="img" aria-label="Radiale arc gauges van awareness gaps">`;
+
+  sorted.forEach((g, i) => {
+    const r = RMAX - i*(ringW+4) - ringW/2;
+    const sweep = (g.n / MAX_N) * 2*Math.PI * .85; // max 85% of circle
+    const start = -Math.PI/2; // top
+
+    // Track
+    const tx1 = CX + Math.cos(start) * r, ty1 = CY + Math.sin(start) * r;
+    const endAng = start + 2*Math.PI*.85;
+    const tx2 = CX + Math.cos(endAng) * r, ty2 = CY + Math.sin(endAng) * r;
+    svgStr += `<path d="M${tx1},${ty1} A${r},${r} 0 ${2*Math.PI*.85>Math.PI?1:0},1 ${tx2},${ty2}" fill="none" stroke="#e2e8f0" stroke-width="${ringW}" stroke-linecap="round"/>`;
+
+    // Filled arc
+    const endFill = start + sweep;
+    const fx2 = CX + Math.cos(endFill) * r, fy2 = CY + Math.sin(endFill) * r;
+    const largeArc = sweep > Math.PI ? 1 : 0;
+    svgStr += `<path d="M${tx1},${ty1} A${r},${r} 0 ${largeArc},1 ${fx2},${fy2}" fill="none" stroke="${COL[g.sev]}" stroke-width="${ringW}" stroke-linecap="round" opacity=".75"/>`;
+
+    // End dot
+    svgStr += `<circle cx="${fx2}" cy="${fy2}" r="${ringW/2+1}" fill="${COL[g.sev]}"/>`;
+
+    // n label at end-dot position
+    const lblR = r;
+    const lblAng = endFill + 0.18;
+    const lx = CX + Math.cos(lblAng)*lblR, ly = CY + Math.sin(lblAng)*lblR;
+    svgStr += `<text x="${lx}" y="${ly+4}" text-anchor="middle" font-size="9.5" font-weight="800" font-family="DM Mono,monospace" fill="${COL[g.sev]}">${g.n}</text>`;
+  });
+
+  // Center text
+  svgStr += `<text x="${CX}" y="${CY-6}" text-anchor="middle" font-size="13" font-weight="800" font-family="DM Mono,monospace" fill="#1a2028">${TOTAL}</text>`;
+  svgStr += `<text x="${CX}" y="${CY+10}" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" fill="#94a3b8">gaps totaal</text>`;
+  svgStr += "</svg>";
+
+  const svgWrap = document.createElement("div");
+  svgWrap.innerHTML = svgStr;
+  el.appendChild(svgWrap);
+
+  // Legend list (right side)
+  const list = document.createElement("div");
+  list.style.cssText = "flex:1;min-width:200px;display:flex;flex-direction:column;gap:8px;justify-content:center";
+  sorted.forEach((g, i) => {
+    const pct = Math.round(g.n/MAX_N*100);
+    list.innerHTML += `
+      <div style="display:flex;align-items:center;gap:10px;cursor:default"
+        onmouseenter="showTip(event,'<strong>${g.label}</strong><br>${g.note}')" onmousemove="mv(event)" onmouseleave="hideTip()">
+        <div style="width:12px;height:12px;border-radius:50%;background:${COL[g.sev]};opacity:.75;flex-shrink:0"></div>
+        <div style="flex:1">
+          <p style="font-size:11px;font-weight:700;color:#1a2028;margin:0;line-height:1.2">${g.label}</p>
+          <p style="font-size:9.5px;font-family:'DM Mono',monospace;color:#94a3b8;margin:0">${g.var} · n=${g.n}</p>
+        </div>
+        <div style="width:48px;height:4px;background:#f1f5f9;border-radius:2px;overflow:hidden;flex-shrink:0">
+          <div style="width:${pct}%;height:100%;background:${COL[g.sev]};opacity:.7"></div>
+        </div>
+      </div>`;
+  });
+  el.appendChild(list);
+})();
+
+/* ══════════════════════════════════════════
+   V3 — KWADRANT SCATTER
+   X: passief onwetend (links) → actief risicovol (rechts)
+   Y: laag DPO-risico (onder) → hoog DPO-risico (boven)
+   Grootte = n, kleur = ernst
+   ══════════════════════════════════════════ */
+(function(){
+  const el = document.getElementById("v3");
+  const W=780, H=380, PAD={l:60,r:20,t:20,b:52};
+  const cW=W-PAD.l-PAD.r, cH=H-PAD.t-PAD.b;
+
+  // Manually position on semantic axes
+  // x: 0=passief, 1=actief | y: 0=laag, 1=hoog DPO
+  const positions = {
+    "data_awareness_0":   {x:.22, y:.62},  // Data-onzekerheid
+    "processing_output":  {x:.74, y:.78},  // Output direct
+    "extension_awareness":{x:.58, y:.88},  // Extensie
+    "data_awareness_1":   {x:.38, y:.48},  // Anonimisering
+    "automation_awareness":{x:.78, y:.52}, // Automatisering
+    "data_awareness_2":   {x:.15, y:.32},  // Data-opslag
+  };
+  const posKeys = ["data_awareness_0","processing_output","extension_awareness","data_awareness_1","automation_awareness","data_awareness_2"];
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;min-width:480px" role="img" aria-label="Kwadrant scatter van awareness gaps">`;
+
+  // Quadrant fills
+  const midX = PAD.l + cW*.5, midY = PAD.t + cH*.5;
+  svg += `<rect x="${PAD.l}" y="${PAD.t}" width="${cW*.5}" height="${cH*.5}" fill="#fff7ed" opacity=".4"/>`;          // TL: passief + hoog
+  svg += `<rect x="${midX}" y="${PAD.t}" width="${cW*.5}" height="${cH*.5}" fill="#fdecea" opacity=".45"/>`;          // TR: actief + hoog
+  svg += `<rect x="${PAD.l}" y="${midY}" width="${cW*.5}" height="${cH*.5}" fill="#f0fdf4" opacity=".4"/>`;           // BL: passief + laag
+  svg += `<rect x="${midX}" y="${midY}" width="${cW*.5}" height="${cH*.5}" fill="#eff6ff" opacity=".35"/>`;           // BR: actief + laag
+
+  // Quadrant labels
+  const ql = [
+    {x:PAD.l+10,      y:PAD.t+14,   label:"Training & bewustzijn",    c:"#b45309", a:"start"},
+    {x:W-PAD.r-10,    y:PAD.t+14,   label:"DPO-actie + interventie",  c:"#b4292d", a:"end"},
+    {x:PAD.l+10,      y:H-PAD.b-8,  label:"Monitor — laag risico",    c:"#3e6a00", a:"start"},
+    {x:W-PAD.r-10,    y:H-PAD.b-8,  label:"Check + check",            c:"#0369a1", a:"end"}
+  ];
+  ql.forEach(q=>{ svg+=`<text x="${q.x}" y="${q.y}" text-anchor="${q.a}" font-size="9.5" font-weight="800" font-family="DM Mono,monospace" fill="${q.c}" opacity=".6">${q.label}</text>`; });
+
+  // Grid lines
+  svg += `<line x1="${midX}" y1="${PAD.t}" x2="${midX}" y2="${H-PAD.b}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,3"/>`;
+  svg += `<line x1="${PAD.l}" y1="${midY}" x2="${W-PAD.r}" y2="${midY}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,3"/>`;
+
+  // Axes
+  svg += `<line x1="${PAD.l}" y1="${H-PAD.b}" x2="${W-PAD.r}" y2="${H-PAD.b}" stroke="#94a3b8" stroke-width="1"/>`;
+  svg += `<line x1="${PAD.l}" y1="${PAD.t}" x2="${PAD.l}" y2="${H-PAD.b}" stroke="#94a3b8" stroke-width="1"/>`;
+  svg += `<text x="${PAD.l}" y="${H-PAD.b+18}" text-anchor="start" font-size="9" font-family="DM Mono,monospace" fill="#94a3b8">Passief onwetend</text>`;
+  svg += `<text x="${W-PAD.r}" y="${H-PAD.b+18}" text-anchor="end" font-size="9" font-family="DM Mono,monospace" fill="#94a3b8">Actief risicovol →</text>`;
+  svg += `<text x="${PAD.l-8}" y="${H-PAD.b}" text-anchor="middle" font-size="9" font-family="DM Mono,monospace" fill="#94a3b8" transform="rotate(-90,${PAD.l-8},${H-PAD.b})">Laag DPO-risico</text>`;
+  svg += `<text x="${PAD.l-8}" y="${PAD.t+30}" text-anchor="middle" font-size="9" font-family="DM Mono,monospace" fill="#94a3b8" transform="rotate(-90,${PAD.l-8},${PAD.t+30})">Hoog DPO-risico ↑</text>`;
+
+  // Data points
+  GAPS.forEach((g, i) => {
+    const pos = positions[posKeys[i]];
+    const cx = PAD.l + pos.x * cW;
+    const cy = PAD.t + (1-pos.y) * cH;
+    const r = 10 + (g.n/MAX_N)*22;
+    const col = COL[g.sev];
+
+    svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${col}" fill-opacity=".12" stroke="${col}" stroke-width="2"/>`;
+    svg += `<circle cx="${cx}" cy="${cy}" r="4" fill="${col}"/>`;
+    svg += `<text x="${cx}" y="${cy-r-5}" text-anchor="middle" font-size="10" font-weight="700" font-family="Inter,sans-serif" fill="#1a2028">${g.label}</text>`;
+    svg += `<text x="${cx}" y="${cy-r-17}" text-anchor="middle" font-size="9" font-weight="800" font-family="DM Mono,monospace" fill="${col}">n=${g.n}</text>`;
+  });
+
+  // Size legend
+  svg += `<circle cx="${W-60}" cy="${H-PAD.b-30}" r="10" fill="none" stroke="#94a3b8" stroke-width="1"/>`;
+  svg += `<circle cx="${W-60}" cy="${H-PAD.b-30}" r="18" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="2,2"/>`;
+  svg += `<text x="${W-38}" y="${H-PAD.b-26}" font-size="8.5" font-family="DM Mono,monospace" fill="#94a3b8">grootte = n</text>`;
+
+  svg += "</svg>";
+  el.innerHTML = svg;
+
+  el.addEventListener("mousemove", mv);
+  el.addEventListener("mouseleave", hideTip);
+  el.querySelectorAll("circle[r]").forEach((c, i) => {
+    if(i < GAPS.length*2 && i%2===0){
+      const g=GAPS[Math.floor(i/2)];
+      c.style.cursor="pointer";
+      c.addEventListener("mouseenter", e=>showTip(e,`<strong>${g.label}</strong><br>${g.note}<br>n=${g.n}`));
+      c.addEventListener("mousemove", mv);
+      c.addEventListener("mouseleave", hideTip);
+    }
+  });
+})();
+
+/* ══════════════════════════════════════════
+   V4 — CONSTELLATION (dark field)
+   Donker achtergrond, gaps als sterren
+   Gedeelde var-code = verbonden door lijn
+   ══════════════════════════════════════════ */
+(function(){
+  const el = document.getElementById("v4");
+  const W=820, H=340, PAD=40;
+
+  // Positions: hand-placed in the dark field
+  const POS = [
+    {x:.20, y:.38},  // data-onzekerheid
+    {x:.55, y:.28},  // output direct
+    {x:.78, y:.45},  // extensie
+    {x:.33, y:.68},  // anonimisering
+    {x:.65, y:.72},  // automatisering
+    {x:.10, y:.70},  // data-opslag
+  ];
+  const cx = g => PAD + POS[GAPS.indexOf(g)].x * (W-2*PAD);
+  const cy = g => PAD + POS[GAPS.indexOf(g)].y * (H-2*PAD);
+
+  // Group by var
+  const varGroups = {};
+  GAPS.forEach(g=>{
+    if(!varGroups[g.var]) varGroups[g.var]=[];
+    varGroups[g.var].push(g);
+  });
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="Constellation chart van awareness gaps">`;
+
+  // Dark background
+  svg += `<rect width="${W}" height="${H}" fill="#0f172a"/>`;
+
+  // Subtle grid
+  for(let i=0;i<5;i++){
+    const x = PAD + (i/4)*(W-2*PAD);
+    svg += `<line x1="${x}" y1="${PAD}" x2="${x}" y2="${H-PAD}" stroke="#1e293b" stroke-width="1"/>`;
+  }
+  for(let i=0;i<4;i++){
+    const y = PAD + (i/3)*(H-2*PAD);
+    svg += `<line x1="${PAD}" y1="${y}" x2="${W-PAD}" y2="${y}" stroke="#1e293b" stroke-width="1"/>`;
+  }
+
+  // Connections between shared var codes
+  Object.entries(varGroups).forEach(([v, members]) => {
+    if(members.length < 2) return;
+    for(let i=0;i<members.length;i++){
+      for(let j=i+1;j<members.length;j++){
+        const a=members[i], b=members[j];
+        svg += `<line x1="${cx(a)}" y1="${cy(a)}" x2="${cx(b)}" y2="${cy(b)}" stroke="#CBD5E1" stroke-width="1" opacity=".12" stroke-dasharray="4,3"/>`;
+        // midpoint label
+        const mx=(cx(a)+cx(b))/2, my=(cy(a)+cy(b))/2;
+        svg += `<text x="${mx}" y="${my-4}" text-anchor="middle" font-size="8" font-family="DM Mono,monospace" fill="#475569" opacity=".7">${v}</text>`;
+      }
+    }
+  });
+
+  // Stars
+  GAPS.forEach((g, i) => {
+    const x=cx(g), y=cy(g);
+    const r = 8 + (g.n/MAX_N)*28;
+    const col = g.sev==="red" ? "#fca5a5" : "#fed7aa";
+    const colDark = g.sev==="red" ? "#dc2626" : "#f59e0b";
+
+    // Glow
+    svg += `<circle cx="${x}" cy="${y}" r="${r+12}" fill="${colDark}" opacity=".07"/>`;
+    svg += `<circle cx="${x}" cy="${y}" r="${r+4}" fill="${colDark}" opacity=".12"/>`;
+    // Star body
+    svg += `<circle cx="${x}" cy="${y}" r="${r}" fill="${col}" fill-opacity=".18" stroke="${col}" stroke-width="1.5" stroke-opacity=".6"/>`;
+    // Bright center
+    svg += `<circle cx="${x}" cy="${y}" r="4" fill="${col}" opacity=".9"/>`;
+
+    // n label inside
+    svg += `<text x="${x}" y="${y+4}" text-anchor="middle" font-size="${r>18?13:11}" font-weight="800" font-family="DM Mono,monospace" fill="${col}">${g.n}</text>`;
+
+    // Label: always visible, positioned to avoid overlap
+    const lblAbove = y > H/2;
+    const lblY = lblAbove ? y-r-22 : y+r+14;
+    svg += `<text x="${x}" y="${lblY}" text-anchor="middle" font-size="10.5" font-weight="700" font-family="Inter,sans-serif" fill="#e2e8f0">${g.label}</text>`;
+    svg += `<text x="${x}" y="${lblY+(lblAbove?-11:12)}" text-anchor="middle" font-size="9" font-family="DM Mono,monospace" fill="#475569">${g.var}</text>`;
+  });
+
+  // Legend bottom-right
+  const lx=W-PAD-120, ly=H-PAD+4;
+  svg += `<circle cx="${lx+6}" cy="${ly}" r="5" fill="#fca5a5" opacity=".6"/><text x="${lx+16}" y="${ly+4}" font-size="9" font-family="DM Mono" fill="#64748b">Kritiek (rood)</text>`;
+  svg += `<circle cx="${lx+6}" cy="${ly+14}" r="5" fill="#fed7aa" opacity=".6"/><text x="${lx+16}" y="${ly+18}" font-size="9" font-family="DM Mono" fill="#64748b">Matig (amber)</text>`;
+  svg += `<line x1="${lx}" y1="${ly+9}" x2="${lx+40}" y2="${ly+9}" stroke="#CBD5E1" stroke-width="1" opacity=".15" stroke-dasharray="3,2"/><text x="${lx+44}" y="${ly+13}" font-size="9" font-family="DM Mono" fill="#64748b">Gedeelde oorzaak</text>`;
+
+  svg += "</svg>";
+  el.innerHTML = svg;
+
+  el.querySelectorAll("circle").forEach((c,i)=>{
+    const g=GAPS[Math.floor(i/3)];
+    if(g&&i%3===1){
+      c.style.cursor="pointer";
+      c.addEventListener("mouseenter", e=>showTip(e,`<strong>${g.label}</strong><br>${g.note}<br>n=${g.n}`));
+      c.addEventListener("mousemove", mv);
+      c.addEventListener("mouseleave", hideTip);
+    }
+  });
+})();
+
+/* ══════════════════════════════════════════
+   V5 — PROPORTIONAL STRIP (Tufte-stijl)
+   Één gestapelde strip, breedte = n
+   Direct labeling, geen legenda, geen assen
+   ══════════════════════════════════════════ */
+(function(){
+  const el = document.getElementById("v5");
+  const sorted = [...GAPS].sort((a,b)=>b.n-a.n);
+
+  // Strip
+  const strip = document.createElement("div");
+  strip.style.cssText = "display:flex;height:48px;border-radius:8px;overflow:hidden;gap:1px;margin-bottom:20px";
+  sorted.forEach(g=>{
+    const pct = g.n/TOTAL*100;
+    const seg = document.createElement("div");
+    seg.style.cssText = `flex:${pct};background:${COL[g.sev]};opacity:${g.sev==="red"?.7:.5};position:relative;cursor:default;transition:opacity .15s;min-width:4px`;
+    seg.title = g.label;
+    seg.addEventListener("mouseenter", e=>{ seg.style.opacity="1"; showTip(e,`<strong>${g.label}</strong><br>n=${g.n} · ${pct.toFixed(1)}% van ${TOTAL}<br>${g.note}`); });
+    seg.addEventListener("mousemove", mv);
+    seg.addEventListener("mouseleave", ()=>{ seg.style.opacity=g.sev==="red"?".7":".5"; hideTip(); });
+    // label inside if segment wide enough
+    if(pct > 12){
+      seg.innerHTML = `<span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:11px;font-weight:800;font-family:'DM Mono',monospace;color:#fff;white-space:nowrap">${g.n}</span>`;
+    }
+    strip.appendChild(seg);
+  });
+  el.appendChild(strip);
+
+  // Tufte direct labels below strip
+  const labelRow = document.createElement("div");
+  labelRow.style.cssText = "display:flex;height:auto;gap:1px";
+  let leftAccum = 0;
+  sorted.forEach((g, i) => {
+    const pct = g.n/TOTAL*100;
+    const seg = document.createElement("div");
+    seg.style.cssText = `flex:${pct};min-width:4px;display:flex;flex-direction:column;border-left:1px solid ${COL[g.sev]};padding-left:4px;padding-top:6px`;
+
+    // Only show text label if segment is wide enough
+    if(pct > 8){
+      seg.innerHTML = `
+        <p style="font-size:10.5px;font-weight:700;color:#1a2028;margin:0;line-height:1.25;word-break:break-word">${g.label}</p>
+        <p style="font-size:9px;font-family:'DM Mono',monospace;color:#94a3b8;margin:2px 0 0">${g.n} · ${pct.toFixed(0)}%</p>`;
+    } else {
+      seg.innerHTML = `<p style="font-size:9px;font-family:'DM Mono',monospace;color:${COL[g.sev]};margin:0">${g.n}</p>`;
+    }
+    labelRow.appendChild(seg);
+  });
+  el.appendChild(labelRow);
+
+  // Totaal annotatie
+  const note = document.createElement("p");
+  note.style.cssText = "font-size:10px;color:#94a3b8;margin-top:16px;font-family:'DM Mono',monospace;border-top:1px solid #f1f5f9;padding-top:10px";
+  note.textContent = `n totaal = ${TOTAL} geregistreerde awareness-gaps · rood = kritiek (extensie, automation) · amber = matig · geen assen, breedte = proportie`;
+  el.appendChild(note);
+})();
+</script>
+</body>
+</html>

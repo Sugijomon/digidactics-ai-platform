@@ -1,0 +1,22 @@
+[
+  {
+    "code": "approved",
+    "label": "Goedgekeurd"
+  },
+  {
+    "code": "known_unconfigured",
+    "label": "Bekend, niet geconfigureerd"
+  },
+  {
+    "code": "under_review",
+    "label": "In beoordeling"
+  },
+  {
+    "code": "newly_discovered",
+    "label": "Nieuw ontdekt"
+  },
+  {
+    "code": "unknown",
+    "label": "Onbekend"
+  }
+]

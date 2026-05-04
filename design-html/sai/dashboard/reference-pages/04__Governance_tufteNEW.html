@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html class="light" lang="nl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Governance | Shadow AI Governance</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<script>tailwind.config={darkMode:"class",theme:{extend:{colors:{surface:"#f7f9fb","surface-panel":"#ffffff","surface-soft":"#f0f4f7",ink:"#1a2028",muted:"#566166",primary:"#0E5A75",green:"#3e6a00",amber:"#C06000",red:"#b4292d",blue:"#0369a1",violet:"#6d28d9",cyan:"#0e7490"},fontFamily:{headline:["Manrope","sans-serif"],body:["Inter","sans-serif"],mono:["DM Mono","monospace"]}}}}</script>
+<style>
+*{box-sizing:border-box}
+body{font-family:"Inter",sans-serif;background:#f7f9fb;color:#1a2028;font-size:13px;line-height:1.5}
+h1,h2,h3,h4{font-family:"Manrope",sans-serif}
+.ms{font-family:"Material Symbols Outlined";font-variation-settings:"FILL" 0,"wght" 400,"GRAD" 0,"opsz" 24;vertical-align:middle;line-height:1}
+.profile-menu{position:absolute;top:calc(100% + 8px);right:0;width:256px;background:#fff;border:1px solid #dbe3ec;border-radius:12px;box-shadow:0 12px 24px rgba(15,23,42,.10);overflow:hidden;display:none;z-index:30}
+.profile-menu.is-open{display:block}
+
+/* ── Tufte-inspired layout: newspaper rules, no card chrome ── */
+.page{padding:32px 40px 60px;max-width:1200px}
+.rule{border:none;border-top:1px solid #e2e8f0;margin:0}
+.rule-heavy{border-top:2px solid #1a2028}
+.rule-dashed{border-top:1px dashed #e2e8f0}
+
+/* ── Section anatomy ── */
+.section-hed{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8;margin:0 0 4px}
+.section-title{font-size:16px;font-weight:800;color:#1a2028;margin:0 0 2px;font-family:"Manrope"}
+.section-sub{font-size:11px;color:#64748b;margin:0 0 16px}
+
+/* ── Sparkline KPI row (Tufte: data-intense, design-simple) ── */
+.kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;background:#fff}
+.kpi-unit{padding:18px 16px 14px;border-right:1px solid #e2e8f0;position:relative}
+.kpi-unit:last-child{border-right:none}
+.kpi-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:6px;line-height:1.2}
+.kpi-number{font-size:30px;font-weight:900;font-family:"DM Mono",monospace;line-height:1;margin-bottom:6px}
+.kpi-sparkline{display:block;width:100%;height:24px;overflow:visible}
+.kpi-context{font-size:9px;color:#94a3b8;margin-top:4px;font-family:"DM Mono",monospace}
+
+/* ── Tufte small multiples: literacy × policy ── */
+.multiples-grid{display:grid;gap:0}
+.multiple-row{display:grid;grid-template-columns:88px 1fr 36px;align-items:center;padding:5px 0;border-bottom:1px solid #f1f5f9;gap:10px}
+.multiple-row:last-child{border-bottom:none}
+.multiple-label{font-size:11px;font-weight:600;color:#334155;text-align:right;padding-right:4px;line-height:1.2}
+.multiple-bar-track{height:10px;background:#f1f5f9;border-radius:2px;overflow:hidden;position:relative}
+.multiple-bar-fill{height:100%;border-radius:2px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.multiple-val{font-size:11px;font-weight:700;font-family:"DM Mono",monospace;text-align:right;color:#334155}
+
+/* ── Connected dot plot (Bremer-style) for awareness gaps ── */
+.dotplot-row{display:grid;grid-template-columns:140px 1fr 36px;align-items:center;padding:6px 0;gap:8px;border-bottom:1px solid #f8fafc}
+.dotplot-row:last-child{border-bottom:none}
+.dotplot-label{font-size:11px;font-weight:600;color:#334155;text-align:right;line-height:1.2}
+.dotplot-track{position:relative;height:16px}
+.dotplot-val{font-size:11px;font-weight:700;font-family:"DM Mono",monospace;text-align:right}
+
+/* ── Slopegraph for combo signals ── */
+.slope-row{display:grid;grid-template-columns:1fr 40px 1fr;align-items:center;padding:5px 0;gap:0;border-bottom:1px solid #f8fafc;cursor:pointer;transition:background .1s}
+.slope-row:hover{background:#fafbfc}
+.slope-row:last-child{border-bottom:none}
+.slope-pattern{font-size:11px;font-weight:600;color:#334155;padding-right:10px;line-height:1.3}
+.slope-action{font-size:11px;color:#64748b;padding-left:10px;line-height:1.3}
+.slope-connector{display:flex;align-items:center;justify-content:center}
+
+/* ── Trigger table: FT-style, no zebra stripes (Tufte) ── */
+.trigger-table{width:100%;border-collapse:collapse}
+.trigger-table th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;padding:6px 8px 8px;text-align:left;border-bottom:1px solid #e2e8f0}
+.trigger-table td{padding:8px;font-size:12px;color:#334155;border-bottom:1px solid #f8fafc;vertical-align:middle}
+.trigger-table tr:last-child td{border-bottom:none}
+.trigger-table tr:hover td{background:#fafbfc}
+
+/* ── Inline micro-tags ── */
+.tag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:800;letter-spacing:.03em;font-family:"DM Mono",monospace}
+.tag-hard{background:#fdecea;color:#b4292d}
+.tag-warn{background:#fff7ed;color:#b45309}
+.tag-info{background:#eff6ff;color:#1d4ed8}
+.tag-ok  {background:#f0fdf4;color:#166534}
+.tag-violet{background:#f5f3ff;color:#6d28d9}
+.tag-slate{background:#f1f5f9;color:#475569}
+
+/* ── Horizontal bar with reference line (Tufte) ── */
+.ref-bar-wrap{position:relative;height:8px;background:#f1f5f9;border-radius:2px;overflow:visible}
+.ref-bar-fill{position:absolute;top:0;left:0;height:100%;border-radius:2px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.ref-line{position:absolute;top:-3px;bottom:-3px;width:1px;background:rgba(0,0,0,.2)}
+
+/* ── Drawer ── */
+.drawer-bg{display:none;position:fixed;inset:0;background:rgba(15,23,42,.22);backdrop-filter:blur(2px);z-index:190}
+.drawer-bg.is-open{display:block}
+.drawer{position:fixed;top:0;right:-540px;width:min(520px,94vw);height:100vh;background:#fff;border-left:1px solid #e2e8f0;box-shadow:-8px 0 48px rgba(15,23,42,.12);z-index:200;transition:right .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
+.drawer.is-open{right:0}
+.drawer-scroll{overflow-y:auto;flex:1;scrollbar-width:thin;scrollbar-color:#cbd5e1 transparent}
+
+/* ── Innovation / nonuse waffle-style inline charts ── */
+.waffle-strip{display:flex;height:12px;border-radius:3px;overflow:hidden;gap:1px}
+.waffle-seg{flex:1;border-radius:2px}
+
+/* ── Chip ── */
+.chip{display:inline-flex;align-items:center;gap:4px;border:1px solid #e2e8f0;background:#fff;color:#475569;border-radius:999px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s}
+.chip:hover{border-color:#94a3b8;background:#f8fafc}
+.chip.is-active{background:#1e293b;color:#fff;border-color:#1e293b}
+
+@media(max-width:980px){aside{display:none}main{margin-left:0!important;width:100vw!important;max-width:100vw!important}}
+
+/* Animations */
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.fu{animation:fu .45s ease both}
+.fu1{animation-delay:.04s}.fu2{animation-delay:.08s}.fu3{animation-delay:.12s}.fu4{animation-delay:.16s}.fu5{animation-delay:.20s}.fu6{animation-delay:.24s}
+
+/* ── Duo-column layout for lower sections ── */
+.col2{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+@media(max-width:860px){.col2{grid-template-columns:1fr}}
+.col3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+@media(max-width:900px){.col3{grid-template-columns:1fr}}
+</style>
+</head>
+<body class="flex min-h-screen overflow-x-hidden bg-surface text-ink">
+
+<!-- ═══════ SIDENAV ═══════ -->
+<aside class="fixed left-0 top-0 z-[90] h-full w-64 bg-slate-50 flex flex-col gap-1 p-4 border-r border-slate-200">
+  <div class="mb-7 px-4 pt-1">
+    <h1 class="font-bold text-slate-800 text-[17px]">DPO Governance</h1>
+    <p class="text-[12px] font-medium text-slate-500 mt-0.5">Beheerdersdashboard</p>
+  </div>
+  <nav class="flex flex-col gap-1 text-sm">
+    <a class="text-slate-500 hover:bg-slate-100 rounded-lg px-4 py-2.5 flex items-center gap-3 transition-all" href="#"><span class="ms text-[17px]">play_circle</span><span class="font-semibold">Activatie</span></a>
+    <a class="text-slate-500 hover:bg-slate-100 rounded-lg px-4 py-2.5 flex items-center gap-3 transition-all" href="#"><span class="ms text-[17px]">grid_view</span><span class="font-semibold">Tool Inventaris</span></a>
+    <a class="text-slate-500 hover:bg-slate-100 rounded-lg px-4 py-2.5 flex items-center gap-3 transition-all" href="#"><span class="ms text-[17px]">assessment</span><span class="font-semibold">Risicoprofiel</span></a>
+    <a class="bg-slate-200 text-slate-900 font-bold rounded-lg px-4 py-2.5 flex items-center gap-3" href="#"><span class="ms text-[17px]">gavel</span>Governance</a>
+    <a class="text-slate-500 hover:bg-slate-100 rounded-lg px-4 py-2.5 flex items-center gap-3 transition-all" href="#"><span class="ms text-[17px]">description</span><span class="font-semibold">Rapportage</span></a>
+  </nav>
+  <div class="mt-auto px-2 pb-2 space-y-0.5 border-t border-slate-100 pt-3">
+    <a class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-slate-500 hover:bg-slate-100 text-[12px] font-medium" href="#"><span class="ms text-[14px]">lightbulb</span>Kennisbank</a>
+    <a class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-slate-500 hover:bg-slate-100 text-[12px] font-medium" href="#"><span class="ms text-[14px]">notifications_none</span>Support</a>
+  </div>
+</aside>
+
+<!-- ═══════ MAIN ═══════ -->
+<main class="ml-64 w-[calc(100vw-16rem)] max-w-[calc(100vw-16rem)] flex flex-col min-h-screen overflow-x-hidden">
+
+  <!-- TOPBAR -->
+  <header class="bg-slate-50/95 sticky top-0 z-[80] border-b border-slate-200/70 backdrop-blur-sm">
+    <div class="w-full px-7 py-2.5 grid grid-cols-[minmax(320px,1fr)_minmax(280px,1fr)_minmax(210px,1fr)] items-center gap-4">
+      <div class="min-w-0 flex items-center gap-4">
+        <span class="text-[22px] font-bold tracking-tight text-slate-800">Shadow AI Scan</span>
+        <span class="px-3 py-1.5 rounded-full bg-[#CFEA7B] text-[#4D7800] font-bold text-[12px] flex items-center gap-1.5 leading-none shrink-0"><span class="w-2 h-2 rounded-full bg-[#4D7800]"></span>Open</span>
+      </div>
+      <div class="flex items-center justify-center gap-2">
+        <span class="ms text-slate-400 text-[17px]">calendar_today</span>
+        <span class="text-[14px] font-bold text-slate-700 whitespace-nowrap">Sluit op 23 april</span>
+        <span class="text-[11px] text-slate-500 bg-slate-100 px-2.5 py-1 rounded-xl whitespace-nowrap">(nog 8 dagen)</span>
+      </div>
+      <div class="relative flex justify-end">
+        <button id="pmb" class="flex items-center gap-2.5 rounded-full px-2.5 py-1 hover:bg-slate-100 transition-colors" type="button" aria-expanded="false">
+          <div class="w-9 h-9 rounded-full border border-slate-200 text-slate-500 flex items-center justify-center bg-white"><span class="ms text-[17px]">person</span></div>
+          <div class="text-left leading-tight"><p class="text-[13px] font-bold text-slate-800">Marjan Jansen</p><p class="text-[9px] font-semibold text-slate-500 mt-0.5">DPO</p></div>
+          <span class="ms text-[17px] text-slate-400">expand_more</span>
+        </button>
+        <div id="pmenu" class="profile-menu">
+          <div class="px-4 py-3.5 border-b border-slate-100"><p class="text-[14px] font-bold text-slate-800">Marjan Jansen</p><p class="text-[11px] text-slate-500 mt-1">marjan@digidactics.nl</p></div>
+          <button class="w-full flex items-center gap-3 px-4 py-3 text-slate-800 hover:bg-slate-50 text-[14px]"><span class="ms text-[17px]">person</span>Mijn profiel</button>
+          <button class="w-full flex items-center gap-3 px-4 py-3 text-[#ff4b3e] hover:bg-red-50 border-t border-slate-100 text-[14px]"><span class="ms text-[17px]">logout</span>Uitloggen</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════ PAGE BODY ═══════ -->
+  <div class="page">
+
+    <!-- ── MASTHEAD ── -->
+    <div class="fu mb-6">
+      <div class="flex items-baseline justify-between gap-4 mb-3">
+        <div>
+          <p class="section-hed mb-1">Interventielaag — geen scorecomponent</p>
+          <h2 style="font-size:26px;font-weight:900;letter-spacing:-.02em;margin:0;color:#1a2028">Governance</h2>
+        </div>
+        <p class="text-[11px] text-slate-400 text-right max-w-xs">Sociale indicatoren sturen training, communicatie en bestuurlijke opvolging. Beïnvloeden de risicoscore <em>niet</em>.</p>
+      </div>
+      <hr class="rule rule-heavy" />
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         § 1  SPARKLINE KPI STRIP (Tufte)
+         5 KPI's, elk met een word-sized sparkline
+         ══════════════════════════════════════════ -->
+    <div class="fu fu1 mb-8">
+      <div class="kpi-strip" id="kpi-strip"></div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         § 2  SMALL MULTIPLES  (Tufte)
+         Literacy × Policy — zelfde schaal, zelfde vorm
+         ══════════════════════════════════════════ -->
+    <div class="col2 fu fu2 mb-8">
+
+      <!-- AI Literacy -->
+      <div>
+        <p class="section-hed">AI Literacy & vaardigheid</p>
+        <hr class="rule mb-3" />
+        <div class="multiples-grid" id="literacy-multiples"></div>
+        <!-- Geïntegreerde gestapelde balk onderaan -->
+        <div id="literacy-stacked" style="margin-top:12px"></div>
+        <p style="font-size:10px;color:#94a3b8;margin-top:6px">Schaal 0–100 · n=147 · stuurvariabele voor trainingsplanning, niet voor risicoscore</p>
+      </div>
+
+      <!-- Policy Awareness -->
+      <div>
+        <p class="section-hed">Policy Awareness</p>
+        <hr class="rule mb-3" />
+        <div class="multiples-grid" id="policy-multiples"></div>
+        <p style="font-size:10px;color:#94a3b8;margin-top:18px">Schaal 0–100 · laag = communicatiebehoefte, niet bewijs van overtreding</p>
+      </div>
+    </div>
+
+    <hr class="rule-dashed mb-8" />
+
+    <!-- ══════════════════════════════════════════
+         § 3  AWARENESS GAPS — Connected Dot Plot
+         Geïnspireerd door Bremer / Cleveland dot plots
+         ══════════════════════════════════════════ -->
+    <div class="fu fu3 mb-8">
+      <div class="flex items-baseline justify-between mb-1">
+        <p class="section-hed">Awareness-gaps — onbewust risicovol gedrag</p>
+        <p style="font-size:10px;color:#94a3b8">gesorteerd op urgentie · schaal 0–60</p>
+      </div>
+      <hr class="rule mb-4" />
+
+      <div class="col2">
+        <div id="dotplot-left"></div>
+        <div id="dotplot-right"></div>
+      </div>
+
+      <p style="font-size:10px;color:#94a3b8;margin-top:10px">Niet uit kwade wil — input voor trainingsagenda en DPO-aandacht. Variabelen verwijzen naar survey-codes.</p>
+    </div>
+
+    <hr class="rule-dashed mb-8" />
+
+    <!-- ══════════════════════════════════════════
+         § 4  COMBINATIESIGNALEN — Slope diagram
+         Patroon → Duiding → Interventie op één lijn
+         ══════════════════════════════════════════ -->
+    <div class="fu fu4 mb-8">
+      <div class="flex items-baseline justify-between mb-1">
+        <p class="section-hed">Combinatiesignalen — patroon bepaalt interventie</p>
+      </div>
+      <hr class="rule mb-3" />
+      <!-- Column headers -->
+      <div class="slope-row" style="cursor:default;pointer-events:none;border-bottom:1px solid #e2e8f0">
+        <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8">Patroon</span>
+        <div></div>
+        <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8">Interventie</span>
+      </div>
+      <div id="slope-chart"></div>
+    </div>
+
+    <hr class="rule-dashed mb-8" />
+
+    <!-- ══════════════════════════════════════════
+         § 5  HARD TRIGGERS — FT-stijl tabel
+         Tufte: geen zebra-striping, dunne rules
+         ══════════════════════════════════════════ -->
+    <div class="fu fu5 mb-8">
+      <div class="flex items-baseline justify-between mb-1">
+        <div>
+          <p class="section-hed">Hard review-triggers</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <span id="trigger-total" style="font-size:10px;color:#94a3b8"></span>
+          <span class="tag tag-hard" id="trigger-hard-count"></span>
+        </div>
+      </div>
+      <hr class="rule mb-1" />
+      <!-- Spotlight: één zin, direct boven de tabel -->
+      <div id="trigger-spotlight" style="font-size:12px;color:#b4292d;padding:8px 0 12px;border-bottom:1px dashed #fecaca;margin-bottom:4px"></div>
+      <table class="trigger-table w-full" id="trigger-table"></table>
+    </div>
+
+    <hr class="rule-dashed mb-8" />
+
+    <!-- ══════════════════════════════════════════
+         § 6  INNOVATIE + NIET-GEBRUIK — strip charts
+         Naast elkaar: proportie en richting zichtbaar
+         ══════════════════════════════════════════ -->
+    <div class="col2 fu fu6 mb-8">
+
+      <!-- Innovatie -->
+      <div>
+        <p class="section-hed">Innovatiesignalen & ambassadeurs</p>
+        <hr class="rule mb-3" />
+        <div id="innovation-strips"></div>
+        <p style="font-size:10px;color:#94a3b8;margin-top:8px">Input voor pilotprogramma's, AI-kopgroep en governance co-creatie</p>
+      </div>
+
+      <!-- Niet-gebruik -->
+      <div>
+        <p class="section-hed">Niet-gebruik als signaal</p>
+        <hr class="rule mb-3" />
+        <div id="nonuse-strips"></div>
+        <p style="font-size:10px;color:#94a3b8;margin-top:8px">Reden achter niet-gebruik bepaalt interventie — compliance vs. literacy-gap</p>
+      </div>
+    </div>
+
+    <hr class="rule-dashed mb-8" />
+
+    <!-- ══════════════════════════════════════════
+         § 7  DPO-SIGNALEN — compacte tabel
+         ══════════════════════════════════════════ -->
+    <div class="fu mb-8">
+      <div class="flex items-baseline justify-between mb-1">
+        <p class="section-hed">DPO-aandachtssignalen</p>
+        <button class="chip" style="font-size:10px;padding:3px 8px"><span class="ms" style="font-size:13px">add</span>Signaal toevoegen</button>
+      </div>
+      <hr class="rule mb-1" />
+      <table class="trigger-table w-full">
+        <thead><tr>
+          <th>Cluster-ID</th><th>Type</th><th>Reden</th><th>Door</th><th>Datum</th><th>Status</th><th></th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td class="font-mono" style="font-size:11px;color:#475569">SAI-1042</td>
+            <td><span class="tag tag-hard">Aandacht gevraagd</span></td>
+            <td>Gevoelig HR-project buiten standaardvraag zichtbaar geworden</td>
+            <td style="font-weight:600">MJ</td>
+            <td style="color:#94a3b8">29 apr</td>
+            <td><span class="tag tag-ok">Actief</span></td>
+            <td><button class="chip" style="font-size:10px;padding:3px 8px">Afhandelen</button></td>
+          </tr>
+          <tr>
+            <td class="font-mono" style="font-size:11px;color:#475569">SAI-0988</td>
+            <td><span class="tag tag-info">Review vereist</span></td>
+            <td>Leveranciersmelding over opslaglocatie vereist nadere beoordeling</td>
+            <td style="font-weight:600">MJ</td>
+            <td style="color:#94a3b8">26 apr</td>
+            <td><span class="tag tag-ok">Actief</span></td>
+            <td><button class="chip" style="font-size:10px;padding:3px 8px">Afhandelen</button></td>
+          </tr>
+          <tr>
+            <td class="font-mono" style="font-size:11px;color:#475569">SAI-0871</td>
+            <td><span class="tag tag-warn">Prioriteit verlaagd</span></td>
+            <td>Datakwaliteitscorrectie: tool foutief gekoppeld aan klantcontext</td>
+            <td style="font-weight:600">DPO-team</td>
+            <td style="color:#94a3b8">24 apr</td>
+            <td><span class="tag tag-ok">Actief</span></td>
+            <td><button class="chip" style="font-size:10px;padding:3px 8px">Afhandelen</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr class="rule-dashed mb-8" />
+
+    <!-- ══════════════════════════════════════════
+         § 8  STAKEHOLDERS — 4-kolom small multiples
+         Zelfde structuur, snelle vergelijking
+         ══════════════════════════════════════════ -->
+    <div class="fu">
+      <p class="section-hed mb-1">Inzichten per stakeholder</p>
+      <hr class="rule mb-4" />
+      <div class="col3" style="grid-template-columns:repeat(4,1fr)" id="stakeholder-grid"></div>
+    </div>
+
+    <!-- Footer note -->
+    <div style="margin-top:40px;padding-top:16px;border-top:1px solid #e2e8f0">
+      <p style="font-size:10px;color:#94a3b8;line-height:1.6">Alle sociale indicatoren zijn zelfrapportage. Hard triggers activeren <code class="font-mono" style="font-size:9px">dpo_review_required = true</code> ongeacht score. Menselijk oordeel leidend. Celgrootte n&lt;5 niet afzonderlijk getoond.</p>
+    </div>
+
+  </div><!-- /page -->
+</main>
+
+<!-- DRAWER -->
+<div class="drawer-bg" id="drawer-bg" onclick="closeDrawer()"></div>
+<aside id="drawer" class="drawer">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:16px 24px;border-bottom:1px solid #f1f5f9;flex-shrink:0">
+    <div><p style="font-size:14px;font-weight:800;color:#1a2028;margin:0" id="d-title">—</p><p style="font-size:11px;color:#64748b;margin:2px 0 0" id="d-sub">—</p></div>
+    <button onclick="closeDrawer()" style="width:32px;height:32px;border-radius:8px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#94a3b8" class="hover:bg-slate-100"><span class="ms" style="font-size:19px">close</span></button>
+  </div>
+  <div class="drawer-scroll" style="padding:20px 24px" id="d-body"></div>
+</aside>
+
+<!-- ═══════ SCRIPTS ═══════ -->
+<script>
+const N = 147;
+const pc = p => Math.round(p/100*N);
+
+const DATA = {
+  kpis:[
+    {label:"Hard triggers",     val:50,  color:"#b4292d", spark:[38,42,44,47,50], ctx:"dpo_review_required"},
+    {label:"Awareness gaps",    val:151, color:"#b45309", spark:[90,110,125,138,151], ctx:"geregistreerde gaps"},
+    {label:"Lage beleidskennis",val:45,  color:"#0369a1", spark:[52,49,48,46,45], ctx:"laag + geen beleid"},
+    {label:"Literacy: Beginner",val:41,  color:"#6d28d9", spark:[38,39,40,41,41], ctx:"n respondenten"},
+    {label:"Ambassadeurs",      val:22,  color:"#3e6a00", spark:[14,16,18,20,22], ctx:"opt-in beschikbaar"}
+  ],
+  literacy:[
+    {label:"Beginner",  pct:28, color:"#b45309"},
+    {label:"Gemiddeld", pct:41, color:"#0369a1"},
+    {label:"Gevorderd", pct:22, color:"#6d28d9"},
+    {label:"Expert",    pct: 9, color:"#3e6a00"}
+  ],
+  policy:[
+    {label:"Hoog",              pct:31, color:"#3e6a00"},
+    {label:"Partieel",          pct:38, color:"#b45309"},
+    {label:"Laag",              pct:21, color:"#b4292d"},
+    {label:"Geen beleid (sig)", pct:10, color:"#6d28d9"}
+  ],
+  gaps:[
+    {label:"Data-onzekerheid",        var:"data_awareness",        n:39, sev:"amber", note:"\"Weet ik niet zeker\" bij datatype"},
+    {label:"Output direct overnemen", var:"processing_output",     n:31, sev:"amber", note:"AI-resultaten direct overgenomen"},
+    {label:"Extensie-onwetendheid",   var:"extension_awareness",   n:24, sev:"red",   note:"Geïnstalleerd, weet niet of ze meekijken"},
+    {label:"Anonimisering onbekend",  var:"data_awareness",        n:22, sev:"amber", note:"Wist niet dat dit nodig/mogelijk was"},
+    {label:"Automatisering onbekend", var:"automation_awareness",  n:18, sev:"red",   note:"Tools werken automatisch, maar weet het niet"},
+    {label:"Data-opslag aanname",     var:"data_awareness",        n:17, sev:"amber", note:"\"Mijn gegevens blijven privé\""}
+  ],
+  combos:[
+    {pattern:"Hoge shadow + hoge policy awareness", type:"Bewust risico",    color:"#b4292d", action:"DPO-duiding en opvolging"},
+    {pattern:"Hoge shadow + lage policy awareness", type:"Onbewust risico",  color:"#b45309", action:"Training en communicatie eerst"},
+    {pattern:"Lage exposure + data-onzekerheid",    type:"Latent risico",    color:"#0369a1", action:"Awareness-check; score mist context"},
+    {pattern:"Expert + privéaccount + gevoelige data",type:"Complex risico", color:"#6d28d9", action:"DPO-duiding en licentie-optie"},
+    {pattern:"Geen intern alternatief + diverse use-cases",type:"Business case",color:"#3e6a00",action:"IT-roadmap en licentiebeleid"},
+    {pattern:"Experimenteren + ambassadeursbereid",  type:"Ambassadeur",     color:"#0e7490", action:"Kandidaat AI-kopgroep; opt-in"}
+  ],
+  triggers:[
+    {trigger:"Privéaccount + klantdata of persoonsgegevens",    type:"hard",    n:16, note:"Geen org-controle + hoge datagevoeligheid"},
+    {trigger:"Priority score boven drempel (40)",               type:"score",   n:29, note:"Configureerbaar; default 40"},
+    {trigger:"Toolstatus: niet toegestaan",                     type:"hard",    n:12, note:"Altijd reviewwaardig; score niet leidend"},
+    {trigger:"Goedgekeurde tool + bijzondere persoonsgegevens", type:"hard",    n: 9, note:"shadow_base=0 en data_boost=+30"},
+    {trigger:"Agentic AI gebruik",                              type:"hard",    n: 8, note:"Autonoom handelen buiten organisatieregie"},
+    {trigger:"Juridisch aandachtspunt aanwezig",                type:"pattern", n: 7, note:"Patroonherkenning afdeling + use-case"},
+    {trigger:"HR-evaluatie gebruik",                            type:"hard",    n: 5, note:"Potentieel juridisch aandachtspunt"},
+    {trigger:"Creditwaardigheid / verzekeringsrisico",          type:"pattern", n: 3, note:"Wettelijk gevoelige context"}
+  ],
+  innovation:[
+    {label:"Experimenteren",              n:34, color:"#3e6a00"},
+    {label:"Ambassadeursbereidheid",      n:22, color:"#0e7490"},
+    {label:"AI-café / klankbordgroep",    n:28, color:"#3e6a00"},
+    {label:"App-integraties (mail/sheets)",n:19,color:"#0369a1"},
+    {label:"Agentisch gebruik",           n:11, color:"#6d28d9"}
+  ],
+  nonuse:[
+    {label:"Geen toegevoegde waarde",     n:18, color:"#b45309", note:"Awareness + use-case demonstraties"},
+    {label:"Weet niet hoe te beginnen",   n:14, color:"#0369a1", note:"Directe L&D-behoefte — literacy-gap"},
+    {label:"Expliciet verboden",          n: 9, color:"#3e6a00", note:"Positief signaal — normreferentie"}
+  ],
+  stakeholders:[
+    {title:"DPO & Security", color:"#b4292d", items:["Awareness-gaps + hoge exposure","Extensie-onwetendheid als onbewust risico","Policy awareness per afdeling","Output direct overnemen in juridische context"]},
+    {title:"HR & L&D",       color:"#0369a1", items:["Skill-verdeling — trainingsplanning","Awareness-gaps als trainingsagenda","Niet-gebruik als L&D-behoefte","Welke trainingsvormen?"]},
+    {title:"IT & Innovatie", color:"#6d28d9", items:["\"Geen intern alternatief\" — business case","Use-case clusters per afdeling","Agents en app-integraties","Gevraagde veilige AI use-cases"]},
+    {title:"Management",     color:"#3e6a00", items:["Adoptie-ratio","Shadow AI Index executive summary","Ambassador candidates als kopgroep","Business pressure-signalen"]}
+  ]
+};
+
+/* ── SPARKLINE HELPER ── */
+function sparkSVG(data, color) {
+  const w=80, h=22, pad=2;
+  const mn=Math.min(...data), mx=Math.max(...data);
+  const range=mx-mn||1;
+  const pts=data.map((v,i)=>{
+    const x=pad+(i/(data.length-1))*(w-2*pad);
+    const y=h-pad-(v-mn)/range*(h-2*pad);
+    return `${x},${y}`;
+  });
+  const last=pts[pts.length-1].split(",");
+  const trend=data[data.length-1]>data[0];
+  return `<svg class="kpi-sparkline" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true">
+    <polyline points="${pts.join(" ")}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" opacity=".5"/>
+    <circle cx="${last[0]}" cy="${last[1]}" r="2.5" fill="${color}"/>
+    <line x1="${pts[0].split(",")[0]}" y1="${h-pad}" x2="${pts[0].split(",")[0]}" y2="${pts[0].split(",")[1]}" stroke="${color}" stroke-width=".5" stroke-dasharray="2,1" opacity=".3"/>
+  </svg>`;
+}
+
+/* ── § 1  KPI STRIP ── */
+function buildKpis(){
+  document.getElementById("kpi-strip").innerHTML=DATA.kpis.map(k=>`
+    <div class="kpi-unit">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-number" style="color:${k.color}">${k.val}</div>
+      ${sparkSVG(k.spark,k.color)}
+      <div class="kpi-context">${k.ctx}</div>
+    </div>`).join("");
+}
+
+/* ── § 2  SMALL MULTIPLES ── */
+function buildLiteracy(){
+  const max=Math.max(...DATA.literacy.map(l=>l.pct));
+  document.getElementById("literacy-multiples").innerHTML=DATA.literacy.map(l=>`
+    <div class="multiple-row">
+      <div class="multiple-label">${l.label}</div>
+      <div class="multiple-bar-track">
+        <div class="multiple-bar-fill" style="width:${l.pct/max*100}%;background:${l.color}"></div>
+        <div style="position:absolute;top:50%;transform:translateY(-50%);left:${l.pct/max*100+1}%;font-size:9px;font-family:'DM Mono';color:${l.color};white-space:nowrap">${l.pct}%</div>
+      </div>
+      <div class="multiple-val" style="color:${l.color}">${pc(l.pct)}</div>
+    </div>`).join("");
+  // Stacked balk
+  document.getElementById("literacy-stacked").innerHTML=`
+    <div style="display:flex;height:6px;border-radius:3px;overflow:hidden;gap:1px">
+      ${DATA.literacy.map(l=>`<div title="${l.label}: ${l.pct}%" style="flex:${l.pct};background:${l.color};border-radius:2px"></div>`).join("")}
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:4px">
+      <span style="font-size:9px;color:#94a3b8">Beginner 28%</span>
+      <span style="font-size:9px;color:#94a3b8">Expert 9%</span>
+    </div>`;
+}
+
+function buildPolicy(){
+  const max=Math.max(...DATA.policy.map(p=>p.pct));
+  // Reference line at 50%
+  document.getElementById("policy-multiples").innerHTML=DATA.policy.map(p=>`
+    <div class="multiple-row">
+      <div class="multiple-label" style="font-size:10px">${p.label}</div>
+      <div class="multiple-bar-track" style="position:relative">
+        <div class="multiple-bar-fill" style="width:${p.pct/max*100}%;background:${p.color}"></div>
+        <div style="position:absolute;top:50%;transform:translateY(-50%);left:${p.pct/max*100+1}%;font-size:9px;font-family:'DM Mono';color:${p.color};white-space:nowrap">${p.pct}%</div>
+      </div>
+      <div class="multiple-val" style="color:${p.color}">${pc(p.pct)}</div>
+    </div>`).join("");
+}
+
+/* ── § 3  CONNECTED DOT PLOT ── */
+function buildDotPlot(){
+  const sorted=[...DATA.gaps].sort((a,b)=>b.n-a.n);
+  const maxN=sorted[0].n;
+  const half=Math.ceil(sorted.length/2);
+  const sevColor=s=>s==="red"?"#b4292d":"#b45309";
+
+  function renderDots(items,containerId){
+    const el=document.getElementById(containerId);
+    el.innerHTML=items.map((g,i)=>`
+      <div class="dotplot-row">
+        <div class="dotplot-label">${g.label}</div>
+        <div class="dotplot-track">
+          <!-- track line -->
+          <svg width="100%" height="16" style="overflow:visible;display:block" aria-hidden="true">
+            <line x1="4" y1="8" x2="96%" y2="8" stroke="#e2e8f0" stroke-width="1"/>
+            <!-- reference at median (18/60) -->
+            <line x1="${18/maxN*96}%" y1="4" x2="${18/maxN*96}%" y2="12" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2,1"/>
+            <!-- value dot -->
+            <circle cx="${Math.min(g.n/maxN*96,96)}%" cy="8" r="4.5" fill="${sevColor(g.sev)}" opacity=".85"/>
+          </svg>
+        </div>
+        <div class="dotplot-val" style="color:${sevColor(g.sev)}">${g.n}</div>
+      </div>`).join("");
+  }
+  renderDots(sorted.slice(0,half),"dotplot-left");
+  renderDots(sorted.slice(half),"dotplot-right");
+}
+
+/* ── § 4  SLOPE CHART ── */
+function buildSlope(){
+  const colors={"Bewust risico":"#b4292d","Onbewust risico":"#b45309","Latent risico":"#0369a1","Complex risico":"#6d28d9","Business case":"#3e6a00","Ambassadeur":"#0e7490"};
+  document.getElementById("slope-chart").innerHTML=DATA.combos.map(c=>`
+    <div class="slope-row" onclick="openDrawer('${c.pattern}','${c.type}','<p style=\\"font-size:13px;color:#334155;line-height:1.6\\">Aanbevolen interventie: <strong>${c.action}</strong></p><p style=\\"font-size:11px;color:#64748b;margin-top:12px\\">Type: ${c.type}</p>')">
+      <div class="slope-pattern">${c.pattern}</div>
+      <div class="slope-connector">
+        <svg width="40" height="20" viewBox="0 0 40 20" aria-hidden="true">
+          <line x1="4" y1="10" x2="36" y2="10" stroke="${c.color}" stroke-width="1" stroke-dasharray="3,2" opacity=".5"/>
+          <polygon points="32,6 40,10 32,14" fill="${c.color}" opacity=".7"/>
+          <circle cx="4" cy="10" r="3" fill="${c.color}" opacity=".7"/>
+        </svg>
+      </div>
+      <div class="slope-action"><span class="tag" style="background:${c.color}15;color:${c.color};border-radius:4px;font-size:9px;font-weight:800;padding:1px 5px;margin-right:5px">${c.type}</span>${c.action}</div>
+    </div>`).join("");
+}
+
+/* ── § 5  TRIGGERS ── */
+function buildTriggers(){
+  const sorted=[...DATA.triggers].sort((a,b)=>b.n-a.n);
+  const hardTotal=sorted.filter(t=>t.type==="hard").reduce((s,t)=>s+t.n,0);
+  const total=sorted.reduce((s,t)=>s+t.n,0);
+  const top=sorted.filter(t=>t.type==="hard")[0];
+
+  document.getElementById("trigger-total").textContent=`${total} totale trigger-gevallen · `+
+    `hard: ${hardTotal} · patroon: ${sorted.filter(t=>t.type==="pattern").reduce((s,t)=>s+t.n,0)} · score: ${sorted.filter(t=>t.type==="score").reduce((s,t)=>s+t.n,0)}`;
+  document.getElementById("trigger-hard-count").className="tag tag-hard";
+  document.getElementById("trigger-hard-count").textContent=`${hardTotal} hard floor`;
+  document.getElementById("trigger-spotlight").innerHTML=
+    `<strong>${top.trigger}</strong> — ${top.n} gevallen. ${top.note}. DPO-aandachtssignaal, geen juridische eindconclusie.`;
+
+  const maxN=sorted[0].n;
+  function typeTag(t){return t==="hard"?`<span class="tag tag-hard">hard floor</span>`:t==="pattern"?`<span class="tag tag-warn">patroon</span>`:`<span class="tag tag-info">score</span>`}
+
+  document.getElementById("trigger-table").innerHTML=`
+    <thead><tr>
+      <th>Trigger</th><th>Type</th><th style="width:220px">Prevalentie</th><th style="text-align:right">n</th><th>Toelichting</th>
+    </tr></thead>
+    <tbody>${sorted.map(t=>`
+      <tr>
+        <td style="font-weight:600;font-size:12px">${t.trigger}</td>
+        <td>${typeTag(t.type)}</td>
+        <td>
+          <div class="ref-bar-wrap">
+            <div class="ref-bar-fill" style="width:${t.n/maxN*100}%;background:${t.type==="hard"?"#b4292d":t.type==="pattern"?"#b45309":"#0369a1"};opacity:.65"></div>
+          </div>
+        </td>
+        <td style="text-align:right;font-family:'DM Mono';font-size:12px;font-weight:700;color:${t.type==="hard"?"#b4292d":t.type==="pattern"?"#b45309":"#0369a1"}">${t.n}</td>
+        <td style="color:#64748b;font-size:11px">${t.note}</td>
+      </tr>`).join("")}
+    </tbody>`;
+}
+
+/* ── § 6  STRIPS ── */
+function buildStrips(){
+  const maxI=Math.max(...DATA.innovation.map(i=>i.n));
+  document.getElementById("innovation-strips").innerHTML=DATA.innovation.map(i=>`
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px">
+        <span style="font-size:11px;font-weight:600;color:#334155">${i.label}</span>
+        <span style="font-size:11px;font-weight:700;font-family:'DM Mono';color:${i.color}">${i.n}</span>
+      </div>
+      <div style="height:5px;background:#f1f5f9;border-radius:2px;overflow:hidden">
+        <div style="width:${i.n/maxI*100}%;height:100%;background:${i.color};border-radius:2px;transition:width .7s cubic-bezier(.4,0,.2,1)"></div>
+      </div>
+    </div>`).join("");
+
+  const maxNU=Math.max(...DATA.nonuse.map(n=>n.n));
+  document.getElementById("nonuse-strips").innerHTML=DATA.nonuse.map(nu=>`
+    <div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px">
+        <span style="font-size:11px;font-weight:600;color:#334155">"${nu.label}"</span>
+        <span style="font-size:11px;font-weight:700;font-family:'DM Mono';color:${nu.color}">${nu.n}</span>
+      </div>
+      <div style="height:5px;background:#f1f5f9;border-radius:2px;overflow:hidden">
+        <div style="width:${nu.n/maxNU*100}%;height:100%;background:${nu.color};border-radius:2px;transition:width .7s cubic-bezier(.4,0,.2,1)"></div>
+      </div>
+      <p style="font-size:10px;color:#94a3b8;margin-top:2px">${nu.note}</p>
+    </div>`).join("");
+}
+
+/* ── § 8  STAKEHOLDERS ── */
+function buildStakeholders(){
+  document.getElementById("stakeholder-grid").innerHTML=DATA.stakeholders.map(s=>`
+    <div style="border-top:2px solid ${s.color};padding-top:10px">
+      <p style="font-size:12px;font-weight:800;color:${s.color};margin:0 0 8px;font-family:'Manrope'">${s.title}</p>
+      ${s.items.map(item=>`<p style="font-size:11px;color:#475569;margin:0 0 5px;line-height:1.4;padding-left:10px;border-left:2px solid ${s.color}22">${item}</p>`).join("")}
+    </div>`).join("");
+}
+
+/* ── DRAWER ── */
+function openDrawer(title,sub,html){
+  document.getElementById("d-title").textContent=title;
+  document.getElementById("d-sub").textContent=sub;
+  document.getElementById("d-body").innerHTML=html;
+  document.getElementById("drawer").classList.add("is-open");
+  document.getElementById("drawer-bg").classList.add("is-open");
+  document.body.style.overflow="hidden";
+}
+function closeDrawer(){
+  document.getElementById("drawer").classList.remove("is-open");
+  document.getElementById("drawer-bg").classList.remove("is-open");
+  document.body.style.overflow="";
+}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDrawer()});
+
+/* ── PROFILE MENU ── */
+const pmb=document.getElementById("pmb"),pmenu=document.getElementById("pmenu");
+pmb?.addEventListener("click",()=>{const o=pmenu?.classList.toggle("is-open");pmb.setAttribute("aria-expanded",o?"true":"false")});
+document.addEventListener("click",e=>{if(!pmenu||!pmb)return;if(pmenu.contains(e.target)||pmb.contains(e.target))return;pmenu.classList.remove("is-open");pmb.setAttribute("aria-expanded","false")});
+
+/* ── INIT ── */
+buildKpis();buildLiteracy();buildPolicy();buildDotPlot();buildSlope();buildTriggers();buildStrips();buildStakeholders();
+</script>
+</body>
+</html>

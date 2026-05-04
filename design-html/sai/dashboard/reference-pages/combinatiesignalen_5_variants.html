@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html class="light" lang="nl">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Combinatiesignalen — 5 varianten</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<script>
+tailwind.config = {
+  darkMode:"class",
+  theme:{ extend:{ colors:{
+    surface:"#f7f9fb","surface-panel":"#ffffff","surface-soft":"#f0f4f7",
+    ink:"#1a2028",muted:"#566166",primary:"#0E5A75",
+    green:"#3e6a00",amber:"#C06000",red:"#b4292d",blue:"#0369a1",violet:"#6d28d9",cyan:"#0e7490"
+  }, fontFamily:{ headline:["Manrope","sans-serif"], body:["Inter","sans-serif"], mono:["DM Mono","monospace"] } } }
+};
+</script>
+<style>
+*{box-sizing:border-box}
+body{font-family:"Inter",sans-serif;background:#f7f9fb;color:#1a2028}
+h1,h2,h3,h4{font-family:"Manrope",sans-serif}
+.ms{font-family:"Material Symbols Outlined";font-variation-settings:"FILL" 0,"wght" 400,"GRAD" 0,"opsz" 24;vertical-align:middle;line-height:1}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 8px 24px rgba(26,32,44,.06)}
+.section{background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:20px;box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:800;letter-spacing:.02em;font-family:"DM Mono",monospace;white-space:nowrap}
+.tag-slate{background:#f1f5f9;color:#475569}
+.action-pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:800;white-space:nowrap;flex-shrink:0}
+
+/* ── TOOLTIP ── */
+.tip{position:fixed;background:#1a2028;color:#f8fafc;font-size:10.5px;font-family:"DM Mono",monospace;padding:7px 11px;border-radius:9px;pointer-events:none;display:none;z-index:999;line-height:1.55;max-width:220px}
+
+/* ── VARIANT WRAPPERS ── */
+.variant{margin-bottom:40px}
+.variant-header{margin-bottom:6px}
+.variant-num{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#94a3b8;font-family:"DM Mono"}
+.variant-title{font-size:18px;font-weight:800;color:#1a2028;margin:0;letter-spacing:-.01em}
+.variant-sub{font-size:11px;color:#64748b;margin:2px 0 16px}
+
+/* ══ V1: DUMBBELL CHART ══
+   Twee ankerpunten per rij verbonden door een lijn.
+   Links = patroon-intensiteit (shadow × awareness)
+   Rechts = interventie-urgentie
+   De afstand tussen de punten = actiegap
+*/
+.db-row{display:grid;grid-template-columns:160px 1fr 160px;align-items:center;gap:0;padding:10px 0;border-bottom:1px solid #f1f5f9}
+.db-row:last-child{border-bottom:none}
+.db-left{text-align:right;padding-right:16px}
+.db-right{text-align:left;padding-left:16px}
+.db-label-main{font-size:11px;font-weight:700;color:#1a2028;line-height:1.3}
+.db-label-type{font-size:10px;font-family:"DM Mono",monospace;font-weight:600;margin-top:2px}
+.db-track{position:relative;height:24px}
+
+/* ══ V2: MEMBRANE / RIBBON CHART ══
+   Breedte van het lint = urgentiegewicht
+   Gekleurd vlak stroomt van links naar rechts
+*/
+.ribbon-wrap{position:relative;display:flex;flex-direction:column;gap:4px}
+.ribbon-row{display:flex;align-items:stretch;height:48px;border-radius:10px;overflow:hidden;cursor:pointer;transition:filter .15s}
+.ribbon-row:hover{filter:brightness(.96)}
+.ribbon-left{display:flex;align-items:center;padding:0 14px;font-size:11px;font-weight:700;color:#fff;flex:0 0 auto;width:260px}
+.ribbon-neck{flex:0 0 60px;display:flex;align-items:center;justify-content:center;position:relative}
+.ribbon-right{flex:1;display:flex;align-items:center;padding:0 14px;font-size:11px;font-weight:700;gap:6px}
+
+/* ══ V3: SIGNAL MATRIX / GRID ══
+   Rijen = shadow-niveau, Kolommen = awareness-niveau
+   Cellen = patroon, kleur = interventie-type
+*/
+.matrix-grid{display:grid;gap:6px}
+.matrix-cell{padding:11px 14px;border-radius:12px;cursor:pointer;transition:transform .15s,box-shadow .15s;display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px}
+.matrix-cell:hover{transform:scale(1.015);box-shadow:0 4px 20px rgba(26,32,44,.10)}
+
+/* ══ V4: STEM PLOT met urgentie-as ══
+   Horizontale urgentie-as, elke combo = verticale stam + blad
+   Signaal als stam, interventie als blad rechts
+*/
+.stem-wrap{position:relative;padding:16px 0}
+.stem-axis{position:absolute;top:50%;left:32px;right:32px;height:1px;background:#e2e8f0}
+.stem-ticks{display:flex;justify-content:space-between;padding:0 32px;position:relative}
+
+/* ══ V5: SWIMLANE HEAT ROWS ══
+   Elke urgentietier = een lane (swimlane)
+   Signalen vloeien per lane, hitte-kleur toont urgentie
+*/
+.lane{margin-bottom:8px}
+.lane-header{display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:8px 8px 0 0;background:#f8fafc;border:1px solid #e2e8f0;border-bottom:none}
+.lane-body{display:flex;flex-direction:column;gap:2px;border:1px solid #e2e8f0;border-radius:0 0 12px 12px;overflow:hidden;background:#fff}
+.lane-item{display:grid;grid-template-columns:1fr auto;align-items:center;gap:16px;padding:10px 14px;transition:background .12s;cursor:pointer}
+.lane-item:hover{background:#f8fafc}
+.lane-item:not(:last-child){border-bottom:1px solid #f8fafc}
+.lane-heat{width:3px;position:absolute;left:0;top:0;bottom:0;border-radius:2px 0 0 2px}
+
+/* Shared sig-label */
+.sig-type{font-size:9.5px;font-family:"DM Mono",monospace;font-weight:700;display:inline-block;padding:1px 6px;border-radius:3px;margin-bottom:3px}
+</style>
+</head>
+<body class="px-8 py-10" style="max-width:860px;margin:0 auto">
+
+<!-- MASTHEAD -->
+<div class="mb-10">
+  <p class="variant-num mb-1">Shadow AI Scan — Governance</p>
+  <h1 style="font-size:24px;font-weight:900;letter-spacing:-.02em;color:#1a2028;margin:0">Combinatiesignalen — 5 varianten</h1>
+  <p style="font-size:12px;color:#64748b;margin-top:4px">Elk patroon: <strong>signaal links</strong> → <strong>interventie rechts</strong>. Kleur, lijn en vorm variëren per visualisatietype.</p>
+  <div style="height:2px;background:linear-gradient(90deg,#1a2028 0%,#e2e8f0 70%);margin-top:12px;border-radius:1px"></div>
+</div>
+
+<!-- ═══════════ V1 DUMBBELL ═══════════ -->
+<div class="variant">
+  <div class="variant-header">
+    <p class="variant-num">Variant 01 — Dumbbell chart</p>
+    <h2 class="variant-title">Actiegap als afstand</h2>
+    <p class="variant-sub">Links: signaal-intensiteit (cirkel). Rechts: interventie-urgentie (ruit). De lengte van de verbindingslijn = hoe groot de actiegap is. Hoe langer, hoe urgenter het verschil.</p>
+  </div>
+  <div class="card px-5 py-2" id="v1"></div>
+</div>
+
+<!-- ═══════════ V2 RIBBON ═══════════ -->
+<div class="variant">
+  <div class="variant-header">
+    <p class="variant-num">Variant 02 — Lint / membrane chart</p>
+    <h2 class="variant-title">Stroom van signaal naar interventie</h2>
+    <p class="variant-sub">Het lint stroomt van patroon (links) naar interventie (rechts). De lichtheid van het midden = de "spanning" in de doorstroom. Hoogte van het lint = urgentiegewicht.</p>
+  </div>
+  <div id="v2"></div>
+</div>
+
+<!-- ═══════════ V3 SIGNAL MATRIX ═══════════ -->
+<div class="variant">
+  <div class="variant-header">
+    <p class="variant-num">Variant 03 — Signaalmatrix</p>
+    <h2 class="variant-title">Positie bepaalt patroontype</h2>
+    <p class="variant-sub">Rijen = shadow-niveau (laag → hoog), kolommen = awareness-niveau (laag → hoog). Elke cel = één patroon op zijn coördinaat. Kleur = interventietype. Hover voor detail.</p>
+  </div>
+  <div id="v3"></div>
+</div>
+
+<!-- ═══════════ V4 STEM PLOT ═══════════ -->
+<div class="variant">
+  <div class="variant-header">
+    <p class="variant-num">Variant 04 — Stem plot</p>
+    <h2 class="variant-title">Urgentie als horizontale as</h2>
+    <p class="variant-sub">Horizontale as = urgentieniveau (1–4). Elke stam staat op zijn urgentiepunt. Boven de as: het signaal. Onder de as: de interventie. Stamhoogte = relatieve complexiteit van het patroon.</p>
+  </div>
+  <div class="card" style="padding:24px 28px;overflow-x:auto" id="v4"></div>
+</div>
+
+<!-- ═══════════ V5 SWIMLANES ═══════════ -->
+<div class="variant">
+  <div class="variant-header">
+    <p class="variant-num">Variant 05 — Swimlane heatmap</p>
+    <h2 class="variant-title">Urgentietiers als banen</h2>
+    <p class="variant-sub">Drie urgentiebanen (laag / midden / hoog). Elk patroon zwemt in zijn baan. Kleurintensiteit binnen de baan = relatieve hittewaarde. Signaal links in de cel, interventie rechts.</p>
+  </div>
+  <div id="v5"></div>
+</div>
+
+<div id="tip" class="tip"></div>
+
+<script>
+/* ── DATA ── */
+const COMBOS = [
+  { id:"C1", pattern:"Hoge shadow + hoge policy awareness",          type:"Bewust risico",   color:"#b4292d", action:"DPO-duiding en opvolging",                    urgency:4, shadow:4, awareness:4, actionShort:"Escalatie" },
+  { id:"C2", pattern:"Hoge shadow + lage policy awareness",          type:"Onbewust risico", color:"#b45309", action:"Training en communicatie eerst",              urgency:3, shadow:4, awareness:1, actionShort:"Training" },
+  { id:"C3", pattern:"Lage exposure + data-onzekerheid",             type:"Latent risico",   color:"#0369a1", action:"Awareness-check; score kan context missen",   urgency:2, shadow:1, awareness:2, actionShort:"Check" },
+  { id:"C4", pattern:"Expert + privéaccount + gevoelige data",       type:"Complex risico",  color:"#6d28d9", action:"DPO-duiding en licentie-optie",               urgency:3, shadow:3, awareness:4, actionShort:"DPO + licentie" },
+  { id:"C5", pattern:"Geen intern alternatief + diverse use-cases",  type:"Business case",   color:"#3e6a00", action:"Direct bruikbaar voor IT-roadmap",            urgency:1, shadow:2, awareness:3, actionShort:"IT-roadmap" },
+  { id:"C6", pattern:"Experimenteren + ambassadeursbereid",          type:"Ambassadeur",     color:"#0e7490", action:"Kandidaat AI-kopgroep; opt-in beschikbaar",   urgency:1, shadow:1, awareness:4, actionShort:"Kopgroep" }
+];
+
+const ICONS = { "Bewust risico":"warning","Onbewust risico":"school","Latent risico":"visibility_off","Complex risico":"manage_accounts","Business case":"lightbulb","Ambassadeur":"star" };
+const ACT_ICONS = { "Escalatie":"gavel","Training":"school","Check":"search","DPO + licentie":"verified_user","IT-roadmap":"route","Kopgroep":"groups" };
+
+/* ── TOOLTIP ── */
+const TIP = document.getElementById("tip");
+function showTip(e, html){ TIP.style.display="block"; TIP.innerHTML=html; moveTip(e); }
+function moveTip(e){ TIP.style.left=(e.clientX+14)+"px"; TIP.style.top=(e.clientY-10)+"px"; }
+function hideTip(){ TIP.style.display="none"; }
+
+/* ══════════════════════════════════════════
+   V1 — DUMBBELL CHART
+   SVG-based. Links = cirkel (signaal), Rechts = ruit (interventie)
+   Verbonden door een gekleurde lijn.
+   ══════════════════════════════════════════ */
+(function buildV1(){
+  const el = document.getElementById("v1");
+  const trackW = 420; // pixel width of the track area
+
+  // Column headers
+  el.innerHTML = `
+    <div class="db-row" style="border-bottom:2px solid #e2e8f0;padding-bottom:8px;margin-bottom:4px">
+      <div class="db-left" style="font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8">Signaalpatroon</div>
+      <div class="db-track">
+        <svg width="100%" height="16" viewBox="0 0 420 16" style="display:block" aria-hidden="true">
+          ${[1,2,3,4].map(u=>`
+            <text x="${30+(u-1)*((trackW-60)/3)}" y="12" text-anchor="middle" font-size="8" font-family="DM Mono,monospace" fill="#94a3b8" font-weight="700">${u}</text>
+            <line x1="${30+(u-1)*((trackW-60)/3)}" y1="0" x2="${30+(u-1)*((trackW-60)/3)}" y2="6" stroke="#e2e8f0" stroke-width="1"/>
+          `).join("")}
+          <text x="${trackW/2}" y="12" text-anchor="middle" font-size="8" font-family="DM Mono,monospace" fill="#94a3b8" font-weight="800">← urgentie →</text>
+        </svg>
+      </div>
+      <div class="db-right" style="font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8">Interventie</div>
+    </div>`;
+
+  COMBOS.forEach(c => {
+    const u = c.urgency; // 1–4
+    // Left dot: position based on (shadow + awareness) / 8 normalised to track
+    const leftPct = ((c.shadow + c.awareness) / 8);
+    const leftX = 30 + leftPct * (trackW - 60);
+    // Right diamond: urgency position
+    const rightX = 30 + ((u - 1) / 3) * (trackW - 60);
+    const midX = (leftX + rightX) / 2;
+
+    const row = document.createElement("div");
+    row.className = "db-row";
+    row.innerHTML = `
+      <div class="db-left">
+        <span class="sig-type" style="background:${c.color}18;color:${c.color}">${c.type}</span>
+        <p class="db-label-main">${c.pattern}</p>
+      </div>
+      <div class="db-track">
+        <svg width="100%" height="40" viewBox="0 0 ${trackW} 40" preserveAspectRatio="xMidYMid meet" style="display:block" aria-label="${c.pattern}">
+          <!-- baseline -->
+          <line x1="20" y1="20" x2="${trackW-20}" y2="20" stroke="#e2e8f0" stroke-width="1"/>
+          <!-- connecting line -->
+          <line x1="${leftX}" y1="20" x2="${rightX}" y2="20" stroke="${c.color}" stroke-width="${u+1}" opacity=".4"/>
+          <!-- left circle = signal intensity -->
+          <circle cx="${leftX}" cy="20" r="9" fill="${c.color}" fill-opacity=".15" stroke="${c.color}" stroke-width="2"/>
+          <circle cx="${leftX}" cy="20" r="5" fill="${c.color}"/>
+          <!-- midpoint tick -->
+          <line x1="${midX}" y1="15" x2="${midX}" y2="25" stroke="${c.color}" stroke-width="1" stroke-dasharray="2,1" opacity=".4"/>
+          <!-- right diamond = intervention urgency -->
+          <polygon points="${rightX},${20-10} ${rightX+7},20 ${rightX},${20+10} ${rightX-7},20" fill="${c.color}" fill-opacity=".15" stroke="${c.color}" stroke-width="2"/>
+          <polygon points="${rightX},${20-5} ${rightX+4},20 ${rightX},${20+5} ${rightX-4},20" fill="${c.color}"/>
+          <!-- urgency label -->
+          <text x="${rightX}" y="9" text-anchor="middle" font-size="8" font-weight="800" font-family="DM Mono,monospace" fill="${c.color}">${u}</text>
+        </svg>
+      </div>
+      <div class="db-right">
+        <span class="action-pill" style="background:${c.color}14;color:${c.color}">
+          <span class="ms" style="font-size:13px">${ACT_ICONS[c.actionShort]||"arrow_forward"}</span>${c.actionShort}
+        </span>
+        <p style="font-size:10px;color:#64748b;margin-top:4px">${c.action}</p>
+      </div>`;
+
+    row.addEventListener("mouseenter", e => showTip(e,
+      `<strong>${c.pattern}</strong><br>Type: ${c.type}<br>Urgentie: ${c.urgency}/4<br>→ ${c.action}`));
+    row.addEventListener("mousemove", moveTip);
+    row.addEventListener("mouseleave", hideTip);
+    el.appendChild(row);
+  });
+})();
+
+/* ══════════════════════════════════════════
+   V2 — RIBBON / MEMBRANE
+   SVG paths between left label and right pill.
+   Height of ribbon = urgency weight.
+   ══════════════════════════════════════════ */
+(function buildV2(){
+  const el = document.getElementById("v2");
+  const W = 820, ROW_H = 52, GAP = 5;
+  const LEFT = 260, NECK_L = 300, NECK_R = 340, RIGHT = 560;
+  const totalH = COMBOS.length * (ROW_H + GAP) + 20;
+
+  let svg = `<svg viewBox="0 0 ${W} ${totalH}" style="width:100%;height:auto" role="img" aria-label="Ribbon chart van combinatiesignalen">`;
+
+  // Guide lines
+  svg += `<line x1="${LEFT}" y1="0" x2="${LEFT}" y2="${totalH}" stroke="#f1f5f9" stroke-width="1"/>`;
+  svg += `<line x1="${RIGHT}" y1="0" x2="${RIGHT}" y2="${totalH}" stroke="#f1f5f9" stroke-width="1"/>`;
+  svg += `<text x="${LEFT/2}" y="14" text-anchor="middle" font-size="9" font-weight="800" letter-spacing="1.5" font-family="DM Mono,monospace" fill="#94a3b8">SIGNAAL</text>`;
+  svg += `<text x="${(RIGHT+W)/2}" y="14" text-anchor="middle" font-size="9" font-weight="800" letter-spacing="1.5" font-family="DM Mono,monospace" fill="#94a3b8">INTERVENTIE</text>`;
+
+  COMBOS.forEach((c, i) => {
+    const ribbonH = 12 + c.urgency * 6; // height proportional to urgency
+    const topY = i * (ROW_H + GAP) + (ROW_H - ribbonH) / 2 + 20;
+    const btmY = topY + ribbonH;
+    const midY = (topY + btmY) / 2;
+
+    // Curved ribbon path (Bézier from left to right)
+    const cp1x = NECK_L, cp2x = NECK_R;
+    const path = `M${LEFT},${topY} C${cp1x},${topY} ${cp2x},${topY} ${RIGHT},${topY} L${RIGHT},${btmY} C${cp2x},${btmY} ${cp1x},${btmY} ${LEFT},${btmY} Z`;
+    svg += `<path d="${path}" fill="${c.color}" fill-opacity="${.08 + c.urgency*.03}"/>`;
+    // Neck center marker
+    const neckMidX = (NECK_L + NECK_R) / 2;
+    svg += `<line x1="${neckMidX}" y1="${topY}" x2="${neckMidX}" y2="${btmY}" stroke="${c.color}" stroke-width="1.5" opacity=".35"/>`;
+    // Top & bottom edge lines
+    svg += `<path d="M${LEFT},${topY} C${cp1x},${topY} ${cp2x},${topY} ${RIGHT},${topY}" fill="none" stroke="${c.color}" stroke-width="1.5" opacity=".6"/>`;
+    svg += `<path d="M${LEFT},${btmY} C${cp1x},${btmY} ${cp2x},${btmY} ${RIGHT},${btmY}" fill="none" stroke="${c.color}" stroke-width="1.5" opacity=".6"/>`;
+
+    // Left: signal type badge + pattern text
+    svg += `<rect x="4" y="${midY-11}" width="${LEFT-8}" height="22" rx="6" fill="${c.color}" fill-opacity=".07"/>`;
+    svg += `<text x="${LEFT-10}" y="${midY-2}" text-anchor="end" font-size="10" font-weight="800" font-family="Manrope,sans-serif" fill="${c.color}">${c.type}</text>`;
+    svg += `<text x="${LEFT-10}" y="${midY+10}" text-anchor="end" font-size="9" font-family="Inter,sans-serif" fill="#64748b">${c.pattern.length>38?c.pattern.slice(0,36)+"…":c.pattern}</text>`;
+
+    // Right: action badge
+    svg += `<rect x="${RIGHT+8}" y="${midY-12}" width="${W-RIGHT-12}" height="24" rx="12" fill="${c.color}" fill-opacity=".12" stroke="${c.color}" stroke-width="1" stroke-opacity=".3"/>`;
+    svg += `<text x="${RIGHT+18}" y="${midY+4}" font-size="10" font-weight="800" font-family="Manrope,sans-serif" fill="${c.color}">${c.actionShort}</text>`;
+
+    // Urgency pips inside ribbon
+    for(let u=0; u<c.urgency; u++){
+      svg += `<circle cx="${neckMidX-6 + u*4}" cy="${midY}" r="2" fill="${c.color}" opacity=".6"/>`;
+    }
+  });
+
+  svg += "</svg>";
+
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = svg;
+  wrapper.addEventListener("mousemove", moveTip);
+  wrapper.addEventListener("mouseleave", hideTip);
+  el.appendChild(wrapper);
+})();
+
+/* ══════════════════════════════════════════
+   V3 — SIGNAL MATRIX
+   2×2 shadow/awareness grid with cells
+   ══════════════════════════════════════════ */
+(function buildV3(){
+  const el = document.getElementById("v3");
+
+  // Grid: shadow levels (Y) × awareness levels (X)
+  // Shadow: 1=laag, 2-3=midden, 4=hoog → 3 rows
+  // Awareness: 1=laag, 2-3=midden, 4=hoog → 3 cols
+  const SHADOW_BANDS = [{label:"Shadow hoog",min:4,max:4},{label:"Shadow midden",min:2,max:3},{label:"Shadow laag",min:1,max:1}];
+  const AWARE_BANDS  = [{label:"Awareness laag",min:1,max:1},{label:"Awareness midden",min:2,max:3},{label:"Awareness hoog",min:4,max:4}];
+
+  const place = (c) => ({
+    row: SHADOW_BANDS.findIndex(b => c.shadow >= b.min && c.shadow <= b.max),
+    col: AWARE_BANDS.findIndex(b => c.awareness >= b.min && c.awareness <= b.max)
+  });
+
+  const grid = Array.from({length:3}, ()=>Array.from({length:3},()=>[]));
+  COMBOS.forEach(c => { const {row,col}=place(c); if(row>=0&&col>=0) grid[row][col].push(c); });
+
+  let html = `<div style="display:grid;grid-template-columns:80px repeat(3,1fr);gap:6px;align-items:start">`;
+  // Header row
+  html += `<div></div>`;
+  AWARE_BANDS.forEach(b => {
+    html += `<div style="font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;text-align:center;padding:4px 0;font-family:'DM Mono'">${b.label}</div>`;
+  });
+
+  SHADOW_BANDS.forEach((sb, ri) => {
+    // Row label
+    html += `<div style="font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;writing-mode:vertical-lr;text-orientation:mixed;transform:rotate(180deg);text-align:center;padding:0 4px;font-family:'DM Mono'">${sb.label}</div>`;
+    grid[ri].forEach((cell, ci) => {
+      if(cell.length === 0){
+        html += `<div style="background:#f8fafc;border:1px dashed #e2e8f0;border-radius:12px;min-height:72px;display:flex;align-items:center;justify-content:center">
+          <span style="font-size:9px;color:#cbd5e1;font-family:'DM Mono'">—</span></div>`;
+      } else {
+        cell.forEach(c => {
+          html += `<div class="matrix-cell" style="background:${c.color}0d;border:1px solid ${c.color}30;min-height:72px"
+            onmouseenter="showTip(event,'<strong>${c.pattern}</strong><br>→ ${c.action}')" 
+            onmousemove="moveTip(event)" onmouseleave="hideTip()">
+            <div>
+              <span class="sig-type" style="background:${c.color}18;color:${c.color}">${c.type}</span>
+              <p style="font-size:11px;font-weight:700;color:#1a2028;margin-top:3px;line-height:1.3">${c.pattern.split("+")[0].trim()}…</p>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <span class="action-pill" style="background:${c.color}18;color:${c.color};flex-direction:column;align-items:flex-end;gap:2px;padding:5px 8px;border-radius:10px">
+                <span class="ms" style="font-size:15px">${ACT_ICONS[c.actionShort]||"arrow_forward"}</span>
+                <span style="font-size:9px">${c.actionShort}</span>
+              </span>
+            </div>
+          </div>`;
+        });
+      }
+    });
+  });
+
+  html += `</div>`;
+  html += `<p style="font-size:10px;color:#94a3b8;margin-top:8px;font-family:'DM Mono'">Cel-positie = patrooncoördinaat (shadow × awareness). Leeg = geen patroon op dat snijpunt. Urgentie in kleurintensiteit.</p>`;
+  el.innerHTML = html;
+})();
+
+/* ══════════════════════════════════════════
+   V4 — STEM PLOT
+   Horizontale urgentie-as (1–4)
+   Stam omhoog = signaal, stam omlaag = interventie
+   ══════════════════════════════════════════ */
+(function buildV4(){
+  const el = document.getElementById("v4");
+  const W = 760, H = 320;
+  const PAD = { l:40, r:40, t:20, b:20 };
+  const axisY = H / 2;
+  const trackW = W - PAD.l - PAD.r;
+  const STEM_H = 80; // max stem height
+
+  // X position for urgency value (1–4)
+  const xOf = u => PAD.l + ((u-1)/3) * trackW;
+
+  // Jitter horizontally within urgency band
+  const jitter = (i, total) => {
+    if(total === 1) return 0;
+    return (i - (total-1)/2) * 28;
+  };
+
+  // Group by urgency
+  const byU = {1:[],2:[],3:[],4:[]};
+  COMBOS.forEach(c => byU[c.urgency].push(c));
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="Stem plot van combinatiesignalen op urgentie-as">`;
+
+  // Axis
+  svg += `<line x1="${PAD.l}" y1="${axisY}" x2="${W-PAD.r}" y2="${axisY}" stroke="#e2e8f0" stroke-width="1.5"/>`;
+
+  // Axis ticks + labels
+  [1,2,3,4].forEach(u => {
+    const x = xOf(u);
+    svg += `<line x1="${x}" y1="${axisY-6}" x2="${x}" y2="${axisY+6}" stroke="#94a3b8" stroke-width="1.5"/>`;
+    svg += `<text x="${x}" y="${axisY+18}" text-anchor="middle" font-size="10" font-weight="800" font-family="DM Mono,monospace" fill="#94a3b8">${u}</text>`;
+  });
+  svg += `<text x="${W/2}" y="${H-4}" text-anchor="middle" font-size="9" letter-spacing="1.5" font-weight="800" font-family="DM Mono,monospace" fill="#94a3b8">URGENTIENIVEAU →</text>`;
+  svg += `<text x="${PAD.l/2}" y="${axisY-30}" text-anchor="middle" font-size="8.5" font-weight="800" font-family="DM Mono,monospace" fill="#94a3b8" transform="rotate(-90,${PAD.l/2-4},${axisY-30})">SIGNAAL ↑</text>`;
+  svg += `<text x="${PAD.l/2}" y="${axisY+45}" text-anchor="middle" font-size="8.5" font-weight="800" font-family="DM Mono,monospace" fill="#94a3b8" transform="rotate(-90,${PAD.l/2-4},${axisY+45})">↓ INTERVENTIE</text>`;
+
+  // Stems
+  [1,2,3,4].forEach(u => {
+    const items = byU[u];
+    items.forEach((c, i) => {
+      const baseX = xOf(u);
+      const jx = jitter(i, items.length);
+      const cx = baseX + jx;
+      const stemH = 30 + (c.urgency/4) * 50;
+
+      // Upper stem (signal)
+      svg += `<line x1="${cx}" y1="${axisY}" x2="${cx}" y2="${axisY - stemH}" stroke="${c.color}" stroke-width="2" opacity=".5"/>`;
+
+      // Signal bud (top)
+      svg += `<circle cx="${cx}" cy="${axisY - stemH}" r="16" fill="${c.color}" fill-opacity=".1" stroke="${c.color}" stroke-width="1.5"/>`;
+      const shortType = c.type.split(" ")[0];
+      svg += `<text x="${cx}" y="${axisY - stemH + 4}" text-anchor="middle" font-size="8.5" font-weight="800" font-family="DM Mono,monospace" fill="${c.color}">${shortType}</text>`;
+
+      // Pattern text above bud
+      const lines = c.pattern.split("+").map(s=>s.trim());
+      lines.slice(0,1).forEach((l,li) => {
+        svg += `<text x="${cx}" y="${axisY - stemH - 22 - li*12}" text-anchor="middle" font-size="8" font-family="Inter,sans-serif" fill="#64748b">${l.length>18?l.slice(0,16)+"…":l}</text>`;
+      });
+
+      // Lower stem (intervention)
+      const intStemH = stemH * 0.6;
+      svg += `<line x1="${cx}" y1="${axisY}" x2="${cx}" y2="${axisY + intStemH}" stroke="${c.color}" stroke-width="1.5" stroke-dasharray="3,2" opacity=".4"/>`;
+
+      // Intervention leaf (bottom)
+      svg += `<rect x="${cx-24}" y="${axisY + intStemH}" width="48" height="18" rx="9" fill="${c.color}" fill-opacity=".1" stroke="${c.color}" stroke-width="1" stroke-opacity=".4"/>`;
+      svg += `<text x="${cx}" y="${axisY + intStemH + 12}" text-anchor="middle" font-size="8" font-weight="700" font-family="DM Mono,monospace" fill="${c.color}">${c.actionShort}</text>`;
+    });
+  });
+
+  svg += "</svg>";
+  el.innerHTML = svg;
+
+  el.addEventListener("mousemove", moveTip);
+  el.addEventListener("mouseleave", hideTip);
+})();
+
+/* ══════════════════════════════════════════
+   V5 — SWIMLANES
+   Urgentie 1 = laag, 2-3 = midden, 4 = hoog
+   Hitte-intensiteit binnen lane = urgentie
+   ══════════════════════════════════════════ */
+(function buildV5(){
+  const el = document.getElementById("v5");
+
+  const LANES = [
+    { label:"Urgent", sub:"urgentie 4", urgencies:[4], accent:"#b4292d", bg:"#fef2f2", border:"#fecaca" },
+    { label:"Verhoogd", sub:"urgentie 2–3", urgencies:[2,3], accent:"#b45309", bg:"#fff7ed", border:"#fed7aa" },
+    { label:"Monitor", sub:"urgentie 1", urgencies:[1], accent:"#0369a1", bg:"#eff6ff", border:"#bfdbfe" }
+  ];
+
+  let html = "";
+  LANES.forEach(lane => {
+    const items = COMBOS.filter(c => lane.urgencies.includes(c.urgency));
+    if(!items.length) return;
+
+    html += `<div class="lane">
+      <div class="lane-header" style="background:${lane.bg};border-color:${lane.border}">
+        <span style="width:8px;height:8px;border-radius:50%;background:${lane.accent};display:inline-block;flex-shrink:0"></span>
+        <span style="font-size:11px;font-weight:800;color:${lane.accent};font-family:'DM Mono'">${lane.label}</span>
+        <span style="font-size:10px;color:${lane.accent};opacity:.6">${lane.sub} · ${items.length} patroon${items.length>1?"en":""}</span>
+      </div>
+      <div class="lane-body">`;
+
+    items.forEach((c, i) => {
+      const heatOpacity = .05 + (c.urgency / 4) * .12;
+      html += `
+        <div class="lane-item" style="background:${c.color}${Math.round(heatOpacity*255).toString(16).padStart(2,"0")};position:relative"
+          onmouseenter="showTip(event,'<strong>${c.pattern}</strong><br>Type: ${c.type}<br>Urgentie: ${c.urgency}/4<br>→ ${c.action}')"
+          onmousemove="moveTip(event)" onmouseleave="hideTip()">
+          <div style="min-width:0">
+            <span class="sig-type" style="background:${c.color}20;color:${c.color}">${c.type}</span>
+            <p style="font-size:12px;font-weight:700;color:#1a2028;margin-top:2px;line-height:1.3">${c.pattern}</p>
+          </div>
+          <span class="action-pill" style="background:${c.color}18;color:${c.color}">
+            <span class="ms" style="font-size:13px">${ACT_ICONS[c.actionShort]||"arrow_forward"}</span>${c.actionShort}
+          </span>
+        </div>`;
+    });
+
+    html += `</div></div>`;
+  });
+
+  el.innerHTML = html;
+})();
+</script>
+</body>
+</html>

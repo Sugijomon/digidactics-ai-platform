@@ -1,0 +1,14 @@
+[
+  {
+    "code": "geen_behoefte",
+    "label": "Geen behoefte aan AI-tools"
+  },
+  {
+    "code": "mag_niet",
+    "label": "Mag niet van organisatie"
+  },
+  {
+    "code": "weet_niet_hoe",
+    "label": "Weet niet hoe"
+  }
+]

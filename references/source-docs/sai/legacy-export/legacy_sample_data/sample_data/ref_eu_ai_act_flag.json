@@ -1,0 +1,14 @@
+[
+  {
+    "code": "none",
+    "label": "Geen indicatie"
+  },
+  {
+    "code": "potential_high_risk",
+    "label": "Potentieel hoog risico (Annex III)"
+  },
+  {
+    "code": "potential_article5_issue",
+    "label": "Potentieel verboden toepassing (Artikel 5)"
+  }
+]

@@ -6,7 +6,10 @@ Reference files are read-only context. Active product decisions and specificatio
 
 Suggested subfolders:
 
-- `lovable/` — Lovable exports and generated code snapshots, reference only.
-- `routeai/` — RouteAI architecture and source documents.
-- `source-docs/` — external or migrated source documents.
+- `lovable/` - Lovable exports and generated code snapshots, reference only.
+- `routeai/` - RouteAI architecture and source documents.
+- `source-docs/` - external or migrated source documents.
+- `project-register/` - document registers and source indexes.
+
+Current SAI source material is indexed in `source-docs/sai/README.md`.
 

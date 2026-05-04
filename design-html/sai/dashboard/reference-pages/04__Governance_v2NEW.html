@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html class="light" lang="nl">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Governance v2 | Shadow AI Governance</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&family=Sora:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<script>tailwind.config={darkMode:"class",theme:{extend:{colors:{ink:"#111827",muted:"#4B5563",faint:"#9CA3AF",rule:"#E5E7EB",soft:"#F9FAFB",red:"#b4292d",amber:"#C06000",green:"#3e6a00",blue:"#0369a1",violet:"#6d28d9",cyan:"#0e7490",primary:"#0E5A75"},fontFamily:{display:["Sora","sans-serif"],mono:["DM Mono","monospace"],head:["Manrope","sans-serif"]}}}}</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Sora",sans-serif;background:#F9FAFB;color:#111827;font-size:13px;line-height:1.55}
+h1,h2,h3{font-family:"Manrope",sans-serif}
+.ms{font-family:"Material Symbols Outlined";font-variation-settings:"FILL" 0,"wght" 400,"GRAD" 0,"opsz" 24;vertical-align:middle;line-height:1;display:inline-block}
+
+/* Profile menu */
+.pmenu{position:absolute;top:calc(100%+8px);right:0;width:256px;background:#fff;border:1px solid #dbe3ec;border-radius:12px;box-shadow:0 12px 24px rgba(15,23,42,.10);overflow:hidden;display:none;z-index:30}
+.pmenu.open{display:block}
+
+/* Layout */
+.page{padding:32px 40px 80px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+@media(max-width:900px){.grid2,.grid4{grid-template-columns:1fr}}
+
+/* Section anatomy */
+.sec{background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:24px;position:relative;overflow:hidden}
+.sec-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9CA3AF;margin-bottom:4px}
+.sec-title{font-size:15px;font-weight:800;color:#111827;margin-bottom:2px;font-family:"Manrope"}
+.sec-sub{font-size:11px;color:#6B7280;margin-bottom:20px;line-height:1.5}
+
+/* Tags */
+.tag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:800;letter-spacing:.04em;font-family:"DM Mono",monospace;white-space:nowrap}
+.tag-red{background:#fdecea;color:#b4292d}
+.tag-amber{background:#FEF3C7;color:#92400E}
+.tag-blue{background:#EFF6FF;color:#1D4ED8}
+.tag-green{background:#ECFDF5;color:#065F46}
+.tag-violet{background:#F5F3FF;color:#5B21B6}
+.tag-slate{background:#F1F5F9;color:#475569}
+
+/* Chip */
+.chip{display:inline-flex;align-items:center;gap:4px;border:1px solid #E5E7EB;background:#fff;color:#374151;border-radius:999px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:"Sora";transition:all .15s}
+.chip:hover{border-color:#9CA3AF;background:#F9FAFB}
+
+/* Drawer */
+.dbg{display:none;position:fixed;inset:0;background:rgba(17,24,39,.25);backdrop-filter:blur(3px);z-index:190}
+.dbg.open{display:block}
+.drw{position:fixed;top:0;right:-540px;width:min(520px,94vw);height:100vh;background:#fff;border-left:1px solid #E5E7EB;box-shadow:-12px 0 56px rgba(17,24,39,.12);z-index:200;transition:right .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
+.drw.open{right:0}
+.drw-scroll{overflow-y:auto;flex:1;scrollbar-width:thin;scrollbar-color:#D1D5DB transparent}
+
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.fu{animation:fadeUp .5s ease both}
+.d1{animation-delay:.05s}.d2{animation-delay:.1s}.d3{animation-delay:.15s}.d4{animation-delay:.2s}.d5{animation-delay:.25s}.d6{animation-delay:.3s}
+
+/* SVG shared */
+svg{display:block}
+.axis-label{font-size:9px;font-family:"DM Mono",monospace;fill:#9CA3AF}
+.data-label{font-size:10px;font-family:"DM Mono",monospace;font-weight:700}
+
+/* Tooltip */
+.tooltip{position:fixed;background:#111827;color:#F9FAFB;font-size:11px;font-family:"DM Mono",monospace;padding:6px 10px;border-radius:8px;pointer-events:none;display:none;z-index:500;line-height:1.5;max-width:220px}
+
+/* Trigger table */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#9CA3AF;padding:6px 8px 8px;text-align:left;border-bottom:1px solid #E5E7EB}
+.tbl td{padding:8px;font-size:12px;color:#374151;border-bottom:1px solid #F3F4F6;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:#FAFAFA}
+
+@media(max-width:980px){aside{display:none}main{margin-left:0!important;width:100vw!important;max-width:100vw!important}}
+</style>
+</head>
+<body class="flex min-h-screen overflow-x-hidden" style="background:#F3F4F6">
+
+<!-- ═══════ SIDENAV ═══════ -->
+<aside class="fixed left-0 top-0 z-[90] h-full w-64 flex flex-col p-4 border-r border-gray-200" style="background:#fff">
+  <div class="mb-7 px-4 pt-1">
+    <h1 style="font-size:17px;font-weight:800;color:#111827;font-family:'Manrope'">DPO Governance</h1>
+    <p style="font-size:12px;color:#6B7280;margin-top:2px">Beheerdersdashboard</p>
+  </div>
+  <nav class="flex flex-col gap-1 text-sm flex-1">
+    <a class="text-gray-500 hover:bg-gray-50 rounded-lg px-4 py-2.5 flex items-center gap-3 transition-all" href="#"><span class="ms" style="font-size:17px">play_circle</span><span style="font-weight:600">Activatie</span></a>
+    <a class="text-gray-500 hover:bg-gray-50 rounded-lg px-4 py-2.5 flex items-center gap-3 transition-all" href="#"><span class="ms" style="font-size:17px">grid_view</span><span style="font-weight:600">Tool Inventaris</span></a>
+    <a class="text-gray-500 hover:bg-gray-50 rounded-lg px-4 py-2.5 flex items-center gap-3 transition-all" href="#"><span class="ms" style="font-size:17px">assessment</span><span style="font-weight:600">Risicoprofiel</span></a>
+    <a style="background:#F3F4F6;color:#111827;font-weight:800;border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:12px" href="#"><span class="ms" style="font-size:17px">gavel</span>Governance</a>
+    <a class="text-gray-500 hover:bg-gray-50 rounded-lg px-4 py-2.5 flex items-center gap-3 transition-all" href="#"><span class="ms" style="font-size:17px">description</span><span style="font-weight:600">Rapportage</span></a>
+  </nav>
+  <div class="px-2 pb-2 space-y-0.5 border-t border-gray-100 pt-3">
+    <a class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-gray-400 hover:bg-gray-50 text-xs font-medium" href="#"><span class="ms" style="font-size:14px">lightbulb</span>Kennisbank</a>
+    <a class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-gray-400 hover:bg-gray-50 text-xs font-medium" href="#"><span class="ms" style="font-size:14px">notifications_none</span>Support</a>
+  </div>
+</aside>
+
+<!-- ═══════ MAIN ═══════ -->
+<main class="ml-64 w-[calc(100vw-16rem)] max-w-[calc(100vw-16rem)] flex flex-col min-h-screen overflow-x-hidden">
+
+  <!-- TOPBAR -->
+  <header style="background:rgba(255,255,255,.95);border-bottom:1px solid #E5E7EB;position:sticky;top:0;z-index:80;backdrop-filter:blur(8px)">
+    <div class="px-7 py-3 grid items-center gap-4" style="grid-template-columns:minmax(300px,1fr) minmax(260px,1fr) minmax(200px,1fr)">
+      <div class="flex items-center gap-4">
+        <span style="font-size:21px;font-weight:800;color:#111827;font-family:'Manrope'">Shadow AI Scan</span>
+        <span style="background:#DCFCE7;color:#166534;font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:#16A34A;display:inline-block"></span>Open</span>
+      </div>
+      <div class="flex items-center justify-center gap-2">
+        <span class="ms" style="font-size:16px;color:#9CA3AF">calendar_today</span>
+        <span style="font-size:13px;font-weight:700;color:#374151">Sluit op 23 april</span>
+        <span style="font-size:11px;color:#6B7280;background:#F3F4F6;padding:3px 8px;border-radius:8px">(nog 8 dagen)</span>
+      </div>
+      <div class="relative flex justify-end">
+        <button id="pmb" style="display:flex;align-items:center;gap:10px;border-radius:999px;padding:4px 10px;border:none;background:transparent;cursor:pointer" class="hover:bg-gray-100 transition-colors" aria-expanded="false">
+          <div style="width:34px;height:34px;border-radius:50%;border:1px solid #E5E7EB;display:flex;align-items:center;justify-content:center;background:#F9FAFB;color:#6B7280"><span class="ms" style="font-size:16px">person</span></div>
+          <div style="text-align:left;line-height:1.3"><p style="font-size:13px;font-weight:700;color:#111827;margin:0">Marjan Jansen</p><p style="font-size:9px;color:#9CA3AF;margin:0">DPO</p></div>
+          <span class="ms" style="font-size:16px;color:#9CA3AF">expand_more</span>
+        </button>
+        <div id="pmenu" class="pmenu">
+          <div style="padding:14px 16px;border-bottom:1px solid #F3F4F6"><p style="font-size:14px;font-weight:700;margin:0">Marjan Jansen</p><p style="font-size:11px;color:#6B7280;margin:4px 0 0">marjan@digidactics.nl</p></div>
+          <button style="width:100%;display:flex;align-items:center;gap:12px;padding:12px 16px;text-align:left;color:#374151;font-size:13px;border:none;background:transparent;cursor:pointer" class="hover:bg-gray-50"><span class="ms" style="font-size:16px">person</span>Mijn profiel</button>
+          <button style="width:100%;display:flex;align-items:center;gap:12px;padding:12px 16px;text-align:left;color:#DC2626;font-size:13px;border:none;background:transparent;border-top:1px solid #F3F4F6;cursor:pointer" class="hover:bg-red-50"><span class="ms" style="font-size:16px">logout</span>Uitloggen</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- PAGE -->
+  <div class="page space-y-6">
+
+    <!-- Masthead -->
+    <div class="fu" style="padding-bottom:4px">
+      <p style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9CA3AF;margin-bottom:6px">Interventielaag — geen scorecomponent</p>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px">
+        <h2 style="font-size:28px;font-weight:900;letter-spacing:-.02em;color:#111827;font-family:'Manrope'">Governance</h2>
+        <p style="font-size:11px;color:#9CA3AF;max-width:340px;text-align:right;line-height:1.6">Sociale indicatoren sturen training, communicatie en bestuurlijke opvolging. Beïnvloeden de risicoscore <em>niet</em>.</p>
+      </div>
+      <div style="height:2px;background:linear-gradient(90deg,#111827 0%,#E5E7EB 100%);margin-top:10px;border-radius:1px"></div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         § 1  LOLLIPOP CHART — KPI + divergentie
+         Elke KPI = een stok met bol. Kleur = richting.
+         ══════════════════════════════════════════ -->
+    <div class="sec fu d1">
+      <p class="sec-label">Governance-signalen</p>
+      <p class="sec-title">KPI-overzicht met trend</p>
+      <p class="sec-sub">Elk signaal vergeleken met vorige meetronde. ▲ = stijging · ▼ = daling · richting bepaalt urgentie.</p>
+      <div id="lollipop-chart" style="overflow-x:auto"></div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         § 2  WAFFLE + ARC GAUGES
+         Literacy als waffle (10×4 cells)
+         Policy als vier halve arc-gauges
+         ══════════════════════════════════════════ -->
+    <div class="grid2 fu d2">
+
+      <!-- Waffle chart for literacy -->
+      <div class="sec">
+        <p class="sec-label">AI Literacy & vaardigheid</p>
+        <p class="sec-title">Vaardigheidsbalans</p>
+        <p class="sec-sub">Elk vakje = 1 respondent (n=147) · niet voor risicoscore</p>
+        <div id="waffle-chart"></div>
+        <div id="waffle-legend" style="display:flex;flex-wrap:wrap;gap:10px 20px;margin-top:14px"></div>
+      </div>
+
+      <!-- Arc gauges for policy -->
+      <div class="sec">
+        <p class="sec-label">Policy Awareness</p>
+        <p class="sec-title">Bekendheid organisatiebeleid</p>
+        <p class="sec-sub">Laag = communicatiebehoefte · geen bewijs van overtreding</p>
+        <div id="arc-gauges" style="display:grid;grid-template-columns:1fr 1fr;gap:12px"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         § 3  BUMP / RANKING CHART — awareness gaps
+         Sorted bubbles met grootte = ernst
+         ══════════════════════════════════════════ -->
+    <div class="sec fu d3">
+      <p class="sec-label">Awareness-gaps — onbewust risicovol gedrag</p>
+      <p class="sec-title">Bubble-rangschikking op urgentie</p>
+      <p class="sec-sub">Grootte = aantal respondenten · kleur = ernst · niet uit kwade wil</p>
+      <div id="bubble-rank" style="overflow-x:auto"></div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         § 4  COMBINATIES — urgentie matrix
+         Patroon × type als filled matrix
+         ══════════════════════════════════════════ -->
+    <div class="sec fu d3">
+      <p class="sec-label">Combinatiesignalen</p>
+      <p class="sec-title">Urgentiematrix — patroon × type</p>
+      <p class="sec-sub">Donkerder = hogere urgentie. Klik een cel voor interventieadvies.</p>
+      <div id="combo-matrix" style="overflow-x:auto"></div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         § 5  UNIT CHART — hard triggers
+         Elk stipje = 1 respondent, kleur = trigger-type
+         ══════════════════════════════════════════ -->
+    <div class="sec fu d4">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:4px">
+        <div>
+          <p class="sec-label">Hard review-triggers</p>
+          <p class="sec-title">Unit chart — elk stipje = 1 respondent</p>
+          <p class="sec-sub">dpo_review_required = true ongeacht score · altijd bestuurlijke opvolging</p>
+        </div>
+        <span id="trigger-total-badge" class="tag tag-red" style="font-size:11px;padding:3px 10px;white-space:nowrap;margin-top:4px"></span>
+      </div>
+      <div id="unit-chart"></div>
+      <div id="unit-legend" style="display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:14px"></div>
+      <div id="trigger-table-wrap" style="margin-top:20px;border-top:1px solid #F3F4F6;padding-top:16px">
+        <table class="tbl" id="trigger-table"></table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         § 6  DIVERGING BAR — innovatie vs. barrières
+         Middenas = 0 · rechts = innovatie · links = niet-gebruik
+         ══════════════════════════════════════════ -->
+    <div class="sec fu d5">
+      <p class="sec-label">Adoptiebalans</p>
+      <p class="sec-title">Innovatiedrijvers vs. barrières</p>
+      <p class="sec-sub">Hoeveelheid respondenten per signaal · divergerende schaal vanuit middenas</p>
+      <div id="diverging-chart" style="overflow-x:auto"></div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         § 7  DPO-SIGNALEN
+         ══════════════════════════════════════════ -->
+    <div class="sec fu d5">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div>
+          <p class="sec-label">DPO-aandachtssignalen</p>
+          <p class="sec-title" style="margin-bottom:0">Open items voor bestuurlijke opvolging</p>
+        </div>
+        <button class="chip"><span class="ms" style="font-size:14px">add</span>Toevoegen</button>
+      </div>
+      <table class="tbl">
+        <thead><tr><th>ID</th><th>Type</th><th>Reden</th><th>Door</th><th>Datum</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          <tr><td style="font-family:'DM Mono';font-size:11px;color:#6B7280">SAI-1042</td><td><span class="tag tag-red">Aandacht gevraagd</span></td><td>Gevoelig HR-project buiten standaardvraag zichtbaar geworden</td><td style="font-weight:700">MJ</td><td style="color:#9CA3AF">29 apr</td><td><span class="tag tag-green">Actief</span></td><td><button class="chip" style="font-size:10px;padding:3px 8px">Afhandelen</button></td></tr>
+          <tr><td style="font-family:'DM Mono';font-size:11px;color:#6B7280">SAI-0988</td><td><span class="tag tag-blue">Review vereist</span></td><td>Leveranciersmelding over opslaglocatie vereist nadere beoordeling</td><td style="font-weight:700">MJ</td><td style="color:#9CA3AF">26 apr</td><td><span class="tag tag-green">Actief</span></td><td><button class="chip" style="font-size:10px;padding:3px 8px">Afhandelen</button></td></tr>
+          <tr><td style="font-family:'DM Mono';font-size:11px;color:#6B7280">SAI-0871</td><td><span class="tag tag-amber">Prioriteit verlaagd</span></td><td>Datakwaliteitscorrectie: tool foutief gekoppeld aan klantcontext</td><td style="font-weight:700">DPO</td><td style="color:#9CA3AF">24 apr</td><td><span class="tag tag-green">Actief</span></td><td><button class="chip" style="font-size:10px;padding:3px 8px">Afhandelen</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         § 8  RADIAL SPIDER — stakeholders als small multiples
+         Vier kleine radar charts, zelfde assen
+         ══════════════════════════════════════════ -->
+    <div class="sec fu d6">
+      <p class="sec-label">Inzichten per stakeholder</p>
+      <p class="sec-title">Relevantie-profiel per doelgroep</p>
+      <p class="sec-sub">Vier radar charts op zelfde schaal · elke as = één governance-dimensie</p>
+      <div id="radar-grid" class="grid4" style="margin-top:4px"></div>
+    </div>
+
+    <div style="padding-top:16px;border-top:1px solid #E5E7EB">
+      <p style="font-size:10px;color:#9CA3AF;line-height:1.7">Alle sociale indicatoren zijn zelfrapportage. Hard triggers activeren <code style="font-family:'DM Mono';font-size:9px">dpo_review_required = true</code> ongeacht score. Menselijk oordeel leidend. Celgrootte n&lt;5 niet afzonderlijk getoond.</p>
+    </div>
+
+  </div>
+</main>
+
+<!-- TOOLTIP -->
+<div class="tooltip" id="tip"></div>
+
+<!-- DRAWER -->
+<div class="dbg" id="dbg" onclick="closeDrawer()"></div>
+<aside id="drw" class="drw">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:16px 24px;border-bottom:1px solid #F3F4F6;flex-shrink:0">
+    <div><p style="font-size:14px;font-weight:800;color:#111827;margin:0;font-family:'Manrope'" id="d-title">—</p><p style="font-size:11px;color:#6B7280;margin:3px 0 0" id="d-sub">—</p></div>
+    <button onclick="closeDrawer()" style="width:32px;height:32px;border-radius:8px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#9CA3AF" class="hover:bg-gray-100"><span class="ms" style="font-size:19px">close</span></button>
+  </div>
+  <div class="drw-scroll" style="padding:20px 24px" id="d-body"></div>
+</aside>
+
+<!-- ═══════ SCRIPTS ═══════ -->
+<script>
+const N=147, pc=p=>Math.round(p/100*N);
+
+const DATA={
+  kpis:[
+    {label:"Hard triggers",      val:50, prev:42, color:"#b4292d", icon:"crisis_alert",    note:"dpo_review_required"},
+    {label:"Awareness gaps",     val:151,prev:121,color:"#b45309", icon:"visibility_off",  note:"geregistreerde gaps"},
+    {label:"Lage beleidskennis", val:45, prev:52, color:"#0369a1", icon:"policy",          note:"laag + geen beleid"},
+    {label:"Literacy: Beginner", val:41, prev:38, color:"#6d28d9", icon:"school",          note:"n respondenten"},
+    {label:"Ambassadeurs",       val:22, prev:14, color:"#3e6a00", icon:"star",            note:"opt-in beschikbaar"}
+  ],
+  literacy:[
+    {label:"Beginner",  pct:28, color:"#F59E0B", n:41},
+    {label:"Gemiddeld", pct:41, color:"#3B82F6", n:60},
+    {label:"Gevorderd", pct:22, color:"#8B5CF6", n:32},
+    {label:"Expert",    pct: 9, color:"#10B981", n:14}
+  ],
+  policy:[
+    {label:"Hoog",          pct:31, color:"#10B981"},
+    {label:"Partieel",      pct:38, color:"#F59E0B"},
+    {label:"Laag",          pct:21, color:"#EF4444"},
+    {label:"Geen beleid",   pct:10, color:"#8B5CF6"}
+  ],
+  gaps:[
+    {label:"Data-onzekerheid",       n:39, sev:"amber", var:"data_awareness"},
+    {label:"Output direct overnemen",n:31, sev:"amber", var:"processing_output"},
+    {label:"Extensie-onwetendheid",  n:24, sev:"red",   var:"extension_awareness"},
+    {label:"Anonimisering onbekend", n:22, sev:"amber", var:"data_awareness"},
+    {label:"Automatisering onbekend",n:18, sev:"red",   var:"automation_awareness"},
+    {label:"Data-opslag aanname",    n:17, sev:"amber", var:"data_awareness"}
+  ],
+  combos:[
+    {pattern:"Hoge shadow + hoge policy",   urgency:4, type:"Bewust",   action:"DPO-escalatie en beleidsbesluit"},
+    {pattern:"Hoge shadow + lage policy",   urgency:3, type:"Onbewust", action:"Training en communicatiecampagne"},
+    {pattern:"Lage exposure + data-gap",    urgency:2, type:"Latent",   action:"Awareness-check; score mist context"},
+    {pattern:"Expert + privé + gevoelig",   urgency:3, type:"Complex",  action:"DPO-gesprek en licentie-optie"},
+    {pattern:"Geen alternatief + diverse UC",urgency:1,type:"Kans",     action:"Business case voor IT-roadmap"},
+    {pattern:"Experimenteer + ambassadeur", urgency:1, type:"Kans",     action:"Kandidaat AI-kopgroep; opt-in"}
+  ],
+  comboTypes:["Bewust","Onbewust","Latent","Complex","Kans"],
+  triggers:[
+    {label:"Privéaccount + klantdata",              type:"hard",    n:16, color:"#b4292d"},
+    {label:"Priority score > drempel (40)",          type:"score",   n:29, color:"#0369a1"},
+    {label:"Toolstatus: niet toegestaan",            type:"hard",    n:12, color:"#b4292d"},
+    {label:"Goedgekeurde tool + bijzondere data",    type:"hard",    n: 9, color:"#b4292d"},
+    {label:"Agentic AI gebruik",                     type:"hard",    n: 8, color:"#b4292d"},
+    {label:"Juridisch aandachtspunt aanwezig",       type:"pattern", n: 7, color:"#C06000"},
+    {label:"HR-evaluatie gebruik",                   type:"hard",    n: 5, color:"#b4292d"},
+    {label:"Creditwaardigheid / verzekeringsrisico", type:"pattern", n: 3, color:"#C06000"}
+  ],
+  innovation:[
+    {label:"Experimenteren",            n:34, side:"right"},
+    {label:"AI-café / klankbordgroep",  n:28, side:"right"},
+    {label:"Ambassadeursbereidheid",    n:22, side:"right"},
+    {label:"App-integraties",           n:19, side:"right"},
+    {label:"Agentisch gebruik",         n:11, side:"right"},
+    {label:"Geen toegevoegde waarde",   n:18, side:"left"},
+    {label:"Weet niet hoe te beginnen", n:14, side:"left"},
+    {label:"Expliciet verboden",        n: 9, side:"left"}
+  ],
+  stakeholders:[
+    {title:"DPO & Security", color:"#EF4444",
+     dims:[{label:"Exposure",v:.9},{label:"Privacy",v:.85},{label:"Triggers",v:.95},{label:"Juridisch",v:.75},{label:"Overzicht",v:.8}]},
+    {title:"HR & L&D",       color:"#3B82F6",
+     dims:[{label:"Literacy",v:.9},{label:"Training",v:.95},{label:"Awareness",v:.85},{label:"Gedrag",v:.8},{label:"Overzicht",v:.6}]},
+    {title:"IT & Innovatie", color:"#8B5CF6",
+     dims:[{label:"Business case",v:.9},{label:"Use-cases",v:.85},{label:"Agents",v:.8},{label:"Integratie",v:.75},{label:"Overzicht",v:.65}]},
+    {title:"Management",     color:"#10B981",
+     dims:[{label:"Adoptie",v:.85},{label:"Shadow AI",v:.8},{label:"Ambassadeurs",v:.75},{label:"Strategie",v:.9},{label:"Overzicht",v:.95}]}
+  ]
+};
+
+/* ── TOOLTIP ── */
+const tip=document.getElementById("tip");
+function showTip(e,html){tip.style.display="block";tip.innerHTML=html;moveTip(e)}
+function moveTip(e){tip.style.left=(e.clientX+12)+"px";tip.style.top=(e.clientY-8)+"px"}
+function hideTip(){tip.style.display="none"}
+
+/* ══════════════════════════════════════════
+   § 1  LOLLIPOP CHART
+   ══════════════════════════════════════════ */
+function buildLollipop(){
+  const W=700,H=200,PAD={t:40,b:60,l:0,r:0},
+        BAR_W=W-PAD.l-PAD.r,
+        cW=BAR_W/DATA.kpis.length,
+        maxV=Math.max(...DATA.kpis.map(k=>Math.max(k.val,k.prev)))*1.15;
+
+  let svg=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="Lollipop chart van governance KPI's">`;
+
+  DATA.kpis.forEach((k,i)=>{
+    const cx=PAD.l+cW*i+cW/2;
+    const valY=PAD.t+(1-k.val/maxV)*(H-PAD.t-PAD.b);
+    const prevY=PAD.t+(1-k.prev/maxV)*(H-PAD.t-PAD.b);
+    const rising=k.val>k.prev;
+    const neutral=k.val===k.prev;
+
+    // Vertical axis line (subtle)
+    svg+=`<line x1="${cx}" y1="${H-PAD.b}" x2="${cx}" y2="${PAD.t}" stroke="#F3F4F6" stroke-width="1"/>`;
+    // Baseline
+    svg+=`<line x1="${cx}" y1="${H-PAD.b}" x2="${cx}" y2="${valY}" stroke="${k.color}" stroke-width="2" opacity=".35"/>`;
+    // Previous value tick
+    svg+=`<line x1="${cx-12}" y1="${prevY}" x2="${cx+12}" y2="${prevY}" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="3,2"/>`;
+    // Delta line connecting prev to current
+    svg+=`<line x1="${cx}" y1="${valY}" x2="${cx}" y2="${prevY}" stroke="${rising?k.color:"#9CA3AF"}" stroke-width="1" stroke-dasharray="2,2" opacity=".5"/>`;
+    // Current value circle
+    svg+=`<circle cx="${cx}" cy="${valY}" r="10" fill="${k.color}" opacity=".15"/>`;
+    svg+=`<circle cx="${cx}" cy="${valY}" r="6" fill="${k.color}"/>`;
+    // Value label
+    svg+=`<text x="${cx}" y="${valY-16}" text-anchor="middle" font-size="14" font-weight="800" font-family="DM Mono,monospace" fill="${k.color}">${k.val}</text>`;
+    // Delta label
+    const delta=k.val-k.prev;
+    const sign=delta>0?"+":"";
+    svg+=`<text x="${cx}" y="${valY+20}" text-anchor="middle" font-size="10" font-family="DM Mono,monospace" fill="${rising?"#3e6a00":"#b4292d"}" opacity=".8">${sign}${delta}</text>`;
+    // X axis label
+    svg+=`<text x="${cx}" y="${H-PAD.b+14}" text-anchor="middle" font-size="10" font-weight="700" font-family="Sora,sans-serif" fill="#374151">${k.label.split(" ")[0]}</text>`;
+    svg+=`<text x="${cx}" y="${H-PAD.b+26}" text-anchor="middle" font-size="9" font-family="Sora,sans-serif" fill="#9CA3AF">${k.label.split(" ").slice(1).join(" ")}</text>`;
+  });
+
+  // Baseline
+  svg+=`<line x1="${PAD.l}" y1="${H-PAD.b}" x2="${W-PAD.r}" y2="${H-PAD.b}" stroke="#E5E7EB" stroke-width="1"/>`;
+  // Legend
+  svg+=`<text x="${PAD.l+8}" y="${PAD.t-16}" font-size="9" font-family="DM Mono" fill="#9CA3AF">━━ vorige meting</text>`;
+  svg+=`<circle cx="${PAD.l+112}" cy="${PAD.t-19}" r="4" fill="#9CA3AF" opacity=".5"/>`;
+  svg+=`<text x="${PAD.l+120}" y="${PAD.t-16}" font-size="9" font-family="DM Mono" fill="#9CA3AF">huidige waarde</text>`;
+
+  svg+="</svg>";
+  document.getElementById("lollipop-chart").innerHTML=svg;
+
+  // Hover events via SVG mouseover on circles is complex; use overlay divs
+  const el=document.getElementById("lollipop-chart");
+  el.querySelectorAll("circle[r='6']").forEach((c,i)=>{
+    const k=DATA.kpis[i];
+    c.style.cursor="pointer";
+    c.addEventListener("mouseenter",e=>showTip(e,`<strong>${k.label}</strong><br>Nu: ${k.val} · Vorig: ${k.prev}<br>Delta: ${k.val>k.prev?"+":""}${k.val-k.prev}<br><span style="color:#9CA3AF">${k.note}</span>`));
+    c.addEventListener("mousemove",moveTip);
+    c.addEventListener("mouseleave",hideTip);
+  });
+}
+
+/* ══════════════════════════════════════════
+   § 2a  WAFFLE CHART
+   10 cols × 15 rows = 150 cells ≈ n=147
+   ══════════════════════════════════════════ */
+function buildWaffle(){
+  const COLS=10, ROWS=15, CELL=16, GAP=2;
+  const total=COLS*ROWS; // 150
+  // Distribute cells proportionally
+  const dist=[]; let rem=total;
+  DATA.literacy.forEach((l,i)=>{
+    const cnt=i<DATA.literacy.length-1?Math.round(l.pct/100*total):rem;
+    rem-=cnt;
+    for(let j=0;j<cnt;j++) dist.push(l.color);
+  });
+  // Shuffle for organic feel
+  for(let i=dist.length-1;i>0;i--){const j=Math.floor(Math.random()*i);[dist[i],dist[j]]=[dist[j],dist[i]]}
+
+  const W=COLS*(CELL+GAP)-GAP, H=ROWS*(CELL+GAP)-GAP;
+  let svg=`<svg viewBox="0 0 ${W} ${H}" style="width:min(${W}px,100%);height:auto" role="img" aria-label="Waffle chart van AI Literacy verdeling">`;
+  dist.forEach((color,i)=>{
+    const col=i%COLS, row=Math.floor(i/COLS);
+    const x=col*(CELL+GAP), y=row*(CELL+GAP);
+    svg+=`<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="3" fill="${color}" opacity=".85"/>`;
+  });
+  svg+="</svg>";
+  document.getElementById("waffle-chart").innerHTML=svg;
+
+  document.getElementById("waffle-legend").innerHTML=DATA.literacy.map(l=>`
+    <div style="display:flex;align-items:center;gap:6px">
+      <span style="width:10px;height:10px;border-radius:2px;background:${l.color};display:inline-block;opacity:.85"></span>
+      <span style="font-size:11px;font-weight:600;color:#374151">${l.label}</span>
+      <span style="font-size:11px;font-family:'DM Mono';color:#9CA3AF">${l.pct}% (n=${l.n})</span>
+    </div>`).join("");
+}
+
+/* ══════════════════════════════════════════
+   § 2b  ARC GAUGES (half-circle)
+   Vier kleine SVG halve cirkels
+   ══════════════════════════════════════════ */
+function buildArcGauges(){
+  const R=44, SW=10, CX=60, CY=60;
+  const circumference=Math.PI*R; // half circle
+
+  document.getElementById("arc-gauges").innerHTML=DATA.policy.map(p=>{
+    const pct=p.pct/100;
+    const filled=pct*circumference;
+    return `
+      <div style="text-align:center;padding:8px">
+        <svg viewBox="0 0 120 68" style="width:100%;max-width:120px;height:auto" role="img" aria-label="${p.label}: ${p.pct}%">
+          <!-- Track -->
+          <path d="M ${CX-R} ${CY} A ${R} ${R} 0 0 1 ${CX+R} ${CY}" fill="none" stroke="#F3F4F6" stroke-width="${SW}" stroke-linecap="round"/>
+          <!-- Fill -->
+          <path d="M ${CX-R} ${CY} A ${R} ${R} 0 0 1 ${CX+R} ${CY}" fill="none" stroke="${p.color}"
+            stroke-width="${SW}" stroke-linecap="round" stroke-dasharray="${filled} ${circumference}"
+            style="transition:stroke-dasharray .8s cubic-bezier(.4,0,.2,1)"/>
+          <!-- Center value -->
+          <text x="${CX}" y="${CY-8}" text-anchor="middle" font-size="18" font-weight="800" font-family="DM Mono,monospace" fill="${p.color}">${p.pct}%</text>
+          <text x="${CX}" y="${CY+10}" text-anchor="middle" font-size="9" font-family="Sora,sans-serif" fill="#9CA3AF">n=${pc(p.pct)}</text>
+        </svg>
+        <p style="font-size:11px;font-weight:700;color:#374151;margin-top:4px;line-height:1.3">${p.label}</p>
+      </div>`;
+  }).join("");
+}
+
+/* ══════════════════════════════════════════
+   § 3  BUBBLE RANK CHART
+   Horizontale rij van bubbles, gesorteerd op n
+   ══════════════════════════════════════════ */
+function buildBubbleRank(){
+  const sorted=[...DATA.gaps].sort((a,b)=>b.n-a.n);
+  const maxN=sorted[0].n;
+  const W=680, H=120, PAD=20;
+  const cW=(W-PAD*2)/sorted.length;
+  const sevColor=s=>s==="red"?"#EF4444":"#F59E0B";
+  const sevBg=s=>s==="red"?"#FEF2F2":"#FFFBEB";
+
+  let svg=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="Bubble chart van awareness gaps">`;
+
+  // Baseline
+  svg+=`<line x1="${PAD}" y1="${H/2}" x2="${W-PAD}" y2="${H/2}" stroke="#F3F4F6" stroke-width="1"/>`;
+
+  sorted.forEach((g,i)=>{
+    const cx=PAD+cW*i+cW/2;
+    const r=8+Math.round(g.n/maxN*24);
+    const cy=H/2;
+    const color=sevColor(g.sev);
+
+    // Connecting line to label area
+    svg+=`<line x1="${cx}" y1="${cy-r}" x2="${cx}" y2="${PAD+4}" stroke="${color}" stroke-width="1" stroke-dasharray="2,2" opacity=".4"/>`;
+    // Bubble
+    svg+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${color}" opacity=".12"/>`;
+    svg+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="1.5"/>`;
+    // n inside
+    svg+=`<text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="${r>14?12:10}" font-weight="800" font-family="DM Mono,monospace" fill="${color}">${g.n}</text>`;
+    // Rank label
+    svg+=`<text x="${cx}" y="${H-10}" text-anchor="middle" font-size="9" font-family="Sora,sans-serif" fill="#9CA3AF">${i+1}</text>`;
+  });
+
+  svg+="</svg>";
+  document.getElementById("bubble-rank").innerHTML=svg;
+
+  // Below: legend as horizontal strip
+  const legendDiv=document.createElement("div");
+  legendDiv.style.cssText="display:grid;grid-template-columns:repeat(3,1fr);gap:8px 20px;margin-top:12px";
+  legendDiv.innerHTML=sorted.map((g,i)=>`
+    <div style="display:flex;align-items:flex-start;gap:6px">
+      <span style="font-size:11px;font-weight:800;font-family:'DM Mono';color:#9CA3AF;min-width:14px">${i+1}</span>
+      <div>
+        <p style="font-size:11px;font-weight:700;color:#374151;margin:0;line-height:1.3">${g.label}</p>
+        <p style="font-size:10px;color:#9CA3AF;margin:1px 0 0;font-family:'DM Mono'">${g.var}</p>
+      </div>
+    </div>`).join("");
+  document.getElementById("bubble-rank").appendChild(legendDiv);
+}
+
+/* ══════════════════════════════════════════
+   § 4  COMBO URGENTIE MATRIX
+   Patroon × type als heatmap
+   ══════════════════════════════════════════ */
+function buildComboMatrix(){
+  const urgencyColors={1:"#ECFDF5",2:"#FEF3C7",3:"#FEE2E2",4:"#FCA5A5"};
+  const urgencyText={1:"#065F46",2:"#92400E",3:"#991B1B",4:"#7F1D1D"};
+  const TYPES=DATA.comboTypes;
+
+  let html=`<div style="display:grid;grid-template-columns:180px repeat(${TYPES.length},1fr);gap:2px;min-width:520px">`;
+  // Header row
+  html+=`<div></div>`;
+  TYPES.forEach(t=>{ html+=`<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#9CA3AF;padding:4px 6px;text-align:center">${t}</div>` });
+
+  // Data rows: one row per combo, fill column based on type match
+  DATA.combos.forEach(c=>{
+    html+=`<div style="font-size:11px;font-weight:600;color:#374151;padding:8px 6px;display:flex;align-items:center;border-right:1px solid #F3F4F6">${c.pattern}</div>`;
+    TYPES.forEach(t=>{
+      const match=c.type===t;
+      const bg=match?urgencyColors[c.urgency]:"#F9FAFB";
+      const tc=match?urgencyText[c.urgency]:"#E5E7EB";
+      const size=match?"12":"0";
+      html+=`<div
+        style="background:${bg};border-radius:6px;height:36px;display:flex;align-items:center;justify-content:center;cursor:${match?"pointer":"default"}"
+        ${match?`onclick="openDrawer('${c.pattern}','Urgentie ${c.urgency}/4 — ${c.type}','<p style=\\"font-size:13px;color:#374151;line-height:1.6\\">Aanbevolen interventie: <strong>${c.action}</strong></p>')"`:""}>
+        ${match?`<span style="font-size:14px;font-weight:900;color:${tc};font-family:'DM Mono'">${c.urgency}</span>`:""}
+      </div>`;
+    });
+  });
+  html+="</div>";
+  html+=`<div style="margin-top:8px;display:flex;align-items:center;gap:16px">
+    <span style="font-size:10px;color:#9CA3AF">Urgentieschaal:</span>
+    ${[1,2,3,4].map(u=>`<span style="display:flex;align-items:center;gap:4px;font-size:10px;color:${urgencyText[u]};font-family:'DM Mono'"><span style="width:14px;height:14px;border-radius:3px;background:${urgencyColors[u]};display:inline-block"></span>${u}</span>`).join("")}
+  </div>`;
+  document.getElementById("combo-matrix").innerHTML=html;
+}
+
+/* ══════════════════════════════════════════
+   § 5  UNIT CHART (icon array)
+   Elk stip = 1 respondent
+   ══════════════════════════════════════════ */
+function buildUnitChart(){
+  const ALL_TRIGGERS=DATA.triggers.slice().sort((a,b)=>b.n-a.n);
+  const total=ALL_TRIGGERS.reduce((s,t)=>s+t.n,0);
+  document.getElementById("trigger-total-badge").textContent=`${total} gevallen`;
+
+  // Build flat list of colored dots
+  const dots=[];
+  ALL_TRIGGERS.forEach(t=>{for(let i=0;i<t.n;i++) dots.push({color:t.color,label:t.label,type:t.type})});
+
+  const COLS=Math.ceil(Math.sqrt(dots.length*1.8)), DOT=10, GAP=4;
+  const rows=Math.ceil(dots.length/COLS);
+  const W=COLS*(DOT+GAP), H=rows*(DOT+GAP);
+
+  let svg=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;height:auto" role="img" aria-label="Unit chart van ${total} trigger-gevallen">`;
+  dots.forEach((d,i)=>{
+    const col=i%COLS, row=Math.floor(i/COLS);
+    const x=col*(DOT+GAP), y=row*(DOT+GAP);
+    svg+=`<circle cx="${x+DOT/2}" cy="${y+DOT/2}" r="${DOT/2}" fill="${d.color}" opacity=".8" class="unit-dot" data-label="${d.label}" data-type="${d.type}"/>`;
+  });
+  svg+="</svg>";
+  document.getElementById("unit-chart").innerHTML=svg;
+
+  // Hover on dots
+  document.getElementById("unit-chart").querySelectorAll(".unit-dot").forEach(c=>{
+    c.style.cursor="pointer";
+    c.addEventListener("mouseenter",e=>showTip(e,`<strong>${c.dataset.label}</strong><br><span style="color:#9CA3AF">type: ${c.dataset.type}</span>`));
+    c.addEventListener("mousemove",moveTip);
+    c.addEventListener("mouseleave",hideTip);
+  });
+
+  // Legend
+  document.getElementById("unit-legend").innerHTML=[
+    {label:"Hard floor",color:"#b4292d"},
+    {label:"Patroon",   color:"#C06000"},
+    {label:"Score",     color:"#0369a1"}
+  ].map(l=>`<div style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:50%;background:${l.color};opacity:.8;display:inline-block"></span><span style="font-size:11px;font-weight:600;color:#374151">${l.label}</span></div>`).join("");
+
+  // Compact table
+  function typeTag(t){return t==="hard"?`<span class="tag tag-red">hard</span>`:t==="pattern"?`<span class="tag tag-amber">patroon</span>`:`<span class="tag tag-blue">score</span>`}
+  const maxN=ALL_TRIGGERS[0].n;
+  document.getElementById("trigger-table").innerHTML=`
+    <thead><tr><th>Trigger</th><th>Type</th><th style="width:160px">Verhouding</th><th style="text-align:right">n</th></tr></thead>
+    <tbody>${ALL_TRIGGERS.map(t=>`<tr>
+      <td style="font-weight:600;font-size:12px">${t.label}</td>
+      <td>${typeTag(t.type)}</td>
+      <td><div style="height:4px;background:#F3F4F6;border-radius:2px;overflow:hidden"><div style="width:${t.n/maxN*100}%;height:100%;background:${t.color};opacity:.7;transition:width .7s ease"></div></div></td>
+      <td style="text-align:right;font-family:'DM Mono';font-weight:800;font-size:12px;color:${t.color}">${t.n}</td>
+    </tr>`).join("")}</tbody>`;
+}
+
+/* ══════════════════════════════════════════
+   § 6  DIVERGING BAR CHART
+   Middenas · rechts = innovatie · links = niet-gebruik
+   ══════════════════════════════════════════ */
+function buildDiverging(){
+  const W=680, H=220, MID=W/2, PAD={t:20,b:20,row:22};
+  const right=DATA.innovation.filter(d=>d.side==="right").sort((a,b)=>b.n-a.n);
+  const left=DATA.innovation.filter(d=>d.side==="left").sort((a,b)=>b.n-a.n);
+  const allRows=[...right,...left]; // rendered separately
+  const maxN=Math.max(...DATA.innovation.map(d=>d.n));
+  const scale=v=>(v/maxN)*(MID-120);
+
+  let svg=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="Diverging bar chart innovatie vs barrières">`;
+
+  // Center axis
+  svg+=`<line x1="${MID}" y1="${PAD.t}" x2="${MID}" y2="${H-PAD.b}" stroke="#E5E7EB" stroke-width="1"/>`;
+  // Column headers
+  svg+=`<text x="${MID-8}" y="${PAD.t-2}" text-anchor="end" font-size="10" font-weight="700" font-family="DM Mono" fill="#b4292d">← Barrières</text>`;
+  svg+=`<text x="${MID+8}" y="${PAD.t-2}" text-anchor="start" font-size="10" font-weight="700" font-family="DM Mono" fill="#3e6a00">Innovatie →</text>`;
+
+  // Right bars (innovatie)
+  right.forEach((d,i)=>{
+    const y=PAD.t+16+i*PAD.row;
+    const bw=scale(d.n);
+    svg+=`<rect x="${MID+2}" y="${y}" width="${bw}" height="${PAD.row-4}" rx="3" fill="#3e6a00" opacity="${.3+i*.05}"/>`;
+    svg+=`<text x="${MID+bw+6}" y="${y+12}" font-size="10" font-family="DM Mono" fill="#3e6a00" font-weight="700">${d.n}</text>`;
+    svg+=`<text x="${MID-6}" y="${y+12}" text-anchor="end" font-size="10" font-family="Sora" fill="#374151">${d.label}</text>`;
+  });
+
+  // Left bars (barrières)
+  left.forEach((d,i)=>{
+    const y=PAD.t+16+(right.length+i)*PAD.row;
+    const bw=scale(d.n);
+    svg+=`<rect x="${MID-2-bw}" y="${y}" width="${bw}" height="${PAD.row-4}" rx="3" fill="#b4292d" opacity="${.3+i*.1}"/>`;
+    svg+=`<text x="${MID-bw-6}" y="${y+12}" text-anchor="end" font-size="10" font-family="DM Mono" fill="#b4292d" font-weight="700">${d.n}</text>`;
+    svg+=`<text x="${MID+6}" y="${y+12}" font-size="10" font-family="Sora" fill="#374151">${d.label}</text>`;
+  });
+
+  svg+="</svg>";
+  document.getElementById("diverging-chart").innerHTML=svg;
+}
+
+/* ══════════════════════════════════════════
+   § 8  RADAR SMALL MULTIPLES
+   Vier kleine radar charts per stakeholder
+   ══════════════════════════════════════════ */
+function buildRadars(){
+  const el=document.getElementById("radar-grid");
+  DATA.stakeholders.forEach(s=>{
+    const container=document.createElement("div");
+    container.style.cssText="text-align:center";
+    const R=50, CX=64, CY=60;
+    const N=s.dims.length;
+    const angle=i=>(Math.PI*2*i/N)-Math.PI/2;
+
+    let svg=`<svg viewBox="0 0 128 ${CY+R+14}" style="width:100%;height:auto" role="img" aria-label="Radar chart voor ${s.title}">`;
+
+    // Grid rings
+    [.25,.5,.75,1].forEach(r=>{
+      const pts=s.dims.map((_,i)=>{
+        const a=angle(i);
+        return `${CX+Math.cos(a)*R*r},${CY+Math.sin(a)*R*r}`;
+      }).join(" ");
+      svg+=`<polygon points="${pts}" fill="none" stroke="${r===1?"#D1D5DB":"#F3F4F6"}" stroke-width="${r===1?1:.5}"/>`;
+    });
+
+    // Spokes
+    s.dims.forEach((_,i)=>{
+      const a=angle(i);
+      svg+=`<line x1="${CX}" y1="${CY}" x2="${CX+Math.cos(a)*R}" y2="${CY+Math.sin(a)*R}" stroke="#F3F4F6" stroke-width="1"/>`;
+    });
+
+    // Data polygon
+    const pts=s.dims.map((d,i)=>{
+      const a=angle(i);
+      return `${CX+Math.cos(a)*R*d.v},${CY+Math.sin(a)*R*d.v}`;
+    }).join(" ");
+    svg+=`<polygon points="${pts}" fill="${s.color}" fill-opacity=".12" stroke="${s.color}" stroke-width="1.5"/>`;
+
+    // Dots
+    s.dims.forEach((d,i)=>{
+      const a=angle(i);
+      svg+=`<circle cx="${CX+Math.cos(a)*R*d.v}" cy="${CY+Math.sin(a)*R*d.v}" r="2.5" fill="${s.color}"/>`;
+      // Labels
+      const lx=CX+Math.cos(a)*(R+10);
+      const ly=CY+Math.sin(a)*(R+10);
+      svg+=`<text x="${lx}" y="${ly+3}" text-anchor="${Math.cos(a)>.1?"start":Math.cos(a)<-.1?"end":"middle"}" font-size="8" font-family="Sora" fill="#6B7280">${d.label}</text>`;
+    });
+
+    svg+="</svg>";
+    container.innerHTML=svg;
+    container.innerHTML+=`<p style="font-size:12px;font-weight:800;color:${s.color};margin-top:4px;font-family:'Manrope'">${s.title}</p>`;
+    el.appendChild(container);
+  });
+}
+
+/* ── DRAWER & PROFILE ── */
+function openDrawer(title,sub,html){
+  document.getElementById("d-title").textContent=title;
+  document.getElementById("d-sub").textContent=sub;
+  document.getElementById("d-body").innerHTML=html;
+  document.getElementById("drw").classList.add("open");
+  document.getElementById("dbg").classList.add("open");
+  document.body.style.overflow="hidden";
+}
+function closeDrawer(){
+  document.getElementById("drw").classList.remove("open");
+  document.getElementById("dbg").classList.remove("open");
+  document.body.style.overflow="";
+}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDrawer()});
+
+const pmb=document.getElementById("pmb"),pm=document.getElementById("pmenu");
+pmb?.addEventListener("click",()=>{const o=pm?.classList.toggle("open");pmb.setAttribute("aria-expanded",o?"true":"false")});
+document.addEventListener("click",e=>{if(!pm||!pmb)return;if(pm.contains(e.target)||pmb.contains(e.target))return;pm.classList.remove("open");pmb.setAttribute("aria-expanded","false")});
+
+/* ── INIT ── */
+buildLollipop();
+buildWaffle();
+buildArcGauges();
+buildBubbleRank();
+buildComboMatrix();
+buildUnitChart();
+buildDiverging();
+buildRadars();
+</script>
+</body>
+</html>

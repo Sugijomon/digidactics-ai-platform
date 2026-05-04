@@ -1,0 +1,19 @@
+[
+  {
+    "id": "ee9d1cd7-e0ec-4800-9b1e-9811e8b12bf2",
+    "org_id": "00000000-0000-0000-0000-000000000001",
+    "library_item_id": "5db5eaa0-b1e2-48ad-902f-4dc97e196fc5",
+    "is_enabled": false,
+    "is_mandatory": true,
+    "custom_title": null,
+    "custom_intro": null,
+    "custom_notes": null,
+    "assigned_to_roles": null,
+    "priority": 0,
+    "custom_deadline": null,
+    "created_at": "2026-01-27T01:20:39.356041+00:00",
+    "updated_at": "2026-03-14T12:30:22.882282+00:00",
+    "custom_completion_message": null,
+    "completion_reward_points": 0
+  }
+]

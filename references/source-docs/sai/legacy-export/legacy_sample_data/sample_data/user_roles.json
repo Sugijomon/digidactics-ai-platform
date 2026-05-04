@@ -1,0 +1,100 @@
+[
+  {
+    "id": "ed14e1d5-41cf-43f5-a90c-64b6a777904e",
+    "user_id": "96379c15-f11a-43eb-9b37-987be3c56a42",
+    "role": "super_admin",
+    "created_at": "2026-01-26T05:19:38.241305+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "c59903d0-ae89-4b0c-abb7-2999040d7a52",
+    "user_id": "b9760186-050a-47e7-a480-197ba0dc5c5a",
+    "role": "super_admin",
+    "created_at": "2026-01-26T05:28:13.621873+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "0d2aef02-c98f-496b-bfe1-9ef65fb3d70f",
+    "user_id": "43b7bcca-4f80-4410-b7dc-0fbb9fa9da9f",
+    "role": "user",
+    "created_at": "2026-01-28T11:56:33.588301+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "1741814e-41d9-477d-9147-ecb5d1979d3c",
+    "user_id": "3b9e5d6c-56a2-4d6f-92b1-f4d494fd72cb",
+    "role": "content_editor",
+    "created_at": "2026-01-28T12:30:40.872861+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "fe32a088-d8ad-44a9-9d59-b41c6d1a71b3",
+    "user_id": "3b9e5d6c-56a2-4d6f-92b1-f4d494fd72cb",
+    "role": "user",
+    "created_at": "2026-03-13T15:09:15.476752+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "469ad8e3-bc75-470e-ae71-0d0ae6e3837f",
+    "user_id": "43b7bcca-4f80-4410-b7dc-0fbb9fa9da9f",
+    "role": "manager",
+    "created_at": "2026-03-23T10:24:05.821653+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "20f4a739-17f8-4a82-b874-59f31f73566d",
+    "user_id": "c928b257-5751-47b2-9977-c1bb1a1c39ae",
+    "role": "user",
+    "created_at": "2026-04-01T10:14:24.090099+00:00",
+    "org_id": "34f89abf-ba18-4e7c-83aa-d4bc7e845c00"
+  },
+  {
+    "id": "65afa02b-25e9-4167-ba62-deed95c6b033",
+    "user_id": "91e483b7-05bb-497e-bbe2-3dd4518bfa57",
+    "role": "user",
+    "created_at": "2026-04-01T10:26:27.815003+00:00",
+    "org_id": "34f89abf-ba18-4e7c-83aa-d4bc7e845c00"
+  },
+  {
+    "id": "6910325b-a9e1-46ee-beb2-6172773bda7d",
+    "user_id": "96e68da6-eb0e-43b3-a94c-9ea2b8f3bb36",
+    "role": "dpo",
+    "created_at": "2026-04-01T11:52:51.020337+00:00",
+    "org_id": "40792936-2800-432a-a748-cefe3c7c8dd3"
+  },
+  {
+    "id": "07a350af-46fa-415f-9685-bd2b86cbcd52",
+    "user_id": "96e68da6-eb0e-43b3-a94c-9ea2b8f3bb36",
+    "role": "user",
+    "created_at": "2026-04-01T11:52:51.020337+00:00",
+    "org_id": "40792936-2800-432a-a748-cefe3c7c8dd3"
+  },
+  {
+    "id": "c9867d7c-e43b-494d-8af8-b3ac6ffc0fa9",
+    "user_id": "91e483b7-05bb-497e-bbe2-3dd4518bfa57",
+    "role": "dpo",
+    "created_at": "2026-04-01T23:38:55.331273+00:00",
+    "org_id": "34f89abf-ba18-4e7c-83aa-d4bc7e845c00"
+  },
+  {
+    "id": "a011494c-f9aa-4345-8bf7-eaa5042f2c69",
+    "user_id": "43b7bcca-4f80-4410-b7dc-0fbb9fa9da9f",
+    "role": "dpo",
+    "created_at": "2026-04-02T09:11:17.549553+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "841db376-6920-40f4-93a7-91d2223edce4",
+    "user_id": "f59d8d7c-f33b-4be8-a51d-413bbc012eda",
+    "role": "user",
+    "created_at": "2026-04-02T11:41:18.953569+00:00",
+    "org_id": "34f89abf-ba18-4e7c-83aa-d4bc7e845c00"
+  },
+  {
+    "id": "c44ebdab-e13e-45e5-8aa3-ac9623834a58",
+    "user_id": "092f68a0-d8aa-4433-b408-3e5e2115bc8b",
+    "role": "user",
+    "created_at": "2026-04-02T12:01:37.274225+00:00",
+    "org_id": "34f89abf-ba18-4e7c-83aa-d4bc7e845c00"
+  }
+]

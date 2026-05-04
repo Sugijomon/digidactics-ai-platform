@@ -1,0 +1,107 @@
+[
+  {
+    "id": "b090269e-f9ea-4052-8161-af2f96626ed0",
+    "course_id": "c1dfe82a-490b-4097-977a-4072838f5bb1",
+    "lesson_id": "ee735f9c-95f2-4ca1-9b41-5d5ce4cfc0bf",
+    "sequence_order": 2,
+    "is_required": true
+  },
+  {
+    "id": "af398db9-9d69-432f-8b67-8cade641d44c",
+    "course_id": "c1dfe82a-490b-4097-977a-4072838f5bb1",
+    "lesson_id": "2a89ae21-5c9e-4943-9f0f-bf0f1397e8e2",
+    "sequence_order": 1,
+    "is_required": true
+  },
+  {
+    "id": "13b70bc2-4ec1-45b0-b1f8-c315846a34c5",
+    "course_id": "fb2c4e2a-2c6b-4c81-a0e4-6142ab790f34",
+    "lesson_id": "52b3c300-fa99-49b1-8b8a-7682b4c3d97c",
+    "sequence_order": 1,
+    "is_required": true
+  },
+  {
+    "id": "2ec08ed5-f2e7-4da2-812f-8b3500522d8b",
+    "course_id": "c1dfe82a-490b-4097-977a-4072838f5bb1",
+    "lesson_id": "52b3c300-fa99-49b1-8b8a-7682b4c3d97c",
+    "sequence_order": 3,
+    "is_required": true
+  },
+  {
+    "id": "767bebca-d4fe-4e4f-a9b8-af68b662ec61",
+    "course_id": "d58dd02d-0a8d-4bee-adad-89a266426b4c",
+    "lesson_id": "b40e2e63-8fb2-4868-9dcd-19a36a2e0f69",
+    "sequence_order": 1,
+    "is_required": true
+  },
+  {
+    "id": "9b13474b-883e-4c65-b00a-b0a1e9efe357",
+    "course_id": "d58dd02d-0a8d-4bee-adad-89a266426b4c",
+    "lesson_id": "52b3c300-fa99-49b1-8b8a-7682b4c3d97c",
+    "sequence_order": 2,
+    "is_required": true
+  },
+  {
+    "id": "890d43e4-11a0-4e9e-a01d-df5d173ab0e1",
+    "course_id": "d58dd02d-0a8d-4bee-adad-89a266426b4c",
+    "lesson_id": "ee735f9c-95f2-4ca1-9b41-5d5ce4cfc0bf",
+    "sequence_order": 3,
+    "is_required": true
+  },
+  {
+    "id": "3cb985f6-2207-4093-83f0-9641e7343c74",
+    "course_id": "d58dd02d-0a8d-4bee-adad-89a266426b4c",
+    "lesson_id": "2a89ae21-5c9e-4943-9f0f-bf0f1397e8e2",
+    "sequence_order": 4,
+    "is_required": true
+  },
+  {
+    "id": "f1c00000-0000-0000-0000-000000000001",
+    "course_id": "f1a00000-0000-0000-0000-000000000001",
+    "lesson_id": "f1b00000-0000-0000-0000-000000000001",
+    "sequence_order": 1,
+    "is_required": true
+  },
+  {
+    "id": "f1c00000-0000-0000-0000-000000000002",
+    "course_id": "f1a00000-0000-0000-0000-000000000001",
+    "lesson_id": "f1b00000-0000-0000-0000-000000000002",
+    "sequence_order": 2,
+    "is_required": true
+  },
+  {
+    "id": "f1c00000-0000-0000-0000-000000000003",
+    "course_id": "f1a00000-0000-0000-0000-000000000001",
+    "lesson_id": "f1b00000-0000-0000-0000-000000000003",
+    "sequence_order": 3,
+    "is_required": true
+  },
+  {
+    "id": "f1c00000-0000-0000-0000-000000000004",
+    "course_id": "f1a00000-0000-0000-0000-000000000001",
+    "lesson_id": "f1b00000-0000-0000-0000-000000000004",
+    "sequence_order": 4,
+    "is_required": true
+  },
+  {
+    "id": "f1c00000-0000-0000-0000-000000000005",
+    "course_id": "f1a00000-0000-0000-0000-000000000001",
+    "lesson_id": "f1b00000-0000-0000-0000-000000000005",
+    "sequence_order": 5,
+    "is_required": true
+  },
+  {
+    "id": "f1c00000-0000-0000-0000-000000000006",
+    "course_id": "f1a00000-0000-0000-0000-000000000001",
+    "lesson_id": "f1b00000-0000-0000-0000-000000000006",
+    "sequence_order": 6,
+    "is_required": true
+  },
+  {
+    "id": "f1c00000-0000-0000-0000-000000000007",
+    "course_id": "f1a00000-0000-0000-0000-000000000001",
+    "lesson_id": "f1b00000-0000-0000-0000-000000000007",
+    "sequence_order": 7,
+    "is_required": true
+  }
+]

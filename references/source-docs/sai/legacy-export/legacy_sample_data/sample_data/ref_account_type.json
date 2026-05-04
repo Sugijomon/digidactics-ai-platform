@@ -1,0 +1,18 @@
+[
+  {
+    "code": "zakelijke_licentie",
+    "label": "Zakelijke licentie"
+  },
+  {
+    "code": "prive_gratis",
+    "label": "Privé — gratis account"
+  },
+  {
+    "code": "prive_betaald",
+    "label": "Privé — betaald account"
+  },
+  {
+    "code": "beide",
+    "label": "Beide"
+  }
+]

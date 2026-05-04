@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Combinatiesignalen — 5× infoviz</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800;900&family=DM+Mono:wght@400;500&family=Literata:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Manrope",sans-serif;background:#F8F7F4;color:#1C1917;font-size:13px;line-height:1.55}
+h2{font-family:"Manrope";font-size:18px;font-weight:800;letter-spacing:-.02em;color:#1C1917;margin-bottom:4px}
+.lede{font-size:11px;color:#78716C;line-height:1.6;max-width:560px;margin-bottom:20px}
+.section{background:#fff;border:1px solid #E7E5E4;border-radius:16px;padding:28px 32px;margin-bottom:24px}
+.section-num{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#A8A29E;margin-bottom:6px;font-family:"DM Mono"}
+.tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:9.5px;font-weight:700;font-family:"DM Mono";letter-spacing:.03em}
+.tag-red{background:#FEE2E2;color:#991B1B}
+.tag-amber{background:#FEF3C7;color:#92400E}
+.tag-blue{background:#DBEAFE;color:#1E40AF}
+.tag-green{background:#D1FAE5;color:#065F46}
+.tag-violet{background:#EDE9FE;color:#5B21B6}
+.tag-teal{background:#CCFBF1;color:#134E4A}
+.tooltip-box{position:fixed;background:#1C1917;color:#FAFAF9;font-size:11px;font-family:"DM Mono";padding:8px 12px;border-radius:8px;pointer-events:none;display:none;z-index:999;line-height:1.6;max-width:240px}
+.legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex-shrink:0}
+.legend-sq{width:10px;height:10px;border-radius:2px;display:inline-block;flex-shrink:0}
+.flex{display:flex;align-items:center;gap:8px}
+.legend-row{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:14px}
+svg{display:block}
+</style>
+</head>
+<body style="padding:32px 40px 80px;max-width:960px;margin:0 auto">
+
+<div style="margin-bottom:32px">
+  <p style="font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#A8A29E;margin-bottom:8px;font-family:'DM Mono'">Governance — Shadow AI Scan V8.1</p>
+  <h1 style="font-size:26px;font-weight:900;letter-spacing:-.03em;color:#1C1917;font-family:'Manrope'">Combinatiesignalen</h1>
+  <p style="font-size:13px;color:#78716C;margin-top:6px;font-style:italic;font-family:'Literata'">Vijf visualisatiebenaderingen voor hetzelfde dataset — patroon × type × urgentie × interventie</p>
+  <div style="height:2px;background:linear-gradient(90deg,#1C1917 0%,#E7E5E4 100%);margin-top:12px;border-radius:1px"></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     VIZ 1 — SANKEY FLOW DIAGRAM
+     Breedte = relatief gewicht van de stroom
+     Patroon-dimensie → Type → Interventie
+     ══════════════════════════════════════════ -->
+<div class="section">
+  <p class="section-num">Visualisatie 01 — Sankey flow</p>
+  <h2>Van patroon naar interventie</h2>
+  <p class="lede">Breedte van de stroom = urgentiegewicht. Drie lagen: linker kolom = patronen (shadow × awareness), midden = signaaltype, rechts = aanbevolen interventie. Volg een lijn van links naar rechts om de logica te lezen.</p>
+  <div id="viz1"></div>
+  <div class="legend-row" id="viz1-legend"></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     VIZ 2 — TREEMAP
+     Urgentie als diepte, type als blok, patroon als cel
+     ══════════════════════════════════════════ -->
+<div class="section">
+  <p class="section-num">Visualisatie 02 — Treemap</p>
+  <h2>Urgentie als oppervlak</h2>
+  <p class="lede">Elke cel = één combinatiepatroon. Grootte = urgentiegewicht. Kleur = signaaltype. Klik een cel voor interventiedetail. Hogere urgentie neemt meer ruimte in — het oog ziet de prioriteit direct.</p>
+  <div id="viz2"></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     VIZ 3 — CHORD DIAGRAM
+     Circulaire verbindingen shadow × awareness × uitkomst
+     ══════════════════════════════════════════ -->
+<div class="section">
+  <p class="section-num">Visualisatie 03 — Chord diagram</p>
+  <h2>Hoe dimensies elkaar verbinden</h2>
+  <p class="lede">Elke arc op de cirkel = een dimension-waarde (shadow-niveau, awareness-niveau, interventie-agenda). De chord-breedte toont hoeveel patronen die twee waarden verbinden. Hover over een arc om zijn verbindingen te activeren.</p>
+  <div id="viz3" style="display:flex;justify-content:center"></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     VIZ 4 — FORCE-DIRECTED NETWORK
+     Patronen als nodes, gedeelde interventie = edge
+     ══════════════════════════════════════════ -->
+<div class="section">
+  <p class="section-num">Visualisatie 04 — Force-directed netwerk</p>
+  <h2>Welke patronen delen een interventie</h2>
+  <p class="lede">Elk groot knooppunt = een combinatiepatroon. Kleine knooppunten = interventie-agenda's. Verbinding = dit patroon leidt tot die interventie. Knooppunten die dicht bij elkaar graviteren, delen een interventielogica. Sleep om het netwerk te herordenen.</p>
+  <div id="viz4"></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     VIZ 5 — TERNARY / DRIEHOEKSPLOT
+     Drie assen: Shadow-niveau · Awareness · Urgentie
+     Elk patroon gepositioneerd in driehoeksruimte
+     ══════════════════════════════════════════ -->
+<div class="section">
+  <p class="section-num">Visualisatie 05 — Driehoeksplot (ternary)</p>
+  <h2>Drie-as positionering</h2>
+  <p class="lede">Drie assen: shadow-niveau (links), awareness-niveau (rechts), urgentie-intensiteit (boven). Elk patroon staat op zijn combinatiepositie. Patronen dichtbij de "urgentie-top" vragen directe DPO-actie. Patronen laag op de basis hebben lage shadow of hoge awareness. Hover voor detail.</p>
+  <div id="viz5" style="display:flex;justify-content:center"></div>
+</div>
+
+<div id="tooltip" class="tooltip-box"></div>
+
+<script>
+/* ═══════════════════════════════════
+   SHARED DATA
+   ═══════════════════════════════════ */
+const COMBOS = [
+  { id:"C1", pattern:"Hoge shadow\n+ hoge policy awareness",   type:"Bewust",      urgency:4, shadow:4, awareness:4, action:"DPO-escalatie",       actionShort:"Escalatie",    color:"#DC2626" },
+  { id:"C2", pattern:"Hoge shadow\n+ lage policy awareness",   type:"Onbewust",    urgency:3, shadow:4, awareness:1, action:"Training & communicatie", actionShort:"Training",  color:"#D97706" },
+  { id:"C3", pattern:"Lage exposure\n+ data-onzekerheid",      type:"Latent",      urgency:2, shadow:1, awareness:2, action:"Awareness-check",       actionShort:"Check",       color:"#2563EB" },
+  { id:"C4", pattern:"Expert + privé\n+ gevoelige data",       type:"Complex",     urgency:3, shadow:3, awareness:4, action:"DPO-gesprek + licentie", actionShort:"DPO-gesprek", color:"#7C3AED" },
+  { id:"C5", pattern:"Geen intern alt.\n+ hoge use-case diversiteit", type:"Business case", urgency:1, shadow:2, awareness:3, action:"IT-roadmap + licentie", actionShort:"Business case", color:"#059669" },
+  { id:"C6", pattern:"Experimenteren\n+ ambassadeursbereid",   type:"Ambassadeur", urgency:1, shadow:1, awareness:4, action:"AI-kopgroep",           actionShort:"Kopgroep",     color:"#0891B2" }
+];
+
+const TYPE_COLORS = {
+  "Bewust":"#DC2626","Onbewust":"#D97706","Latent":"#2563EB",
+  "Complex":"#7C3AED","Business case":"#059669","Ambassadeur":"#0891B2"
+};
+
+const TIP = document.getElementById("tooltip");
+function showTip(e, html){ TIP.style.display="block"; TIP.innerHTML=html; moveTip(e); }
+function moveTip(e){ TIP.style.left=(e.clientX+14)+"px"; TIP.style.top=(e.clientY-8)+"px"; }
+function hideTip(){ TIP.style.display="none"; }
+
+/* ═══════════════════════════════════
+   VIZ 1 — CUSTOM SANKEY (D3-free, pure SVG)
+   Three columns: Pattern | Type | Intervention
+   ═══════════════════════════════════ */
+function buildViz1(){
+  const W=860, H=300, C1x=20, C2x=360, C3x=700;
+  const colW=160;
+
+  // Column 1: patterns
+  const pats = COMBOS.map((c,i) => ({...c, y: 30 + i*44}));
+  // Column 2: types (unique, stacked)
+  const typeNames = [...new Set(COMBOS.map(c=>c.type))];
+  const typeH = (H-40)/typeNames.length;
+  const types = typeNames.map((t,i) => ({name:t, y: 30+i*typeH, h:typeH-4, color:TYPE_COLORS[t]}));
+  // Column 3: actions (unique)
+  const actionNames = [...new Set(COMBOS.map(c=>c.actionShort))];
+  const actH = (H-40)/actionNames.length;
+  const acts = actionNames.map((a,i) => ({name:a, y:30+i*actH, h:actH-4}));
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="Sankey flow diagram van combinatiesignalen">`;
+
+  // Draw flows: pattern → type
+  pats.forEach(p => {
+    const ti = types.findIndex(t=>t.name===p.type);
+    const tx = types[ti];
+    const bw = Math.max(2, p.urgency * 3);
+    const x1=C1x+colW, y1=p.y+10;
+    const x2=C2x, y2=tx.y + tx.h/2;
+    const mx=(x1+x2)/2;
+    svg += `<path d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}" 
+      fill="none" stroke="${p.color}" stroke-width="${bw}" opacity=".35"
+      onmouseenter="showTip(event,'<strong>${p.pattern.replace(/\n/,' ')}</strong><br>→ ${p.type}')" 
+      onmousemove="moveTip(event)" onmouseleave="hideTip()" style="cursor:default"/>`;
+  });
+
+  // Draw flows: type → action
+  pats.forEach(p => {
+    const ti = types.findIndex(t=>t.name===p.type);
+    const tx = types[ti];
+    const ai = acts.findIndex(a=>a.name===p.actionShort);
+    const ax = acts[ai];
+    const bw = Math.max(2, p.urgency*3);
+    const x1=C2x+colW, y1=tx.y+tx.h/2;
+    const x2=C3x, y2=ax.y+ax.h/2;
+    const mx=(x1+x2)/2;
+    svg += `<path d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}" 
+      fill="none" stroke="${p.color}" stroke-width="${bw}" opacity=".3"
+      onmouseenter="showTip(event,'${p.type} → ${p.actionShort}')" 
+      onmousemove="moveTip(event)" onmouseleave="hideTip()" style="cursor:default"/>`;
+  });
+
+  // Column 1: pattern nodes
+  pats.forEach(p => {
+    svg += `<rect x="${C1x}" y="${p.y}" width="${colW}" height="22" rx="5" fill="${p.color}" fill-opacity=".1" stroke="${p.color}" stroke-width="1.5"/>`;
+    p.pattern.split("\n").forEach((line,li) => {
+      svg += `<text x="${C1x+8}" y="${p.y+13+li*12}" font-size="${li===0?10:9}" font-weight="${li===0?700:400}" font-family="DM Mono,monospace" fill="${p.color}">${line}</text>`;
+    });
+  });
+
+  // Column 2: type nodes
+  types.forEach(t => {
+    svg += `<rect x="${C2x}" y="${t.y}" width="${colW}" height="${t.h}" rx="6" fill="${t.color}" fill-opacity=".12" stroke="${t.color}" stroke-width="1.5"/>`;
+    svg += `<text x="${C2x+colW/2}" y="${t.y+t.h/2+4}" text-anchor="middle" font-size="11" font-weight="700" font-family="Manrope,sans-serif" fill="${t.color}">${t.name}</text>`;
+  });
+
+  // Column 3: action nodes
+  acts.forEach(a => {
+    svg += `<rect x="${C3x}" y="${a.y}" width="${colW}" height="${a.h}" rx="6" fill="#F5F5F4" stroke="#D6D3D1" stroke-width="1"/>`;
+    svg += `<text x="${C3x+colW/2}" y="${a.y+a.h/2+4}" text-anchor="middle" font-size="10" font-weight="600" font-family="Manrope,sans-serif" fill="#57534E">${a.name}</text>`;
+  });
+
+  // Column headers
+  [["Patronen",C1x],["Signaaltype",C2x],["Interventie",C3x]].forEach(([label,x]) => {
+    svg += `<text x="${x+colW/2}" y="16" text-anchor="middle" font-size="9" font-weight="800" letter-spacing="2" text-transform="uppercase" font-family="DM Mono" fill="#A8A29E">${label.toUpperCase()}</text>`;
+  });
+
+  // Urgency legend
+  svg += `<text x="${W-10}" y="${H-10}" text-anchor="end" font-size="9" font-family="DM Mono" fill="#A8A29E">streekdikte = urgentie</text>`;
+  svg += "</svg>";
+  document.getElementById("viz1").innerHTML = svg;
+
+  document.getElementById("viz1-legend").innerHTML = Object.entries(TYPE_COLORS).map(([k,v])=>
+    `<div class="flex"><span class="legend-dot" style="background:${v}"></span><span style="font-size:11px;font-weight:600;color:#57534E">${k}</span></div>`
+  ).join("");
+}
+
+/* ═══════════════════════════════════
+   VIZ 2 — TREEMAP (D3 treemap)
+   ═══════════════════════════════════ */
+function buildViz2(){
+  const W=860, H=280;
+  const root = d3.hierarchy({
+    name:"root",
+    children: COMBOS.map(c=>({ name:c.pattern.replace(/\n/," "), type:c.type, urgency:c.urgency, action:c.action, color:c.color, value:c.urgency*c.urgency }))
+  }).sum(d=>d.value);
+
+  d3.treemap().size([W,H]).paddingOuter(6).paddingInner(4).round(true)(root);
+
+  const svg = d3.create("svg").attr("viewBox",`0 0 ${W} ${H}`).attr("style","width:100%;height:auto").attr("role","img").attr("aria-label","Treemap van combinatiesignalen");
+
+  const cell = svg.selectAll("g").data(root.leaves()).join("g").attr("transform",d=>`translate(${d.x0},${d.y0})`);
+
+  cell.append("rect")
+    .attr("width",d=>d.x1-d.x0)
+    .attr("height",d=>d.y1-d.y0)
+    .attr("rx",8)
+    .attr("fill",d=>d.data.color)
+    .attr("fill-opacity",.1)
+    .attr("stroke",d=>d.data.color)
+    .attr("stroke-width",2)
+    .style("cursor","pointer")
+    .on("mouseenter",(e,d)=>showTip(e,`<strong>${d.data.name}</strong><br>Type: ${d.data.type}<br>Urgentie: ${d.data.urgency}/4<br>Interventie: ${d.data.action}`))
+    .on("mousemove",moveTip)
+    .on("mouseleave",hideTip);
+
+  // Type label top-left
+  cell.append("text").attr("x",10).attr("y",20)
+    .text(d=>d.data.type)
+    .attr("font-size","10").attr("font-weight","800")
+    .attr("font-family","DM Mono,monospace")
+    .attr("fill",d=>d.data.color);
+
+  // Pattern label
+  cell.each(function(d){
+    const w=d.x1-d.x0, h=d.y1-d.y0;
+    if(w>100 && h>50){
+      const lines = d.data.name.split("+ ").map(s=>s.trim());
+      const g = d3.select(this);
+      lines.slice(0,2).forEach((line,li)=>{
+        g.append("text").attr("x",10).attr("y",36+li*14)
+          .text(line.length>20?line.slice(0,18)+"…":line)
+          .attr("font-size","10").attr("font-weight","600")
+          .attr("font-family","Manrope,sans-serif")
+          .attr("fill",d=>d.data.color).attr("fill-opacity",.8);
+      });
+    }
+  });
+
+  // Urgency badge bottom-right
+  cell.append("text")
+    .attr("x",d=>d.x1-d.x0-10)
+    .attr("y",d=>d.y1-d.y0-10)
+    .text(d=>"▲".repeat(d.data.urgency))
+    .attr("text-anchor","end")
+    .attr("font-size","9")
+    .attr("fill",d=>d.data.color)
+    .attr("fill-opacity",.6);
+
+  document.getElementById("viz2").appendChild(svg.node());
+}
+
+/* ═══════════════════════════════════
+   VIZ 3 — CHORD DIAGRAM
+   Dimensions: Shadow-niveau (H/L), Awareness (H/L), Interventie-agenda
+   ═══════════════════════════════════ */
+function buildViz3(){
+  const W=460, H=460, CX=W/2, CY=H/2, OR=170, IR=148, PAD=0.04;
+
+  // Nodes on the circle
+  const nodes = [
+    {id:"SH", label:"Shadow hoog",    color:"#DC2626", group:"shadow"},
+    {id:"SL", label:"Shadow laag",    color:"#F87171", group:"shadow"},
+    {id:"AH", label:"Awareness hoog", color:"#2563EB", group:"aware"},
+    {id:"AL", label:"Awareness laag", color:"#93C5FD", group:"aware"},
+    {id:"Esc",label:"Escalatie",      color:"#7C3AED", group:"action"},
+    {id:"Trn",label:"Training",       color:"#D97706", group:"action"},
+    {id:"Chk",label:"Check",          color:"#0891B2", group:"action"},
+    {id:"Inn",label:"Innovatie",      color:"#059669", group:"action"}
+  ];
+
+  // Links: each combo generates connections between its dimensions
+  const links = [
+    {source:0,target:2,value:4,combo:"C1"}, // SH+AH → (gap handled via Esc)
+    {source:0,target:4,value:4,combo:"C1"},
+    {source:0,target:3,value:3,combo:"C2"}, // SH+AL
+    {source:0,target:5,value:3,combo:"C2"},
+    {source:1,target:3,value:2,combo:"C3"}, // SL+AL → Check
+    {source:1,target:6,value:2,combo:"C3"},
+    {source:0,target:2,value:3,combo:"C4"}, // SH+AH → DPO
+    {source:0,target:4,value:1,combo:"C4"},
+    {source:1,target:2,value:1,combo:"C5"}, // SL+AH → Innovation
+    {source:1,target:7,value:1,combo:"C5"},
+    {source:1,target:2,value:1,combo:"C6"}, // SL+AH → Innovation
+    {source:1,target:7,value:1,combo:"C6"}
+  ];
+
+  // Compute arc spans
+  const totalPerNode = Array(nodes.length).fill(0);
+  links.forEach(l=>{ totalPerNode[l.source]+=l.value; totalPerNode[l.target]+=l.value; });
+  const total = totalPerNode.reduce((a,b)=>a+b,0);
+  const arc2PI = n => (n/total)*(2*Math.PI);
+  let cursor=0;
+  const spans = nodes.map((n,i)=>{
+    const a0=cursor+PAD, a1=cursor+arc2PI(totalPerNode[i])-PAD;
+    cursor+=arc2PI(totalPerNode[i]);
+    return {a0,a1,mid:(a0+a1)/2,cursor:a0};
+  });
+
+  // Build SVG
+  const svg = d3.create("svg").attr("viewBox",`0 0 ${W} ${H}`).attr("style","width:min(460px,100%);height:auto").attr("role","img").attr("aria-label","Chord diagram van combinatiesignalen");
+
+  // Arcs
+  nodes.forEach((n,i)=>{
+    const s=spans[i];
+    const arcPath = d3.arc()({
+      innerRadius:IR, outerRadius:OR,
+      startAngle:s.a0, endAngle:s.a1
+    });
+    svg.append("path").attr("transform",`translate(${CX},${CY})`).attr("d",arcPath)
+      .attr("fill",n.color).attr("fill-opacity",.85)
+      .style("cursor","pointer")
+      .on("mouseenter",(e)=>showTip(e,`<strong>${n.label}</strong><br>dimensie: ${n.group}`))
+      .on("mousemove",moveTip).on("mouseleave",hideTip);
+
+    // Label
+    const lx=CX+(OR+16)*Math.sin(s.mid), ly=CY-(OR+16)*Math.cos(s.mid);
+    const anchor=Math.sin(s.mid)>0.1?"start":Math.sin(s.mid)<-0.1?"end":"middle";
+    svg.append("text").attr("x",lx).attr("y",ly)
+      .attr("text-anchor",anchor).attr("dominant-baseline","middle")
+      .attr("font-size","10").attr("font-weight","700")
+      .attr("font-family","Manrope,sans-serif").attr("fill",n.color)
+      .text(n.label);
+  });
+
+  // Chords
+  const chordOffsets = Array(nodes.length).fill(0).map(()=>({src:0,tgt:0}));
+  links.forEach(l=>{
+    const s=spans[l.source], t=spans[l.target];
+    const sw=arc2PI(l.value)*0.7;
+    const sa0=s.a0+chordOffsets[l.source].src;
+    const sa1=sa0+sw;
+    chordOffsets[l.source].src+=sw+0.005;
+    const ta0=t.a0+chordOffsets[l.target].tgt;
+    const ta1=ta0+sw;
+    chordOffsets[l.target].tgt+=sw+0.005;
+
+    const chord = d3.ribbon()({
+      source:{startAngle:sa0,endAngle:sa1,radius:IR},
+      target:{startAngle:ta0,endAngle:ta1,radius:IR}
+    });
+    const comboColor = COMBOS.find(c=>c.id===l.combo)?.color||"#9CA3AF";
+    svg.append("path").attr("transform",`translate(${CX},${CY})`).attr("d",chord)
+      .attr("fill",comboColor).attr("fill-opacity",.2)
+      .attr("stroke",comboColor).attr("stroke-width",.5).attr("stroke-opacity",.4);
+  });
+
+  document.getElementById("viz3").appendChild(svg.node());
+}
+
+/* ═══════════════════════════════════
+   VIZ 4 — FORCE-DIRECTED NETWORK
+   ═══════════════════════════════════ */
+function buildViz4(){
+  const W=860, H=320;
+
+  const nodes = [
+    ...COMBOS.map(c=>({id:c.id, label:c.pattern.replace(/\n/," "), type:"combo", color:c.color, r:20, urgency:c.urgency})),
+    ...["Escalatie","Training","Check","DPO-gesprek","Business case","Kopgroep"].map(a=>({id:"A_"+a,label:a,type:"action",color:"#A8A29E",r:12}))
+  ];
+
+  const links = COMBOS.map(c=>({
+    source:c.id, target:"A_"+c.actionShort
+  }));
+
+  // Also link combos of same type
+  for(let i=0;i<COMBOS.length;i++){
+    for(let j=i+1;j<COMBOS.length;j++){
+      if(COMBOS[i].urgency===COMBOS[j].urgency){
+        links.push({source:COMBOS[i].id, target:COMBOS[j].id, type:"same-urgency"});
+      }
+    }
+  }
+
+  const sim = d3.forceSimulation(nodes)
+    .force("link", d3.forceLink(links).id(d=>d.id).distance(d=>d.type==="same-urgency"?80:100).strength(.6))
+    .force("charge", d3.forceManyBody().strength(-180))
+    .force("center", d3.forceCenter(W/2, H/2))
+    .force("collide", d3.forceCollide(d=>d.r+14));
+
+  const svg = d3.create("svg").attr("viewBox",`0 0 ${W} ${H}`).attr("style","width:100%;height:auto").attr("role","img").attr("aria-label","Force-directed netwerk van combinatiesignalen");
+
+  // Links
+  const link = svg.append("g").selectAll("line").data(links).join("line")
+    .attr("stroke",d=>d.type==="same-urgency"?"#E7E5E4":"#D6D3D1")
+    .attr("stroke-width",d=>d.type==="same-urgency"?.5:1)
+    .attr("stroke-dasharray",d=>d.type==="same-urgency"?"3,3":"none")
+    .attr("stroke-opacity",.7);
+
+  // Nodes
+  const node = svg.append("g").selectAll("g").data(nodes).join("g").style("cursor","grab").call(
+    d3.drag()
+      .on("start",(e,d)=>{ if(!e.active) sim.alphaTarget(.3).restart(); d.fx=d.x; d.fy=d.y; })
+      .on("drag",(e,d)=>{ d.fx=e.x; d.fy=e.y; })
+      .on("end",(e,d)=>{ if(!e.active) sim.alphaTarget(0); d.fx=null; d.fy=null; })
+  );
+
+  node.append("circle")
+    .attr("r",d=>d.r)
+    .attr("fill",d=>d.color)
+    .attr("fill-opacity",d=>d.type==="combo"?.12:.06)
+    .attr("stroke",d=>d.color)
+    .attr("stroke-width",d=>d.type==="combo"?2:1)
+    .on("mouseenter",(e,d)=>showTip(e,`<strong>${d.label}</strong>${d.urgency?`<br>Urgentie: ${d.urgency}/4`:""}`))
+    .on("mousemove",moveTip).on("mouseleave",hideTip);
+
+  // Urgency rings for combo nodes
+  nodes.filter(n=>n.type==="combo").forEach(n=>{
+    node.filter(d=>d.id===n.id).append("circle")
+      .attr("r",d=>d.r-5)
+      .attr("fill",d=>d.color)
+      .attr("fill-opacity",.25)
+      .attr("stroke","none");
+  });
+
+  node.append("text").text(d=>d.type==="combo"?d.id:d.label)
+    .attr("text-anchor","middle").attr("dominant-baseline","middle")
+    .attr("font-size",d=>d.type==="combo"?9:8)
+    .attr("font-weight","800")
+    .attr("font-family","DM Mono,monospace")
+    .attr("fill",d=>d.color)
+    .attr("pointer-events","none");
+
+  sim.on("tick",()=>{
+    link.attr("x1",d=>d.source.x).attr("y1",d=>d.source.y)
+        .attr("x2",d=>d.target.x).attr("y2",d=>d.target.y);
+    node.attr("transform",d=>`translate(${Math.max(d.r,Math.min(W-d.r,d.x))},${Math.max(d.r,Math.min(H-d.r,d.y))})`);
+  });
+
+  // Legend
+  svg.append("text").attr("x",10).attr("y",H-12)
+    .text("Groot knooppunt = patroon · Klein = interventie · Stippellijn = zelfde urgentieniveau · Sleep om te herordenen")
+    .attr("font-size","9").attr("font-family","DM Mono").attr("fill","#A8A29E");
+
+  document.getElementById("viz4").appendChild(svg.node());
+}
+
+/* ═══════════════════════════════════
+   VIZ 5 — TERNARY PLOT
+   Drie assen: Shadow (bottom-left), Awareness (bottom-right), Urgency (top)
+   ═══════════════════════════════════ */
+function buildViz5(){
+  const W=680, H=460, PAD=60;
+  // Equilateral triangle vertices
+  const TRI = {
+    top:   {x:W/2,         y:PAD},
+    left:  {x:PAD+20,      y:H-PAD},
+    right: {x:W-PAD-20,    y:H-PAD}
+  };
+
+  // Convert ternary coords (shadow, awareness, urgency) to cartesian
+  // All values normalised 0-1; must sum to 1
+  function ternary2cart(s, a, u){
+    const tot = s+a+u;
+    const sn=s/tot, an=a/tot, un=u/tot;
+    const x = TRI.left.x * sn + TRI.right.x * an + TRI.top.x * un;
+    const y = TRI.left.y * sn + TRI.right.y * an + TRI.top.y * un;
+    return {x,y};
+  }
+
+  // Map combo data to ternary coords
+  // shadow: normalised 0-4 → 0-1
+  // awareness: normalised 0-4 → 0-1
+  // urgency: normalised 0-4 → 0-1
+  const points = COMBOS.map(c=>{
+    const s = c.shadow/9, a = c.awareness/9, u = c.urgency/9;
+    const pos = ternary2cart(s, a, u);
+    return {...c, tx:pos.x, ty:pos.y};
+  });
+
+  const svg = d3.create("svg").attr("viewBox",`0 0 ${W} ${H}`).attr("style","width:min(680px,100%);height:auto").attr("role","img").attr("aria-label","Driehoeksplot van combinatiesignalen");
+
+  // Subtle grid lines (parallel to each side, at .25 and .5)
+  const gridVals = [.25, .5, .75];
+  gridVals.forEach(v=>{
+    const inv = 1-v;
+    // Parallel to left edge (constant shadow)
+    const g1s = ternary2cart(v,0,inv), g1e = ternary2cart(v,inv,0);
+    const g2s = ternary2cart(0,v,inv), g2e = ternary2cart(inv,v,0);
+    const g3s = ternary2cart(0,inv,v), g3e = ternary2cart(inv,0,v);
+    [g1s,g1e,g2s,g2e,g3s,g3e].forEach((p,i,arr)=>{
+      if(i%2===0) svg.append("line").attr("x1",p.x).attr("y1",p.y).attr("x2",arr[i+1].x).attr("y2",arr[i+1].y)
+        .attr("stroke","#F5F5F4").attr("stroke-width",.8);
+    });
+  });
+
+  // Triangle outline
+  const triPath = `M${TRI.top.x},${TRI.top.y} L${TRI.left.x},${TRI.left.y} L${TRI.right.x},${TRI.right.y} Z`;
+  svg.append("path").attr("d",triPath).attr("fill","none").attr("stroke","#D6D3D1").attr("stroke-width",1.5);
+
+  // Axis labels
+  svg.append("text").attr("x",TRI.top.x).attr("y",TRI.top.y-16).attr("text-anchor","middle")
+    .attr("font-size","11").attr("font-weight","800").attr("font-family","DM Mono").attr("fill","#78716C")
+    .text("↑ Urgentie");
+  svg.append("text").attr("x",TRI.left.x-8).attr("y",TRI.left.y+18).attr("text-anchor","middle")
+    .attr("font-size","11").attr("font-weight","800").attr("font-family","DM Mono").attr("fill","#78716C")
+    .text("Shadow →");
+  svg.append("text").attr("x",TRI.right.x+8).attr("y",TRI.right.y+18).attr("text-anchor","middle")
+    .attr("font-size","11").attr("font-weight","800").attr("font-family","DM Mono").attr("fill","#78716C")
+    .text("← Awareness");
+
+  // Scale markers
+  gridVals.forEach(v=>{
+    const p = ternary2cart(0,0,v);
+    svg.append("text").attr("x",TRI.top.x+8).attr("y",TRI.top.y+(TRI.left.y-TRI.top.y)*v)
+      .attr("font-size","8").attr("font-family","DM Mono").attr("fill","#C7C4BE")
+      .text(Math.round(v*4));
+  });
+
+  // Data points — with jitter for overlapping
+  points.forEach((p,i)=>{
+    const jx = (Math.random()-.5)*12, jy=(Math.random()-.5)*8;
+    const r = 6 + p.urgency*3;
+    // Halo
+    svg.append("circle").attr("cx",p.tx+jx).attr("cy",p.ty+jy).attr("r",r+5)
+      .attr("fill",p.color).attr("fill-opacity",.08).attr("stroke","none");
+    // Main dot
+    svg.append("circle").attr("cx",p.tx+jx).attr("cy",p.ty+jy).attr("r",r)
+      .attr("fill",p.color).attr("fill-opacity",.15)
+      .attr("stroke",p.color).attr("stroke-width",2)
+      .style("cursor","pointer")
+      .on("mouseenter",e=>showTip(e,`<strong>${p.id}: ${p.pattern.replace(/\n/," ")}</strong><br>Type: ${p.type}<br>Urgentie: ${p.urgency}/4<br>Shadow: ${p.shadow}/4 · Awareness: ${p.awareness}/4<br>→ ${p.action}`))
+      .on("mousemove",moveTip).on("mouseleave",hideTip);
+    // Label
+    svg.append("text").attr("x",p.tx+jx).attr("y",p.ty+jy+4)
+      .attr("text-anchor","middle").attr("font-size","9").attr("font-weight","800")
+      .attr("font-family","DM Mono").attr("fill",p.color).attr("pointer-events","none")
+      .text(p.id);
+  });
+
+  // Legend bottom
+  const lgY = H-22;
+  COMBOS.forEach((c,i)=>{
+    const x = 60+i*130;
+    svg.append("circle").attr("cx",x).attr("cy",lgY).attr("r",5).attr("fill",c.color).attr("fill-opacity",.8);
+    svg.append("text").attr("x",x+8).attr("y",lgY+4).attr("font-size","9.5").attr("font-weight","600")
+      .attr("font-family","DM Mono").attr("fill","#78716C").text(c.id+" "+c.type);
+  });
+
+  svg.append("text").attr("x",W/2).attr("y",H-4).attr("text-anchor","middle")
+    .attr("font-size","9").attr("font-family","DM Mono").attr("fill","#C7C4BE")
+    .text("Stipgrootte = urgentie · positie = verhouding shadow / awareness / urgentie");
+
+  document.getElementById("viz5").appendChild(svg.node());
+}
+
+/* ── INIT ── */
+buildViz1();
+buildViz2();
+buildViz3();
+buildViz4();
+buildViz5();
+</script>
+</body>
+</html>

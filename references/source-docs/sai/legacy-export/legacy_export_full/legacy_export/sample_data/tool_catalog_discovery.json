@@ -1,0 +1,17 @@
+[
+  {
+    "id": "75a440b6-880f-45e2-b025-15f7a287a331",
+    "org_id": "34f89abf-ba18-4e7c-83aa-d4bc7e845c00",
+    "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+    "survey_tool_id": "f87789ab-a03b-4a4f-b1d1-7888ac9ea2fb",
+    "raw_tool_name": "Claude Code",
+    "normalized_tool_name": null,
+    "discovery_source": "survey",
+    "review_status": "pending",
+    "promoted_tool_code": null,
+    "created_at": "2026-04-29T04:48:48.214893+00:00",
+    "reviewed_at": null,
+    "reviewed_by": null,
+    "notes": null
+  }
+]

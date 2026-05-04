@@ -1,0 +1,29 @@
+[
+  {
+    "id": "a3000000-0000-0000-0000-000000000001",
+    "archetype_code": "O-01",
+    "library_item_id": "a2000000-0000-0000-0000-000000000001",
+    "context_card_text": "Deze toepassing beoordeelt of rankt mensen of hun output. Het vereiste gedrag: verifieer elk AI-oordeel handmatig vóór een beslissing wordt genomen of gecommuniceerd. Documenteer je verificatie.",
+    "is_active": true,
+    "created_at": "2026-03-28T01:40:13.056355+00:00",
+    "updated_at": "2026-03-28T01:40:13.056355+00:00"
+  },
+  {
+    "id": "a3000000-0000-0000-0000-000000000002",
+    "archetype_code": "O-02",
+    "library_item_id": "a2000000-0000-0000-0000-000000000002",
+    "context_card_text": "Deze toepassing bereidt beslissingen voor die mensen direct beïnvloeden. Jouw rol: verifieer de AI-analyse, voeg context toe die de AI niet had, en neem de definitieve beslissing zelf met eigen motivatie.",
+    "is_active": true,
+    "created_at": "2026-03-28T01:40:13.056355+00:00",
+    "updated_at": "2026-03-28T01:40:13.056355+00:00"
+  },
+  {
+    "id": "a3000000-0000-0000-0000-000000000003",
+    "archetype_code": "O-03",
+    "library_item_id": "a2000000-0000-0000-0000-000000000003",
+    "context_card_text": "Deze toepassing handelt zelfstandig namens de organisatie. Stel drempelwaarden in voor volume en frequentie, monitor actief op afwijkingen, en pauzeer bij twijfel — eerder dan later.",
+    "is_active": true,
+    "created_at": "2026-03-28T01:40:13.056355+00:00",
+    "updated_at": "2026-03-28T01:40:13.056355+00:00"
+  }
+]

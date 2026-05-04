@@ -1,0 +1,67 @@
+[
+  {
+    "code": "publiek",
+    "label": "Publieke informatie",
+    "risk_level": "low"
+  },
+  {
+    "code": "namen",
+    "label": "Namen van personen",
+    "risk_level": "medium"
+  },
+  {
+    "code": "interne_email",
+    "label": "Interne e-mails",
+    "risk_level": "medium"
+  },
+  {
+    "code": "interne_documenten",
+    "label": "Interne documenten",
+    "risk_level": "medium"
+  },
+  {
+    "code": "notulen",
+    "label": "Notulen of verslagen",
+    "risk_level": "medium"
+  },
+  {
+    "code": "broncode_logica",
+    "label": "Broncode of bedrijfslogica",
+    "risk_level": "medium"
+  },
+  {
+    "code": "excel_sheets",
+    "label": "Spreadsheets of rapportages",
+    "risk_level": "medium"
+  },
+  {
+    "code": "klantdata",
+    "label": "Klantgegevens",
+    "risk_level": "high"
+  },
+  {
+    "code": "financiele_data",
+    "label": "Financiële gegevens",
+    "risk_level": "high"
+  },
+  {
+    "code": "juridische_documenten",
+    "label": "Juridische documenten",
+    "risk_level": "high"
+  },
+  {
+    "code": "gevoelig_persoonsgegeven",
+    "label": "Bijzondere persoonsgegevens",
+    "risk_level": "high"
+  },
+  {
+    "code": "niets",
+    "label": "Geen persoonsgegevens of vertrouwelijke data",
+    "risk_level": "low"
+  },
+  {
+    "code": "onzeker",
+    "label": "Weet ik niet zeker",
+    "risk_level": "medium"
+  }
+]

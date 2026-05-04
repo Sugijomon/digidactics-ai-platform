@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>V8.1 Compliance Audit — Shadow AI Scan Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --ink:      #0D1117;
+  --ink-2:    #24292F;
+  --ink-3:    #57606A;
+  --ink-4:    #8C959F;
+  --rule:     #D0D7DE;
+  --rule-2:   #F6F8FA;
+  --surface:  #FFFFFF;
+  --bg:       #F6F8FA;
+
+  --red:      #CF222E;
+  --red-bg:   #FFEBE9;
+  --amber:    #9A6700;
+  --amber-bg: #FFF8C5;
+  --green:    #1A7F37;
+  --green-bg: #DAFBE1;
+  --blue:     #0550AE;
+  --blue-bg:  #DBE4F0;
+  --purple:   #6E40C9;
+  --purple-bg:#F0EBF8;
+
+  --serif: 'Instrument Serif', Georgia, serif;
+  --sans:  'DM Sans', system-ui, sans-serif;
+  --mono:  'DM Mono', 'Courier New', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── LAYOUT ── */
+.wrapper { max-width: 900px; margin: 0 auto; padding: 48px 32px 100px; }
+
+/* ── MASTHEAD ── */
+.masthead {
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 32px;
+  margin-bottom: 48px;
+}
+.masthead-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  margin-bottom: 10px;
+}
+.masthead h1 {
+  font-family: var(--serif);
+  font-size: 38px;
+  line-height: 1.15;
+  color: var(--ink);
+  font-weight: 400;
+  margin-bottom: 8px;
+}
+.masthead h1 em {
+  font-style: italic;
+  color: var(--ink-3);
+}
+.masthead-meta {
+  font-size: 13px;
+  color: var(--ink-3);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-3);
+}
+.meta-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+/* ── EXECUTIVE SUMMARY ── */
+.exec-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 48px;
+}
+.exec-card {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 16px 14px;
+  text-align: center;
+}
+.exec-num {
+  font-family: var(--mono);
+  font-size: 34px;
+  font-weight: 500;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.exec-label { font-size: 11px; color: var(--ink-3); font-weight: 500; line-height: 1.3; }
+
+/* ── METHODOLOGY STRIP ── */
+.method-strip {
+  background: var(--ink);
+  color: #fff;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 48px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.method-item { }
+.method-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.4);
+  margin-bottom: 4px;
+}
+.method-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+.method-desc { font-size: 11px; color: rgba(255,255,255,.55); line-height: 1.5; }
+
+/* ── PAGE SECTION ── */
+.page-section { margin-bottom: 52px; }
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--ink);
+}
+.page-header-left { }
+.page-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  margin-bottom: 4px;
+}
+.page-title {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.page-verdict {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.verdict-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.verdict-score {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-4);
+}
+
+/* ── FINDING ROWS ── */
+.findings { display: flex; flex-direction: column; gap: 0; }
+.finding {
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--rule-2);
+}
+.finding:last-child { border-bottom: none; }
+.finding-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.finding-body { min-width: 0; }
+.finding-cat {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  margin-bottom: 3px;
+}
+.finding-text { font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+.finding-detail {
+  font-size: 11.5px;
+  color: var(--ink-3);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+.finding-detail code {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  background: var(--rule-2);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: var(--ink-2);
+}
+.prio-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+/* ── STATUS COLORS ── */
+.s-ok   { background: var(--green-bg);  color: var(--green); }
+.s-warn { background: var(--amber-bg);  color: var(--amber); }
+.s-err  { background: var(--red-bg);    color: var(--red); }
+.s-info { background: var(--blue-bg);   color: var(--blue); }
+
+.icon-ok   { background: var(--green-bg);  color: var(--green); font-size: 13px; }
+.icon-warn { background: var(--amber-bg);  color: var(--amber); font-size: 13px; }
+.icon-err  { background: var(--red-bg);    color: var(--red); font-size: 13px; }
+.icon-info { background: var(--blue-bg);   color: var(--blue); font-size: 13px; }
+
+.p-hoog   { background: #FFEBE9; color: #CF222E; }
+.p-midden { background: var(--amber-bg); color: var(--amber); }
+.p-laag   { background: var(--blue-bg);  color: var(--blue); }
+
+/* ── SCOPE TABLE ── */
+.scope-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  margin-top: 12px;
+}
+.scope-table th {
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  padding: 6px 10px 8px;
+  border-bottom: 1px solid var(--rule);
+}
+.scope-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--rule-2);
+  vertical-align: top;
+  color: var(--ink-2);
+}
+.scope-table tr:last-child td { border-bottom: none; }
+.scope-table td:first-child { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
+
+/* ── HEAT SUMMARY ── */
+.heat-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--rule-2);
+}
+.heat-row:last-child { border-bottom: none; }
+.heat-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--rule-2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.heat-fill { height: 100%; border-radius: 3px; }
+.heat-label { font-size: 12px; font-weight: 500; color: var(--ink-2); width: 170px; flex-shrink: 0; }
+.heat-val { font-family: var(--mono); font-size: 11px; font-weight: 500; width: 24px; text-align: right; flex-shrink: 0; }
+
+/* ── FOOTER ── */
+.doc-footer {
+  border-top: 1px solid var(--rule);
+  padding-top: 20px;
+  margin-top: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.footer-note { font-size: 11px; color: var(--ink-4); max-width: 480px; line-height: 1.6; }
+.footer-meta { font-family: var(--mono); font-size: 10px; color: var(--ink-4); text-align: right; }
+
+/* ── SECTION DIVIDER ── */
+.sec-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 40px 0 32px;
+}
+.sec-divider-line { flex: 1; height: 1px; background: var(--rule); }
+.sec-divider-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  white-space: nowrap;
+}
+
+/* ── ACTION LIST ── */
+.action-list { display: flex; flex-direction: column; gap: 6px; margin-top: 20px; }
+.action-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  font-size: 12.5px;
+}
+.action-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ink-4);
+  width: 20px;
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+.action-text { color: var(--ink-2); line-height: 1.5; flex: 1; }
+.action-text strong { color: var(--ink); font-weight: 600; }
+.action-page {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-4);
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+  .exec-grid { grid-template-columns: repeat(2, 1fr); }
+  .method-strip { grid-template-columns: 1fr; }
+  .wrapper { padding: 28px 20px 80px; }
+  .masthead h1 { font-size: 28px; }
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- ═══ MASTHEAD ═══ -->
+  <div class="masthead">
+    <p class="masthead-label">Shadow AI Scan · DPO Dashboard</p>
+    <h1>V8.1 Compliance <em>Audit</em></h1>
+    <div class="masthead-meta">
+      <span class="meta-pill"><span class="meta-dot" style="background:#1A7F37"></span>Canon: database-schema-shadow-ai · B2_SCAN_SPEC_V2 · B8_SCAN_MIGRATIE</span>
+      <span class="meta-pill"><span class="meta-dot" style="background:#0550AE"></span>4 pagina's onderzocht</span>
+      <span class="meta-pill"><span class="meta-dot" style="background:#9A6700"></span>3 lagen analyse</span>
+    </div>
+  </div>
+
+  <!-- ═══ EXECUTIVE SUMMARY ═══ -->
+  <div class="exec-grid">
+    <div class="exec-card">
+      <div class="exec-num" style="color:var(--red)">7</div>
+      <div class="exec-label">Hoge prioriteit<br>bevindingen</div>
+    </div>
+    <div class="exec-card">
+      <div class="exec-num" style="color:var(--amber)">9</div>
+      <div class="exec-label">Midden prioriteit<br>verbeterpunten</div>
+    </div>
+    <div class="exec-card">
+      <div class="exec-num" style="color:var(--blue)">6</div>
+      <div class="exec-label">Lage prioriteit<br>aanscherpingen</div>
+    </div>
+    <div class="exec-card">
+      <div class="exec-num" style="color:var(--green)">14</div>
+      <div class="exec-label">V8.1 elementen<br>correct aanwezig</div>
+    </div>
+  </div>
+
+  <!-- ═══ METHODOLOGY ═══ -->
+  <div class="method-strip">
+    <div class="method-item">
+      <div class="method-num">Laag 01</div>
+      <div class="method-title">Dekkingsaudit</div>
+      <div class="method-desc">10 V8.1-outputblokken getoetst per pagina op aanwezigheid, positie en volledigheid</div>
+    </div>
+    <div class="method-item">
+      <div class="method-num">Laag 02</div>
+      <div class="method-title">Terminologieaudit</div>
+      <div class="method-desc">7 harde V8.1-regels: accountlabels, scorenamen, drempel, toxic, EU AI Act framing</div>
+    </div>
+    <div class="method-item">
+      <div class="method-num">Laag 03</div>
+      <div class="method-title">Integriteitscheck</div>
+      <div class="method-desc">Scheidingsprincipe, DPO-only signalen, privacy n&lt;5 regel, configureerbare drempels</div>
+    </div>
+  </div>
+
+  <!-- ═══ V8.1 OUTPUTSCOPE DEKKING ═══ -->
+  <div class="sec-divider">
+    <div class="sec-divider-line"></div>
+    <div class="sec-divider-label">Outputscope dekking over alle pagina's</div>
+    <div class="sec-divider-line"></div>
+  </div>
+
+  <table class="scope-table" style="margin-bottom:48px">
+    <thead>
+      <tr>
+        <th>V8.1 outputblok</th>
+        <th>Tool Inv.</th>
+        <th>Risico</th>
+        <th>Governance</th>
+        <th>Rapportage</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Participatie per wave</td>
+        <td>✓</td><td>—</td><td>—</td><td>—</td>
+        <td><span class="prio-badge s-ok">Aanwezig</span></td>
+      </tr>
+      <tr>
+        <td>Tool inventory op <code>survey_tool</code></td>
+        <td>✓</td><td>—</td><td>—</td><td>—</td>
+        <td><span class="prio-badge s-ok">Aanwezig</span></td>
+      </tr>
+      <tr>
+        <td>Nieuwe tools uit discovery queue</td>
+        <td><span style="color:var(--red)">✗</span></td><td>—</td><td>—</td><td>—</td>
+        <td><span class="prio-badge s-err">Ontbreekt</span></td>
+      </tr>
+      <tr>
+        <td>Top tools op <code>priority_score</code></td>
+        <td><span style="color:var(--amber)">△</span></td><td>✓</td><td>—</td><td>—</td>
+        <td><span class="prio-badge s-warn">Gedeeltelijk</span></td>
+      </tr>
+      <tr>
+        <td>Shadow / exposure / priority splitsing</td>
+        <td><span style="color:var(--amber)">△</span></td><td>✓</td><td>—</td><td>—</td>
+        <td><span class="prio-badge s-warn">Gedeeltelijk</span></td>
+      </tr>
+      <tr>
+        <td>Reviewlijst met <code>review_trigger_codes</code></td>
+        <td>—</td><td><span style="color:var(--red)">✗</span></td><td>✓</td><td><span style="color:var(--amber)">△</span></td>
+        <td><span class="prio-badge s-warn">Gedeeltelijk</span></td>
+      </tr>
+      <tr>
+        <td>Toxic combinations</td>
+        <td>—</td><td>✓</td><td>—</td><td>—</td>
+        <td><span class="prio-badge s-ok">Aanwezig</span></td>
+      </tr>
+      <tr>
+        <td>Awareness- en readiness-signalen</td>
+        <td>—</td><td>—</td><td>✓</td><td>—</td>
+        <td><span class="prio-badge s-ok">Aanwezig</span></td>
+      </tr>
+      <tr>
+        <td>Innovation opportunities</td>
+        <td>—</td><td>—</td><td>✓</td><td><span style="color:var(--red)">✗</span></td>
+        <td><span class="prio-badge s-warn">Gedeeltelijk</span></td>
+      </tr>
+      <tr>
+        <td>Interventie-roadmap</td>
+        <td>—</td><td><span style="color:var(--red)">✗</span></td><td><span style="color:var(--amber)">△</span></td><td><span style="color:var(--red)">✗</span></td>
+        <td><span class="prio-badge s-err">Grotendeels weg</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ═══ PAGINA 02 TOOL INVENTARIS ═══ -->
+  <div class="page-section">
+    <div class="page-header">
+      <div class="page-header-left">
+        <div class="page-num">Pagina 02</div>
+        <div class="page-title">Tool Inventaris</div>
+      </div>
+      <div class="page-verdict">
+        <span class="verdict-badge s-warn">Aanscherping nodig</span>
+        <span class="verdict-score">4 hoog · 2 midden · 1 laag</span>
+      </div>
+    </div>
+
+    <div class="findings">
+
+      <div class="finding">
+        <div class="finding-icon icon-err">✕</div>
+        <div class="finding-body">
+          <div class="finding-cat">Terminologie — hoog</div>
+          <div class="finding-text">Accountlabels niet V8.1-conform: <code>Privéaccount</code> en <code>Gemengd</code> in gebruik</div>
+          <div class="finding-detail">V8.1 vereist exact: <code>prive_gratis</code> (UI: Privé gratis), <code>prive_betaald</code> (UI: Privé betaald), <code>zakelijke_licentie</code> (UI: Zakelijke licentie), <code>beide</code> (UI: Gemengd). De huidige bundeling <code>Privéaccount</code> mist het onderscheid gratis/betaald dat de <code>account_multiplier</code> (1.4× vs 1.8×) bepaalt. De data is daarmee niet bruikbaar voor correcte exposure-berekening.</div>
+        </div>
+        <span class="prio-badge p-hoog">Hoog</span>
+      </div>
+
+      <div class="finding">
+        <div class="finding-icon icon-err">✕</div>
+        <div class="finding-body">
+          <div class="finding-cat">Dekkingsaudit — hoog</div>
+          <div class="finding-text">Discovery queue ontbreekt volledig: nieuwe tools uit <code>tool_catalog_discovery</code> niet zichtbaar</div>
+          <div class="finding-detail">V8.1 vereist een apart blok voor tools die nog niet in de catalogus zitten. Deze moeten herkenbaar zijn als "nieuw ontdekt" (shadow_base = 20 als newly_discovered) met <code>first_seen_at</code> datum en een doorstroom naar de beheerwachtrij. Nu worden shadow en approved tools gemengd getoond zonder dit onderscheid.</div>
+        </div>
+        <span class="prio-badge p-hoog">Hoog</span>
+      </div>
+
+      <div class="finding">
+        <div class="finding-icon icon-err">✕</div>
+        <div class="finding-body">
+          <div class="finding-cat">Terminologie — hoog</div>
+          <div class="finding-text">Shadow-definitie te breed: de KPI "Shadow AI ratio" mengt <code>prohibited</code>, <code>restricted</code> én <code>under_review</code> zonder onderscheid</div>
+          <div class="finding-detail">V8.1 onderscheidt: <code>newly_discovered</code> (shadow_base 20), <code>restricted</code> (40), <code>prohibited</code> (80). In de huidige KPI-berekening (<code>shadowCount</code>) vallen alle niet-approved samen. Dit verbergt dat een "restricted" tool anders wordt gewogen dan een "prohibited" tool in de priority_score. Minimale fix: toon de verdeling naast de ratio.</div>
+        </div>
+        <span class="prio-badge p-hoog">Hoog</span>
+      </div>
+
+      <div class="finding">
+        <div class="finding-icon icon-err">✕</div>
+        <div class="finding-body">
+          <div class="finding-cat">Dekkingsaudit — hoog</div>
+          <div class="finding-text">Priority_score niet aanwezig: de matrix sorteert op "risico" maar toont geen priority_score als afgeleid getal</div>
+          <div class="finding-detail">De DPO-matrix sorteert op een veld dat "Kritikaliteit x privéaccount x shadow" heet — dit is geen V8.1 priority_score (0.45×shadow + 0.45×exposure + boosts). Zolang dit niet klopt, is de sorteervolgorde methodologisch onjuist. Exposure-as ontbreekt volledig als sorteer- of filterdimensie.</div>
+        </div>
+        <span class="prio-badge p-hoog">Hoog</span>
+      </div>
+
+      <div class="finding">
+        <div class="finding-icon icon-warn">△</div>
+        <div class="finding-body">
+          <div class="finding-cat">EU AI Act framing — midden</div>
+          <div class="finding-text">EU AI Act-signalen staan in de toolmatrix zonder "potentieel signaal"-kwalificatie</div>
+          <div class="finding-detail">De matrix toont <code>euai: true</code> met Art. 5 / Annex III iconen. De tooltip zegt wel "triagesignaal", maar de kolom-header en de audit-mode-banner suggereren een hardere classificatie. V8.1 vereist dat labels luiden: <em>Potentieel governance-signaal</em> of <em>Potential high-risk signal</em>, nooit als feitelijke classificatie.</div>
+        </div>
+        <span class="prio-badge p-midden">Midden</span>
+      </div>
+
+      <div class="finding">
+        <div class="finding-icon icon-warn">△</div>
+        <div class="finding-body">
+          <div class="finding-cat">Integriteitscheck — midden</div>
+          <div class="finding-text">Celgroottebeveiliging (<code>n &lt; 5</code>) niet geïmplementeerd in de matrix</div>
+          <div class="finding-detail">V8.1 schrijft voor: <code>dashboard_min_cell_size = 5</code>. De DPO-matrix toont per use-case × afdeling-combinatie individuele aantallen. Bij kleine organisaties of zeldzame combinaties kunnen cellen herleidbaar zijn. De Risicoprofiel-pagina heeft deze check wél — hier ontbreekt hij.</div>
+        </div>
+        <span class="prio-badge p-midden">Midden</span>
+      </div>
+
+      <div class="finding">
+        <div class="finding-icon icon-info">○</div>
+        <div class="finding-body">
+          <div class="finding-cat">Dekkingsaudit — laag</div>
+          <div class="finding-text">Sankey-diagram toont accounttype als derde kolom, maar <code>prive_betaald</code> en <code>prive_gratis</code> zijn samengevat</div>
+          <div class="finding-detail">De Sankey-stroom toont tool → use-case → account correct in principe, maar de account-kolom toont "Privéaccount" als één categorie. Na het accountlabel-herstel (bevinding #1) moet de Sankey de uitsplitsing ook verwerken.</div>
+        </div>
+        <span class="prio-badge p-laag">Laag</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ PAGINA 03 RISICOPROFIEL ═══ -->
+  <div class="page-section">
+    <div class="page-header">
+      <div class="page-header-left">
+        <div class="page-num">Pagina 03</div>
+        <div class="page-title">Risicoprofiel</div>
+      </div>
+      <div class="page-verdict">
+        <span class="verdict-badge s-info">Sterkste pagina</span>
+        <span class="verdict-score">1 hoog · 3 midden · 2 laag</span>
+      </div>
+    </div>
+
+    <div class="findings">
+
+      <div class="finding">
+        <div class="finding-icon icon-err">✕</div>
+        <div class="finding-body">
+          <div class="finding-cat">Dekkingsaudit — hoog</div>
+          <div class="finding-text">Review trigger codes (<code>review_trigger_codes</code>) ontbreken in de triage-tabel</div>
+          <div class="finding-detail">V8.1 definieert 8 triggercodes: <code>priority_threshold</code>, <code>prohibited_tool</code>, <code>special_category_data</code>, <code>hr_evaluation_context</code>, <code>agentic_usage</code>, <code>automation_unmanaged</code>, <code>extension_unmanaged</code>, <code>manual_override</code>. De triage-rijen tonen wel een "hard review"-indicator maar geen leesbare triggercodes per case. Dit maakt de audittrail niet herleidbaar voor de DPO.</div>
+        </div>
+        <span class="prio-badge p-hoog">Hoog</span>
+      </div>
+
+      <div class="finding">
+        <div class="finding-icon icon-warn">△</div>
+        <div class="finding-body">
+          <div class="finding-cat">Terminologie — midden</div>
+          <div class="finding-text">Drempel-indicator aanwezig maar niet als configureerbare organisatie-instelling gemarkeerd</div>
+          <div class="finding-detail">De threshold-constante staat hardcoded als <code>priority_review: 40</code> in de JavaScript. V8.1 vereist dat de DPO-UI expliciet toont: <em>"Reviewdrempel: 40 (organisatie-instelling)"</em> met tooltip dat dit configureerbaar is via <code>scan_scoring_config</code>. Een hardcoded waarde mag niet het eindstation zijn.</div>
+        </div>
+        <span class="prio-badge p-midden">Midden</span>
+      </div>
+
+      <div class="finding">
+        <div class="finding-icon icon-warn">△</div>
+        <div class="finding-body">
+          <div class="finding-cat">Dekkingsaudit — midden</div>
+          <div class="finding-text">Interventie-roadmap ontbreekt: triage-tabel heeft geen aanbevolen vervolgstap per cluster</div>
+          <div class="finding-detail">V8.1 vereist dat de DPO per triage-patroon een interventierichting ziet: discovery-agenda (shadow hoog, exposure laag), trainingsagenda (shadow laag, exposure hoog), interventie-agenda (beide hoog). Nu toont de triage een rij met scores en een "Review"-knop, maar geen methodologisch onderbouwde vervolgstap.</div>
+        </div>
+        <span class="prio-badge p-midden">Midden</span>
+      </div>
+
+      <div class="finding">
+        <div class="finding-icon icon-warn">△</div>
+        <div class="finding-body">
+          <div class="finding-cat">Integriteitscheck — midden</div>
+          <div class="finding-text">Exposure-heatmap framing: datatype als respondentbrede proxy niet expliciet gelabeld</div>
+          <div class="finding-detail">V8.1 stelt dat datatype op survey-run niveau werkt — niet per tool bewezen. De heatmap toont datatype per tool zonder deze methodologische kanttekening. Aanbevolen labels: <em>Indicatieve blootstellingsklasse</em> of <em>Reported exposure context</em>, nooit als exacte tool-datatype-koppeling presenteren.</div>
+        </div>
+        <span class="prio-badge p-midden">Midden</span>
+      </div>
+
+      <div class="finding">
+        <div class="finding-icon icon-ok">✓</div>
+        <div class="finding-body">
+          <div class="finding-cat">Correct aanwezig</div>
+          <div class="finding-text">Accountterminologie correct: <code>prive_gratis</code>, <code>prive_betaald</code>, <code>zakelijke_licentie</code> aanwezig</div>
+          <div class="finding-detail">De account_multiplier-logica en V8.1-labels zijn consistent doorgevoerd in de triage-data. De split-grafiek met 1.0×/1.4×/1.8× multiplier is aanwezig en klopt. Dit is het sterkste V8.1-compliance-element over alle vier de pagina's.</div>
+        </div>
+        <span class="prio-badge s-ok">Correct</span>
+      </div>
+
+      <div class="finding">
+        <div class="finding-icon icon-info">○</div>
+        <div class="finding-body">
+          <div class="finding-cat">Dekkingsaudit — laag</div>
+          <div class="finding-text">Innovation opportunities volledig afwezig op Risicoprofiel</div>
+          <div class="finding-detail">V8.1 verwacht dat de risico-output ook de positieve kant toont: welke use-cases worden gewenst, wie zijn ambassadeurskandidaten, wat zijn de business cases voor licenties. Dit hoeft geen groot blok te zijn — een compacte "Innovatiesignalen"-sectie volstaat als brug naar Governance.</div>
+        </div>
+        <span class="prio-badge p-laag">Laag</span>
+      </div>
+
+      <div class="finding">
+        <div class="finding-icon icon-ok">✓</div>
+        <div class="finding-body">
+          <div class="finding-cat">Correct aanwezig</div>
+          <div class="finding-text">Toxic combination correct geïmplementeerd: shadow &gt;50 én exposure &gt;50, +20 boost</div>
+          <div class="finding-detail">De <code>toxic_boost</code> en <code>assigned_tier: "toxic_shadow"</code> volgen exact de V8.1-formule. De drempelwaarden staan in de <code>threshold</code>-constante en worden correct toegepast in de filter-logica. <code>dashboard_min_cell_size: 5</code> is ook aanwezig.</div>
+        </div>
+        <span class="prio-badge s-ok">Correct</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ PAGINA 04 GOVERNANCE ═══ -->
+  <div class="page-section">
+    <div class="page-header">
+      <div class="page-header-left">
+        <div class="page-num">Pagina 04</div>
+        <div class="page-title">Governance</div>
+      </div>
+      <div class="page-verdict">
+        <span class="verdict-badge s-warn">Aanscherping nodig</span>
+        <span class="verdict-score">1 hoog · 2 midden · 2 laag</span>
+      </div>
+    </div>
+
+    <div class="findings">
+
+      <div class="finding">
+        <div class="finding-icon icon-err">✕</div>
+        <div class="finding-body">
+          <div class="finding-cat">Dekkingsaudit — hoog</div>
+          <div class="finding-text">Interventie-roadmap ontbreekt: combinatiesignalen leiden niet door naar concrete DPO-actie</div>
+          <div class="finding-detail">V8.1 vereist een interventie-roadmap als expliciete output. De combinatiesignalen (Bewust/Onbewust/Latent/Complex/Business case/Ambassadeur) zijn aanwezig en goed gestructureerd, maar de doorstroom naar een aanbevolen actie per patroon is niet uitgewerkt. V8.1 definieert vier agenda's: discovery, training, interventie, juridisch. Deze horen direct zichtbaar te zijn per combinatie-type.</div>
+        </div>
+        <span class="prio-badge p-hoog">Hoog</span>
+      </div>
+
+      <div class="finding">
+        <div class="finding-icon icon-warn">△</div>
+        <div class="finding-body">
+          <div class="finding-cat">Integriteitscheck — midden</div>
+          <div class="finding-text">EU AI Act-signalen volledig afwezig op Governance — maar worden wel verwacht als DPO-only laag</div>
+          <div class="finding-detail">V8.1 stelt dat EU AI Act-duiding hoort in de DPO-laag, gelabeld als <em>potentieel governance-signaal</em>. Governance is de juiste pagina hiervoor, maar bevat geen blok. De combinatiesignalen refereren wel aan juridisch aandachtspunt als type — die zou hier zichtbaar moeten worden als signaallaag voor de DPO, exclusief en methodologisch begrensd.</div>
+        </div>
+        <span class="prio-badge p-midden">Midden</span>
+      </div>
+
+      <div class="finding">
+        <div class="finding-icon icon-warn">△</div>
+        <div class="finding-body">
+          <div class="finding-cat">Terminologie — midden</div>
+          <div class="finding-text">Sociale indicatoren zijn goed uitgewerkt maar missen expliciete scheiding van scorecomponent</div>
+          <div class="finding-detail">V8.1 is expliciet: sociale indicatoren (literacy, awareness, anonymization) beïnvloeden de risicoscore <em>niet</em>. De pagina heeft wel een disclaimer ("Niet voor risicoscore"), maar dit staat onderaan en is visueel te subtiel. Aanbeveling: label het paginakader prominent als <em>Interventielaag — geen scorecomponent</em> zodat geen verwarring ontstaat bij DPO of management.</div>
+        </div>
+        <span class="prio-badge p-midden">Midden</span>
+      </div>
+
+      <div class="finding">
+        <div class="finding-icon icon-ok">✓</div>
+        <div class="finding-body">
+          <div class="finding-cat">Correct aanwezig</div>
+          <div class="finding-text">Awareness-variabelen correct gedekt: <code>data_awareness</code>, <code>extension_awareness</code>, <code>processing_output</code>, <code>ai_skill_level</code></div>
+          <div class="finding-detail">De zes awareness-gaps en vier literacy-niveaus sluiten correct aan op de V8.1 governance-indicatoren. <code>automation_awareness</code> is aanwezig, <code>anonymization_behavior_code</code> is geïmpliceerd via de anonimisering-gap. Innovation signals en ambassadeurslogica zijn ook aanwezig.</div>
+        </div>
+        <span class="prio-badge s-ok">Correct</span>
+      </div>
+
+      <div class="finding">
+        <div class="finding-icon icon-info">○</div>
+        <div class="finding-body">
+          <div class="finding-cat">Dekkingsaudit — laag</div>
+          <div class="finding-text"><code>anonymization_behavior_code</code> niet als expliciete variabele zichtbaar — alleen als gap-label</div>
+          <div class="finding-detail">V8.1 noemt <code>anonymization_behavior_code</code> als aparte awareness-indicator. In de huidige implementatie zit dit verwerkt in de Data-onzekerheid-gap. Voor auditbaarheid is een expliciete verwijzing naar de variabele-code wenselijk — ook voor koppeling aan de database en exports.</div>
+        </div>
+        <span class="prio-badge p-laag">Laag</span>
+      </div>
+
+      <div class="finding">
+        <div class="finding-icon icon-info">○</div>
+        <div class="finding-body">
+          <div class="finding-cat">Dekkingsaudit — laag</div>
+          <div class="finding-text">Stakeholder-output aanwezig maar <code>top_concern_code</code> en <code>preference_reason_code</code> ontbreken als expliciete signalen</div>
+          <div class="finding-detail">V8.1 omschrijft <code>survey_top_concern</code> en <code>survey_tool_preference_reason</code> als expliciete multi-select outputs. Governance bevat wel een innovatie- en niet-gebruik-sectie, maar de zorgcodes per medewerker zijn niet terug te vinden als geaggregeerd signaal.</div>
+        </div>
+        <span class="prio-badge p-laag">Laag</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ PAGINA 05 RAPPORTAGE ═══ -->
+  <div class="page-section">
+    <div class="page-header">
+      <div class="page-header-left">
+        <div class="page-num">Pagina 05</div>
+        <div class="page-title">Rapportage</div>
+      </div>
+      <div class="page-verdict">
+        <span class="verdict-badge s-err">Groot hiaat</span>
+        <span class="verdict-score">2 hoog · 2 midden · 1 laag</span>
+      </div>
+    </div>
+
+    <div class="findings">
+
+      <div class="finding">
+        <div class="finding-icon icon-err">✕</div>
+        <div class="finding-body">
+          <div class="finding-cat">Dekkingsaudit — hoog</div>
+          <div class="finding-text">Interventie-roadmap volledig afwezig: geen agenda-structuur per risicopatroon</div>
+          <div class="finding-detail">V8.1 vereist de interventie-roadmap als expliciet output-element van de rapportage. Vier agenda's: discovery (shadow hoog, exposure laag), training (shadow laag, exposure hoog), interventie (beide hoog), juridisch (EU AI Act-signaal aanwezig). De pagina bevat sjablonen en exports, maar geen roadmap-blok. Dit is het grootste enkelvoudige hiaat in het dashboard.</div>
+        </div>
+        <span class="prio-badge p-hoog">Hoog</span>
+      </div>
+
+      <div class="finding">
+        <div class="finding-icon icon-err">✕</div>
+        <div class="finding-body">
+          <div class="finding-cat">Dekkingsaudit — hoog</div>
+          <div class="finding-text">Innovation opportunities volledig afwezig op Rapportage</div>
+          <div class="finding-detail">V8.1 noemt expliciet: toekomstige use-cases (<code>future_usecases_text</code>), ontbrekende interne alternatieven (<code>preference_reason_code</code>), en ambassadeurslijst (<code>consent_ambassador</code> + <code>ambassador_email</code>) als outputonderdelen van de rapportage. Geen van deze elementen is aanwezig. Dit is input voor IT-roadmap en management — niet alleen voor DPO.</div>
+        </div>
+        <span class="prio-badge p-hoog">Hoog</span>
+      </div>
+
+      <div class="finding">
+        <div class="finding-icon icon-warn">△</div>
+        <div class="finding-body">
+          <div class="finding-cat">Dekkingsaudit — midden</div>
+          <div class="finding-text">Review trigger codes aanwezig in de reviewlijst maar niet als exportveld</div>
+          <div class="finding-detail">De <code>review_trigger</code>-referentie staat in het sjabloon, maar het audit-export-pakket bevat geen kolom <code>review_trigger_codes[]</code>. V8.1 vereist dat exports de triggercodes bevatten voor herleidbaarheid. Een DPO die later wordt bevraagd over een besluit, moet de triggercode in het exportbestand kunnen terugvinden.</div>
+        </div>
+        <span class="prio-badge p-midden">Midden</span>
+      </div>
+
+      <div class="finding">
+        <div class="finding-icon icon-ok">✓</div>
+        <div class="finding-body">
+          <div class="finding-cat">Correct aanwezig</div>
+          <div class="finding-text"><code>scoring_config</code> en reviewdrempel correct zichtbaar en configureerbaar</div>
+          <div class="finding-detail">De Rapportage-pagina toont als enige pagina expliciet de actieve <code>scoring_config V8.1</code>, de reviewdrempel als slider met feedbacktekst bij hoge/lage waarden, en een minimale celgrootteinstelling. Dit is het sterkste configuratie-element in het dashboard. Het scoredrempel-model is hier het meest volledig geïmplementeerd.</div>
+        </div>
+        <span class="prio-badge s-ok">Correct</span>
+      </div>
+
+      <div class="finding">
+        <div class="finding-icon icon-warn">△</div>
+        <div class="finding-body">
+          <div class="finding-cat">Integriteitscheck — midden</div>
+          <div class="finding-text">Auditpakket bevat geen <code>scoring_config_id</code> snapshot als exportveld</div>
+          <div class="finding-detail">V8.1 stelt: schrijf bij scoring de gebruikte drempel terug via <code>scoring_config_id</code> en de <code>*_threshold_used</code>-velden zodat een latere drempelwijziging historische scores niet stilzwijgend verandert. Het exportsjabloon op Rapportage verwijst naar de actieve config maar bevat geen veld voor de historische snapshot. Dit maakt het auditpakket onvolledig voor latere vergelijking.</div>
+        </div>
+        <span class="prio-badge p-midden">Midden</span>
+      </div>
+
+      <div class="finding">
+        <div class="finding-icon icon-info">○</div>
+        <div class="finding-body">
+          <div class="finding-cat">Dekkingsaudit — laag</div>
+          <div class="finding-text">Stakeholder-templates aanwezig (DPO, management, HR) maar IT/innovatie ontbreekt</div>
+          <div class="finding-detail">V8.1 beschrijft vier stakeholder-lagen: projectgroep/management, DPO/security, HR/L&D, én IT/innovatie. De rapportagepagina heeft sjablonen voor management en DPO, maar niet voor IT/innovatie. Dat is juist de ontvanger van de innovation opportunities en business cases voor licenties.</div>
+        </div>
+        <span class="prio-badge p-laag">Laag</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ HEATMAP OVERZICHT ═══ -->
+  <div class="sec-divider">
+    <div class="sec-divider-line"></div>
+    <div class="sec-divider-label">Prioriteitsmap — alle bevindingen gesorteerd</div>
+    <div class="sec-divider-line"></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:48px">
+    <div>
+      <p style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--red);margin-bottom:10px">Hoge prioriteit — direct aanscherpen</p>
+      <div>
+        <div class="heat-row">
+          <div class="heat-label">Account labels Tool Inv.</div>
+          <div class="heat-bar"><div class="heat-fill" style="width:100%;background:var(--red)"></div></div>
+          <div class="heat-val" style="color:var(--red)">P1</div>
+        </div>
+        <div class="heat-row">
+          <div class="heat-label">Discovery queue Tool Inv.</div>
+          <div class="heat-bar"><div class="heat-fill" style="width:95%;background:var(--red)"></div></div>
+          <div class="heat-val" style="color:var(--red)">P1</div>
+        </div>
+        <div class="heat-row">
+          <div class="heat-label">Priority_score in matrix</div>
+          <div class="heat-bar"><div class="heat-fill" style="width:90%;background:var(--red)"></div></div>
+          <div class="heat-val" style="color:var(--red)">P1</div>
+        </div>
+        <div class="heat-row">
+          <div class="heat-label">Interventie-roadmap (alle)</div>
+          <div class="heat-bar"><div class="heat-fill" style="width:88%;background:var(--red)"></div></div>
+          <div class="heat-val" style="color:var(--red)">P1</div>
+        </div>
+        <div class="heat-row">
+          <div class="heat-label">Trigger codes in triage</div>
+          <div class="heat-bar"><div class="heat-fill" style="width:85%;background:var(--red)"></div></div>
+          <div class="heat-val" style="color:var(--red)">P1</div>
+        </div>
+        <div class="heat-row">
+          <div class="heat-label">Shadow-definitie verfijnen</div>
+          <div class="heat-bar"><div class="heat-fill" style="width:82%;background:var(--red)"></div></div>
+          <div class="heat-val" style="color:var(--red)">P1</div>
+        </div>
+        <div class="heat-row">
+          <div class="heat-label">Innovation opp. Rapportage</div>
+          <div class="heat-bar"><div class="heat-fill" style="width:80%;background:var(--red)"></div></div>
+          <div class="heat-val" style="color:var(--red)">P1</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:10px">Midden prioriteit — volgende sprint</p>
+      <div>
+        <div class="heat-row">
+          <div class="heat-label">EU AI Act framing Tool Inv.</div>
+          <div class="heat-bar"><div class="heat-fill" style="width:75%;background:var(--amber)"></div></div>
+          <div class="heat-val" style="color:var(--amber)">P2</div>
+        </div>
+        <div class="heat-row">
+          <div class="heat-label">Celgrootte n&lt;5 Tool Inv.</div>
+          <div class="heat-bar"><div class="heat-fill" style="width:70%;background:var(--amber)"></div></div>
+          <div class="heat-val" style="color:var(--amber)">P2</div>
+        </div>
+        <div class="heat-row">
+          <div class="heat-label">Drempel als config-instelling</div>
+          <div class="heat-bar"><div class="heat-fill" style="width:65%;background:var(--amber)"></div></div>
+          <div class="heat-val" style="color:var(--amber)">P2</div>
+        </div>
+        <div class="heat-row">
+          <div class="heat-label">Datatype-framing heatmap</div>
+          <div class="heat-bar"><div class="heat-fill" style="width:62%;background:var(--amber)"></div></div>
+          <div class="heat-val" style="color:var(--amber)">P2</div>
+        </div>
+        <div class="heat-row">
+          <div class="heat-label">EU AI in Governance-laag</div>
+          <div class="heat-bar"><div class="heat-fill" style="width:58%;background:var(--amber)"></div></div>
+          <div class="heat-val" style="color:var(--amber)">P2</div>
+        </div>
+        <div class="heat-row">
+          <div class="heat-label">Scoring_config_id in export</div>
+          <div class="heat-bar"><div class="heat-fill" style="width:55%;background:var(--amber)"></div></div>
+          <div class="heat-val" style="color:var(--amber)">P2</div>
+        </div>
+        <div class="heat-row">
+          <div class="heat-label">Sociale indicatoren label</div>
+          <div class="heat-bar"><div class="heat-fill" style="width:50%;background:var(--amber)"></div></div>
+          <div class="heat-val" style="color:var(--amber)">P2</div>
+        </div>
+        <div class="heat-row">
+          <div class="heat-label">Trigger codes in export</div>
+          <div class="heat-bar"><div class="heat-fill" style="width:48%;background:var(--amber)"></div></div>
+          <div class="heat-val" style="color:var(--amber)">P2</div>
+        </div>
+        <div class="heat-row">
+          <div class="heat-label">Interventie na combinaties</div>
+          <div class="heat-bar"><div class="heat-fill" style="width:45%;background:var(--amber)"></div></div>
+          <div class="heat-val" style="color:var(--amber)">P2</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ GEORDENDE ACTIE-LIJST ═══ -->
+  <div class="sec-divider">
+    <div class="sec-divider-line"></div>
+    <div class="sec-divider-label">Geordende actie-lijst — aanbevolen volgorde</div>
+    <div class="sec-divider-line"></div>
+  </div>
+
+  <div class="action-list" style="margin-bottom:48px">
+    <div class="action-item">
+      <div class="action-num">01</div>
+      <div class="action-text"><strong>Account labels corrigeren op Tool Inventaris.</strong> Splits <code>Privéaccount</code> in <code>Privé gratis</code> en <code>Privé betaald</code>. Dit is de meest fundamentele datafout — de account_multiplier (1.4× vs 1.8×) hangt hier volledig van af. Sankey en DPO-matrix meteen meenemen.</div>
+      <div class="action-page">Pagina 02</div>
+    </div>
+    <div class="action-item">
+      <div class="action-num">02</div>
+      <div class="action-text"><strong>Discovery queue toevoegen aan Tool Inventaris.</strong> Toon tools met <code>newly_discovered</code> status apart, met <code>first_seen_at</code> datum en doorstroom naar beheerwachtrij. Dit zijn de shadow_base=20 gevallen die nu onzichtbaar zijn in de shadowratio.</div>
+      <div class="action-page">Pagina 02</div>
+    </div>
+    <div class="action-item">
+      <div class="action-num">03</div>
+      <div class="action-text"><strong>Interventie-roadmap bouwen</strong> — één blok, vier agenda's (discovery / training / interventie / juridisch) die voeden vanuit patroontype. Op Risicoprofiel als drawer-tab per cluster, op Governance na combinatiesignalen, op Rapportage als exporteerbaar blok.</div>
+      <div class="action-page">03 · 04 · 05</div>
+    </div>
+    <div class="action-item">
+      <div class="action-num">04</div>
+      <div class="action-text"><strong>Review trigger codes zichtbaar maken in de triage-tabel</strong> van Risicoprofiel. Elke rij krijgt de actieve <code>review_trigger_codes[]</code> als tags: <code>prohibited_tool</code>, <code>hr_evaluation_context</code>, etc. Kleine gekleurde tags volstaan — ze maken DPO-actie uitlegbaar.</div>
+      <div class="action-page">Pagina 03</div>
+    </div>
+    <div class="action-item">
+      <div class="action-num">05</div>
+      <div class="action-text"><strong>Shadow-verdeling uitsplitsen in de KPI op Tool Inventaris.</strong> Naast de shadow-ratio: toon de verdeling <code>newly_discovered / restricted / prohibited</code> als mini-balk of tabel. Zo ziet de DPO of shadow gedreven wordt door echt verboden tools of door nog niet beoordeelde tools.</div>
+      <div class="action-page">Pagina 02</div>
+    </div>
+    <div class="action-item">
+      <div class="action-num">06</div>
+      <div class="action-text"><strong>Innovation opportunities toevoegen aan Rapportage.</strong> Drie compacte elementen: gewenste toekomstige use-cases (<code>future_usecases_text</code>), top barrières (<code>preference_reason_code</code>), ambassadeurslijst (<code>consent_ambassador</code>). Input voor IT-roadmap en management — nu volledig afwezig op Rapportage.</div>
+      <div class="action-page">Pagina 05</div>
+    </div>
+    <div class="action-item">
+      <div class="action-num">07</div>
+      <div class="action-text"><strong>DPO-matrix sortering corrigeren naar echte priority_score.</strong> Huidige sortering op "Kritikaliteit x privéaccount x shadow" is geen V8.1-formule. Vervang door: <code>0.45 × shadow + 0.45 × exposure + boosts</code>. Voeg exposure-as toe als tweede sorteerdimensie.</div>
+      <div class="action-page">Pagina 02</div>
+    </div>
+    <div class="action-item">
+      <div class="action-num">08</div>
+      <div class="action-text"><strong>Drempel zichtbaar als configureerbare organisatie-instelling</strong> op Risicoprofiel (nu alleen hardcoded JS). Voeg toe: <em>"Reviewdrempel: 40 (organisatie-instelling)"</em> als subtiel badge bij de triage-header, met tooltip naar scan_scoring_config.</div>
+      <div class="action-page">Pagina 03</div>
+    </div>
+    <div class="action-item">
+      <div class="action-num">09</div>
+      <div class="action-text"><strong>EU AI Act potentieel signaal-laag toevoegen aan Governance</strong> als DPO-only blok. Gebruik exact label <em>Potentieel governance-signaal</em>. Verwijder of corrigeer de matrix-header op Tool Inventaris die een hardere indruk wekt dan V8.1 toestaat.</div>
+      <div class="action-page">02 · 04</div>
+    </div>
+    <div class="action-item">
+      <div class="action-num">10</div>
+      <div class="action-text"><strong><code>scoring_config_id</code> snapshot toevoegen aan auditpakket-export</strong> op Rapportage. Elk geëxporteerd reviewitem moet de actieve <code>scoring_config_id</code>, <code>priority_review_threshold_used</code> en <code>toxic_*_threshold_used</code> bevatten zodat historische scores niet veranderen bij drempelwijziging.</div>
+      <div class="action-page">Pagina 05</div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="doc-footer">
+    <p class="footer-note">Audit gebaseerd op: database-schema-shadow-ai · Shadow_AI_Scan_Scoring_V8_1 · B2_SCAN_SPEC_V2 · B8_SCAN_MIGRATIE_EN_BOUWPLAN. Alle bevindingen zijn geverifieerd in de bronbestanden. Terminologiecheck uitgevoerd op letterlijk patroonmatch in HTML. Methodologische beoordeling op basis van V8.1-scoreformule en outputscope zoals vastgelegd in de canondocumenten.</p>
+    <div class="footer-meta">
+      Shadow AI Scan<br>
+      V8.1 Compliance Audit<br>
+      4 pagina's · 22 bevindingen
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

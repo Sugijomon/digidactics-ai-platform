@@ -1,0 +1,42 @@
+[
+  {
+    "code": "prohibited_tool",
+    "label": "Tool niet toegestaan",
+    "description": "shadow_base = 80"
+  },
+  {
+    "code": "agentic_usage",
+    "label": "Agentisch gebruik",
+    "description": "Altijd trigger, ook bij goedgekeurde too…[truncated]"
+  },
+  {
+    "code": "automation_unmanaged",
+    "label": "Onbeheerde automatisering",
+    "description": "automation aanwezig en shadow_base > 0"
+  },
+  {
+    "code": "extension_unmanaged",
+    "label": "Onbeheerde browserextensie",
+    "description": "extensie aanwezig en shadow_base > 0"
+  },
+  {
+    "code": "special_category_data",
+    "label": "Bijzondere persoonsgegevens",
+    "description": "shadow_base = 0 en data_boost = +30"
+  },
+  {
+    "code": "hr_evaluation_context",
+    "label": "HR-evaluatiecontext",
+    "description": "context hr_evaluatie"
+  },
+  {
+    "code": "priority_threshold",
+    "label": "Prioriteitsdrempel overschreden",
+    "description": "priority_score >= configureerbare drempe…[truncated]"
+  },
+  {
+    "code": "manual_override",
+    "label": "Handmatige DPO-override",
+    "description": "Expliciet ingesteld door DPO"
+  }
+]

@@ -1,0 +1,517 @@
+_legacy_tools_catalog	2200_25786_1_not_null	CHECK			
+_legacy_tools_catalog	2200_25786_2_not_null	CHECK			
+_legacy_tools_catalog	2200_25786_3_not_null	CHECK			
+_legacy_tools_catalog	tools_catalog_org_id_fkey	FOREIGN KEY	org_id		
+_legacy_tools_catalog	tools_catalog_tool_id_fkey	FOREIGN KEY	tool_id		
+_legacy_tools_catalog	tools_catalog_pkey	PRIMARY KEY	id		
+_legacy_tools_catalog	tools_catalog_org_id_tool_id_key	UNIQUE	tool_id		
+_legacy_tools_catalog	tools_catalog_org_id_tool_id_key	UNIQUE	org_id		
+admin_audit_log	2200_92603_11_not_null	CHECK			
+admin_audit_log	2200_92603_1_not_null	CHECK			
+admin_audit_log	2200_92603_2_not_null	CHECK			
+admin_audit_log	2200_92603_3_not_null	CHECK			
+admin_audit_log	2200_92603_4_not_null	CHECK			
+admin_audit_log	2200_92603_5_not_null	CHECK			
+admin_audit_log	admin_audit_log_pkey	PRIMARY KEY	id		
+archetype_ml_map	2200_89965_1_not_null	CHECK			
+archetype_ml_map	2200_89965_2_not_null	CHECK			
+archetype_ml_map	2200_89965_3_not_null	CHECK			
+archetype_ml_map	archetype_ml_map_library_item_id_fkey	FOREIGN KEY	library_item_id		
+archetype_ml_map	archetype_ml_map_pkey	PRIMARY KEY	id		
+archetype_ml_map	archetype_ml_map_archetype_code_key	UNIQUE	archetype_code		
+assessment_ml_assignments	2200_89992_1_not_null	CHECK			
+assessment_ml_assignments	2200_89992_2_not_null	CHECK			
+assessment_ml_assignments	2200_89992_3_not_null	CHECK			
+assessment_ml_assignments	2200_89992_4_not_null	CHECK			
+assessment_ml_assignments	2200_89992_5_not_null	CHECK			
+assessment_ml_assignments	2200_89992_7_not_null	CHECK			
+assessment_ml_assignments	assessment_ml_assignments_assessment_id_fkey	FOREIGN KEY	assessment_id		
+assessment_ml_assignments	assessment_ml_assignments_library_item_id_fkey	FOREIGN KEY	library_item_id		
+assessment_ml_assignments	assessment_ml_assignments_user_id_fkey	FOREIGN KEY	user_id		
+assessment_ml_assignments	assessment_ml_assignments_pkey	PRIMARY KEY	id		
+assessment_ml_assignments	assessment_ml_assignments_assessment_id_user_id_key	UNIQUE	assessment_id		
+assessment_ml_assignments	assessment_ml_assignments_assessment_id_user_id_key	UNIQUE	user_id		
+assessment_ml_completions	2200_90024_1_not_null	CHECK			
+assessment_ml_completions	2200_90024_2_not_null	CHECK			
+assessment_ml_completions	2200_90024_3_not_null	CHECK			
+assessment_ml_completions	2200_90024_4_not_null	CHECK			
+assessment_ml_completions	2200_90024_5_not_null	CHECK			
+assessment_ml_completions	assessment_ml_completions_assessment_id_fkey	FOREIGN KEY	assessment_id		
+assessment_ml_completions	assessment_ml_completions_library_item_id_fkey	FOREIGN KEY	library_item_id		
+assessment_ml_completions	assessment_ml_completions_user_id_fkey	FOREIGN KEY	user_id		
+assessment_ml_completions	assessment_ml_completions_pkey	PRIMARY KEY	id		
+assessment_ml_completions	assessment_ml_completions_assessment_id_user_id_library_ite_key	UNIQUE	library_item_id		
+assessment_ml_completions	assessment_ml_completions_assessment_id_user_id_library_ite_key	UNIQUE	user_id		
+assessment_ml_completions	assessment_ml_completions_assessment_id_user_id_library_ite_key	UNIQUE	assessment_id		
+assessments	2200_81781_10_not_null	CHECK			
+assessments	2200_81781_12_not_null	CHECK			
+assessments	2200_81781_14_not_null	CHECK			
+assessments	2200_81781_15_not_null	CHECK			
+assessments	2200_81781_16_not_null	CHECK			
+assessments	2200_81781_19_not_null	CHECK			
+assessments	2200_81781_1_not_null	CHECK			
+assessments	2200_81781_20_not_null	CHECK			
+assessments	2200_81781_21_not_null	CHECK			
+assessments	2200_81781_23_not_null	CHECK			
+assessments	2200_81781_26_not_null	CHECK			
+assessments	2200_81781_2_not_null	CHECK			
+assessments	2200_81781_3_not_null	CHECK			
+assessments	2200_81781_4_not_null	CHECK			
+assessments	2200_81781_5_not_null	CHECK			
+assessments	2200_81781_7_not_null	CHECK			
+assessments	2200_81781_8_not_null	CHECK			
+assessments	2200_81781_9_not_null	CHECK			
+assessments	assessments_created_by_fkey	FOREIGN KEY	created_by		
+assessments	assessments_org_id_fkey	FOREIGN KEY	org_id		
+assessments	assessments_reviewer_admin_id_fkey	FOREIGN KEY	reviewer_admin_id		
+assessments	assessments_pkey	PRIMARY KEY	id		
+course_lessons	2200_17572_1_not_null	CHECK			
+course_lessons	2200_17572_4_not_null	CHECK			
+course_lessons	course_lessons_course_id_fkey	FOREIGN KEY	course_id		
+course_lessons	course_lessons_lesson_id_fkey	FOREIGN KEY	lesson_id		
+course_lessons	course_lessons_pkey	PRIMARY KEY	id		
+course_lessons	course_lessons_course_id_lesson_id_key	UNIQUE	course_id		
+course_lessons	course_lessons_course_id_lesson_id_key	UNIQUE	lesson_id		
+course_lessons	course_lessons_course_id_sequence_order_key	UNIQUE	course_id		
+course_lessons	course_lessons_course_id_sequence_order_key	UNIQUE	sequence_order		
+course_lessons	unique_course_lesson	UNIQUE	lesson_id		
+course_lessons	unique_course_lesson	UNIQUE	course_id		
+courses	2200_17557_10_not_null	CHECK			
+courses	2200_17557_1_not_null	CHECK			
+courses	2200_17557_2_not_null	CHECK			
+courses	courses_org_id_fkey	FOREIGN KEY	org_id		
+courses	courses_pkey	PRIMARY KEY	id		
+dpo_notifications	2200_81847_1_not_null	CHECK			
+dpo_notifications	2200_81847_2_not_null	CHECK			
+dpo_notifications	2200_81847_4_not_null	CHECK			
+dpo_notifications	2200_81847_5_not_null	CHECK			
+dpo_notifications	2200_81847_6_not_null	CHECK			
+dpo_notifications	dpo_notifications_actioned_by_fkey	FOREIGN KEY	actioned_by		
+dpo_notifications	dpo_notifications_assessment_id_fkey	FOREIGN KEY	assessment_id		
+dpo_notifications	dpo_notifications_org_id_fkey	FOREIGN KEY	org_id		
+dpo_notifications	dpo_notifications_pkey	PRIMARY KEY	id		
+incidents	2200_90079_1_not_null	CHECK			
+incidents	2200_90079_2_not_null	CHECK			
+incidents	2200_90079_4_not_null	CHECK			
+incidents	2200_90079_5_not_null	CHECK			
+incidents	2200_90079_6_not_null	CHECK			
+incidents	2200_90079_7_not_null	CHECK			
+incidents	2200_90079_9_not_null	CHECK			
+incidents	incidents_output_used_check	CHECK			
+incidents	incidents_assessment_id_fkey	FOREIGN KEY	assessment_id		
+incidents	incidents_dpo_reviewed_by_fkey	FOREIGN KEY	dpo_reviewed_by		
+incidents	incidents_org_id_fkey	FOREIGN KEY	org_id		
+incidents	incidents_reported_by_fkey	FOREIGN KEY	reported_by		
+incidents	incidents_pkey	PRIMARY KEY	id		
+learning_answers	2200_28082_1_not_null	CHECK			
+learning_answers	2200_28082_2_not_null	CHECK			
+learning_answers	2200_28082_3_not_null	CHECK			
+learning_answers	2200_28082_4_not_null	CHECK			
+learning_answers	2200_28082_5_not_null	CHECK			
+learning_answers	learning_answers_lesson_id_fkey	FOREIGN KEY	lesson_id		
+learning_answers	learning_answers_org_id_fkey	FOREIGN KEY	org_id		
+learning_answers	learning_answers_question_id_fkey	FOREIGN KEY	question_id		
+learning_answers	learning_answers_user_id_fkey	FOREIGN KEY	user_id		
+learning_answers	learning_answers_pkey	PRIMARY KEY	id		
+learning_answers	unique_user_question_attempt	UNIQUE	attempt_number		
+learning_answers	unique_user_question_attempt	UNIQUE	user_id		
+learning_answers	unique_user_question_attempt	UNIQUE	question_id		
+learning_catalog	2200_25623_1_not_null	CHECK			
+learning_catalog	2200_25623_2_not_null	CHECK			
+learning_catalog	2200_25623_3_not_null	CHECK			
+learning_catalog	learning_catalog_library_item_id_fkey	FOREIGN KEY	library_item_id		
+learning_catalog	learning_catalog_org_id_fkey	FOREIGN KEY	org_id		
+learning_catalog	learning_catalog_pkey	PRIMARY KEY	id		
+learning_catalog	learning_catalog_org_id_library_item_id_key	UNIQUE	org_id		
+learning_catalog	learning_catalog_org_id_library_item_id_key	UNIQUE	library_item_id		
+learning_catalog	unique_org_library_item	UNIQUE	org_id		
+learning_catalog	unique_org_library_item	UNIQUE	library_item_id		
+learning_library	2200_25590_12_not_null	CHECK			
+learning_library	2200_25590_17_not_null	CHECK			
+learning_library	2200_25590_1_not_null	CHECK			
+learning_library	2200_25590_2_not_null	CHECK			
+learning_library	learning_library_created_by_fkey	FOREIGN KEY	created_by		
+learning_library	learning_library_lesson_id_fkey	FOREIGN KEY	lesson_id		
+learning_library	learning_library_org_id_fkey	FOREIGN KEY	org_id		
+learning_library	learning_library_pkey	PRIMARY KEY	id		
+learning_questions	2200_28047_1_not_null	CHECK			
+learning_questions	2200_28047_3_not_null	CHECK			
+learning_questions	2200_28047_4_not_null	CHECK			
+learning_questions	2200_28047_5_not_null	CHECK			
+learning_questions	2200_28047_6_not_null	CHECK			
+learning_questions	2200_28047_9_not_null	CHECK			
+learning_questions	learning_questions_points_check	CHECK			
+learning_questions	learning_questions_created_by_fkey	FOREIGN KEY	created_by		
+learning_questions	learning_questions_lesson_id_fkey	FOREIGN KEY	lesson_id		
+learning_questions	learning_questions_org_id_fkey	FOREIGN KEY	org_id		
+learning_questions	learning_questions_pkey	PRIMARY KEY	id		
+lesson_attempts	2200_22161_10_not_null	CHECK			
+lesson_attempts	2200_22161_12_not_null	CHECK			
+lesson_attempts	2200_22161_1_not_null	CHECK			
+lesson_attempts	2200_22161_2_not_null	CHECK			
+lesson_attempts	2200_22161_3_not_null	CHECK			
+lesson_attempts	2200_22161_4_not_null	CHECK			
+lesson_attempts	lesson_attempts_lesson_id_fkey	FOREIGN KEY	lesson_id		
+lesson_attempts	lesson_attempts_org_id_fkey	FOREIGN KEY	org_id		
+lesson_attempts	lesson_attempts_pkey	PRIMARY KEY	id		
+lesson_attempts	unique_user_lesson_attempt	UNIQUE	attempt_number		
+lesson_attempts	unique_user_lesson_attempt	UNIQUE	user_id		
+lesson_attempts	unique_user_lesson_attempt	UNIQUE	lesson_id		
+lessons	2200_17537_12_not_null	CHECK			
+lessons	2200_17537_1_not_null	CHECK			
+lessons	2200_17537_2_not_null	CHECK			
+lessons	2200_17537_4_not_null	CHECK			
+lessons	2200_17537_5_not_null	CHECK			
+lessons	lessons_created_by_fkey	FOREIGN KEY	created_by		
+lessons	lessons_org_id_fkey	FOREIGN KEY	org_id		
+lessons	lessons_pkey	PRIMARY KEY	id		
+model_typekaart_updates	2200_87653_1_not_null	CHECK			
+model_typekaart_updates	2200_87653_2_not_null	CHECK			
+model_typekaart_updates	2200_87653_3_not_null	CHECK			
+model_typekaart_updates	model_typekaart_updates_approved_by_fkey	FOREIGN KEY	approved_by		
+model_typekaart_updates	model_typekaart_updates_typekaart_id_fkey	FOREIGN KEY	typekaart_id		
+model_typekaart_updates	model_typekaart_updates_pkey	PRIMARY KEY	id		
+model_typekaarten	2200_87623_1_not_null	CHECK			
+model_typekaarten	2200_87623_2_not_null	CHECK			
+model_typekaarten	2200_87623_3_not_null	CHECK			
+model_typekaarten	2200_87623_4_not_null	CHECK			
+model_typekaarten	2200_87623_5_not_null	CHECK			
+model_typekaarten	model_typekaarten_created_by_fkey	FOREIGN KEY	created_by		
+model_typekaarten	model_typekaarten_pkey	PRIMARY KEY	id		
+model_typekaarten	model_typekaarten_canonical_id_key	UNIQUE	canonical_id		
+org_notifications	2200_90327_11_not_null	CHECK			
+org_notifications	2200_90327_1_not_null	CHECK			
+org_notifications	2200_90327_2_not_null	CHECK			
+org_notifications	2200_90327_3_not_null	CHECK			
+org_notifications	2200_90327_4_not_null	CHECK			
+org_notifications	2200_90327_5_not_null	CHECK			
+org_notifications	2200_90327_8_not_null	CHECK			
+org_notifications	org_notifications_org_id_fkey	FOREIGN KEY	org_id		
+org_notifications	org_notifications_read_by_fkey	FOREIGN KEY	read_by		
+org_notifications	org_notifications_pkey	PRIMARY KEY	id		
+org_tool_policy	2200_101809_1_not_null	CHECK			
+org_tool_policy	2200_101809_2_not_null	CHECK			
+org_tool_policy	2200_101809_3_not_null	CHECK			
+org_tool_policy	2200_101809_4_not_null	CHECK			
+org_tool_policy	org_tool_policy_org_id_fkey	FOREIGN KEY	org_id		
+org_tool_policy	org_tool_policy_pkey	PRIMARY KEY	org_id		
+org_tool_policy	org_tool_policy_pkey	PRIMARY KEY	tool_code		
+org_tools_catalog	2200_83062_1_not_null	CHECK			
+org_tools_catalog	2200_83062_2_not_null	CHECK			
+org_tools_catalog	2200_83062_3_not_null	CHECK			
+org_tools_catalog	2200_83062_4_not_null	CHECK			
+org_tools_catalog	org_tools_catalog_org_id_fkey	FOREIGN KEY	org_id		
+org_tools_catalog	org_tools_catalog_override_acknowledged_by_fkey	FOREIGN KEY	override_acknowledged_by		
+org_tools_catalog	org_tools_catalog_pkey	PRIMARY KEY	id		
+org_tools_catalog	org_tools_catalog_org_id_tool_name_key	UNIQUE	org_id		
+org_tools_catalog	org_tools_catalog_org_id_tool_name_key	UNIQUE	tool_name		
+organizations	2200_24395_1_not_null	CHECK			
+organizations	2200_24395_21_not_null	CHECK			
+organizations	2200_24395_23_not_null	CHECK			
+organizations	2200_24395_24_not_null	CHECK			
+organizations	2200_24395_2_not_null	CHECK			
+organizations	organizations_plan_type_check	CHECK			
+organizations	organizations_status_check	CHECK			
+organizations	organizations_subscription_type_check	CHECK			
+organizations	organizations_pkey	PRIMARY KEY	id		
+organizations	organizations_scoreboard_slug_key	UNIQUE	scoreboard_slug		
+organizations	organizations_slug_key	UNIQUE	slug		
+passport_identity	2200_90127_1_not_null	CHECK			
+passport_identity	2200_90127_2_not_null	CHECK			
+passport_identity	passport_identity_org_id_fkey	FOREIGN KEY	org_id		
+passport_identity	passport_identity_pkey	PRIMARY KEY	id		
+passport_identity	passport_identity_org_id_key	UNIQUE	org_id		
+profiles	2200_17518_12_not_null	CHECK			
+profiles	2200_17518_13_not_null	CHECK			
+profiles	2200_17518_14_not_null	CHECK			
+profiles	2200_17518_1_not_null	CHECK			
+profiles	2200_17518_9_not_null	CHECK			
+profiles	profiles_id_fkey	FOREIGN KEY	id		
+profiles	profiles_org_id_fkey	FOREIGN KEY	org_id		
+profiles	profiles_pkey	PRIMARY KEY	id		
+ref_account_type	2200_101841_1_not_null	CHECK			
+ref_account_type	2200_101841_2_not_null	CHECK			
+ref_account_type	ref_account_type_pkey	PRIMARY KEY	code		
+ref_ai_frequency	2200_101831_1_not_null	CHECK			
+ref_ai_frequency	2200_101831_2_not_null	CHECK			
+ref_ai_frequency	2200_101831_3_not_null	CHECK			
+ref_ai_frequency	ref_ai_frequency_pkey	PRIMARY KEY	code		
+ref_catalog_beheerstatus	2200_101874_1_not_null	CHECK			
+ref_catalog_beheerstatus	2200_101874_2_not_null	CHECK			
+ref_catalog_beheerstatus	ref_catalog_beheerstatus_pkey	PRIMARY KEY	code		
+ref_context	2200_101858_1_not_null	CHECK			
+ref_context	2200_101858_2_not_null	CHECK			
+ref_context	2200_101858_3_not_null	CHECK			
+ref_context	ref_context_pkey	PRIMARY KEY	code		
+ref_data_type	2200_101846_1_not_null	CHECK			
+ref_data_type	2200_101846_2_not_null	CHECK			
+ref_data_type	2200_101846_3_not_null	CHECK			
+ref_data_type	ref_data_type_pkey	PRIMARY KEY	code		
+ref_department	2200_102340_1_not_null	CHECK			
+ref_department	2200_102340_2_not_null	CHECK			
+ref_department	2200_102340_3_not_null	CHECK			
+ref_department	ref_department_pkey	PRIMARY KEY	code		
+ref_eu_ai_act_flag	2200_101869_1_not_null	CHECK			
+ref_eu_ai_act_flag	2200_101869_2_not_null	CHECK			
+ref_eu_ai_act_flag	ref_eu_ai_act_flag_pkey	PRIMARY KEY	code		
+ref_governance_flag	2200_101886_1_not_null	CHECK			
+ref_governance_flag	2200_101886_2_not_null	CHECK			
+ref_governance_flag	ref_governance_flag_pkey	PRIMARY KEY	code		
+ref_no_ai_reason	2200_101836_1_not_null	CHECK			
+ref_no_ai_reason	2200_101836_2_not_null	CHECK			
+ref_no_ai_reason	ref_no_ai_reason_pkey	PRIMARY KEY	code		
+ref_org_policy_status	2200_101864_1_not_null	CHECK			
+ref_org_policy_status	2200_101864_2_not_null	CHECK			
+ref_org_policy_status	2200_101864_3_not_null	CHECK			
+ref_org_policy_status	ref_org_policy_status_pkey	PRIMARY KEY	code		
+ref_review_trigger	2200_101879_1_not_null	CHECK			
+ref_review_trigger	2200_101879_2_not_null	CHECK			
+ref_review_trigger	ref_review_trigger_pkey	PRIMARY KEY	code		
+ref_use_case	2200_101852_1_not_null	CHECK			
+ref_use_case	2200_101852_2_not_null	CHECK			
+ref_use_case	2200_101852_3_not_null	CHECK			
+ref_use_case	ref_use_case_pkey	PRIMARY KEY	code		
+rijbewijs_records	2200_75690_1_not_null	CHECK			
+rijbewijs_records	2200_75690_2_not_null	CHECK			
+rijbewijs_records	2200_75690_5_not_null	CHECK			
+rijbewijs_records	2200_75690_7_not_null	CHECK			
+rijbewijs_records	rijbewijs_records_status_check	CHECK			
+rijbewijs_records	rijbewijs_records_lesson_attempt_id_fkey	FOREIGN KEY	lesson_attempt_id		
+rijbewijs_records	rijbewijs_records_org_id_fkey	FOREIGN KEY	org_id		
+rijbewijs_records	rijbewijs_records_user_id_fkey	FOREIGN KEY	user_id		
+rijbewijs_records	rijbewijs_records_pkey	PRIMARY KEY	id		
+rijbewijs_records	rijbewijs_records_user_id_key	UNIQUE	user_id		
+risk_result	2200_102235_13_not_null	CHECK			
+risk_result	2200_102235_15_not_null	CHECK			
+risk_result	2200_102235_1_not_null	CHECK			
+risk_result	2200_102235_3_not_null	CHECK			
+risk_result	2200_102235_4_not_null	CHECK			
+risk_result	2200_102235_5_not_null	CHECK			
+risk_result	2200_102235_6_not_null	CHECK			
+risk_result	2200_102235_7_not_null	CHECK			
+risk_result	risk_result_survey_run_id_fkey	FOREIGN KEY	survey_run_id		
+risk_result	risk_result_pkey	PRIMARY KEY	survey_run_id		
+risk_result_tool	2200_102254_10_not_null	CHECK			
+risk_result_tool	2200_102254_11_not_null	CHECK			
+risk_result_tool	2200_102254_12_not_null	CHECK			
+risk_result_tool	2200_102254_13_not_null	CHECK			
+risk_result_tool	2200_102254_14_not_null	CHECK			
+risk_result_tool	2200_102254_15_not_null	CHECK			
+risk_result_tool	2200_102254_16_not_null	CHECK			
+risk_result_tool	2200_102254_17_not_null	CHECK			
+risk_result_tool	2200_102254_18_not_null	CHECK			
+risk_result_tool	2200_102254_19_not_null	CHECK			
+risk_result_tool	2200_102254_1_not_null	CHECK			
+risk_result_tool	2200_102254_25_not_null	CHECK			
+risk_result_tool	2200_102254_2_not_null	CHECK			
+risk_result_tool	2200_102254_3_not_null	CHECK			
+risk_result_tool	2200_102254_4_not_null	CHECK			
+risk_result_tool	2200_102254_5_not_null	CHECK			
+risk_result_tool	2200_102254_6_not_null	CHECK			
+risk_result_tool	2200_102254_7_not_null	CHECK			
+risk_result_tool	2200_102254_8_not_null	CHECK			
+risk_result_tool	2200_102254_9_not_null	CHECK			
+risk_result_tool	risk_result_tool_scoring_config_id_fkey	FOREIGN KEY	scoring_config_id		
+risk_result_tool	risk_result_tool_survey_run_id_fkey	FOREIGN KEY	survey_run_id		
+risk_result_tool	risk_result_tool_survey_tool_id_fkey	FOREIGN KEY	survey_tool_id		
+risk_result_tool	risk_result_tool_pkey	PRIMARY KEY	survey_tool_id		
+risk_result_tool	risk_result_tool_pkey	PRIMARY KEY	survey_run_id		
+scan_scoring_config	2200_102209_12_not_null	CHECK			
+scan_scoring_config	2200_102209_13_not_null	CHECK			
+scan_scoring_config	2200_102209_1_not_null	CHECK			
+scan_scoring_config	2200_102209_2_not_null	CHECK			
+scan_scoring_config	2200_102209_4_not_null	CHECK			
+scan_scoring_config	2200_102209_5_not_null	CHECK			
+scan_scoring_config	2200_102209_6_not_null	CHECK			
+scan_scoring_config	2200_102209_7_not_null	CHECK			
+scan_scoring_config	2200_102209_8_not_null	CHECK			
+scan_scoring_config	2200_102209_9_not_null	CHECK			
+scan_scoring_config	scan_scoring_config_org_id_fkey	FOREIGN KEY	org_id		
+scan_scoring_config	scan_scoring_config_wave_id_fkey	FOREIGN KEY	wave_id		
+scan_scoring_config	scan_scoring_config_pkey	PRIMARY KEY	id		
+shadow_survey_runs	2200_75725_1_not_null	CHECK			
+shadow_survey_runs	2200_75725_2_not_null	CHECK			
+shadow_survey_runs	2200_75725_4_not_null	CHECK			
+shadow_survey_runs	shadow_survey_runs_ai_maturity_score_check	CHECK			
+shadow_survey_runs	shadow_survey_runs_org_id_fkey	FOREIGN KEY	org_id		
+shadow_survey_runs	shadow_survey_runs_user_id_fkey	FOREIGN KEY	user_id		
+shadow_survey_runs	shadow_survey_runs_pkey	PRIMARY KEY	id		
+survey_data_type	2200_102026_1_not_null	CHECK			
+survey_data_type	2200_102026_2_not_null	CHECK			
+survey_data_type	survey_data_type_survey_run_id_fkey	FOREIGN KEY	survey_run_id		
+survey_data_type	survey_data_type_pkey	PRIMARY KEY	data_type_code		
+survey_data_type	survey_data_type_pkey	PRIMARY KEY	survey_run_id		
+survey_invite	2200_101946_1_not_null	CHECK			
+survey_invite	2200_101946_3_not_null	CHECK			
+survey_invite	2200_101946_4_not_null	CHECK			
+survey_invite	2200_101946_7_not_null	CHECK			
+survey_invite	2200_101946_9_not_null	CHECK			
+survey_invite	survey_invite_org_id_fkey	FOREIGN KEY	org_id		
+survey_invite	survey_invite_wave_id_fkey	FOREIGN KEY	wave_id		
+survey_invite	survey_invite_pkey	PRIMARY KEY	id		
+survey_invite	survey_invite_org_id_email_key	UNIQUE	org_id		
+survey_invite	survey_invite_org_id_email_key	UNIQUE	email		
+survey_motivation	2200_102016_1_not_null	CHECK			
+survey_motivation	2200_102016_2_not_null	CHECK			
+survey_motivation	survey_motivation_survey_run_id_fkey	FOREIGN KEY	survey_run_id		
+survey_motivation	survey_motivation_pkey	PRIMARY KEY	survey_run_id		
+survey_motivation	survey_motivation_pkey	PRIMARY KEY	motivation_code		
+survey_participation	2200_101969_1_not_null	CHECK			
+survey_participation	survey_participation_invite_id_fkey	FOREIGN KEY	invite_id		
+survey_participation	survey_participation_survey_run_id_fkey	FOREIGN KEY	survey_run_id		
+survey_participation	survey_participation_pkey	PRIMARY KEY	invite_id		
+survey_profile	2200_102004_1_not_null	CHECK			
+survey_profile	survey_profile_survey_run_id_fkey	FOREIGN KEY	survey_run_id		
+survey_profile	survey_profile_pkey	PRIMARY KEY	survey_run_id		
+survey_run	2200_101923_1_not_null	CHECK			
+survey_run	2200_101923_3_not_null	CHECK			
+survey_run	2200_101923_4_not_null	CHECK			
+survey_run	chk_ambassador	CHECK			
+survey_run	survey_run_org_id_fkey	FOREIGN KEY	org_id		
+survey_run	survey_run_wave_id_fkey	FOREIGN KEY	wave_id		
+survey_run	survey_run_pkey	PRIMARY KEY	id		
+survey_support_need	2200_102124_1_not_null	CHECK			
+survey_support_need	2200_102124_2_not_null	CHECK			
+survey_support_need	survey_support_need_survey_run_id_fkey	FOREIGN KEY	survey_run_id		
+survey_support_need	survey_support_need_pkey	PRIMARY KEY	support_need_code		
+survey_support_need	survey_support_need_pkey	PRIMARY KEY	survey_run_id		
+survey_tool	2200_102036_1_not_null	CHECK			
+survey_tool	2200_102036_2_not_null	CHECK			
+survey_tool	2200_102036_4_not_null	CHECK			
+survey_tool	2200_102036_5_not_null	CHECK			
+survey_tool	survey_tool_survey_run_id_fkey	FOREIGN KEY	survey_run_id		
+survey_tool	survey_tool_pkey	PRIMARY KEY	id		
+survey_tool_account	2200_102094_1_not_null	CHECK			
+survey_tool_account	2200_102094_2_not_null	CHECK			
+survey_tool_account	survey_tool_account_survey_tool_id_fkey	FOREIGN KEY	survey_tool_id		
+survey_tool_account	survey_tool_account_pkey	PRIMARY KEY	survey_tool_id		
+survey_tool_preference_reason	2200_102104_1_not_null	CHECK			
+survey_tool_preference_reason	2200_102104_2_not_null	CHECK			
+survey_tool_preference_reason	survey_tool_preference_reason_survey_run_id_fkey	FOREIGN KEY	survey_run_id		
+survey_tool_preference_reason	survey_tool_preference_reason_pkey	PRIMARY KEY	survey_run_id		
+survey_tool_preference_reason	survey_tool_preference_reason_pkey	PRIMARY KEY	preference_reason_code		
+survey_tool_use_case	2200_102048_1_not_null	CHECK			
+survey_tool_use_case	2200_102048_2_not_null	CHECK			
+survey_tool_use_case	2200_102048_3_not_null	CHECK			
+survey_tool_use_case	survey_tool_use_case_survey_tool_id_fkey	FOREIGN KEY	survey_tool_id		
+survey_tool_use_case	survey_tool_use_case_use_case_code_fkey	FOREIGN KEY	use_case_code		
+survey_tool_use_case	survey_tool_use_case_pkey	PRIMARY KEY	id		
+survey_tool_use_case_context	2200_102064_1_not_null	CHECK			
+survey_tool_use_case_context	2200_102064_2_not_null	CHECK			
+survey_tool_use_case_context	survey_tool_use_case_context_context_code_fkey	FOREIGN KEY	context_code		
+survey_tool_use_case_context	survey_tool_use_case_context_survey_tool_use_case_id_fkey	FOREIGN KEY	survey_tool_use_case_id		
+survey_tool_use_case_context	survey_tool_use_case_context_pkey	PRIMARY KEY	survey_tool_use_case_id		
+survey_tool_use_case_context	survey_tool_use_case_context_pkey	PRIMARY KEY	context_code		
+survey_tool_use_case_flag	2200_102079_1_not_null	CHECK			
+survey_tool_use_case_flag	2200_102079_2_not_null	CHECK			
+survey_tool_use_case_flag	survey_tool_use_case_flag_governance_flag_code_fkey	FOREIGN KEY	governance_flag_code		
+survey_tool_use_case_flag	survey_tool_use_case_flag_survey_tool_use_case_id_fkey	FOREIGN KEY	survey_tool_use_case_id		
+survey_tool_use_case_flag	survey_tool_use_case_flag_pkey	PRIMARY KEY	survey_tool_use_case_id		
+survey_tool_use_case_flag	survey_tool_use_case_flag_pkey	PRIMARY KEY	governance_flag_code		
+survey_top_concern	2200_102114_1_not_null	CHECK			
+survey_top_concern	2200_102114_2_not_null	CHECK			
+survey_top_concern	survey_top_concern_survey_run_id_fkey	FOREIGN KEY	survey_run_id		
+survey_top_concern	survey_top_concern_pkey	PRIMARY KEY	top_concern_code		
+survey_top_concern	survey_top_concern_pkey	PRIMARY KEY	survey_run_id		
+survey_wave	2200_101905_10_not_null	CHECK			
+survey_wave	2200_101905_12_not_null	CHECK			
+survey_wave	2200_101905_1_not_null	CHECK			
+survey_wave	2200_101905_2_not_null	CHECK			
+survey_wave	2200_101905_3_not_null	CHECK			
+survey_wave	2200_101905_4_not_null	CHECK			
+survey_wave	survey_wave_org_id_fkey	FOREIGN KEY	org_id		
+survey_wave	survey_wave_pkey	PRIMARY KEY	id		
+tool_catalog_discovery	2200_102134_10_not_null	CHECK			
+tool_catalog_discovery	2200_102134_1_not_null	CHECK			
+tool_catalog_discovery	2200_102134_2_not_null	CHECK			
+tool_catalog_discovery	2200_102134_5_not_null	CHECK			
+tool_catalog_discovery	2200_102134_7_not_null	CHECK			
+tool_catalog_discovery	2200_102134_8_not_null	CHECK			
+tool_catalog_discovery	tool_catalog_discovery_org_id_fkey	FOREIGN KEY	org_id		
+tool_catalog_discovery	tool_catalog_discovery_survey_run_id_fkey	FOREIGN KEY	survey_run_id		
+tool_catalog_discovery	tool_catalog_discovery_survey_tool_id_fkey	FOREIGN KEY	survey_tool_id		
+tool_catalog_discovery	tool_catalog_discovery_pkey	PRIMARY KEY	id		
+tool_discoveries	2200_75750_12_not_null	CHECK			
+tool_discoveries	2200_75750_1_not_null	CHECK			
+tool_discoveries	2200_75750_2_not_null	CHECK			
+tool_discoveries	2200_75750_5_not_null	CHECK			
+tool_discoveries	tool_discoveries_review_status_check	CHECK			
+tool_discoveries	tool_discoveries_use_frequency_check	CHECK			
+tool_discoveries	tool_discoveries_org_id_fkey	FOREIGN KEY	org_id		
+tool_discoveries	tool_discoveries_resulting_tool_id_fkey	FOREIGN KEY	resulting_tool_id		
+tool_discoveries	tool_discoveries_reviewed_by_fkey	FOREIGN KEY	reviewed_by		
+tool_discoveries	tool_discoveries_submitted_by_fkey	FOREIGN KEY	submitted_by		
+tool_discoveries	tool_discoveries_survey_run_id_fkey	FOREIGN KEY	survey_run_id		
+tool_discoveries	tool_discoveries_pkey	PRIMARY KEY	id		
+tools_library	2200_25749_1_not_null	CHECK			
+tools_library	2200_25749_2_not_null	CHECK			
+tools_library	2200_25749_3_not_null	CHECK			
+tools_library	tools_library_category_check	CHECK			
+tools_library	tools_library_status_check	CHECK			
+tools_library	tools_library_created_by_fkey	FOREIGN KEY	created_by		
+tools_library	tools_library_org_id_fkey	FOREIGN KEY	org_id		
+tools_library	tools_library_pkey	PRIMARY KEY	id		
+user_badges	2200_82986_1_not_null	CHECK			
+user_badges	2200_82986_2_not_null	CHECK			
+user_badges	2200_82986_3_not_null	CHECK			
+user_badges	2200_82986_4_not_null	CHECK			
+user_badges	2200_82986_5_not_null	CHECK			
+user_badges	user_badges_org_id_fkey	FOREIGN KEY	org_id		
+user_badges	user_badges_user_id_fkey	FOREIGN KEY	user_id		
+user_badges	user_badges_pkey	PRIMARY KEY	id		
+user_badges	user_badges_user_id_badge_type_key	UNIQUE	user_id		
+user_badges	user_badges_user_id_badge_type_key	UNIQUE	badge_type		
+user_course_completions	2200_17673_1_not_null	CHECK			
+user_course_completions	2200_17673_2_not_null	CHECK			
+user_course_completions	2200_17673_3_not_null	CHECK			
+user_course_completions	user_course_completions_course_id_fkey	FOREIGN KEY	course_id		
+user_course_completions	user_course_completions_org_id_fkey	FOREIGN KEY	org_id		
+user_course_completions	user_course_completions_user_id_fkey	FOREIGN KEY	user_id		
+user_course_completions	user_course_completions_pkey	PRIMARY KEY	id		
+user_course_completions	unique_user_course_completion	UNIQUE	user_id		
+user_course_completions	unique_user_course_completion	UNIQUE	course_id		
+user_course_completions	user_course_completions_user_id_course_id_key	UNIQUE	user_id		
+user_course_completions	user_course_completions_user_id_course_id_key	UNIQUE	course_id		
+user_course_progress	2200_17647_1_not_null	CHECK			
+user_course_progress	2200_17647_2_not_null	CHECK			
+user_course_progress	2200_17647_3_not_null	CHECK			
+user_course_progress	2200_17647_5_not_null	CHECK			
+user_course_progress	user_course_progress_course_id_fkey	FOREIGN KEY	course_id		
+user_course_progress	user_course_progress_org_id_fkey	FOREIGN KEY	org_id		
+user_course_progress	user_course_progress_user_id_fkey	FOREIGN KEY	user_id		
+user_course_progress	user_course_progress_pkey	PRIMARY KEY	id		
+user_course_progress	unique_user_course_progress	UNIQUE	course_id		
+user_course_progress	unique_user_course_progress	UNIQUE	user_id		
+user_course_progress	user_course_progress_user_id_course_id_key	UNIQUE	course_id		
+user_course_progress	user_course_progress_user_id_course_id_key	UNIQUE	user_id		
+user_lesson_completions	2200_17625_1_not_null	CHECK			
+user_lesson_completions	2200_17625_2_not_null	CHECK			
+user_lesson_completions	2200_17625_3_not_null	CHECK			
+user_lesson_completions	user_lesson_completions_lesson_id_fkey	FOREIGN KEY	lesson_id		
+user_lesson_completions	user_lesson_completions_org_id_fkey	FOREIGN KEY	org_id		
+user_lesson_completions	user_lesson_completions_user_id_fkey	FOREIGN KEY	user_id		
+user_lesson_completions	user_lesson_completions_pkey	PRIMARY KEY	id		
+user_lesson_completions	unique_user_lesson_completion	UNIQUE	user_id		
+user_lesson_completions	unique_user_lesson_completion	UNIQUE	lesson_id		
+user_lesson_completions	user_lesson_completions_user_id_lesson_id_key	UNIQUE	user_id		
+user_lesson_completions	user_lesson_completions_user_id_lesson_id_key	UNIQUE	lesson_id		
+user_lesson_progress	2200_17595_1_not_null	CHECK			
+user_lesson_progress	2200_17595_2_not_null	CHECK			
+user_lesson_progress	2200_17595_3_not_null	CHECK			
+user_lesson_progress	user_lesson_progress_lesson_id_fkey	FOREIGN KEY	lesson_id		
+user_lesson_progress	user_lesson_progress_org_id_fkey	FOREIGN KEY	org_id		
+user_lesson_progress	user_lesson_progress_user_id_fkey	FOREIGN KEY	user_id		
+user_lesson_progress	user_lesson_progress_pkey	PRIMARY KEY	id		
+user_lesson_progress	user_lesson_progress_user_id_lesson_id_key	UNIQUE	lesson_id		
+user_lesson_progress	user_lesson_progress_user_id_lesson_id_key	UNIQUE	user_id		
+user_roles	2200_17501_1_not_null	CHECK			
+user_roles	2200_17501_2_not_null	CHECK			
+user_roles	2200_17501_3_not_null	CHECK			
+user_roles	2200_17501_5_not_null	CHECK			
+user_roles	user_roles_org_id_fkey	FOREIGN KEY	org_id		
+user_roles	user_roles_user_id_fkey	FOREIGN KEY	user_id		
+user_roles	user_roles_pkey	PRIMARY KEY	id		
+user_roles	unique_user_role	UNIQUE	user_id		
+user_roles	unique_user_role	UNIQUE	role		
+user_roles	user_roles_user_id_role_key	UNIQUE	user_id		
+user_roles	user_roles_user_id_role_key	UNIQUE	role		

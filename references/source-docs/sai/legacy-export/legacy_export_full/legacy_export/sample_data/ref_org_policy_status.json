@@ -1,0 +1,27 @@
+[
+  {
+    "code": "approved",
+    "label": "Toegestaan",
+    "shadow_base": 0.0
+  },
+  {
+    "code": "newly_discovered",
+    "label": "Nieuw ontdekt",
+    "shadow_base": 20.0
+  },
+  {
+    "code": "under_review",
+    "label": "Onder beoordeling",
+    "shadow_base": 20.0
+  },
+  {
+    "code": "restricted",
+    "label": "Beperkt toegestaan",
+    "shadow_base": 40.0
+  },
+  {
+    "code": "prohibited",
+    "label": "Niet toegestaan",
+    "shadow_base": 80.0
+  }
+]

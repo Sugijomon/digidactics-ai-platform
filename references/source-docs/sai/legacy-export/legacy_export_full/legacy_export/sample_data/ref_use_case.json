@@ -1,0 +1,87 @@
+[
+  {
+    "code": "teksten_schrijven",
+    "label": "Teksten schrijven of bewerken",
+    "use_case_base": 10.0
+  },
+  {
+    "code": "samenvatten_redigeren",
+    "label": "Samenvatten of redigeren",
+    "use_case_base": 10.0
+  },
+  {
+    "code": "brainstormen",
+    "label": "Brainstormen of ideeën genereren",
+    "use_case_base": 10.0
+  },
+  {
+    "code": "informatie_opzoeken",
+    "label": "Informatie opzoeken",
+    "use_case_base": 10.0
+  },
+  {
+    "code": "vertalen",
+    "label": "Vertalen",
+    "use_case_base": 10.0
+  },
+  {
+    "code": "klantenservice",
+    "label": "Klantenservice of communicatie",
+    "use_case_base": 20.0
+  },
+  {
+    "code": "data_analyseren",
+    "label": "Data analyseren of visualiseren",
+    "use_case_base": 20.0
+  },
+  {
+    "code": "code_schrijven",
+    "label": "Code schrijven of debuggen",
+    "use_case_base": 20.0
+  },
+  {
+    "code": "afbeeldingen_genereren",
+    "label": "Afbeeldingen of media genereren",
+    "use_case_base": 20.0
+  },
+  {
+    "code": "presentaties_design",
+    "label": "Presentaties of design maken",
+    "use_case_base": 10.0
+  },
+  {
+    "code": "automatisering",
+    "label": "Processen automatiseren",
+    "use_case_base": 35.0
+  },
+  {
+    "code": "audio_genereren",
+    "label": "Audio genereren",
+    "use_case_base": 20.0
+  },
+  {
+    "code": "video_genereren",
+    "label": "Video genereren",
+    "use_case_base": 20.0
+  },
+  {
+    "code": "vergaderingen_notuleren",
+    "label": "Vergaderingen notuleren of transcriberen",
+    "use_case_base": 20.0
+  },
+  {
+    "code": "workflow_uitvoeren",
+    "label": "Workflows uitvoeren (agentic)",
+    "use_case_base": 35.0
+  },
+  {
+    "code": "systemen_aansturen",
+    "label": "Systemen aansturen (agentic)",
+    "use_case_base": 35.0
+  },
+  {
+    "code": "taken_automatisch_afhandelen",
+    "label": "Taken automatisch afhandelen (agentic)",
+    "use_case_base": 35.0
+  }
+]

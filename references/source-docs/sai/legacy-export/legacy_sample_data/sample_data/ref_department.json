@@ -1,0 +1,42 @@
+[
+  {
+    "code": "it_data_development",
+    "label": "IT, Data & Development",
+    "sort_order": 1
+  },
+  {
+    "code": "marketing_communicatie",
+    "label": "Marketing & Communicatie",
+    "sort_order": 2
+  },
+  {
+    "code": "hr_recruitment",
+    "label": "HR & Recruitment",
+    "sort_order": 3
+  },
+  {
+    "code": "finance_legal",
+    "label": "Finance & Legal",
+    "sort_order": 4
+  },
+  {
+    "code": "sales_accountmanagement",
+    "label": "Sales & Accountmanagement",
+    "sort_order": 5
+  },
+  {
+    "code": "operations_support",
+    "label": "Operations & Support",
+    "sort_order": 6
+  },
+  {
+    "code": "directie_management",
+    "label": "Directie & Management",
+    "sort_order": 7
+  },
+  {
+    "code": "anders",
+    "label": "Anders",
+    "sort_order": 8
+  }
+]

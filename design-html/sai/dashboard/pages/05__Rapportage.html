@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html class="light" lang="nl">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Rapportage | Shadow AI Governance</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{headline:['Manrope','sans-serif'],body:['Inter','sans-serif'],mono:['DM Mono','monospace']}}}}</script>
+<style>
+:root {
+  --ink:     #1e293b;
+  --ink-2:   #334155;
+  --ink-3:   #64748b;
+  --ink-4:   #94a3b8;
+  --rule:    #e2e8f0;
+  --rule-2:  #eef2f7;
+  --surface: #f7f9fb;
+  --white:   #FFFFFF;
+  --accent:  #0E5A75;
+  --accent-l:#e8f4fb;
+  --accent-m:#dbe3ec;
+  --green:   #3e6a00;
+  --green-l: #e6f4cf;
+  --green-m: #cfea7b;
+  --amber:   #b45309;
+  --amber-l: #fff7ed;
+  --amber-m: #fff1cc;
+  --red:     #b4292d;
+  --red-l:   #fdecea;
+  --red-m:   #FECACA;
+}
+* { box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; background:var(--surface); color:var(--ink); }
+.bg-surface { background:#f7f9fb; }
+.text-on-surface { color:#2a3439; }
+h1,h2,h3 { font-family:'Manrope',sans-serif; }
+
+    /* MATERIAL ICONS */
+.material-symbols-outlined,
+.ms { font-family:'Material Symbols Outlined'; font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; line-height:1; }
+
+    /* PROFILE MENU */
+.profile-menu { position:absolute; top:calc(100% + 8px); right:0; width:256px; background:#fff; border:1px solid #dbe3ec; border-radius:12px; box-shadow:0 12px 24px rgba(15,23,42,.10); overflow:hidden; display:none; z-index:30; }
+.profile-menu.is-open { display:block; }
+
+    /* ANIMATIONS */
+@keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+.fu  { animation:fadeUp .45s ease both; }
+.fu1 { animation-delay:.06s; }
+.fu2 { animation-delay:.12s; }
+.fu3 { animation-delay:.18s; }
+.fu4 { animation-delay:.24s; }
+.fu5 { animation-delay:.30s; }
+
+    /* TEMPLATE CARDS */
+.tpl-card {
+  position:relative; display:flex; align-items:flex-start; gap:14px;
+  padding:14px 16px; border-radius:12px; border:1.5px solid var(--rule);
+  background:var(--white); cursor:pointer; transition:all .2s;
+}
+.tpl-card:hover { border-color:var(--accent-m); background:var(--accent-l); }
+.tpl-card.selected { border-color:var(--accent); background:var(--accent-l); box-shadow:0 0 0 3px var(--accent-m); }
+.tpl-card .tpl-icon { width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.tpl-card .check { position:absolute; bottom:10px; right:10px; width:18px; height:18px; border-radius:50%; background:var(--accent); display:none; align-items:center; justify-content:center; }
+.tpl-card.selected .check { display:flex; }
+
+    /* FORMAT BUTTONS */
+.fmt-btn { flex:1; padding:10px 6px; border-radius:10px; border:1.5px solid var(--rule); background:var(--white); font-size:11px; font-weight:700; font-family:'Manrope'; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; transition:all .15s; color:var(--ink-3); }
+.fmt-btn:hover { border-color:var(--accent-m); background:var(--accent-l); color:var(--accent); }
+.fmt-btn.active { border-color:var(--accent); background:var(--accent); color:#fff; }
+
+    /* SIDEBAR */
+.sbar { height:4px; background:var(--rule); border-radius:99px; overflow:hidden; }
+.sbar-f { height:100%; border-radius:99px; transition:width .9s cubic-bezier(.4,0,.2,1); }
+.sbar-thick { height:6px; }
+
+    /* REPORT HISTORY TABLE */
+.report-row { display:grid; grid-template-columns:2fr 120px 160px 100px 90px 60px; align-items:center; padding:12px 24px; border-bottom:1px solid var(--rule); transition:background .12s; cursor:pointer; }
+.report-row:hover { background:var(--rule-2); }
+.report-row:last-child { border-bottom:none; }
+
+    /* STATUS PILLS */
+.pill { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:99px; font-size:10px; font-weight:700; font-family:'Manrope'; white-space:nowrap; }
+.pill-green  { background:var(--green-l); color:var(--green); }
+.pill-amber  { background:var(--amber-l); color:var(--amber); }
+.pill-red    { background:var(--red-l);   color:var(--red); }
+.pill-grey   { background:var(--rule-2);  color:var(--ink-3); }
+.pill-blue   { background:var(--accent-l);color:var(--accent); }
+.pill .dot   { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+
+    /* AUDIT CHECKLIST */
+.audit-item { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--rule); }
+.audit-item:last-child { border-bottom:none; }
+.audit-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+/* SCHEDULE TOGGLE */
+.toggle { position:relative; width:40px; height:22px; flex-shrink:0; }
+.toggle input { opacity:0; width:0; height:0; }
+.toggle-slider { position:absolute; cursor:pointer; inset:0; background:#cbd5e1; border-radius:99px; transition:.25s; }
+.toggle-slider::before { content:''; position:absolute; height:16px; width:16px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.25s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+.toggle input:checked + .toggle-slider { background:var(--accent); }
+.toggle input:checked + .toggle-slider::before { transform:translateX(18px); }
+
+
+    /* SCORE CONFIG */
+.config-row { padding:9px 0; border-bottom:1px solid var(--rule); }
+.config-row:last-of-type { border-bottom:none; }
+.config-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:7px; }
+.config-label { font-size:11px; color:var(--ink-3); font-weight:600; }
+.config-value { min-width:44px; text-align:right; font-family:'DM Mono'; font-size:12px; font-weight:700; color:var(--accent); }
+.config-control { display:grid; grid-template-columns:1fr 54px; gap:8px; align-items:center; }
+.config-control input[type=range] { width:100%; accent-color:var(--accent); }
+.config-number { width:54px; border:1px solid var(--rule); border-radius:8px; padding:5px 6px; font-size:11px; font-weight:700; color:var(--ink); font-family:'DM Mono'; text-align:center; outline:none; }
+.config-number:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-l); }
+.config-note { margin-top:10px; border-radius:10px; background:var(--accent-l); color:var(--accent); padding:8px 10px; font-size:10px; line-height:1.45; }
+    /* SECTION LABEL */
+.section-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-4); margin-bottom:12px; font-family:'Manrope'; }
+
+    /* METADATA BAR */
+.meta-bar {
+  display:flex;
+  flex-wrap:wrap;
+  gap:0;
+  background:#fff;
+  border:1px solid #dbe3ec;
+  border-radius:12px;
+  overflow:hidden;
+}
+.meta-cell {
+  flex:1;
+  min-width:110px;
+  padding:12px 18px;
+  border-right:1px solid #eef2f6;
+}
+.meta-cell:last-child { border-right:0; }
+.meta-label {
+  font:800 10px/1 'Manrope',sans-serif;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:#94a3b8;
+  white-space:nowrap;
+}
+.meta-value {
+  margin-top:5px;
+  font:700 13px/1.2 'Manrope',sans-serif;
+  color:#1e293b;
+  white-space:nowrap;
+}
+.meta-value.mono { font-family:'DM Mono',monospace; font-size:12px; }
+
+    /* TOOLTIP */
+.tipwrap { position:relative; cursor:help; }
+.tipwrap .tipbox { display:none; position:absolute; bottom:calc(100%+6px); left:50%; transform:translateX(-50%); min-width:200px; max-width:260px; background:#1e293b; color:#f1f5f9; font-size:10px; line-height:1.5; padding:7px 11px; border-radius:8px; z-index:80; pointer-events:none; white-space:normal; font-family:'Inter'; }
+.tipwrap:hover .tipbox { display:block; }
+
+    /* SCROLL */
+.thin-scroll { scrollbar-width:thin; scrollbar-color:#cbd5e1 transparent; }
+.thin-scroll::-webkit-scrollbar { width:4px; }
+.thin-scroll::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:99px; }
+
+    /* GENERATE BUTTON */
+.gen-btn { width:100%; padding:13px; border-radius:12px; background:var(--accent); color:#fff; font-size:13px; font-weight:700; font-family:'Manrope'; display:flex; align-items:center; justify-content:center; gap:8px; transition:all .2s; border:none; cursor:pointer; }
+.gen-btn:hover { background:#142d4a; box-shadow:0 4px 16px rgba(26,58,92,.35); transform:translateY(-1px); }
+.gen-btn:active { transform:translateY(0); }
+
+    /* DIVIDER LINE */
+.ruled { border:none; border-top:1px solid var(--rule); margin:0; }
+</style>
+</head>
+<body class="bg-surface text-on-surface flex min-h-screen overflow-x-hidden">
+
+  <!-- SideNavBar -->
+<aside class="fixed left-0 top-0 z-[90] h-full w-64 bg-slate-50 dark:bg-slate-900 flex flex-col gap-2 p-4 border-r border-slate-200 dark:border-slate-800">
+  <div class="mb-8 px-4">
+    <h1 class="font-bold text-slate-800 dark:text-slate-100 text-lg">DPO Governance</h1>
+    <p class="text-sm font-medium text-slate-500">Beheerdersdashboard</p>
+  </div>
+  <nav class="flex flex-col gap-2">
+    <a class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg px-4 py-3 flex items-center gap-3 transition-all duration-200 ease-in-out" href="#">
+      <span class="material-symbols-outlined" data-icon="play_circle">play_circle</span>
+      <span class="font-manrope text-sm">Activatie</span>
+    </a>
+    <a class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg px-4 py-3 flex items-center gap-3 transition-all duration-200 ease-in-out" href="#">
+      <span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+      <span class="font-manrope text-sm">Tool Inventaris</span>
+    </a>
+    <a class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg px-4 py-3 flex items-center gap-3 transition-all duration-200 ease-in-out" href="#">
+      <span class="material-symbols-outlined" data-icon="assessment">assessment</span>
+      <span class="font-manrope text-sm">Risicoprofiel</span>
+    </a>
+    <a class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg px-4 py-3 flex items-center gap-3 transition-all duration-200 ease-in-out" href="#">
+      <span class="material-symbols-outlined" data-icon="gavel">gavel</span>
+      <span class="font-manrope text-sm">Governance</span>
+    </a>
+    <a class="bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white font-bold rounded-lg px-4 py-3 flex items-center gap-3 transition-all duration-200 ease-in-out" href="#">
+      <span class="material-symbols-outlined" data-icon="description">description</span>
+      <span class="font-manrope text-sm">Rapportage</span>
+    </a>
+  </nav>
+  <div class="mt-auto px-2 pb-2">
+    <div class="space-y-0.5">
+      <a class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-slate-500 hover:bg-slate-100 transition-colors" href="#">
+        <span class="material-symbols-outlined text-[15px]">lightbulb</span>
+        <span class="text-[12px] font-medium">Kennisbank</span>
+      </a>
+      <a class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-slate-500 hover:bg-slate-100 transition-colors" href="#">
+        <span class="material-symbols-outlined text-[15px]">notifications_none</span>
+        <span class="text-[12px] font-medium">Support</span>
+      </a>
+    </div>
+  </div>
+</aside>
+
+  <!-- Main Content Canvas -->
+<main class="ml-64 w-[calc(100vw-16rem)] max-w-[calc(100vw-16rem)] flex flex-col min-h-screen overflow-x-hidden">
+
+  <!-- TopNavBar -->
+  <header class="bg-slate-50/95 dark:bg-slate-900/95 sticky top-0 z-[80] border-b border-slate-200/70 shadow-[0_1px_0_rgba(148,163,184,0.10)] backdrop-blur-sm">
+    <div class="w-full px-7 py-2.5 grid grid-cols-[minmax(320px,1fr)_minmax(320px,1fr)_minmax(210px,1fr)] items-center gap-4">
+      <div class="min-w-0 flex items-center gap-4">
+        <span class="text-[24px] font-bold tracking-tight text-slate-800 dark:text-slate-100">Shadow AI Scan</span>
+        <span class="px-3.5 py-1.5 rounded-full bg-[#CFEA7B] text-[#4D7800] font-bold text-[13px] flex items-center gap-2 shadow-sm leading-none shrink-0">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#4D7800]"></span>Open
+        </span>
+      </div>
+      <div class="flex items-center justify-center gap-2 min-w-0">
+        <span class="material-symbols-outlined text-slate-500 text-[19px] leading-none shrink-0">calendar_today</span>
+        <span class="text-[15px] font-bold text-slate-800 whitespace-nowrap leading-none">Sluit op 23 april</span>
+        <span class="text-[12px] text-slate-600 bg-slate-100 px-3 py-1.5 rounded-xl whitespace-nowrap">(nog 8 dagen)</span>
+      </div>
+      <div class="relative flex justify-end min-w-0">
+        <button id="profile-menu-button" class="flex items-center gap-2.5 rounded-full px-2.5 py-1 hover:bg-slate-100 transition-colors" type="button" aria-expanded="false">
+          <div class="w-10 h-10 rounded-full border border-slate-200 text-slate-500 flex items-center justify-center bg-white"><span class="material-symbols-outlined text-[18px]">person</span></div>
+          <div class="text-left leading-tight"><p class="text-[13px] font-bold text-slate-800">Marjan Jansen</p><p class="text-[9px] font-semibold text-slate-500 mt-0.5">DPO</p></div>
+          <span class="material-symbols-outlined text-[18px] text-slate-500">expand_more</span>
+        </button>
+        <div id="profile-menu" class="profile-menu">
+          <div class="px-4 py-3.5 border-b border-slate-100"><p class="text-[15px] font-bold text-slate-800">Marjan Jansen</p><p class="text-[12px] text-slate-500 mt-1">marjan@digidactics.nl</p></div>
+          <button class="w-full flex items-center gap-3 px-4 py-3.5 text-left text-slate-800 hover:bg-slate-50 transition-colors" type="button"><span class="material-symbols-outlined text-[18px]">person</span><span class="text-[15px]">Mijn Profiel</span></button>
+          <button class="w-full flex items-center gap-3 px-4 py-3.5 text-left text-[#ff4b3e] hover:bg-red-50 transition-colors border-t border-slate-100" type="button"><span class="material-symbols-outlined text-[18px]">logout</span><span class="text-[15px]">Uitloggen</span></button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+      <!-- Content Area -->
+  <div class="p-8 space-y-8">
+
+    <!-- PAGE HEADER -->
+    <div class="fu">
+      <h2 class="text-3xl font-extrabold text-[#2a3439] tracking-tight mb-1">Rapportage</h2>
+      <p class="text-sm font-medium text-[#566166]">Genereer exportpakketten, bekijk de rapportgeschiedenis en beheer geplande exports op basis van de V8.1 scoreformule.</p>
+      <div class="mt-5 meta-bar">
+        <div class="meta-cell">
+          <p class="meta-label">Rapportageronde</p>
+          <p class="meta-value">Apr 2026</p>
+        </div>
+        <div class="meta-cell">
+          <p class="meta-label">Status</p>
+          <p class="meta-value">Concept</p>
+        </div>
+        <div class="meta-cell">
+          <p class="meta-label">Peildatum</p>
+          <p class="meta-value">23 apr 2026</p>
+        </div>
+        <div class="meta-cell">
+          <p class="meta-label">Snapshot</p>
+          <p class="meta-value mono">scan_2026_04</p>
+        </div>
+        <div class="meta-cell">
+          <p class="meta-label">Scoringversie</p>
+          <p class="meta-value">V8.1</p>
+        </div>
+        <div class="meta-cell">
+          <p class="meta-label">Verantwoordelijke</p>
+          <p class="meta-value">Marjan Jansen</p>
+        </div>
+      </div>
+    </div>
+
+        <!-- ROW 1: Rapport aanmaken + rapportagebeheer -->
+    <div class="grid grid-cols-[1fr_320px] gap-6 fu fu1">
+
+      <!-- RAPPORT AANMAKEN -->
+      <div class="bg-white rounded-2xl border border-[#e2e8f0] overflow-hidden" style="box-shadow:0 1px 3px rgba(0,0,0,.04),0 6px 20px rgba(0,0,0,.04)">
+        <div class="px-7 pt-6 pb-5 border-b border-[#eef2f7]">
+          <div class="flex items-start gap-3">
+            <span class="ms text-sky-500 text-[34px] leading-none mt-0.5">add_chart</span>
+            <div>
+              <h2 class="text-xl font-bold text-slate-800">Nieuw rapport aanmaken</h2>
+              <p class="text-sm text-slate-500 mt-1">Kies een sjabloon, periode en exportformaat</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-7">
+          <div class="grid grid-cols-[1fr_240px] gap-8">
+
+            <!-- Sjablonen -->
+            <div>
+              <p class="section-label">Rapportsjabloon</p>
+              <div class="space-y-2" id="tpl-list">
+
+                <div class="tpl-card selected" data-tpl="management">
+                  <div class="tpl-icon" style="background:#e8f4fb"><span class="ms text-[18px] text-[#0E5A75]">analytics</span></div>
+                  <div class="flex-1">
+                    <p class="text-[13px] font-bold text-[#1e293b]" style="font-family:'Manrope'">Management samenvatting</p>
+                    <p class="text-[11px] text-[#64748b] mt-0.5">Risico- en governance-KPI's op hoofdlijnen voor directie</p>
+                  </div>
+                  <div class="check"><span class="ms text-[11px] text-white" style="font-variation-settings:'FILL' 1">check</span></div>
+                </div>
+
+                <div class="tpl-card" data-tpl="afdeling">
+                  <div class="tpl-icon" style="background:#e6f4cf"><span class="ms text-[18px] text-[#3e6a00]">hub</span></div>
+                  <div class="flex-1">
+                    <p class="text-[13px] font-bold text-[#1e293b]" style="font-family:'Manrope'">Afdelingsanalyse</p>
+                    <p class="text-[11px] text-[#64748b] mt-0.5">Gedetailleerde analyse per organisatieonderdeel</p>
+                  </div>
+                  <div class="check"><span class="ms text-[11px] text-white" style="font-variation-settings:'FILL' 1">check</span></div>
+                </div>
+
+                <div class="tpl-card" data-tpl="compliance">
+                  <div class="tpl-icon" style="background:#fff7ed"><span class="ms text-[18px] text-[#b45309]">verified_user</span></div>
+                  <div class="flex-1">
+                    <p class="text-[13px] font-bold text-[#1e293b]" style="font-family:'Manrope'">Compliance audit</p>
+                    <p class="text-[11px] text-[#64748b] mt-0.5">Aansluiting op regelgeving en gapanalyse</p>
+                  </div>
+                  <div class="check"><span class="ms text-[11px] text-white" style="font-variation-settings:'FILL' 1">check</span></div>
+                </div>
+
+                <div class="tpl-card" data-tpl="inventaris">
+                  <div class="tpl-icon" style="background:#F5F3FF"><span class="ms text-[18px] text-[#5B21B6]">inventory</span></div>
+                  <div class="flex-1">
+                    <p class="text-[13px] font-bold text-[#1e293b]" style="font-family:'Manrope'">Tool inventaris</p>
+                    <p class="text-[11px] text-[#64748b] mt-0.5">Volledig overzicht van gebruikte AI-tools en beleidsstatus</p>
+                  </div>
+                  <div class="check"><span class="ms text-[11px] text-white" style="font-variation-settings:'FILL' 1">check</span></div>
+                </div>
+
+                <div class="tpl-card" data-tpl="auditpkg">
+                  <div class="tpl-icon" style="background:#fdecea"><span class="ms text-[18px] text-[#b4292d]">folder_zip</span></div>
+                  <div class="flex-1">
+                    <p class="text-[13px] font-bold text-[#1e293b]" style="font-family:'Manrope'">Audit package</p>
+                    <p class="text-[11px] text-[#64748b] mt-0.5">KPI's, methodiek, open reviews en DPO-duiding</p>
+                  </div>
+                  <div class="check"><span class="ms text-[11px] text-white" style="font-variation-settings:'FILL' 1">check</span></div>
+                </div>
+
+                <div class="tpl-card" data-tpl="reviews">
+                  <div class="tpl-icon" style="background:#ECFEFF"><span class="ms text-[18px] text-[#0E7490]">rule_folder</span></div>
+                  <div class="flex-1">
+                    <p class="text-[13px] font-bold text-[#1e293b]" style="font-family:'Manrope'">Open reviews export</p>
+                    <p class="text-[11px] text-[#64748b] mt-0.5">Export met cluster-ID&rsquo;s en triagevelden</p>
+                  </div>
+                  <div class="check"><span class="ms text-[11px] text-white" style="font-variation-settings:'FILL' 1">check</span></div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Periode + Formaat + Actie -->
+            <div class="flex flex-col gap-6">
+
+              <!-- Periode -->
+              <div>
+                <p class="section-label">Periode</p>
+                <div class="relative">
+                  <span class="ms absolute left-3 top-1/2 -translate-y-1/2 text-[#94a3b8] text-[17px]">calendar_month</span>
+                  <select id="periode-select" class="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-xl py-2.5 pl-9 pr-4 text-[13px] font-medium text-[#334155] appearance-none outline-none focus:border-[#0E5A75] focus:ring-2 focus:ring-[#dbe3ec] cursor-pointer transition-colors">
+                    <option>Huidige scanronde</option>
+                    <option>Afgelopen 30 dagen</option>
+                    <option>Kwartaal tot heden</option>
+                    <option>Jaar tot heden</option>
+                    <option>Aangepaste periode...</option>
+                  </select>
+                  <span class="ms absolute right-3 top-1/2 -translate-y-1/2 text-[#94a3b8] text-[16px] pointer-events-none">expand_more</span>
+                </div>
+              </div>
+
+              <!-- Afdeling filter -->
+              <div>
+                <p class="section-label">Scope</p>
+                <div class="relative">
+                  <span class="ms absolute left-3 top-1/2 -translate-y-1/2 text-[#94a3b8] text-[17px]">corporate_fare</span>
+                  <select class="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-xl py-2.5 pl-9 pr-4 text-[13px] font-medium text-[#334155] appearance-none outline-none focus:border-[#0E5A75] cursor-pointer transition-colors">
+                    <option>Hele organisatie</option>
+                    <option>HR &amp; Recruitment</option>
+                    <option>Finance &amp; Legal</option>
+                    <option>Marketing</option>
+                    <option>IT &amp; Development</option>
+                    <option>Operations</option>
+                    <option>Sales &amp; Account</option>
+                  </select>
+                  <span class="ms absolute right-3 top-1/2 -translate-y-1/2 text-[#94a3b8] text-[16px] pointer-events-none">expand_more</span>
+                </div>
+              </div>
+
+              <!-- Formaat -->
+              <div>
+                <p class="section-label">Exportformaat</p>
+                <div class="flex gap-2" id="fmt-group">
+                  <button class="fmt-btn active" data-fmt="pdf" onclick="setFmt(this)">
+                    <span class="ms text-[20px]">picture_as_pdf</span>PDF
+                  </button>
+                  <button class="fmt-btn" data-fmt="csv" onclick="setFmt(this)">
+                    <span class="ms text-[20px]">csv</span>CSV
+                  </button>
+                  <button class="fmt-btn" data-fmt="xlsx" onclick="setFmt(this)">
+                    <span class="ms text-[20px]">table_chart</span>Excel
+                  </button>
+                </div>
+              </div>
+
+              <!-- Generate -->
+              <div class="mt-auto pt-2">
+                <button class="gen-btn" id="gen-btn" onclick="generateReport()">
+                  <span class="ms text-[18px]">send</span>
+                  <span id="gen-label">Rapport genereren</span>
+                </button>
+                <p id="config-summary" class="text-[10px] text-[#94a3b8] text-center mt-2">Scores gefixeerd op scoring_config V8.1 &middot; reviewdrempel 40 &middot; min. cel 5</p>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECHTER KOLOM: rapportagebeheer -->
+      <div class="flex flex-col gap-4">
+
+        <!-- Audit package completeness -->
+        <div class="bg-white rounded-2xl border border-[#e2e8f0] p-5" style="box-shadow:0 1px 3px rgba(0,0,0,.04)">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-xl font-bold text-[#334155]" style="font-family:'Manrope'">Audit package</p>
+            <span class="text-[24px] font-black text-[#0E5A75]" style="font-family:'DM Mono'">82%</span>
+          </div>
+          <div class="sbar sbar-thick mb-4"><div class="sbar-f" style="width:82%;background:linear-gradient(90deg,#0E5A75,#0E5A75)"></div></div>
+          <div class="space-y-0">
+            <div class="audit-item">
+              <span class="audit-dot" style="background:#3e6a00"></span>
+              <span class="text-[11px] text-[#334155]">Scanronde, status en scoring_config_id</span>
+              <span class="ms text-[14px] text-[#3e6a00] ml-auto" style="font-variation-settings:'FILL' 1">check_circle</span>
+            </div>
+            <div class="audit-item">
+              <span class="audit-dot" style="background:#3e6a00"></span>
+              <span class="text-[11px] text-[#334155]">Drempels, min. celgrootte en triggercodes</span>
+              <span class="ms text-[14px] text-[#3e6a00] ml-auto" style="font-variation-settings:'FILL' 1">check_circle</span>
+            </div>
+            <div class="audit-item">
+              <span class="audit-dot" style="background:#b45309"></span>
+              <span class="text-[11px] text-[#334155]">Review_trigger_codes[] per reviewitem</span>
+              <span class="ms text-[14px] text-[#b45309] ml-auto">pending</span>
+            </div>
+            <div class="audit-item">
+              <span class="audit-dot" style="background:#b45309"></span>
+              <span class="text-[11px] text-[#334155]">Policy snapshot en rapportagesamenvatting</span>
+              <span class="ms text-[14px] text-[#b45309] ml-auto">pending</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Geplande exports -->
+        <div class="bg-white rounded-2xl border border-[#e2e8f0] p-5" style="box-shadow:0 1px 3px rgba(0,0,0,.04)">
+          <p class="text-xl font-bold text-[#334155] mb-4" style="font-family:'Manrope'">Geplande exports</p>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-[13px] font-semibold text-[#334155]">Wekelijkse audit</p>
+                <p class="text-[11px] text-[#94a3b8] mt-0.5">Elke maandag 08:00 &middot; PDF</p>
+              </div>
+              <label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label>
+            </div>
+            <hr class="ruled"/>
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-[13px] font-semibold text-[#334155]">Inventaris delta</p>
+                <p class="text-[11px] text-[#94a3b8] mt-0.5">Eerste van elke maand &middot; CSV</p>
+              </div>
+              <label class="toggle"><input type="checkbox"/><span class="toggle-slider"></span></label>
+            </div>
+            <hr class="ruled"/>
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-[13px] font-semibold text-[#334155]">Kwartaal governance</p>
+                <p class="text-[11px] text-[#94a3b8] mt-0.5">Elk kwartaal &middot; Audit package</p>
+              </div>
+              <label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Juridische begrenzing -->
+        <div class="bg-[#fdecea] rounded-2xl border border-[#FECACA] p-5">
+        <div class="flex items-center gap-2.5 mb-4">
+          <div class="w-8 h-8 rounded-lg bg-white/70 flex items-center justify-center"><span class="ms text-[16px] text-[#b4292d]">gavel</span></div>
+          <p class="text-xl font-bold text-[#b4292d]" style="font-family:'Manrope'">Juridische begrenzing</p>
+        </div>
+        <p class="text-[11px] text-[#b4292d] leading-relaxed mb-3">EU AI Act-signalen worden <strong>uitsluitend als potentieel signaal</strong> ge&euml;xporteerd. De scan levert geen formele AI Act- of AVG-kwalificatie.</p>
+        <div class="bg-white/60 rounded-xl p-3">
+          <p class="text-[10px] text-[#b4292d] font-bold mb-1" style="font-family:'DM Mono'">export_label = "potential_signal"</p>
+          <p class="text-[10px] text-[#b4292d]">Altijd samen exporteren met methodologische context en reviewdrempel.</p>
+        </div>
+      </div>
+
+
+      </div>
+    </div>
+        <!-- ROW 2: Export metadata & configuratie -->
+    <div class="bg-white rounded-2xl border border-[#e2e8f0] p-6 fu fu2" style="box-shadow:0 1px 3px rgba(0,0,0,.04),0 6px 20px rgba(0,0,0,.04)">
+      <div class="flex items-start justify-between gap-4 mb-5">
+        <div class="flex items-center gap-3">
+          <span class="ms text-[36px] text-sky-500 leading-none">dataset</span>
+          <div>
+            <p class="text-xl font-bold text-[#334155]" style="font-family:'Manrope'">Export metadata &amp; configuratie</p>
+            <p class="text-sm text-slate-500 mt-1">Beheer de drempelwaarden en controleer welke metadata met de export meegaat</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-[1.05fr_1fr] gap-5 items-stretch">
+        <div class="rounded-2xl border border-[#e2e8f0] bg-[#f8fafc] p-5">
+          <div class="mb-4">
+            <p class="text-xl font-bold text-[#334155]" style="font-family:'Manrope'">Drempelwaarden beheerconfiguratie</p>
+            <p class="text-sm text-slate-500 mt-1">Instellingen voor nieuwe berekeningen en scanrondes</p>
+          </div>
+          <div id="score-config" data-config-id="V8.1">
+            <div class="config-row">
+              <div class="config-head"><span class="config-label">Reviewdrempel</span><span class="config-value" id="cfg-review-label">exposure &ge; 40</span></div>
+              <div class="config-control"><input type="range" id="cfg-review" min="30" max="60" step="5" value="40" data-unit="exposure &ge;"/><input class="config-number" id="cfg-review-num" type="number" min="30" max="60" step="5" value="40"/></div>
+            </div>
+            <div class="config-row">
+              <div class="config-head"><span class="config-label">Toxic shadow</span><span class="config-value" id="cfg-shadow-label">shadow &gt; 50</span></div>
+              <div class="config-control"><input type="range" id="cfg-shadow" min="40" max="70" step="5" value="50" data-unit="shadow &gt;"/><input class="config-number" id="cfg-shadow-num" type="number" min="40" max="70" step="5" value="50"/></div>
+            </div>
+            <div class="config-row">
+              <div class="config-head"><span class="config-label">Toxic exposure</span><span class="config-value" id="cfg-exposure-label">exposure &gt; 50</span></div>
+              <div class="config-control"><input type="range" id="cfg-exposure" min="40" max="70" step="5" value="50" data-unit="exposure &gt;"/><input class="config-number" id="cfg-exposure-num" type="number" min="40" max="70" step="5" value="50"/></div>
+            </div>
+            <div class="config-row">
+              <div class="config-head"><span class="config-label">Min. celgrootte</span><span class="config-value" id="cfg-cell-label">n &ge; 5</span></div>
+              <div class="config-control"><input type="range" id="cfg-cell" min="5" max="10" step="1" value="5" data-unit="n &ge;"/><input class="config-number" id="cfg-cell-num" type="number" min="5" max="10" step="1" value="5"/></div>
+            </div>
+          </div>
+          <p class="config-note" id="cfg-impact-note">Wijzigingen gelden voor nieuwe berekeningen of een nieuwe scanronde; historische rapportages blijven gekoppeld aan hun gebruikte configuratie.</p>
+        </div>
+
+        <div class="rounded-2xl border border-[#e2e8f0] bg-white p-5">
+          <div class="flex items-center justify-between gap-3 mb-4">
+            <div>
+              <p class="text-xl font-bold text-[#334155]" style="font-family:'Manrope'">Export data</p>
+              <p class="text-sm text-slate-500 mt-1">Meegeleverd voor audit en reproduceerbaarheid</p>
+            </div>
+            <span class="pill pill-blue">Auditcontext</span>
+          </div>
+          <div class="grid grid-cols-2 gap-x-6 gap-y-3">
+            <div class="border-b border-[#eef2f7] pb-2"><p class="text-[9px] font-bold uppercase tracking-[0.08em] text-[#94a3b8]">Scanronde</p><p class="text-[12px] font-bold text-[#1e293b]">April 2026 &middot; concept</p></div>
+            <div class="border-b border-[#eef2f7] pb-2"><p class="text-[9px] font-bold uppercase tracking-[0.08em] text-[#94a3b8]">Config</p><p class="text-[12px] font-bold text-[#1e293b]" style="font-family:'DM Mono'">scoring_config_id: V8.1</p></div>
+            <div class="border-b border-[#eef2f7] pb-2"><p class="text-[9px] font-bold uppercase tracking-[0.08em] text-[#94a3b8]">Drempels</p><p id="export-thresholds" class="text-[12px] font-bold text-[#1e293b]">review 40 &middot; toxic 50/50</p></div>
+            <div class="border-b border-[#eef2f7] pb-2"><p class="text-[9px] font-bold uppercase tracking-[0.08em] text-[#94a3b8]">Privacy</p><p id="export-cell-size" class="text-[12px] font-bold text-[#1e293b]">min. celgrootte n &ge; 5</p></div>
+            <div><p class="text-[9px] font-bold uppercase tracking-[0.08em] text-[#94a3b8]">Reviewitems</p><p class="text-[12px] font-bold text-[#1e293b]" style="font-family:'DM Mono'">review_trigger_codes[]</p></div>
+            <div><p class="text-[9px] font-bold uppercase tracking-[0.08em] text-[#94a3b8]">Scope</p><p class="text-[12px] font-bold text-[#1e293b]">Hele organisatie</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+        <!-- ROW 3: Innovatiekansen -->
+    <div class="bg-white rounded-2xl border border-[#e2e8f0] p-5 fu fu3" style="box-shadow:0 1px 3px rgba(0,0,0,.04)">
+      <div class="flex items-start justify-between gap-4 mb-4">
+        <div class="flex items-start gap-3">
+          <span class="ms text-[30px] text-sky-500 leading-none mt-0.5">emoji_objects</span>
+          <div>
+            <p class="text-xl font-bold text-slate-800" style="font-family:'Manrope'">Innovatiekansen</p>
+            <p class="text-sm text-slate-500 mt-1">Optioneel rapportageblok; geen extra risicoscore</p>
+          </div>
+        </div>
+        <span class="pill pill-green">Samenvatting</span>
+      </div>
+      <div class="grid grid-cols-3 gap-3">
+        <div class="rounded-xl bg-[#f8fafc] border border-[#e2e8f0] p-3">
+          <p class="text-sm font-bold text-[#334155] mb-1" style="font-family:'Manrope'">Toekomstige use-cases</p>
+          <p class="text-sm text-slate-500 leading-snug">Automatisering, notuleren en kenniszoeken als kansrijke vervolgstappen.</p>
+        </div>
+        <div class="rounded-xl bg-[#f8fafc] border border-[#e2e8f0] p-3">
+          <p class="text-sm font-bold text-[#334155] mb-1" style="font-family:'Manrope'">Ontbrekende alternatieven</p>
+          <p class="text-sm text-slate-500 leading-snug">Shadow use waar geen goedgekeurd intern alternatief beschikbaar is.</p>
+        </div>
+        <div class="rounded-xl bg-[#f8fafc] border border-[#e2e8f0] p-3">
+          <p class="text-sm font-bold text-[#334155] mb-1" style="font-family:'Manrope'">Ambassadeurs-opt-in</p>
+          <p class="text-sm text-slate-500 leading-snug">Respondenten die willen meedenken over beleid, training of pilots.</p>
+        </div>
+      </div>
+    </div>
+        <!-- ROW 4: Rapportgeschiedenis -->
+    <div class="bg-white rounded-2xl border border-[#e2e8f0] overflow-hidden fu fu3" style="box-shadow:0 1px 3px rgba(0,0,0,.04),0 6px 20px rgba(0,0,0,.04)">
+
+      <!-- Table header -->
+      <div class="px-7 py-4 border-b border-[#eef2f7] flex items-center justify-between">
+        <div class="flex items-start gap-3">
+          <span class="ms text-[30px] text-sky-500 leading-none mt-0.5">history</span>
+          <div>
+            <h3 class="text-xl font-bold text-slate-800" style="font-family:'Manrope'">Rapportgeschiedenis</h3>
+            <p class="text-sm text-slate-500 mt-1">4 van 28 rapporten - gesorteerd op datum</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <!-- Search -->
+          <div class="relative">
+            <span class="ms absolute left-2.5 top-1/2 -translate-y-1/2 text-[#94a3b8] text-[15px]">search</span>
+            <input type="text" placeholder="Zoek rapport..." class="pl-8 pr-3 py-1.5 text-[12px] border border-[#e2e8f0] rounded-lg bg-[#f8fafc] outline-none focus:border-[#0E5A75] w-44 transition-colors" oninput="filterHistory(this.value)"/>
+          </div>
+          <div class="flex gap-1">
+            <button class="w-8 h-8 rounded-lg hover:bg-[#eef2f7] flex items-center justify-center transition-colors" title="Filter"><span class="ms text-[17px] text-[#64748b]">filter_list</span></button>
+            <button class="w-8 h-8 rounded-lg hover:bg-[#eef2f7] flex items-center justify-center transition-colors" title="Vernieuwen" onclick="this.querySelector('.ms').style.animation='spin .5s linear';setTimeout(()=>this.querySelector('.ms').style.animation='',600)"><span class="ms text-[17px] text-[#64748b]">refresh</span></button>
+            <button class="w-8 h-8 rounded-lg hover:bg-[#eef2f7] flex items-center justify-center transition-colors" title="Export alles"><span class="ms text-[17px] text-[#64748b]">download</span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Column headers -->
+      <div class="report-row bg-[#f8fafc] cursor-default" style="padding:8px 24px">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-[#94a3b8]">Rapportnaam</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-[#94a3b8]">Type</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-[#94a3b8]">Aangemaakt door</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-[#94a3b8]">Datum</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-[#94a3b8]">Status</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-[#94a3b8] text-right">Actie</span>
+      </div>
+
+      <!-- Rows -->
+      <div id="history-body">
+
+        <div class="report-row" data-name="q3 compliance audit definitief">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-8 h-8 rounded-lg bg-[#e8f4fb] flex items-center justify-center flex-shrink-0"><span class="ms text-[16px] text-[#0E5A75]">description</span></div>
+            <div class="min-w-0">
+              <p class="text-[13px] font-semibold text-[#1e293b] truncate">Q3 Compliance Audit - definitief</p>
+              <p class="text-[10px] text-[#94a3b8] mt-0.5" style="font-family:'DM Mono'">PDF &middot; 3.4 MB</p>
+            </div>
+          </div>
+          <span class="pill pill-blue">Compliance</span>
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full bg-[#e8f4fb] flex items-center justify-center text-[9px] font-bold text-[#0E5A75]" style="font-family:'Manrope'">MJ</div>
+            <span class="text-[12px] text-[#334155]">DPO-team</span>
+          </div>
+          <span class="text-[12px] text-[#64748b]">12 okt 2024</span>
+          <span class="pill pill-green"><span class="dot" style="background:#3e6a00"></span>Gereed</span>
+          <div class="flex justify-end gap-1">
+            <button class="w-7 h-7 rounded-lg hover:bg-[#e8f4fb] flex items-center justify-center transition-colors" title="Download"><span class="ms text-[15px] text-[#0E5A75]">download</span></button>
+            <button class="w-7 h-7 rounded-lg hover:bg-[#eef2f7] flex items-center justify-center transition-colors" title="Bekijken"><span class="ms text-[15px] text-[#64748b]">open_in_new</span></button>
+          </div>
+        </div>
+
+        <div class="report-row" data-name="tool inventaris update marketing">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-8 h-8 rounded-lg bg-[#e6f4cf] flex items-center justify-center flex-shrink-0"><span class="ms text-[16px] text-[#3e6a00]">data_usage</span></div>
+            <div class="min-w-0">
+              <p class="text-[13px] font-semibold text-[#1e293b] truncate">Tool inventaris update - Marketing</p>
+              <p class="text-[10px] text-[#94a3b8] mt-0.5" style="font-family:'DM Mono'">CSV &middot; automatisch</p>
+            </div>
+          </div>
+          <span class="pill pill-grey">Inventaris</span>
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full bg-[#eef2f7] flex items-center justify-center text-[9px] font-bold text-[#64748b]" style="font-family:'DM Mono'">SYS</div>
+            <span class="text-[12px] text-[#334155]">Automatisch</span>
+          </div>
+          <span class="text-[12px] text-[#64748b]">11 okt 2024</span>
+          <span class="pill pill-amber"><span class="dot" style="background:#b45309"></span>Verwerken</span>
+          <div class="flex justify-end gap-1">
+            <button class="w-7 h-7 rounded-lg flex items-center justify-center opacity-30 cursor-not-allowed" title="Bezig"><span class="ms text-[15px] text-[#64748b]" style="animation:spin 1.2s linear infinite">sync</span></button>
+          </div>
+        </div>
+
+        <div class="report-row" data-name="security gapanalyse hr finance">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-8 h-8 rounded-lg bg-[#fdecea] flex items-center justify-center flex-shrink-0"><span class="ms text-[16px] text-[#b4292d]">assignment_late</span></div>
+            <div class="min-w-0">
+              <p class="text-[13px] font-semibold text-[#1e293b] truncate">Security gapanalyse - HR &amp; Recruitment</p>
+              <p class="text-[10px] text-[#94a3b8] mt-0.5" style="font-family:'DM Mono'">PDF &middot; mislukt</p>
+            </div>
+          </div>
+          <span class="pill pill-grey">Audit</span>
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full bg-[#eef2f7] flex items-center justify-center text-[9px] font-bold text-[#64748b]" style="font-family:'DM Mono'">SYS</div>
+            <span class="text-[12px] text-[#334155]">Automatisch</span>
+          </div>
+          <span class="text-[12px] text-[#64748b]">9 okt 2024</span>
+          <span class="pill pill-red"><span class="dot" style="background:#b4292d"></span>Mislukt</span>
+          <div class="flex justify-end gap-1">
+            <button class="w-7 h-7 rounded-lg hover:bg-[#fdecea] flex items-center justify-center transition-colors" title="Opnieuw proberen"><span class="ms text-[15px] text-[#b4292d]">replay</span></button>
+            <button class="w-7 h-7 rounded-lg hover:bg-[#eef2f7] flex items-center justify-center transition-colors" title="Log bekijken"><span class="ms text-[15px] text-[#64748b]">bug_report</span></button>
+          </div>
+        </div>
+
+        <div class="report-row" data-name="management dashboard pdf">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-8 h-8 rounded-lg bg-[#e8f4fb] flex items-center justify-center flex-shrink-0"><span class="ms text-[16px] text-[#0E5A75]">monitoring</span></div>
+            <div class="min-w-0">
+              <p class="text-[13px] font-semibold text-[#1e293b] truncate">Management dashboard (PDF)</p>
+              <p class="text-[10px] text-[#94a3b8] mt-0.5" style="font-family:'DM Mono'">PDF &middot; 1.8 MB</p>
+            </div>
+          </div>
+          <span class="pill pill-blue">Management</span>
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full bg-[#e8f4fb] flex items-center justify-center text-[9px] font-bold text-[#0E5A75]" style="font-family:'Manrope'">MJ</div>
+            <span class="text-[12px] text-[#334155]">DPO-team</span>
+          </div>
+          <span class="text-[12px] text-[#64748b]">8 okt 2024</span>
+          <span class="pill pill-green"><span class="dot" style="background:#3e6a00"></span>Gereed</span>
+          <div class="flex justify-end gap-1">
+            <button class="w-7 h-7 rounded-lg hover:bg-[#e8f4fb] flex items-center justify-center transition-colors" title="Download"><span class="ms text-[15px] text-[#0E5A75]">download</span></button>
+            <button class="w-7 h-7 rounded-lg hover:bg-[#eef2f7] flex items-center justify-center transition-colors" title="Bekijken"><span class="ms text-[15px] text-[#64748b]">open_in_new</span></button>
+          </div>
+        </div>
+
+        <div class="report-row" data-name="open reviews export werkbak">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-8 h-8 rounded-lg bg-[#ECFEFF] flex items-center justify-center flex-shrink-0"><span class="ms text-[16px] text-[#0E7490]">rule_folder</span></div>
+            <div class="min-w-0">
+              <p class="text-[13px] font-semibold text-[#1e293b] truncate">Open reviews export</p>
+              <p class="text-[10px] text-[#94a3b8] mt-0.5" style="font-family:'DM Mono'">CSV &middot; 14 signalen</p>
+            </div>
+          </div>
+          <span class="pill pill-grey">Reviews</span>
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full bg-[#e8f4fb] flex items-center justify-center text-[9px] font-bold text-[#0E5A75]" style="font-family:'Manrope'">MJ</div>
+            <span class="text-[12px] text-[#334155]">DPO-team</span>
+          </div>
+          <span class="text-[12px] text-[#64748b]">7 okt 2024</span>
+          <span class="pill pill-green"><span class="dot" style="background:#3e6a00"></span>Gereed</span>
+          <div class="flex justify-end gap-1">
+            <button class="w-7 h-7 rounded-lg hover:bg-[#e8f4fb] flex items-center justify-center transition-colors" title="Download"><span class="ms text-[15px] text-[#0E5A75]">download</span></button>
+            <button class="w-7 h-7 rounded-lg hover:bg-[#eef2f7] flex items-center justify-center transition-colors" title="Bekijken"><span class="ms text-[15px] text-[#64748b]">open_in_new</span></button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Pagination -->
+      <div class="px-7 py-3.5 bg-[#f8fafc] border-t border-[#eef2f7] flex items-center justify-between">
+        <p class="text-[11px] text-[#94a3b8]">5 van 28 rapporten weergegeven</p>
+        <div class="flex items-center gap-2">
+          <button class="px-3 py-1.5 rounded-lg border border-[#e2e8f0] text-[11px] font-bold text-[#94a3b8] cursor-not-allowed opacity-50">Vorige</button>
+          <div class="flex gap-1">
+            <button class="w-7 h-7 rounded-lg bg-[#0E5A75] text-white text-[11px] font-bold">1</button>
+            <button class="w-7 h-7 rounded-lg hover:bg-[#eef2f7] text-[#64748b] text-[11px] font-bold transition-colors">2</button>
+            <button class="w-7 h-7 rounded-lg hover:bg-[#eef2f7] text-[#64748b] text-[11px] font-bold transition-colors">3</button>
+            <span class="w-7 h-7 flex items-center justify-center text-[#94a3b8] text-[11px]">...</span>
+            <button class="w-7 h-7 rounded-lg hover:bg-[#eef2f7] text-[#64748b] text-[11px] font-bold transition-colors">6</button>
+          </div>
+          <button class="px-3 py-1.5 rounded-lg border border-[#e2e8f0] text-[11px] font-bold text-[#334155] hover:bg-[#eef2f7] transition-colors">Volgende</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="fu fu5 pb-4">
+      <div class="border-t border-[#e2e8f0] pt-4 flex items-start gap-2">
+        <span class="ms text-[14px] text-[#94a3b8] mt-0.5 flex-shrink-0">info</span>
+        <p class="text-[11px] text-[#94a3b8] leading-relaxed">Review- en juridische signalen zijn indicatief en gebaseerd op zelfrapportage. Menselijk oordeel blijft leidend.</p>
+      </div>
+    </footer>
+
+  </div>
+</main>
+
+      <!-- SCRIPTS -->
+<script>
+      /* PROFILE MENU */
+const profileMenuButton = document.getElementById('profile-menu-button');
+const profileMenu = document.getElementById('profile-menu');
+profileMenuButton?.addEventListener('click', () => { const o = profileMenu?.classList.toggle('is-open'); profileMenuButton.setAttribute('aria-expanded', o?'true':'false'); });
+document.addEventListener('click', e => {
+  if (!profileMenu||!profileMenuButton) return;
+  if (profileMenu.contains(e.target)||profileMenuButton.contains(e.target)) return;
+  profileMenu.classList.remove('is-open'); profileMenuButton.setAttribute('aria-expanded','false');
+});
+
+      /* TEMPLATE SELECTION */
+document.querySelectorAll('.tpl-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.tpl-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    // update gen label
+    const name = card.querySelector('p').textContent;
+    document.getElementById('gen-label').textContent = `"${name}" genereren`;
+    setTimeout(()=>{ document.getElementById('gen-label').textContent = 'Rapport genereren'; }, 2500);
+  });
+});
+
+      /* FORMAT BUTTONS */
+function setFmt(el) {
+  document.querySelectorAll('.fmt-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+      /* GENERATE BUTTON */
+function generateReport() {
+  const btn = document.getElementById('gen-btn');
+  const lbl = document.getElementById('gen-label');
+  btn.style.opacity = '.7';
+  btn.style.pointerEvents = 'none';
+  lbl.textContent = 'Genereren...';
+  btn.querySelector('.ms').textContent = 'hourglass_empty';
+  let dots = 0;
+  const interval = setInterval(() => {
+    dots = (dots+1)%4;
+    lbl.textContent = 'Genereren' + '.'.repeat(dots);
+  }, 400);
+  setTimeout(() => {
+    clearInterval(interval);
+    btn.querySelector('.ms').textContent = 'check_circle';
+    lbl.textContent = 'Rapport gegenereerd';
+    btn.style.background = '#3e6a00';
+    setTimeout(() => {
+      btn.style.opacity = '1';
+      btn.style.pointerEvents = 'auto';
+      btn.querySelector('.ms').textContent = 'send';
+      lbl.textContent = 'Rapport genereren';
+      btn.style.background = '';
+    }, 2500);
+  }, 2400);
+}
+
+      /* SEARCH HISTORY */
+function filterHistory(q) {
+  const rows = document.querySelectorAll('#history-body .report-row');
+  const query = q.toLowerCase().trim();
+  rows.forEach(row => {
+    const name = row.dataset.name || '';
+    row.style.display = (!query || name.includes(query)) ? '' : 'none';
+  });
+}
+
+
+      /* SCORE CONFIG */
+const scoreConfig = {
+  review:   { range: 'cfg-review',   number: 'cfg-review-num',   label: 'cfg-review-label',   unit: 'exposure &ge;', min: 30, max: 60 },
+  shadow:   { range: 'cfg-shadow',   number: 'cfg-shadow-num',   label: 'cfg-shadow-label',   unit: 'shadow &gt;',   min: 40, max: 70 },
+  exposure: { range: 'cfg-exposure', number: 'cfg-exposure-num', label: 'cfg-exposure-label', unit: 'exposure &gt;', min: 40, max: 70 },
+  cell:     { range: 'cfg-cell',     number: 'cfg-cell-num',     label: 'cfg-cell-label',     unit: 'n &ge;',        min: 5,  max: 10 }
+};
+function clampConfig(value, min, max, step) {
+  const numeric = Number(value);
+  const bounded = Math.max(min, Math.min(max, Number.isFinite(numeric) ? numeric : min));
+  return Math.round(bounded / step) * step;
+}
+function updateConfigImpact() {
+  const review = document.getElementById('cfg-review')?.value || '40';
+  const shadow = document.getElementById('cfg-shadow')?.value || '50';
+  const exposure = document.getElementById('cfg-exposure')?.value || '50';
+  const cell = document.getElementById('cfg-cell')?.value || '5';
+  const note = document.getElementById('cfg-impact-note');
+  const summary = document.getElementById('config-summary');
+  const exportThresholds = document.getElementById('export-thresholds');
+  const exportCellSize = document.getElementById('export-cell-size');
+  if (summary) summary.innerHTML = `Scores gefixeerd op scoring_config V8.1 &middot; reviewdrempel ${review} &middot; toxic ${shadow}/${exposure} &middot; min. cel ${cell}`;
+  if (exportThresholds) exportThresholds.innerHTML = `review ${review} &middot; toxic ${shadow}/${exposure}`;
+  if (exportCellSize) exportCellSize.innerHTML = `min. celgrootte n &ge; ${cell}`;
+  if (!note) return;
+  const reviewNum = Number(review);
+  const cellNum = Number(cell);
+  if (reviewNum >= 55) note.textContent = 'Hoge reviewdrempel: minder signalen komen automatisch in de reviewwerkbak; onderliggende patronen blijven zichtbaar in rapportage.';
+  else if (reviewNum <= 35) note.textContent = 'Lage reviewdrempel: meer signalen komen in review; dit kan vollediger zijn, maar ook meer ruis opleveren.';
+  else if (cellNum >= 8) note.textContent = 'Hogere privacygrens: kleine clusters worden vaker samengevoegd of onderdrukt, vooral bij kleine afdelingen.';
+  else note.textContent = 'Wijzigingen gelden voor nieuwe berekeningen of een nieuwe scanronde; historische rapportages blijven gekoppeld aan hun gebruikte configuratie.';
+}
+Object.values(scoreConfig).forEach(cfg => {
+  const range = document.getElementById(cfg.range);
+  const number = document.getElementById(cfg.number);
+  const label = document.getElementById(cfg.label);
+  if (!range || !number || !label) return;
+  const sync = source => {
+    const value = clampConfig(source.value, cfg.min, cfg.max, Number(source.step || 1));
+    range.value = String(value);
+    number.value = String(value);
+    label.innerHTML = `${cfg.unit} ${value}`;
+    updateConfigImpact();
+  };
+  range.addEventListener('input', () => sync(range));
+  number.addEventListener('change', () => sync(number));
+});
+updateConfigImpact();
+      /* ANIMATE SBAR ON LOAD */
+document.querySelectorAll('.sbar-f').forEach(el => {
+  const w = el.style.width;
+  el.style.width = '0';
+  setTimeout(() => { el.style.width = w; }, 300);
+});
+
+      /* SPIN KEYFRAME */
+const style = document.createElement('style');
+style.textContent = '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
+document.head.appendChild(style);
+</script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+[
+  {
+    "id": "5db5eaa0-b1e2-48ad-902f-4dc97e196fc5",
+    "title": "RouteAI architecture viz",
+    "description": null,
+    "content": {
+      "body": "This is a test document for RouteAI"
+    },
+    "version": "1.0",
+    "created_by": null,
+    "created_at": "2026-01-27T01:19:18.125547+00:00",
+    "updated_at": "2026-01-27T01:20:12.481786+00:00",
+    "org_id": null,
+    "content_type": "document",
+    "difficulty_level": "intermediate",
+    "estimated_duration_minutes": 5,
+    "learning_objectives": [],
+    "required_for_license": [
+      "yellow_license"
+    ],
+    "status": "published",
+    "cluster_id": null,
+    "archetype_codes": [],
+    "is_activation_req": false,
+    "context_card": null,
+    "lesson_id": null
+  },
+  {
+    "id": "a2000000-0000-0000-0000-000000000001",
+    "title": "ML-O01: Verification Gatekeeper",
+    "description": "CL-1 module voor evaluatieve toepassinge…[truncated]",
+    "content": {},
+    "version": "1.0",
+    "created_by": null,
+    "created_at": "2026-03-28T01:40:13.056355+00:00",
+    "updated_at": "2026-03-28T01:40:13.056355+00:00",
+    "org_id": null,
+    "content_type": "microlearning",
+    "difficulty_level": "basic",
+    "estimated_duration_minutes": null,
+    "learning_objectives": [],
+    "required_for_license": [],
+    "status": "published",
+    "cluster_id": "CL-1",
+    "archetype_codes": [
+      "O-01"
+    ],
+    "is_activation_req": true,
+    "context_card": "Controleer elk AI-oordeel over een persoon individueel vóór het een beslissing beïnvloedt. Documenteer afwijkingen.",
+    "lesson_id": "a1000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "a2000000-0000-0000-0000-000000000002",
+    "title": "ML-O02: Decision Preparation Gatekeeper",
+    "description": "CL-1 module voor beslissingsondersteunen…[truncated]",
+    "content": {},
+    "version": "1.0",
+    "created_by": null,
+    "created_at": "2026-03-28T01:40:13.056355+00:00",
+    "updated_at": "2026-03-28T01:40:13.056355+00:00",
+    "org_id": null,
+    "content_type": "microlearning",
+    "difficulty_level": "basic",
+    "estimated_duration_minutes": null,
+    "learning_objectives": [],
+    "required_for_license": [],
+    "status": "published",
+    "cluster_id": "CL-1",
+    "archetype_codes": [
+      "O-02"
+    ],
+    "is_activation_req": true,
+    "context_card": "De AI bereidt de beslissing voor — jij beslist. Weeg informatie mee die de AI niet had en documenteer je eigen redenering.",
+    "lesson_id": "a1000000-0000-0000-0000-000000000002"
+  },
+  {
+    "id": "a2000000-0000-0000-0000-000000000003",
+    "title": "ML-O03: Risk Monitor & Escalator",
+    "description": "CL-2 module voor autonome systemen: agen…[truncated]",
+    "content": {},
+    "version": "1.0",
+    "created_by": null,
+    "created_at": "2026-03-28T01:40:13.056355+00:00",
+    "updated_at": "2026-03-28T01:40:13.056355+00:00",
+    "org_id": null,
+    "content_type": "microlearning",
+    "difficulty_level": "basic",
+    "estimated_duration_minutes": null,
+    "learning_objectives": [],
+    "required_for_license": [],
+    "status": "published",
+    "cluster_id": "CL-2",
+    "archetype_codes": [
+      "O-03"
+    ],
+    "is_activation_req": true,
+    "context_card": "Stel drempelwaarden in en monitor actief. Escaleer bij afwijkingen voordat schade zich verspreidt.",
+    "lesson_id": "a1000000-0000-0000-0000-000000000003"
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "id": "fb2c4e2a-2c6b-4c81-a0e4-6142ab790f34",
+    "title": "AI Proficiency",
+    "description": "**AI Proficiency** gaat een stap verder …[truncated]",
+    "required_for_onboarding": false,
+    "passing_threshold": 80,
+    "unlocks_capability": null,
+    "is_published": false,
+    "created_at": "2026-03-13T11:25:51.283503+00:00",
+    "updated_at": "2026-03-13T11:25:51.283503+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "c1dfe82a-490b-4097-977a-4072838f5bb1",
+    "title": "AI Literacy",
+    "description": "**AI Literacy** vormt de basis voor vera…[truncated]",
+    "required_for_onboarding": true,
+    "passing_threshold": 80,
+    "unlocks_capability": null,
+    "is_published": true,
+    "created_at": "2026-03-13T11:22:54.040056+00:00",
+    "updated_at": "2026-03-14T07:17:53.054782+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "d58dd02d-0a8d-4bee-adad-89a266426b4c",
+    "title": "AI Mastery",
+    "description": "AI Mastery is het niveau waarop professi…[truncated]",
+    "required_for_onboarding": true,
+    "passing_threshold": 80,
+    "unlocks_capability": null,
+    "is_published": true,
+    "created_at": "2026-03-14T08:53:25.024021+00:00",
+    "updated_at": "2026-03-14T11:42:20.774008+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "f1a00000-0000-0000-0000-000000000001",
+    "title": "AI Literacy voor Verantwoord AI-gebruik",
+    "description": "Verplichte onboarding-cursus. Na voltooi…[truncated]",
+    "required_for_onboarding": true,
+    "passing_threshold": 80,
+    "unlocks_capability": "ai_check",
+    "is_published": true,
+    "created_at": "2026-03-27T08:44:45.989407+00:00",
+    "updated_at": "2026-03-27T08:44:45.989407+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  }
+]

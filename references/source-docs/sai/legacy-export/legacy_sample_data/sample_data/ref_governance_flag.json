@@ -1,0 +1,34 @@
+[
+  {
+    "code": "actiecapaciteit",
+    "label": "Actiecapaciteit"
+  },
+  {
+    "code": "autonome_uitvoering",
+    "label": "Autonome uitvoering"
+  },
+  {
+    "code": "menselijke_review_verplicht",
+    "label": "Menselijke review verplicht"
+  },
+  {
+    "code": "interactie_met_natuurlijke_personen",
+    "label": "Interactie met natuurlijke personen"
+  },
+  {
+    "code": "synthetische_content",
+    "label": "Synthetische content"
+  },
+  {
+    "code": "gdpr_dpia_relevant",
+    "label": "GDPR/DPIA relevant"
+  },
+  {
+    "code": "downstream_high_risk_context",
+    "label": "Downstream hoog-risico context"
+  },
+  {
+    "code": "orchestration_layer",
+    "label": "Orchestratielaag"
+  }
+]

@@ -1,0 +1,249 @@
+public	_legacy_tools_catalog	Org admins manage own catalog	PERMISSIVE	{public}	ALL	((is_org_admin(auth.uid()) OR is_manager(auth.uid())) AND (org_id = get_user_org_id(auth.uid())))	((is_org_admin(auth.uid()) OR is_manager(auth.uid())) AND (org_id = get_user_org_id(auth.uid())))
+public	_legacy_tools_catalog	Super admins manage all catalogs	PERMISSIVE	{public}	ALL	is_super_admin(auth.uid())	is_super_admin(auth.uid())
+public	_legacy_tools_catalog	Users view enabled tools in own org	PERMISSIVE	{public}	SELECT	((is_enabled = true) AND (org_id = get_user_org_id(auth.uid())))	
+public	admin_audit_log	admin_insert_audit_log	PERMISSIVE	{authenticated}	INSERT		(is_super_admin(auth.uid()) OR is_org_admin(auth.uid()))
+public	admin_audit_log	admin_select_audit_log	PERMISSIVE	{authenticated}	SELECT	(is_super_admin(auth.uid()) OR (is_org_admin(auth.uid()) AND (org_id = get_user_org_id(auth.uid()))))	
+public	archetype_ml_map	authenticated_read_active_archetype_ml_map	PERMISSIVE	{authenticated}	SELECT	(is_active = true)	
+public	archetype_ml_map	content_editor_manage_archetype_ml_map	PERMISSIVE	{authenticated}	ALL	is_content_editor(auth.uid())	is_content_editor(auth.uid())
+public	archetype_ml_map	super_admin_full_access_archetype_ml_map	PERMISSIVE	{authenticated}	ALL	is_super_admin(auth.uid())	is_super_admin(auth.uid())
+public	assessment_ml_assignments	org_admin_read_org_ml_assignments	PERMISSIVE	{authenticated}	SELECT	(is_super_admin(auth.uid()) OR (is_org_admin(auth.uid()) AND (EXISTS ( SELECT 1
+   FROM assessments a
+  WHERE ((a.id = assessment_ml_assignments.assessment_id) AND (a.org_id = get_user_org_id(auth.uid())))))))	
+public	assessment_ml_assignments	system_insert_ml_assignments	PERMISSIVE	{authenticated}	INSERT		(user_id = auth.uid())
+public	assessment_ml_assignments	user_read_own_ml_assignments	PERMISSIVE	{authenticated}	SELECT	(user_id = auth.uid())	
+public	assessment_ml_completions	org_admin_read_org_ml_completions	PERMISSIVE	{authenticated}	SELECT	(is_super_admin(auth.uid()) OR (is_org_admin(auth.uid()) AND (EXISTS ( SELECT 1
+   FROM assessments a
+  WHERE ((a.id = assessment_ml_completions.assessment_id) AND (a.org_id = get_user_org_id(auth.uid())))))))	
+public	assessment_ml_completions	user_manage_own_ml_completions	PERMISSIVE	{authenticated}	ALL	(user_id = auth.uid())	(user_id = auth.uid())
+public	assessments	dpo_read_org_assessments	PERMISSIVE	{authenticated}	SELECT	(org_id IN ( SELECT ur.org_id
+   FROM user_roles ur
+  WHERE ((ur.user_id = auth.uid()) AND (ur.role = 'dpo'::app_role))))	
+public	assessments	employee_insert_with_rijbewijs	PERMISSIVE	{public}	INSERT		((created_by = auth.uid()) AND (EXISTS ( SELECT 1
+   FROM profiles
+  WHERE ((profiles.id = auth.uid()) AND (profiles.has_ai_rijbewijs = true)))))
+public	assessments	employee_read_own	PERMISSIVE	{public}	SELECT	(created_by = auth.uid())	
+public	assessments	org_admin_manage_org	PERMISSIVE	{public}	ALL	((org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_super_admin(auth.uid())))	((org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_super_admin(auth.uid())))
+public	course_lessons	Admins and content editors manage course_lessons	PERMISSIVE	{public}	ALL	(is_super_admin(auth.uid()) OR is_content_editor(auth.uid()) OR has_role(auth.uid(), 'org_admin'::app_role))	(is_super_admin(auth.uid()) OR is_content_editor(auth.uid()) OR has_role(auth.uid(), 'org_admin'::app_role))
+public	course_lessons	Users can view course_lessons for published courses in their or	PERMISSIVE	{public}	SELECT	(EXISTS ( SELECT 1
+   FROM courses
+  WHERE ((courses.id = course_lessons.course_id) AND (courses.is_published = true) AND (courses.org_id = get_user_org_id(auth.uid())))))	
+public	courses	Admins and content editors manage courses	PERMISSIVE	{public}	ALL	(is_super_admin(auth.uid()) OR is_content_editor(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid()))))	(is_super_admin(auth.uid()) OR is_content_editor(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid()))))
+public	courses	Users can view published courses in their org	PERMISSIVE	{public}	SELECT	((is_published = true) AND (org_id = get_user_org_id(auth.uid())))	
+public	dpo_notifications	dpo_manage_own_org_notifications	PERMISSIVE	{authenticated}	ALL	(org_id IN ( SELECT ur.org_id
+   FROM user_roles ur
+  WHERE ((ur.user_id = auth.uid()) AND (ur.role = 'dpo'::app_role))))	(org_id IN ( SELECT ur.org_id
+   FROM user_roles ur
+  WHERE ((ur.user_id = auth.uid()) AND (ur.role = 'dpo'::app_role))))
+public	dpo_notifications	org_admin_manage_notifications	PERMISSIVE	{public}	ALL	((org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_super_admin(auth.uid())))	((org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_super_admin(auth.uid())))
+public	incidents	org_admin_manage_org_incidents	PERMISSIVE	{authenticated}	ALL	((org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_super_admin(auth.uid())))	((org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_super_admin(auth.uid())))
+public	incidents	user_read_own_incidents	PERMISSIVE	{authenticated}	SELECT	(reported_by = auth.uid())	
+public	incidents	user_report_own_incident	PERMISSIVE	{authenticated}	INSERT		(reported_by = auth.uid())
+public	learning_answers	Admins can manage answers	PERMISSIVE	{public}	ALL	(is_super_admin(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid()))))	(is_super_admin(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid()))))
+public	learning_answers	Users can insert their own answers	PERMISSIVE	{public}	INSERT		(user_id = auth.uid())
+public	learning_answers	Users can update their own answers	PERMISSIVE	{public}	UPDATE	(user_id = auth.uid())	
+public	learning_answers	Users can view their own answers	PERMISSIVE	{public}	SELECT	(user_id = auth.uid())	
+public	learning_catalog	Managers manage own org catalog	PERMISSIVE	{public}	ALL	(is_manager(auth.uid()) AND (org_id = get_user_org_id(auth.uid())))	(is_manager(auth.uid()) AND (org_id = get_user_org_id(auth.uid())))
+public	learning_catalog	Org admins manage own org catalog	PERMISSIVE	{public}	ALL	(is_org_admin(auth.uid()) AND (org_id = get_user_org_id(auth.uid())))	(is_org_admin(auth.uid()) AND (org_id = get_user_org_id(auth.uid())))
+public	learning_catalog	Super admins manage all catalogs	PERMISSIVE	{public}	ALL	is_super_admin(auth.uid())	is_super_admin(auth.uid())
+public	learning_catalog	Users view enabled catalog items	PERMISSIVE	{public}	SELECT	((is_enabled = true) AND (org_id = get_user_org_id(auth.uid())))	
+public	learning_library	Content editors manage library content	PERMISSIVE	{public}	ALL	is_content_editor(auth.uid())	is_content_editor(auth.uid())
+public	learning_library	Managers view published library content	PERMISSIVE	{public}	SELECT	((status = 'published'::learning_status) AND is_manager(auth.uid()))	
+public	learning_library	Org admins view published library content	PERMISSIVE	{public}	SELECT	((status = 'published'::learning_status) AND is_org_admin(auth.uid()))	
+public	learning_library	Super admins manage all library content	PERMISSIVE	{public}	ALL	is_super_admin(auth.uid())	is_super_admin(auth.uid())
+public	learning_library	Users view published library content via catalog	PERMISSIVE	{public}	SELECT	((status = 'published'::learning_status) AND ((org_id IS NULL) OR (org_id = get_user_org_id(auth.uid())) OR (EXISTS ( SELECT 1
+   FROM learning_catalog lc
+  WHERE ((lc.library_item_id = learning_library.id) AND (lc.org_id = get_user_org_id(auth.uid())) AND (lc.is_enabled = true))))))	
+public	learning_questions	Admins and editors can view all questions	PERMISSIVE	{authenticated}	SELECT	(is_super_admin(auth.uid()) OR is_content_editor(auth.uid()) OR is_org_admin(auth.uid()))	
+public	learning_questions	Org admins can manage org questions	PERMISSIVE	{public}	ALL	(has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid())))	(has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid())))
+public	learning_questions	Super admins and content editors can manage questions	PERMISSIVE	{public}	ALL	(is_super_admin(auth.uid()) OR is_content_editor(auth.uid()))	(is_super_admin(auth.uid()) OR is_content_editor(auth.uid()))
+public	learning_questions	Super admins and content editors can view all questions	PERMISSIVE	{public}	SELECT	(is_super_admin(auth.uid()) OR is_content_editor(auth.uid()))	
+public	lesson_attempts	Org admins and super admins manage lesson attempts	PERMISSIVE	{public}	ALL	(is_super_admin(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid()))))	(is_super_admin(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid()))))
+public	lesson_attempts	Users can insert their own lesson attempts	PERMISSIVE	{public}	INSERT		(auth.uid() = user_id)
+public	lesson_attempts	Users can update their own lesson attempts	PERMISSIVE	{public}	UPDATE	(auth.uid() = user_id)	
+public	lesson_attempts	Users can view their own lesson attempts	PERMISSIVE	{public}	SELECT	(auth.uid() = user_id)	
+public	lessons	Admins and content editors manage lessons	PERMISSIVE	{public}	ALL	(is_super_admin(auth.uid()) OR is_content_editor(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid()))))	(is_super_admin(auth.uid()) OR is_content_editor(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid()))))
+public	lessons	Users can view published lessons in their org	PERMISSIVE	{public}	SELECT	((is_published = true) AND (org_id = get_user_org_id(auth.uid())))	
+public	model_typekaart_updates	super_admin_full_access_model_typekaart_updates	PERMISSIVE	{authenticated}	ALL	is_super_admin(auth.uid())	is_super_admin(auth.uid())
+public	model_typekaarten	authenticated_read_published_model_typekaarten	PERMISSIVE	{authenticated}	SELECT	(status = 'published'::text)	
+public	model_typekaarten	super_admin_full_access_model_typekaarten	PERMISSIVE	{authenticated}	ALL	is_super_admin(auth.uid())	is_super_admin(auth.uid())
+public	org_notifications	org_admin_manage_org_notifications	PERMISSIVE	{authenticated}	ALL	((org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_super_admin(auth.uid()) OR is_dpo(auth.uid())))	((org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_super_admin(auth.uid())))
+public	org_tool_policy	anon_read_org_tool_policy	PERMISSIVE	{anon,authenticated}	SELECT	true	
+public	org_tool_policy	dpo_select_org_tool_policy	PERMISSIVE	{authenticated}	SELECT	(is_dpo(auth.uid()) AND (org_id = get_user_org_id(auth.uid())))	
+public	org_tool_policy	dpo_update_org_tool_policy	PERMISSIVE	{authenticated}	UPDATE	(is_dpo(auth.uid()) AND (org_id = get_user_org_id(auth.uid())))	(is_dpo(auth.uid()) AND (org_id = get_user_org_id(auth.uid())))
+public	org_tool_policy	org_admin_manage_org_tool_policy	PERMISSIVE	{authenticated}	ALL	(is_super_admin(auth.uid()) OR (is_org_admin(auth.uid()) AND (org_id = get_user_org_id(auth.uid()))))	(is_super_admin(auth.uid()) OR (is_org_admin(auth.uid()) AND (org_id = get_user_org_id(auth.uid()))))
+public	org_tool_policy	users_select_org_tool_policy	PERMISSIVE	{authenticated}	SELECT	(org_id = get_user_org_id(auth.uid()))	
+public	org_tools_catalog	dpo_manage_org_tools_catalog	PERMISSIVE	{authenticated}	ALL	(org_id IN ( SELECT ur.org_id
+   FROM user_roles ur
+  WHERE ((ur.user_id = auth.uid()) AND (ur.role = 'dpo'::app_role))))	(org_id IN ( SELECT ur.org_id
+   FROM user_roles ur
+  WHERE ((ur.user_id = auth.uid()) AND (ur.role = 'dpo'::app_role))))
+public	org_tools_catalog	org_admin_manage_org_tools_catalog	PERMISSIVE	{public}	ALL	((is_org_admin(auth.uid()) OR is_super_admin(auth.uid())) AND (org_id = get_user_org_id(auth.uid())))	((is_org_admin(auth.uid()) OR is_super_admin(auth.uid())) AND (org_id = get_user_org_id(auth.uid())))
+public	org_tools_catalog	super_admin_full_org_tools_catalog	PERMISSIVE	{public}	ALL	is_super_admin(auth.uid())	is_super_admin(auth.uid())
+public	org_tools_catalog	users_read_org_tools_catalog	PERMISSIVE	{public}	SELECT	(org_id = get_user_org_id(auth.uid()))	
+public	organizations	Org admins and super admins manage organizations	PERMISSIVE	{public}	ALL	(is_super_admin(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (id = get_user_org_id(auth.uid()))))	(is_super_admin(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (id = get_user_org_id(auth.uid()))))
+public	organizations	Users can view own org or super admin all	PERMISSIVE	{public}	SELECT	(is_super_admin(auth.uid()) OR (id = get_user_org_id(auth.uid())))	
+public	organizations	dpo_read_own_org	PERMISSIVE	{authenticated}	SELECT	(id IN ( SELECT ur.org_id
+   FROM user_roles ur
+  WHERE ((ur.user_id = auth.uid()) AND (ur.role = 'dpo'::app_role))))	
+public	organizations	dpo_update_own_org	PERMISSIVE	{authenticated}	UPDATE	(id IN ( SELECT ur.org_id
+   FROM user_roles ur
+  WHERE ((ur.user_id = auth.uid()) AND (ur.role = 'dpo'::app_role))))	(id IN ( SELECT ur.org_id
+   FROM user_roles ur
+  WHERE ((ur.user_id = auth.uid()) AND (ur.role = 'dpo'::app_role))))
+public	organizations	organizations_no_anon_read	PERMISSIVE	{anon}	SELECT	false	
+public	organizations	public_scoreboard_read	PERMISSIVE	{anon}	SELECT	((scoreboard_enabled = true) AND (scoreboard_slug IS NOT NULL))	
+public	passport_identity	dpo_read_own_org_passport_identity	PERMISSIVE	{authenticated}	SELECT	(org_id IN ( SELECT ur.org_id
+   FROM user_roles ur
+  WHERE ((ur.user_id = auth.uid()) AND (ur.role = 'dpo'::app_role))))	
+public	passport_identity	org_admin_manage_passport_identity	PERMISSIVE	{authenticated}	ALL	((org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_super_admin(auth.uid())))	((org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_super_admin(auth.uid())))
+public	profiles	Org admins and super admins manage profiles	PERMISSIVE	{public}	ALL	(is_super_admin(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid()))))	(is_super_admin(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid()))))
+public	profiles	Users can insert their own profile	PERMISSIVE	{public}	INSERT		(auth.uid() = id)
+public	profiles	Users can update their own profile (limited)	PERMISSIVE	{public}	UPDATE	(auth.uid() = id)	((auth.uid() = id) AND (has_ai_rijbewijs = ( SELECT profiles_1.has_ai_rijbewijs
+   FROM profiles profiles_1
+  WHERE (profiles_1.id = auth.uid()))))
+public	profiles	Users can view their own profile	PERMISSIVE	{public}	SELECT	(auth.uid() = id)	
+public	profiles	dpo_read_own_org_profiles	PERMISSIVE	{authenticated}	SELECT	(org_id IN ( SELECT ur.org_id
+   FROM user_roles ur
+  WHERE ((ur.user_id = auth.uid()) AND (ur.role = 'dpo'::app_role))))	
+public	profiles	org_admin_update_org_profiles	PERMISSIVE	{authenticated}	UPDATE	(is_org_admin(auth.uid()) AND (org_id = get_user_org_id(auth.uid())))	(is_org_admin(auth.uid()) AND (org_id = get_user_org_id(auth.uid())))
+public	profiles	super_admin_update_all_profiles	PERMISSIVE	{authenticated}	UPDATE	is_super_admin(auth.uid())	is_super_admin(auth.uid())
+public	ref_account_type	public_read_ref_account_type	PERMISSIVE	{anon,authenticated}	SELECT	true	
+public	ref_ai_frequency	public_read_ref_ai_frequency	PERMISSIVE	{anon,authenticated}	SELECT	true	
+public	ref_catalog_beheerstatus	public_read_ref_catalog_beheerstatus	PERMISSIVE	{anon,authenticated}	SELECT	true	
+public	ref_context	public_read_ref_context	PERMISSIVE	{anon,authenticated}	SELECT	true	
+public	ref_data_type	public_read_ref_data_type	PERMISSIVE	{anon,authenticated}	SELECT	true	
+public	ref_department	public_read_ref_department	PERMISSIVE	{anon,authenticated}	SELECT	true	
+public	ref_eu_ai_act_flag	public_read_ref_eu_ai_act_flag	PERMISSIVE	{anon,authenticated}	SELECT	true	
+public	ref_governance_flag	public_read_ref_governance_flag	PERMISSIVE	{anon,authenticated}	SELECT	true	
+public	ref_no_ai_reason	public_read_ref_no_ai_reason	PERMISSIVE	{anon,authenticated}	SELECT	true	
+public	ref_org_policy_status	public_read_ref_org_policy_status	PERMISSIVE	{anon,authenticated}	SELECT	true	
+public	ref_review_trigger	public_read_ref_review_trigger	PERMISSIVE	{anon,authenticated}	SELECT	true	
+public	ref_use_case	public_read_ref_use_case	PERMISSIVE	{anon,authenticated}	SELECT	true	
+public	rijbewijs_records	Admins can view all rijbewijs	PERMISSIVE	{public}	SELECT	has_role(auth.uid(), 'super_admin'::app_role)	
+public	rijbewijs_records	Users can view own rijbewijs	PERMISSIVE	{public}	SELECT	(auth.uid() = user_id)	
+public	risk_result	admin_select_risk_result	PERMISSIVE	{authenticated}	SELECT	(is_super_admin(auth.uid()) OR (EXISTS ( SELECT 1
+   FROM survey_run sr
+  WHERE ((sr.id = risk_result.survey_run_id) AND (sr.org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_dpo(auth.uid()))))))	
+public	risk_result	super_admin_delete_risk_result	PERMISSIVE	{authenticated}	DELETE	is_super_admin(auth.uid())	
+public	risk_result	super_admin_insert_risk_result	PERMISSIVE	{authenticated}	INSERT		is_super_admin(auth.uid())
+public	risk_result	super_admin_update_risk_result	PERMISSIVE	{authenticated}	UPDATE	is_super_admin(auth.uid())	is_super_admin(auth.uid())
+public	risk_result_tool	admin_select_risk_result_tool	PERMISSIVE	{authenticated}	SELECT	(is_super_admin(auth.uid()) OR (EXISTS ( SELECT 1
+   FROM survey_run sr
+  WHERE ((sr.id = risk_result_tool.survey_run_id) AND (sr.org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_dpo(auth.uid()))))))	
+public	risk_result_tool	super_admin_delete_risk_result_tool	PERMISSIVE	{authenticated}	DELETE	is_super_admin(auth.uid())	
+public	risk_result_tool	super_admin_insert_risk_result_tool	PERMISSIVE	{authenticated}	INSERT		is_super_admin(auth.uid())
+public	risk_result_tool	super_admin_update_risk_result_tool	PERMISSIVE	{authenticated}	UPDATE	is_super_admin(auth.uid())	is_super_admin(auth.uid())
+public	scan_scoring_config	admin_delete_scan_scoring_config	PERMISSIVE	{authenticated}	DELETE	(is_super_admin(auth.uid()) OR ((org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_dpo(auth.uid()))))	
+public	scan_scoring_config	admin_insert_scan_scoring_config	PERMISSIVE	{authenticated}	INSERT		(is_super_admin(auth.uid()) OR ((org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_dpo(auth.uid()))))
+public	scan_scoring_config	admin_update_scan_scoring_config	PERMISSIVE	{authenticated}	UPDATE	(is_super_admin(auth.uid()) OR ((org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_dpo(auth.uid()))))	(is_super_admin(auth.uid()) OR ((org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_dpo(auth.uid()))))
+public	scan_scoring_config	authenticated_select_scan_scoring_config	PERMISSIVE	{authenticated}	SELECT	(is_super_admin(auth.uid()) OR (org_id = get_user_org_id(auth.uid())))	
+public	shadow_survey_runs	Users can insert own survey runs	PERMISSIVE	{public}	INSERT		(auth.uid() = user_id)
+public	shadow_survey_runs	Users can update own survey runs	PERMISSIVE	{public}	UPDATE	(auth.uid() = user_id)	(auth.uid() = user_id)
+public	shadow_survey_runs	Users can view own survey runs	PERMISSIVE	{public}	SELECT	(auth.uid() = user_id)	
+public	shadow_survey_runs	dpo_read_own_org_survey_runs	PERMISSIVE	{authenticated}	SELECT	(org_id IN ( SELECT ur.org_id
+   FROM user_roles ur
+  WHERE ((ur.user_id = auth.uid()) AND (ur.role = 'dpo'::app_role))))	
+public	shadow_survey_runs	dpo_update_own_org_survey_runs	PERMISSIVE	{authenticated}	UPDATE	(org_id IN ( SELECT ur.org_id
+   FROM user_roles ur
+  WHERE ((ur.user_id = auth.uid()) AND (ur.role = 'dpo'::app_role))))	
+public	shadow_survey_runs	org_scoped_survey_runs_read	PERMISSIVE	{authenticated}	SELECT	((org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_dpo(auth.uid()) OR (user_id = auth.uid())))	
+public	survey_data_type	admin_select_survey_data_type	PERMISSIVE	{authenticated}	SELECT	(is_super_admin(auth.uid()) OR (EXISTS ( SELECT 1
+   FROM survey_run sr
+  WHERE ((sr.id = survey_data_type.survey_run_id) AND (sr.org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_dpo(auth.uid()))))))	
+public	survey_data_type	anon_insert_survey_data_type	PERMISSIVE	{anon,authenticated}	INSERT		true
+public	survey_invite	org_admin_dpo_manage_survey_invite	PERMISSIVE	{authenticated}	ALL	(is_super_admin(auth.uid()) OR ((is_org_admin(auth.uid()) OR is_dpo(auth.uid())) AND (org_id = get_user_org_id(auth.uid()))))	(is_super_admin(auth.uid()) OR ((is_org_admin(auth.uid()) OR is_dpo(auth.uid())) AND (org_id = get_user_org_id(auth.uid()))))
+public	survey_motivation	admin_select_survey_motivation	PERMISSIVE	{authenticated}	SELECT	(is_super_admin(auth.uid()) OR (EXISTS ( SELECT 1
+   FROM survey_run sr
+  WHERE ((sr.id = survey_motivation.survey_run_id) AND (sr.org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_dpo(auth.uid()))))))	
+public	survey_motivation	anon_insert_survey_motivation	PERMISSIVE	{anon,authenticated}	INSERT		true
+public	survey_participation	anon_insert_survey_participation	PERMISSIVE	{anon,authenticated}	INSERT		true
+public	survey_participation	anon_update_survey_participation	PERMISSIVE	{anon,authenticated}	UPDATE	true	true
+public	survey_participation	org_admin_dpo_select_survey_participation	PERMISSIVE	{authenticated}	SELECT	(is_super_admin(auth.uid()) OR (EXISTS ( SELECT 1
+   FROM survey_invite si
+  WHERE ((si.id = survey_participation.invite_id) AND (is_org_admin(auth.uid()) OR is_dpo(auth.uid())) AND (si.org_id = get_user_org_id(auth.uid()))))))	
+public	survey_profile	admin_select_survey_profile	PERMISSIVE	{authenticated}	SELECT	(is_super_admin(auth.uid()) OR (EXISTS ( SELECT 1
+   FROM survey_run sr
+  WHERE ((sr.id = survey_profile.survey_run_id) AND (sr.org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_dpo(auth.uid()))))))	
+public	survey_profile	anon_insert_survey_profile	PERMISSIVE	{anon,authenticated}	INSERT		true
+public	survey_profile	anon_update_survey_profile	PERMISSIVE	{anon,authenticated}	UPDATE	true	true
+public	survey_run	anon_complete_survey_run	PERMISSIVE	{anon}	UPDATE	true	(org_id IS NOT NULL)
+public	survey_run	anon_insert_survey_run	PERMISSIVE	{anon,authenticated}	INSERT		true
+public	survey_run	auth_complete_survey_run	PERMISSIVE	{authenticated}	UPDATE	true	(org_id IS NOT NULL)
+public	survey_run	org_admin_dpo_select_survey_run	PERMISSIVE	{authenticated}	SELECT	(is_super_admin(auth.uid()) OR ((is_org_admin(auth.uid()) OR is_dpo(auth.uid())) AND (org_id = get_user_org_id(auth.uid()))))	
+public	survey_support_need	admin_select_survey_support_need	PERMISSIVE	{authenticated}	SELECT	(is_super_admin(auth.uid()) OR (EXISTS ( SELECT 1
+   FROM survey_run sr
+  WHERE ((sr.id = survey_support_need.survey_run_id) AND (sr.org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_dpo(auth.uid()))))))	
+public	survey_support_need	anon_insert_survey_support_need	PERMISSIVE	{anon,authenticated}	INSERT		true
+public	survey_tool	admin_select_survey_tool	PERMISSIVE	{authenticated}	SELECT	(is_super_admin(auth.uid()) OR (EXISTS ( SELECT 1
+   FROM survey_run sr
+  WHERE ((sr.id = survey_tool.survey_run_id) AND (sr.org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_dpo(auth.uid()))))))	
+public	survey_tool	anon_insert_survey_tool	PERMISSIVE	{anon,authenticated}	INSERT		true
+public	survey_tool_account	admin_select_survey_tool_account	PERMISSIVE	{authenticated}	SELECT	(is_super_admin(auth.uid()) OR (EXISTS ( SELECT 1
+   FROM (survey_tool st
+     JOIN survey_run sr ON ((sr.id = st.survey_run_id)))
+  WHERE ((st.id = survey_tool_account.survey_tool_id) AND (sr.org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_dpo(auth.uid()))))))	
+public	survey_tool_account	anon_insert_survey_tool_account	PERMISSIVE	{anon,authenticated}	INSERT		true
+public	survey_tool_preference_reason	admin_select_survey_tool_preference_reason	PERMISSIVE	{authenticated}	SELECT	(is_super_admin(auth.uid()) OR (EXISTS ( SELECT 1
+   FROM survey_run sr
+  WHERE ((sr.id = survey_tool_preference_reason.survey_run_id) AND (sr.org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_dpo(auth.uid()))))))	
+public	survey_tool_preference_reason	anon_delete_active_pref_reason	PERMISSIVE	{anon,authenticated}	DELETE	(EXISTS ( SELECT 1
+   FROM survey_run sr
+  WHERE ((sr.id = survey_tool_preference_reason.survey_run_id) AND (sr.completed_at IS NULL))))	
+public	survey_tool_preference_reason	anon_insert_survey_tool_preference_reason	PERMISSIVE	{anon,authenticated}	INSERT		true
+public	survey_tool_use_case	admin_select_survey_tool_use_case	PERMISSIVE	{authenticated}	SELECT	(is_super_admin(auth.uid()) OR (EXISTS ( SELECT 1
+   FROM (survey_tool st
+     JOIN survey_run sr ON ((sr.id = st.survey_run_id)))
+  WHERE ((st.id = survey_tool_use_case.survey_tool_id) AND (sr.org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_dpo(auth.uid()))))))	
+public	survey_tool_use_case	anon_insert_survey_tool_use_case	PERMISSIVE	{anon,authenticated}	INSERT		true
+public	survey_tool_use_case_context	admin_select_survey_tool_use_case_context	PERMISSIVE	{authenticated}	SELECT	(is_super_admin(auth.uid()) OR (EXISTS ( SELECT 1
+   FROM ((survey_tool_use_case stuc
+     JOIN survey_tool st ON ((st.id = stuc.survey_tool_id)))
+     JOIN survey_run sr ON ((sr.id = st.survey_run_id)))
+  WHERE ((stuc.id = survey_tool_use_case_context.survey_tool_use_case_id) AND (sr.org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_dpo(auth.uid()))))))	
+public	survey_tool_use_case_context	anon_insert_survey_tool_use_case_context	PERMISSIVE	{anon,authenticated}	INSERT		true
+public	survey_tool_use_case_flag	admin_select_survey_tool_use_case_flag	PERMISSIVE	{authenticated}	SELECT	(is_super_admin(auth.uid()) OR (EXISTS ( SELECT 1
+   FROM ((survey_tool_use_case stuc
+     JOIN survey_tool st ON ((st.id = stuc.survey_tool_id)))
+     JOIN survey_run sr ON ((sr.id = st.survey_run_id)))
+  WHERE ((stuc.id = survey_tool_use_case_flag.survey_tool_use_case_id) AND (sr.org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_dpo(auth.uid()))))))	
+public	survey_tool_use_case_flag	anon_insert_survey_tool_use_case_flag	PERMISSIVE	{anon,authenticated}	INSERT		true
+public	survey_top_concern	admin_select_survey_top_concern	PERMISSIVE	{authenticated}	SELECT	(is_super_admin(auth.uid()) OR (EXISTS ( SELECT 1
+   FROM survey_run sr
+  WHERE ((sr.id = survey_top_concern.survey_run_id) AND (sr.org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_dpo(auth.uid()))))))	
+public	survey_top_concern	anon_insert_survey_top_concern	PERMISSIVE	{anon,authenticated}	INSERT		true
+public	survey_wave	org_admin_dpo_manage_survey_wave	PERMISSIVE	{authenticated}	ALL	(is_super_admin(auth.uid()) OR ((is_org_admin(auth.uid()) OR is_dpo(auth.uid())) AND (org_id = get_user_org_id(auth.uid()))))	(is_super_admin(auth.uid()) OR ((is_org_admin(auth.uid()) OR is_dpo(auth.uid())) AND (org_id = get_user_org_id(auth.uid()))))
+public	tool_catalog_discovery	admin_select_tool_catalog_discovery	PERMISSIVE	{authenticated}	SELECT	(is_super_admin(auth.uid()) OR ((org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_dpo(auth.uid()))))	
+public	tool_catalog_discovery	admin_update_tool_catalog_discovery	PERMISSIVE	{authenticated}	UPDATE	(is_super_admin(auth.uid()) OR ((org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_dpo(auth.uid()))))	(is_super_admin(auth.uid()) OR ((org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_dpo(auth.uid()))))
+public	tool_catalog_discovery	anon_insert_tool_catalog_discovery	PERMISSIVE	{anon,authenticated}	INSERT		true
+public	tool_catalog_discovery	super_admin_delete_tool_catalog_discovery	PERMISSIVE	{authenticated}	DELETE	is_super_admin(auth.uid())	
+public	tool_discoveries	Admins manage org-scoped tool discoveries	PERMISSIVE	{public}	ALL	(is_super_admin(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid()))))	(is_super_admin(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid()))))
+public	tool_discoveries	Users can insert own tool discoveries	PERMISSIVE	{public}	INSERT		(auth.uid() = submitted_by)
+public	tool_discoveries	Users can view own tool discoveries	PERMISSIVE	{public}	SELECT	(auth.uid() = submitted_by)	
+public	tool_discoveries	dpo_manage_own_org_tool_discoveries	PERMISSIVE	{authenticated}	ALL	(is_dpo(auth.uid()) AND (org_id = get_user_org_id(auth.uid())))	(is_dpo(auth.uid()) AND (org_id = get_user_org_id(auth.uid())))
+public	tool_discoveries	dpo_read_own_org_tool_discoveries	PERMISSIVE	{authenticated}	SELECT	(org_id IN ( SELECT ur.org_id
+   FROM user_roles ur
+  WHERE ((ur.user_id = auth.uid()) AND (ur.role = 'dpo'::app_role))))	
+public	tools_library	Org admins view published tools	PERMISSIVE	{public}	SELECT	((status = 'published'::text) AND ((org_id IS NULL) OR (org_id = get_user_org_id(auth.uid()))))	
+public	tools_library	Super admins manage all tools	PERMISSIVE	{public}	ALL	is_super_admin(auth.uid())	is_super_admin(auth.uid())
+public	tools_library	Users view published platform tools	PERMISSIVE	{public}	SELECT	((status = 'published'::text) AND ((org_id IS NULL) OR (org_id = get_user_org_id(auth.uid()))))	
+public	tools_library	anon_read_published_platform_tools	PERMISSIVE	{anon,authenticated}	SELECT	((status = 'published'::text) AND (org_id IS NULL))	
+public	user_badges	Org admins view org badges	PERMISSIVE	{public}	SELECT	((org_id = get_user_org_id(auth.uid())) AND (is_org_admin(auth.uid()) OR is_super_admin(auth.uid())))	
+public	user_badges	Users can view own badges	PERMISSIVE	{public}	SELECT	(auth.uid() = user_id)	
+public	user_badges	dpo_read_own_org_badges	PERMISSIVE	{authenticated}	SELECT	(org_id IN ( SELECT ur.org_id
+   FROM user_roles ur
+  WHERE ((ur.user_id = auth.uid()) AND (ur.role = 'dpo'::app_role))))	
+public	user_course_completions	Org admins and super admins manage course completions	PERMISSIVE	{public}	ALL	(is_super_admin(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid()))))	(is_super_admin(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid()))))
+public	user_course_completions	Users can insert their own course completions	PERMISSIVE	{public}	INSERT		(auth.uid() = user_id)
+public	user_course_completions	Users can view their own course completions	PERMISSIVE	{public}	SELECT	(auth.uid() = user_id)	
+public	user_course_progress	Org admins and super admins manage course progress	PERMISSIVE	{public}	ALL	(is_super_admin(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid()))))	(is_super_admin(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid()))))
+public	user_course_progress	Users can insert their own course progress	PERMISSIVE	{public}	INSERT		(auth.uid() = user_id)
+public	user_course_progress	Users can update their own course progress	PERMISSIVE	{public}	UPDATE	(auth.uid() = user_id)	
+public	user_course_progress	Users can view their own course progress	PERMISSIVE	{public}	SELECT	(auth.uid() = user_id)	
+public	user_lesson_completions	Org admins and super admins manage lesson completions	PERMISSIVE	{public}	ALL	(is_super_admin(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid()))))	(is_super_admin(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid()))))
+public	user_lesson_completions	Users can insert their own lesson completions	PERMISSIVE	{public}	INSERT		(auth.uid() = user_id)
+public	user_lesson_completions	Users can update their own lesson completions	PERMISSIVE	{public}	UPDATE	(auth.uid() = user_id)	(auth.uid() = user_id)
+public	user_lesson_completions	Users can view their own lesson completions	PERMISSIVE	{public}	SELECT	(auth.uid() = user_id)	
+public	user_lesson_progress	Org admins and super admins manage lesson progress	PERMISSIVE	{public}	ALL	(is_super_admin(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid()))))	(is_super_admin(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid()))))
+public	user_lesson_progress	Users manage own lesson progress	PERMISSIVE	{authenticated}	ALL	(auth.uid() = user_id)	(auth.uid() = user_id)
+public	user_roles	Org admins and super admins manage roles	PERMISSIVE	{authenticated}	ALL	(is_super_admin(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid()))))	(is_super_admin(auth.uid()) OR (has_role(auth.uid(), 'org_admin'::app_role) AND (org_id = get_user_org_id(auth.uid()))))
+public	user_roles	Users can view their own roles	PERMISSIVE	{authenticated}	SELECT	(auth.uid() = user_id)	

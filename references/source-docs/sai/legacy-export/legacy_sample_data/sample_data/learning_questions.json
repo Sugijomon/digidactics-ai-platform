@@ -1,0 +1,40 @@
+[
+  {
+    "id": "a2be2c5f-42fa-4db7-8a86-e927818bc860",
+    "lesson_id": null,
+    "question_type": "true_false",
+    "question_text": "Is het vandaag vrijdag? ",
+    "question_config": {},
+    "correct_answer": {
+      "selected": false
+    },
+    "points": 1,
+    "explanation": "Vandaag is het woensdag",
+    "order_index": 0,
+    "is_required": true,
+    "org_id": "00000000-0000-0000-0000-000000000001",
+    "created_at": "2026-01-28T10:50:35.535517+00:00",
+    "updated_at": "2026-01-28T10:50:35.535517+00:00",
+    "created_by": "43b7bcca-4f80-4410-b7dc-0fbb9fa9da9f"
+  },
+  {
+    "id": "32249207-a110-4ba1-8426-34265a3908b4",
+    "lesson_id": "b40e2e63-8fb2-4868-9dcd-19a36a2e0f69",
+    "question_type": "fill_in",
+    "question_text": "Wat zijn de onderdelen van een AI-strategie? ",
+    "question_config": {
+      "case_sensitive": false
+    },
+    "correct_answer": {
+      "text": "Heel veel onderdelen"
+    },
+    "points": 1,
+    "explanation": "Omdat het zo is",
+    "order_index": 0,
+    "is_required": true,
+    "org_id": "00000000-0000-0000-0000-000000000001",
+    "created_at": "2026-03-14T09:04:13.082524+00:00",
+    "updated_at": "2026-03-14T09:04:13.082524+00:00",
+    "created_by": "3b9e5d6c-56a2-4d6f-92b1-f4d494fd72cb"
+  }
+]

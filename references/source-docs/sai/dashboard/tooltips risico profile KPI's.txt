@@ -1,0 +1,12 @@
+tooltips risico profile KPI's
+
+Datatype is respondentbreed proxy — niet per tool afzonderlijk bewezen.
+Label: Indicatieve exposure class.
+Aandeel respondenten met minstens één tool met status under_review, restricted, prohibited of unknown op het moment van de scan.
+Toxic boost (+20 pts) activeert bij shadow_score > 50 én exposure_score > 50.
+Geen formele classificatie.
+Potential flag op basis van proxy-signalen.
+Geen formele EU AI Act-classificatie. Alleen zichtbaar in DPO-laag.
+dpo_review_required = true.
+Drempelwaarde exposure > 40 (configureerbaar).
+Review = prioritering, geen bewijs van overtreding.

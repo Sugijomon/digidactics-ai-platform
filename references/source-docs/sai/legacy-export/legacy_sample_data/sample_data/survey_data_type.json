@@ -1,0 +1,58 @@
+[
+  {
+    "survey_run_id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+    "data_type_code": "publiek"
+  },
+  {
+    "survey_run_id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+    "data_type_code": "interne_email"
+  },
+  {
+    "survey_run_id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+    "data_type_code": "interne_documenten"
+  },
+  {
+    "survey_run_id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+    "data_type_code": "broncode_logica"
+  },
+  {
+    "survey_run_id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+    "data_type_code": "financiele_data"
+  },
+  {
+    "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+    "data_type_code": "excel_sheets"
+  },
+  {
+    "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+    "data_type_code": "financiele_data"
+  },
+  {
+    "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+    "data_type_code": "gevoelig_persoonsgegeven"
+  },
+  {
+    "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+    "data_type_code": "klantdata"
+  },
+  {
+    "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+    "data_type_code": "klantdata"
+  },
+  {
+    "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+    "data_type_code": "gevoelig_persoonsgegeven"
+  },
+  {
+    "survey_run_id": "d863cf34-e668-463b-b184-f09403d51454",
+    "data_type_code": "gevoelig_persoonsgegeven"
+  },
+  {
+    "survey_run_id": "e7c2cec6-3196-49b7-9677-d4229e7a0d19",
+    "data_type_code": "namen"
+  },
+  {
+    "survey_run_id": "39f60073-61d1-4503-b108-f8e052a15e78",
+    "data_type_code": "interne_documenten"
+  }
+]

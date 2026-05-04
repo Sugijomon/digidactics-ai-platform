@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+
+<html class="light" lang="nl"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tool Inventaris | Shadow AI Governance</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-low": "#f0f4f7",
+                      "surface-container-lowest": "#ffffff",
+                      "on-secondary": "#eeffd5",
+                      "on-tertiary-fixed": "#000000",
+                      "surface-bright": "#f7f9fb",
+                      "on-background": "#2a3439",
+                      "background": "#f7f9fb",
+                      "inverse-primary": "#e8eeff",
+                      "error-dim": "#4e0309",
+                      "primary-dim": "#4c5260",
+                      "tertiary-fixed-dim": "#ed5351",
+                      "outline": "#717c82",
+                      "on-primary-container": "#4c525f",
+                      "inverse-surface": "#0b0f10",
+                      "tertiary-container": "#ff605d",
+                      "surface": "#f7f9fb",
+                      "surface-container-highest": "#d9e4ea",
+                      "primary-fixed-dim": "#cfd4e5",
+                      "on-secondary-fixed": "#284700",
+                      "secondary-fixed-dim": "#aae667",
+                      "on-tertiary": "#fff7f6",
+                      "primary-container": "#dde2f3",
+                      "tertiary": "#b4292d",
+                      "on-tertiary-fixed-variant": "#4d0006",
+                      "inverse-on-surface": "#9a9d9f",
+                      "outline-variant": "#a9b4b9",
+                      "error": "#9f403d",
+                      "surface-container": "#e8eff3",
+                      "surface-dim": "#cfdce3",
+                      "tertiary-fixed": "#ff605d",
+                      "primary-fixed": "#dde2f3",
+                      "surface-container-high": "#e1e9ee",
+                      "on-tertiary-container": "#380003",
+                      "surface-variant": "#d9e4ea",
+                      "on-secondary-fixed-variant": "#3c6600",
+                      "on-primary": "#f7f7ff",
+                      "on-surface-variant": "#566166",
+                      "on-primary-fixed-variant": "#565b69",
+                      "on-error-container": "#752121",
+                      "tertiary-dim": "#a21b22",
+                      "primary": "#585e6c",
+                      "error-container": "#fe8983",
+                      "on-secondary-container": "#355c00",
+                      "secondary-fixed": "#b7f473",
+                      "secondary-dim": "#365d00",
+                      "on-primary-fixed": "#393f4c",
+                      "on-error": "#fff7f6",
+                      "secondary-container": "#b7f473",
+                      "on-surface": "#2a3439",
+                      "surface-tint": "#585e6c",
+                      "secondary": "#3e6a00"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "fontFamily": {
+                      "headline": ["Manrope"],
+                      "body": ["Inter"],
+                      "label": ["Inter"]
+              }
+            },
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4 { font-family: 'Manrope', sans-serif; }
+        .accordion-content { display: none; }
+        .accordion-item.is-open .accordion-content { display: block; }
+        .accordion-icon { transition: transform .2s ease; }
+        .accordion-item.is-open .accordion-icon { transform: rotate(180deg); }
+                .card-header:focus, .card-header:active,
+        .card-header:focus-visible,
+        [data-accordion-trigger]:focus,
+        [data-accordion-trigger]:active,
+        [data-accordion-trigger]:focus-visible,
+        button:focus,
+        button:active,
+        button:focus-visible,
+        input:focus,
+        input:focus-visible,
+        select:focus,
+        select:focus-visible,
+        textarea:focus,
+        textarea:focus-visible,
+        [tabindex]:focus,
+        [tabindex]:focus-visible,
+        [role="combobox"]:focus,
+        [role="combobox"]:focus-visible,
+        [data-state='open'],
+        .flex.items-center.gap-2:focus-within {
+            outline: none !important;
+            box-shadow: none !important;
+            border-color: inherit !important;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .participant-scroll { width: 100%; max-width: 100%; overflow: hidden; }
+        .participant-scroll-head { width: 100%; max-width: 100%; overflow: hidden; background: #f8fafc; border-bottom: 1px solid rgba(203,213,225,.7); box-shadow: 0 12px 18px -18px rgba(15,23,42,.22); position: relative; z-index: 2; }
+        .participant-scroll-body { width: 100%; max-width: 100%; max-height: 420px; overflow-y: auto; overflow-x: hidden; padding-right: 10px; scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: #b8c3cf transparent; }
+        .participant-scroll-body::-webkit-scrollbar { width: 8px; }
+        .participant-scroll-body::-webkit-scrollbar-track { background: transparent; }
+        .participant-scroll-body::-webkit-scrollbar-thumb { background: #c5d0da; border-radius: 999px; border: 2px solid transparent; background-clip: padding-box; }
+        .participant-scroll-body::-webkit-scrollbar-thumb:hover { background: #acb8c5; border: 2px solid transparent; background-clip: padding-box; }
+        .participant-table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; min-width: 0; }
+        .participant-table thead th { background: #f8fafc; box-shadow: inset 0 -1px 0 rgba(203,213,225,.7); }
+        .participant-table tbody tr { border-bottom: 1px solid rgba(169,180,185,.16); }
+        .participant-table td { padding-top: 14px; padding-bottom: 14px; vertical-align: middle; }
+        .org-shell.is-editing .org-display { display: none; }
+        .org-shell:not(.is-editing) .org-edit { display: none; }
+        .org-card { border: 1px solid #cbd5e1; border-radius: 14px; background: #ffffff; padding: 18px; min-height: 100%; }
+        .org-label { font-size: 11px; font-weight: 800; text-transform: uppercase; color: #64748b; margin-bottom: 8px; }
+        .org-value { display: block; width: 100%; padding: 14px 16px; border: 1px solid #dbe3ec; border-radius: 8px; background: #f8fbff; font-size: 14px; font-weight: 500; color: #1e293b; }
+        .org-edit { width: 100%; padding: 14px 16px; border: 1px solid #dbe3ec; border-radius: 8px; background: #f8fbff; font-size: 14px; font-weight: 500; color: #1e293b; outline: none; }
+        .org-edit:focus { border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14,165,233,.12); }
+        .dpo-matrix-wrap { display:flex; flex-direction:column; gap:22px; }
+        .dpo-matrix-main { min-width:0; overflow-x:auto; border:1px solid #eef2f7; border-radius:16px; background:linear-gradient(180deg, #ffffff 0%, #fbfdff 100%); padding:18px 18px 16px; }
+        .dpo-matrix-side { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:16px; }
+        .dpo-matrix-side-section { margin-bottom:0; min-width:0; }
+        .dpo-matrix-side-card { border:1px solid #e2e8f0; border-radius:14px; background:#f8fafc; padding:16px 16px 14px; min-height:100%; box-shadow:0 10px 24px rgba(15,23,42,.04); }
+        .dpo-matrix-side-label { font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#64748b; margin-bottom:12px; }
+        .dpo-matrix-radio { display:flex; align-items:flex-start; gap:10px; margin-bottom:10px; cursor:pointer; padding:2px 0; background:transparent; border:none; box-shadow:none; }
+        .dpo-matrix-radio input { margin-top:2px; width:22px; height:22px; flex-shrink:0; appearance:none; -webkit-appearance:none; border:2px solid #bfc7cf; border-radius:50%; background:#ffffff; display:flex; align-items:center; justify-content:center; transition:all .25s cubic-bezier(0.4, 0, 0.2, 1); cursor:pointer; outline:none; }
+        .dpo-matrix-radio input::after { content:''; width:10px; height:10px; border-radius:50%; background:#64748b; transform:scale(0); transition:transform .25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .dpo-matrix-radio input:checked { border-color:#94a3b8; background:#ffffff; }
+        .dpo-matrix-radio input:checked::after { transform:scale(1); }
+        .dpo-matrix-radio-text { font-size:12px; font-weight:600; color:#1e293b; line-height:1.35; }
+        .dpo-matrix-radio-sub { display:block; font-size:10px; color:#64748b; margin-top:2px; }
+        .dpo-matrix-toggle-row { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+        .dpo-matrix-toggle-label { font-size:12px; font-weight:600; color:#1e293b; }
+        .dpo-matrix-toggle-sub { display:block; font-size:10px; color:#64748b; }
+        .dpo-matrix-toggle { position:relative; width:38px; height:20px; flex-shrink:0; }
+        .dpo-matrix-toggle input { opacity:0; width:0; height:0; }
+        .dpo-matrix-toggle-track { position:absolute; inset:0; border-radius:999px; background:#cbd5e1; transition:background .2s; }
+        .dpo-matrix-toggle input:checked + .dpo-matrix-toggle-track { background:#0E5A75; }
+        .dpo-matrix-toggle-thumb { position:absolute; top:3px; left:3px; width:14px; height:14px; border-radius:999px; background:#fff; transition:transform .2s; pointer-events:none; }
+        .dpo-matrix-toggle input:checked ~ .dpo-matrix-toggle-thumb { transform:translateX(18px); }
+        .dpo-matrix-reset { width:100%; display:inline-flex; align-items:center; justify-content:center; gap:8px; border:1px solid #dbe3ec; border-radius:12px; background:#fff; color:#64748b; font-size:11px; font-weight:700; padding:9px 12px; transition:background .2s,color .2s, border-color .2s; }
+        .dpo-matrix-reset:hover { background:#f8fafc; color:#334155; }
+        .dpo-matrix-audit { display:none; margin-bottom:12px; border:1px solid #F2C8C8; background:#FEF2F2; color:#9f403d; border-radius:8px; padding:8px 10px; font-size:11px; font-weight:700; }
+        .dpo-matrix-info { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin:0 0 14px 36px; font-size:12px; color:#64748b; }
+        .dpo-matrix-pill { display:inline-flex; align-items:center; border-radius:999px; border:1px solid #dbe3ec; background:#f8fafc; padding:4px 10px; font-size:10px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.04em; }
+        /* ── DPO Matrix — redesigned ── */
+        .dpo-matrix-table { border-collapse:separate; border-spacing:3px; table-layout:fixed; min-width:0; width:100%; }
+        .dpo-matrix-table thead th:first-child { width:36px; }
+        .dpo-matrix-table thead th:last-child { width:168px; }
+
+        /* Cells */
+        .dpo-matrix-table tbody td {
+          width:48px; height:48px; padding:0;
+          border:none; background:#f8fafc;
+          border-radius:10px;
+          text-align:center; vertical-align:middle;
+          transition:background 0.15s;
+        }
+        .dpo-matrix-table tbody td:has(.dpo-matrix-cell) {
+          background:#f1f5f9;
+        }
+        .dpo-matrix-table tbody td:has(.dpo-matrix-cell:not(.dpo-matrix-cell-na)):hover {
+          background:#e9f0f7;
+        }
+
+        /* Cell bubble — scale with usage */
+        .dpo-matrix-cell {
+          display:inline-flex; border-radius:50%;
+          position:relative; cursor:pointer;
+          transition:transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s;
+          align-items:center; justify-content:center;
+          box-shadow:0 2px 8px rgba(15,23,42,.12);
+        }
+        .dpo-matrix-cell:hover {
+          transform:scale(1.18);
+          box-shadow:0 6px 18px rgba(15,23,42,.22);
+          z-index:2;
+        }
+        .dpo-matrix-cell-na {
+          display:block; width:10px; height:10px;
+          border-radius:50%; background:#e2e8f0;
+          margin:0 auto; cursor:default;
+          box-shadow:none; opacity:0.5;
+        }
+
+        /* Column headers */
+        .dpo-matrix-col-head { padding:0 3px 14px; text-align:center; vertical-align:bottom; }
+        .dpo-matrix-col-head.dpo-matrix-hover-head { background:transparent; }
+        .dpo-matrix-col-name {
+          display:block; font-size:11px; font-weight:800;
+          font-family:'Manrope',sans-serif;
+          color:#334155; line-height:1.25;
+          white-space:normal; overflow-wrap:anywhere;
+          max-width:90px; margin:0 auto;
+        }
+        .dpo-matrix-col-sub { display:block; font-size:9px; font-weight:500; color:#94a3b8; margin-top:3px; }
+        .dpo-matrix-col-badge {
+          display:inline-block; margin-top:5px;
+          border-radius:999px; padding:2px 7px;
+          font-size:9px; font-weight:700; white-space:nowrap;
+          font-family:'Inter',sans-serif;
+          letter-spacing:0.02em;
+        }
+
+        /* Row headers */
+        .dpo-matrix-row-spacer { min-width:28px; width:28px; padding:0; border:none; background:transparent; }
+        .dpo-matrix-row-head { min-width:156px; padding:6px 12px 6px 0; vertical-align:middle; text-align:left; }
+        .dpo-matrix-row-head-right { min-width:156px; padding:6px 0 6px 12px; vertical-align:middle; text-align:left; }
+        .dpo-matrix-row-head.dpo-matrix-hover-head,
+        .dpo-matrix-row-head-right.dpo-matrix-hover-head { background:transparent; }
+        .dpo-matrix-row-name {
+          font-size:12.5px; font-weight:700;
+          font-family:'Manrope',sans-serif;
+          color:#1e293b; line-height:1.25;
+        }
+        .dpo-matrix-row-sub { font-size:10px; color:#94a3b8; margin-top:2px; font-weight:500; }
+        .dpo-matrix-row-badge {
+          display:inline-block; margin-top:5px;
+          border-radius:999px; padding:2px 7px;
+          font-size:9px; font-weight:700;
+          font-family:'Inter',sans-serif;
+        }
+
+        /* Cell wrap */
+        .dpo-matrix-table tbody td .dpo-matrix-cell-wrap {
+          width:100%; height:100%;
+          display:flex; align-items:center; justify-content:center;
+          position:relative;
+        }
+
+        /* EU AI dot */
+        .dpo-matrix-cell-dot {
+          position:absolute; top:-5px; right:-5px;
+          width:16px; height:16px; border-radius:50%;
+          background:#ffffff;
+          box-shadow:0 0 0 2px #ffffff;
+          display:flex; align-items:center; justify-content:center;
+        }
+        .dpo-matrix-cell-dot svg { display:block; width:100%; height:100%; }
+
+        /* Count label */
+        .dpo-matrix-cell-count {
+          display:none !important;
+          position:absolute; left:0; right:0; bottom:3px;
+          text-align:center; font-size:9px; font-weight:600;
+          color:rgba(255,255,255,.92); line-height:1; pointer-events:none;
+          text-shadow:0 1px 1px rgba(15,23,42,.25);
+        }
+        .dpo-matrix-cell-count.is-hidden { display:none; }
+
+        /* Tooltip */
+        .dpo-matrix-tooltip { display:none !important; }
+        .dpo-matrix-cell:hover .dpo-matrix-tooltip { display:none !important; }
+
+        /* Legend */
+        .dpo-matrix-legend {
+          display:flex; flex-wrap:wrap; align-items:center;
+          gap:14px; margin-top:16px; margin-left:28px;
+        }
+        .dpo-matrix-legend-item {
+          display:flex; align-items:center; gap:6px;
+          font-size:10px; color:#64748b; white-space:nowrap;
+          font-family:'Inter',sans-serif;
+        }
+        .dpo-matrix-legend-swatch { width:11px; height:11px; border-radius:50%; flex-shrink:0; }
+        .dpo-matrix-legend-dashed {
+          width:11px; height:11px; border-radius:50%;
+          border:1.5px solid #cbd5e1; background:#f8fafc; flex-shrink:0;
+        }
+        .dpo-matrix-divider { width:1px; height:12px; background:#dbe3ec; }
+        .dpo-matrix-legend-legal { position:relative; cursor:help; outline:none; }
+        .dpo-matrix-legend-legal:focus-visible { border-radius:8px; box-shadow:0 0 0 3px rgba(14,90,117,.14); }
+        .dpo-matrix-legend-tip {
+            position:absolute; left:0; bottom:calc(100% + 9px); width:260px;
+            border:1px solid #dbe3ec; border-radius:10px; background:#ffffff;
+            padding:10px 11px; box-shadow:0 14px 28px rgba(15,23,42,.14);
+            color:#475569; font-size:11px; line-height:1.45; white-space:normal;
+            opacity:0; visibility:hidden; transform:translateY(4px);
+            transition:opacity .16s ease, visibility .16s ease, transform .16s ease;
+            z-index:25;
+        }
+        .dpo-matrix-legend-tip strong { display:block; color:#1e293b; font-size:11px; margin-bottom:4px; }
+        .dpo-matrix-legend-tip::after {
+            content:''; position:absolute; top:100%; left:18px;
+            border-width:6px; border-style:solid; border-color:#ffffff transparent transparent transparent;
+        }
+        .dpo-matrix-legend-legal:hover .dpo-matrix-legend-tip,
+        .dpo-matrix-legend-legal:focus .dpo-matrix-legend-tip {
+            opacity:1; visibility:visible; transform:translateY(0);
+        }
+        .dpo-matrix-note { display:none; }
+        .dpo-matrix-scope-footer { display:flex; justify-content:flex-end; margin-top:10px; padding-right:0; }
+        @media (max-width: 1380px) {
+            .dpo-matrix-table thead th:first-child { width:28px; }
+            .dpo-matrix-col-head { padding:0 4px 10px; }
+            .dpo-matrix-col-name { font-size:10px; max-width:82px; }
+            .dpo-matrix-col-sub { font-size:9px; }
+            .dpo-matrix-row-spacer { min-width:28px; width:28px; padding-right:0; }
+            .dpo-matrix-row-head { min-width:160px; padding-right:12px; }
+            .dpo-matrix-row-head-right { min-width:160px; padding-left:12px; }
+            .dpo-matrix-row-name { font-size:12px; }
+            .dpo-matrix-row-sub { font-size:10px; }
+            .dpo-matrix-table tbody td { width:42px; height:42px; }
+            .dpo-matrix-table tbody td .dpo-matrix-cell-wrap { width:100%; height:100%; }
+            .dpo-matrix-info { margin-left:28px; }
+            .dpo-matrix-legend { margin-left:28px; }
+        }
+        .dpo-matrix-modal-bg { display:none; position:fixed; inset:0; background:rgba(15,23,42,.38); z-index:60; align-items:center; justify-content:center; }
+        .dpo-matrix-modal-bg.open { display:flex; }
+        .dpo-matrix-modal { width:min(92vw, 420px); border:1px solid #dbe3ec; border-radius:14px; background:#fff; padding:20px; box-shadow:0 20px 40px rgba(15,23,42,.18); }
+        .dpo-matrix-modal-head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:12px; }
+        .dpo-matrix-modal-title { font-size:15px; font-weight:800; color:#1e293b; }
+        .dpo-matrix-modal-close { background:none; border:none; font-size:20px; line-height:1; color:#94a3b8; cursor:pointer; padding:0; }
+        .dpo-matrix-modal-row { display:flex; justify-content:space-between; gap:12px; padding:7px 0; border-bottom:1px solid #eef2f7; font-size:12px; }
+        .dpo-matrix-modal-row:last-child { border-bottom:none; }
+        .dpo-matrix-modal-key { color:#64748b; }
+        .dpo-matrix-modal-val { font-weight:700; color:#1e293b; text-align:right; }
+        .dpo-matrix-modal-action { width:100%; margin-top:12px; border:1px solid #bfe7ff; background:#ecf7ff; color:#0E5A75; border-radius:8px; padding:9px 12px; font-size:12px; font-weight:700; transition:background .2s; }
+        .dpo-matrix-modal-action:hover { background:#d9f0ff; }
+        @media (max-width: 1100px) {
+            .dpo-matrix-side { grid-template-columns:1fr; }
+            .dpo-matrix-info { margin-left:0; }
+            .dpo-matrix-legend { margin-left:0; }
+        }
+        .profile-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            width: 256px;
+            background: #ffffff;
+            border: 1px solid #dbe3ec;
+            border-radius: 12px;
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.10);
+            overflow: hidden;
+            display: none;
+            z-index: 30;
+        }
+        .profile-menu.is-open { display: block; }
+        @media (max-width: 980px) {
+            .participant-scroll { overflow: visible; }
+            .participant-scroll-head { display: none; }
+            .participant-scroll-body { max-height: none; overflow: visible; padding-right: 0; scrollbar-gutter: auto; }
+            .participant-table { min-width: 0 !important; }
+            .participant-table, .participant-table thead, .participant-table tbody, .participant-table tr, .participant-table td { display: block; width: 100%; }
+            .participant-table thead { display: none; }
+            .participant-table tbody tr { padding: 12px 0; }
+            .participant-table td { padding: 6px 0 !important; text-align: left !important; }
+            .participant-table td[data-label]::before { content: attr(data-label); display: block; margin-bottom: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #566166; }
+        }
+            /* Neutraliseer browseraccenten op matrix-radio's. */
+        .dpo-matrix-radio {
+            -webkit-tap-highlight-color: transparent;
+        }
+        .dpo-matrix-radio input[type="radio"],
+        .dpo-matrix-radio input[type="radio"]:focus,
+        .dpo-matrix-radio input[type="radio"]:focus-visible,
+        .dpo-matrix-radio input[type="radio"]:active {
+            accent-color: #64748b !important;
+            outline: none !important;
+            box-shadow: none !important;
+            border-color: #94a3b8 !important;
+            background: #ffffff !important;
+        }
+        .dpo-matrix-radio input[type="radio"]::after {
+            background: #64748b !important;
+        }
+        .dpo-matrix-radio:focus-within {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        .dpo-matrix-radio:has(input[type="radio"]:checked) {
+            background-color: transparent !important;
+            border-radius: 0;
+        }
+        /* Laatste override voor Tailwind Forms / browser radio-accenten. */
+        .dpo-matrix-radio input[type="radio"] {
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            color: #64748b !important;
+            background-color: #ffffff !important;
+            background-image: none !important;
+            border-color: #bfc7cf !important;
+            outline: none !important;
+            box-shadow: none !important;
+            --tw-ring-color: transparent !important;
+            --tw-ring-shadow: 0 0 #0000 !important;
+            --tw-shadow: 0 0 #0000 !important;
+        }
+        .dpo-matrix-radio input[type="radio"]:checked,
+        .dpo-matrix-radio input[type="radio"]:focus,
+        .dpo-matrix-radio input[type="radio"]:focus-visible,
+        .dpo-matrix-radio input[type="radio"]:active {
+            color: #64748b !important;
+            background-color: #ffffff !important;
+            background-image: none !important;
+            border-color: #94a3b8 !important;
+            outline: none !important;
+            box-shadow: none !important;
+            --tw-ring-color: transparent !important;
+            --tw-ring-shadow: 0 0 #0000 !important;
+            --tw-shadow: 0 0 #0000 !important;
+        }
+        .dpo-matrix-radio input[type="radio"]:checked::after {
+            background: #64748b !important;
+            transform: scale(1);
+        }
+        .tool-kpi-grid {
+            align-items: stretch;
+        }
+        .tool-kpi-card {
+            min-height: 136px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+        .tool-kpi-card h3 {
+            line-height: 1;
+        }
+        .tool-kpi-card .tool-kpi-sub {
+            min-height: 2.5em;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            text-align: center;
+        }
+</style>
+</head>
+<body class="bg-surface text-on-surface flex min-h-screen overflow-x-hidden">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 z-[90] h-full w-64 bg-slate-50 dark:bg-slate-900 flex flex-col gap-2 p-4 border-r border-slate-200 dark:border-slate-800">
+  <div class="mb-8 px-4">
+    <h1 class="font-bold text-slate-800 dark:text-slate-100 text-lg">DPO Governance</h1>
+    <p class="text-sm font-medium text-slate-500">Beheerdersdashboard</p>
+  </div>
+  <nav class="flex flex-col gap-2">
+    <a class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg px-4 py-3 flex items-center gap-3 transition-all duration-200 ease-in-out" href="#">
+      <span class="material-symbols-outlined" data-icon="play_circle">play_circle</span>
+      <span class="font-manrope text-sm">Activatie</span>
+    </a>
+    <a class="bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white font-bold rounded-lg px-4 py-3 flex items-center gap-3 transition-all duration-200 ease-in-out" href="#">
+      <span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+      <span class="font-manrope text-sm">Tool Inventaris</span>
+    </a>
+    <a class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg px-4 py-3 flex items-center gap-3 transition-all duration-200 ease-in-out" href="#">
+      <span class="material-symbols-outlined" data-icon="assessment">assessment</span>
+      <span class="font-manrope text-sm">Risicoprofiel</span>
+    </a>
+    <a class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg px-4 py-3 flex items-center gap-3 transition-all duration-200 ease-in-out" href="#">
+      <span class="material-symbols-outlined" data-icon="gavel">gavel</span>
+      <span class="font-manrope text-sm">Governance</span>
+    </a>
+    <a class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg px-4 py-3 flex items-center gap-3 transition-all duration-200 ease-in-out" href="#">
+      <span class="material-symbols-outlined" data-icon="description">description</span>
+      <span class="font-manrope text-sm">Rapportage</span>
+    </a>
+  </nav>
+  <div class="mt-auto px-2 pb-2">
+    <div class="space-y-0.5">
+      <a class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-slate-500 hover:bg-slate-100 transition-colors" href="#">
+        <span class="material-symbols-outlined text-[15px]">lightbulb</span>
+        <span class="text-[12px] font-medium">Kennisbank</span>
+      </a>
+      <a class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-slate-500 hover:bg-slate-100 transition-colors" href="#">
+        <span class="material-symbols-outlined text-[15px]">notifications_none</span>
+        <span class="text-[12px] font-medium">Support</span>
+      </a>
+    </div>
+  </div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 w-[calc(100vw-16rem)] max-w-[calc(100vw-16rem)] flex flex-col min-h-screen overflow-x-hidden">
+<!-- TopNavBar -->
+<header class="bg-slate-50/95 dark:bg-slate-900/95 sticky top-0 z-[80] border-b border-slate-200/70 shadow-[0_1px_0_rgba(148,163,184,0.10)] backdrop-blur-sm">
+<div class="w-full px-7 py-2.5 grid grid-cols-[minmax(320px,1fr)_minmax(320px,1fr)_minmax(210px,1fr)] items-center gap-4">
+<div class="min-w-0 flex items-center gap-4">
+<span class="text-[24px] font-bold tracking-tight text-slate-800 dark:text-slate-100">Shadow AI Scan</span>
+<span class="px-3.5 py-1.5 rounded-full bg-[#CFEA7B] text-[#4D7800] font-bold text-[13px] flex items-center gap-2 shadow-sm leading-none shrink-0">
+<span class="w-2.5 h-2.5 rounded-full bg-[#4D7800]"></span>
+Open
+</span>
+</div>
+<div class="flex items-center justify-center gap-2 min-w-0">
+<span class="material-symbols-outlined text-slate-500 text-[19px] leading-none shrink-0">calendar_today</span>
+<span class="text-[15px] font-bold text-slate-800 whitespace-nowrap leading-none">Sluit op 23 april</span>
+<span class="text-[12px] text-slate-600 bg-slate-100 px-3 py-1.5 rounded-xl whitespace-nowrap">(nog 8 dagen)</span>
+</div>
+<div class="relative flex justify-end min-w-0">
+<button id="profile-menu-button" class="flex items-center gap-2.5 rounded-full px-2.5 py-1 hover:bg-slate-100 transition-colors" type="button" aria-expanded="false">
+<div class="w-10 h-10 rounded-full border border-slate-200 text-slate-500 flex items-center justify-center bg-white">
+<span class="material-symbols-outlined text-[18px]">person</span>
+</div>
+<div class="text-left leading-tight">
+<p class="text-[13px] font-bold text-slate-800">Marjan Jansen</p>
+<p class="text-[9px] font-semibold text-slate-500 mt-0.5">DPO</p>
+</div>
+<span class="material-symbols-outlined text-[18px] text-slate-500">expand_more</span>
+</button>
+<div id="profile-menu" class="profile-menu">
+<div class="px-4 py-3.5 border-b border-slate-100">
+<p class="text-[15px] font-bold text-slate-800">Marjan Jansen</p>
+<p class="text-[12px] text-slate-500 mt-1">marjan@digidactics.nl</p>
+</div>
+<button class="w-full flex items-center gap-3 px-4 py-3.5 text-left text-slate-800 hover:bg-slate-50 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">person</span>
+<span class="text-[15px]">Mijn Profiel</span>
+</button>
+<button class="w-full flex items-center gap-3 px-4 py-3.5 text-left text-[#ff4b3e] hover:bg-red-50 transition-colors border-t border-slate-100" type="button">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+<span class="text-[15px]">Uitloggen</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+  <div class="p-8 space-y-8">
+    <div>
+      <h2 class="text-3xl font-extrabold text-on-surface tracking-tight mb-1">Tool Inventaris</h2>
+      <p class="text-sm font-medium text-on-surface-variant">Bekijk welke AI-tools in gebruik zijn, hoe ze in de catalogus staan en welk beleid ervoor geldt. De analyse is gegroepeerd op tools en clusters; individuele medewerkers worden niet getoond.</p>
+    </div>
+<!-- Tool Inventaris KPIs -->
+<section class="rounded-2xl border border-slate-200 bg-slate-50/80 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
+  <div class="tool-kpi-grid grid grid-cols-1 md:grid-cols-5 gap-4">
+
+    <!-- KPI 1: Totaal tools -->
+    <div class="tool-kpi-card bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/10 shadow-[0_8px_24px_rgba(26,32,44,0.06)] text-center">
+      <p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-tight mb-1">Totaal tools</p>
+      <h3 id="kpi-total" class="text-4xl font-bold font-headline tabular-nums text-on-surface">8</h3>
+      <p class="tool-kpi-sub text-[10px] text-on-surface-variant mt-1">in de inventaris</p>
+    </div>
+
+    <!-- KPI 2: Shadow AI Ratio (tools) -->
+    <div class="tool-kpi-card bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/10 shadow-[0_8px_24px_rgba(26,32,44,0.06)] text-center">
+      <p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-tight mb-1">Shadow AI Ratio</p>
+      <h3 id="kpi-shadow-ratio" class="text-4xl font-bold font-headline tabular-nums" style="color:#C0392B;">63%</h3>
+      <div class="w-full bg-surface-container-low h-1.5 rounded-full overflow-hidden mt-2">
+        <div id="kpi-shadow-bar" class="h-full rounded-full transition-all duration-500" style="width:63%; background:#C0392B;"></div>
+      </div>
+      <p class="tool-kpi-sub text-[10px] text-on-surface-variant mt-1">tools niet goedgekeurd</p>
+    </div>
+
+    <!-- KPI 3: Shadow AI Ratio (users) -->
+    <div class="tool-kpi-card bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/10 shadow-[0_8px_24px_rgba(26,32,44,0.06)] text-center">
+      <p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-tight mb-1">Shadow AI Ratio</p>
+      <h3 id="kpi-shadow-users-ratio" class="text-4xl font-bold font-headline tabular-nums" style="color:#D08212;">42%</h3>
+      <div class="w-full bg-surface-container-low h-1.5 rounded-full overflow-hidden mt-2">
+        <div id="kpi-shadow-users-bar" class="h-full rounded-full transition-all duration-500" style="width:42%; background:#D08212;"></div>
+      </div>
+      <p class="tool-kpi-sub text-[10px] text-on-surface-variant mt-1">gebruikers op niet-goedgekeurde tools</p>
+    </div>
+
+    <!-- KPI 4: Nieuw ontdekt -->
+    <div class="tool-kpi-card bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/10 shadow-[0_8px_24px_rgba(26,32,44,0.06)] text-center">
+      <p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-tight mb-1">Nieuw ontdekt</p>
+      <h3 id="kpi-new" class="text-4xl font-bold font-headline tabular-nums text-on-surface">3</h3>
+      <p class="tool-kpi-sub text-[10px] text-on-surface-variant mt-1">5 nieuw deze week &middot; oudste 41 dagen</p>
+    </div>
+
+    <!-- KPI 5: Reviews open -->
+    <div class="tool-kpi-card bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/10 shadow-[0_8px_24px_rgba(26,32,44,0.06)] text-center">
+      <p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-tight mb-1">Reviews open</p>
+      <h3 id="kpi-reviews" class="text-4xl font-bold font-headline tabular-nums text-on-surface">2</h3>
+      <p class="tool-kpi-sub text-[10px] text-on-surface-variant mt-1">wachten op beoordeling</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- 4. Tool Inventaris -->
+<section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col relative">
+<img src="verfijnd patroon V3.png" alt="" aria-hidden="true" class="pointer-events-none absolute right-0 top-0 w-[320px] max-w-[34%] opacity-80"/>
+<div class="px-6 pt-6 pb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between relative z-10">
+<div class="min-w-0 flex-1">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-sky-500 text-[26px] flex-shrink-0 mt-1">inventory_2</span>
+<div class="min-w-0 flex-1">
+<h2 class="text-xl font-bold text-slate-800">AI-toolregister</h2>
+<p class="text-sm text-slate-500 mt-1">Filter, beoordeel en beheer de gevonden AI-tools. De tabel toont toolclusters en beleidsstatussen; individuele medewerkers worden niet getoond.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="px-6 pb-4 flex flex-wrap gap-2 relative z-10">
+<button id="clear-filters-btn" class="inline-flex items-center justify-center gap-2 whitespace-nowrap px-4 py-2 bg-white border border-slate-200 text-slate-500 rounded-xl text-xs font-semibold hover:bg-slate-50 hover:text-slate-700 transition-all" type="button">
+<span class="material-symbols-outlined text-sm">filter_alt_off</span>
+        Filters wissen
+      </button>
+</div>
+
+<div class="participant-scroll">
+<div class="participant-scroll-head">
+<table class="participant-table w-full text-left border-collapse min-w-0">
+<colgroup>
+<col class="w-[29%]"/>
+<col class="w-[9%]"/>
+<col class="w-[13%]"/>
+<col class="w-[25%]"/>
+<col class="w-[24%]"/>
+</colgroup>
+<thead>
+<tr class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+<th class="pl-4 pr-2 py-3 border-b border-slate-100">
+<input id="participant-search" type="text" placeholder="Tool naam + leverancier" class="w-full bg-white border border-slate-200 rounded-md px-3 py-2 text-xs font-semibold text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"/>
+</th>
+<th class="px-2 py-3 border-b border-slate-100">
+<button id="users-sort-btn" class="relative inline-flex w-full items-center justify-center rounded-md border border-slate-200 bg-white pl-2 pr-8 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50" type="button" title="Sorteer gebruik" aria-label="Sorteer gebruik" data-sort-direction="desc">
+<span class="w-full text-center">Gebruik</span>
+<span class="pointer-events-none absolute right-2 top-1/2 flex -translate-y-1/2 flex-col leading-none text-slate-400">
+<span class="material-symbols-outlined text-[14px] -mb-1">keyboard_arrow_up</span>
+<span class="material-symbols-outlined text-[14px] -mt-1">keyboard_arrow_down</span>
+</span>
+</button>
+</th>
+<th class="px-2 py-3 border-b border-slate-100">
+<select id="dept-filter" class="w-full bg-white border border-slate-200 rounded-md px-2 py-2 text-xs font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+<option value="" selected>Nieuw</option>
+<option value="Approved" style="color:#5A8F19;">Toegestaan</option>
+<option value="Restricted" style="color:#D08212;">Beperkt</option>
+<option value="Under Review" style="color:#59728A;">Beoordeling</option>
+<option value="Prohibited" style="color:#D13F3F;">Verboden</option>
+</select>
+</th>
+<th class="px-2 py-3 border-b border-slate-100">
+<select id="field-filter" class="w-full bg-white border border-slate-200 rounded-md px-3 py-2 text-xs font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+<option value="" selected>Alle vakgebieden</option>
+<option value="IT, Data & Development">IT, Data &amp; Development</option>
+<option value="Marketing & Communicatie">Marketing &amp; Communicatie</option>
+<option value="HR & Recruitment">HR &amp; Recruitment</option>
+<option value="Finance & Legal">Finance &amp; Legal</option>
+<option value="Sales & Accountmanagement">Sales &amp; Accountmanagement</option>
+<option value="Operations & Support">Operations &amp; Support</option>
+<option value="Directie & Management">Directie &amp; Management</option>
+<option value="Anders">Anders</option>
+</select>
+</th>
+<th class="px-2 py-3 border-b border-slate-100">
+<button id="account-sort-btn" class="relative inline-flex h-[38px] w-full items-center justify-start rounded-md border border-slate-200 bg-white pl-3 pr-8 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50" type="button" title="Sorteer accounttype" aria-label="Sorteer accounttype" data-sort-mode="none">
+<span class="text-left">Account type</span>
+<span class="pointer-events-none absolute right-2 top-1/2 flex -translate-y-1/2 flex-col leading-none text-slate-400">
+<span class="material-symbols-outlined text-[14px] -mb-1">keyboard_arrow_up</span>
+<span class="material-symbols-outlined text-[14px] -mt-1">keyboard_arrow_down</span>
+</span>
+</button>
+</th>
+</tr>
+</thead>
+</table>
+</div>
+<div class="participant-scroll-body">
+<table class="participant-table w-full text-left border-collapse min-w-0">
+<colgroup>
+<col class="w-[29%]"/>
+<col class="w-[9%]"/>
+<col class="w-[13%]"/>
+<col class="w-[25%]"/>
+<col class="w-[24%]"/>
+</colgroup>
+<tbody id="participant-body" class="divide-y divide-slate-50">
+<tr class="participant-row hover:bg-indigo-50/20 transition-colors" data-dept="Approved" data-status="Core" data-field="IT, Data & Development|HR & Recruitment|Operations & Support" data-users="46" data-account-business="72" data-account-own="18" data-account-mixed="10">
+<td class="pl-4 pr-3 py-3" data-label="Tool naam + leverancier"><div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700"><img src="https://cdn.simpleicons.org/openai/000000?v=4" alt="ChatGPT logo" class="h-[18px] w-[18px] object-contain" style="transform:scale(1.14);transform-origin:center;" loading="lazy" onerror="this.onerror=null;this.outerHTML='<span class=&quot;material-symbols-outlined h-[18px] w-[18px] text-slate-700&quot;>forum</span>';"/></div><div><p class="text-xs font-bold text-slate-800">ChatGPT</p><p class="mt-0.5 text-[11px] text-slate-500">OpenAI | AI-assistent</p></div></div></td>
+<td class="usage-count px-1 py-3 text-center text-xs font-semibold text-slate-600 whitespace-nowrap" data-label="Gebruik">46</td>
+<td class="px-3 py-3" data-label="Beleidsstatus"><select class="tool-status-select w-[116px] rounded-md border px-2 py-2 text-xs font-bold outline-none transition-colors focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white" data-default-value="Approved"><option value="" data-plain="Nieuw" style="color:#94A3B8;">Nieuw</option><option value="Approved" data-plain="Toegestaan" style="color:#5A8F19;">Toegestaan</option><option value="Restricted" data-plain="Beperkt" style="color:#D08212;">Beperkt</option><option value="Under Review" data-plain="Beoordeling" style="color:#59728A;">Beoordeling</option><option value="Prohibited" data-plain="Verboden" style="color:#D13F3F;">Verboden</option></select></td>
+      <td class="field-summary pl-8 pr-2 py-3 text-[13px] text-slate-600 font-medium leading-snug" data-label="Vakgebieden">3 vakgebieden</td>
+<td class="pl-8 pr-3 py-3" data-label="Accountverdeling">
+  <div class="space-y-1.5 w-full max-w-[204px] ml-auto">
+    <div class="account-distribution h-2.5 overflow-hidden rounded-full bg-slate-100" aria-label="Accountverdeling ChatGPT">
+      <span class="account-segment account-business block h-full float-left bg-[#5A8F19]" style="width:72%"></span>
+      <span class="account-segment account-own block h-full float-left bg-[#D08212]" style="width:18%"></span>
+      <span class="account-segment account-mixed block h-full float-left bg-[#8B5CF6]" style="width:10%"></span>
+    </div>
+    <div class="grid grid-cols-3 gap-1.5 text-[11px] font-medium text-slate-500">
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#5A8F19]"></span>Zakelijk 72%</span>
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#D08212]"></span>Privé 18%</span>
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#8B5CF6]"></span>Gemengd 10%</span>
+    </div>
+  </div>
+</td>
+</tr>
+<tr class="participant-row hover:bg-indigo-50/20 transition-colors" data-dept="Under Review" data-status="Observed" data-field="IT, Data & Development|Finance & Legal" data-users="29" data-account-business="44" data-account-own="38" data-account-mixed="18">
+<td class="pl-4 pr-3 py-3" data-label="Tool naam + leverancier"><div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700"><img src="https://cdn.simpleicons.org/anthropic/d4a373" alt="Claude logo" class="h-[18px] w-[18px] object-contain" loading="lazy" onerror="this.onerror=null;this.outerHTML='<span class=&quot;material-symbols-outlined h-[18px] w-[18px] text-slate-700&quot;>psychology</span>';"/></div><div><p class="text-xs font-bold text-slate-800">Claude</p><p class="mt-0.5 text-[11px] text-slate-500">Anthropic | AI-assistent</p></div></div></td>
+<td class="usage-count px-1 py-3 text-center text-xs font-semibold text-slate-600 whitespace-nowrap" data-label="Gebruik">29</td>
+<td class="px-3 py-3" data-label="Beleidsstatus"><select class="tool-status-select w-[116px] rounded-md border px-2 py-2 text-xs font-bold outline-none transition-colors focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white" data-default-value="Under Review"><option value="" data-plain="Nieuw" style="color:#94A3B8;">Nieuw</option><option value="Approved" data-plain="Toegestaan" style="color:#5A8F19;">Toegestaan</option><option value="Restricted" data-plain="Beperkt" style="color:#D08212;">Beperkt</option><option value="Under Review" data-plain="Beoordeling" style="color:#59728A;">Beoordeling</option><option value="Prohibited" data-plain="Verboden" style="color:#D13F3F;">Verboden</option></select></td>
+      <td class="field-summary pl-8 pr-2 py-3 text-[13px] text-slate-600 font-medium leading-snug" data-label="Vakgebieden">2 vakgebieden</td>
+<td class="pl-8 pr-3 py-3" data-label="Accountverdeling">
+  <div class="space-y-1.5 w-full max-w-[204px] ml-auto">
+    <div class="account-distribution h-2.5 overflow-hidden rounded-full bg-slate-100" aria-label="Accountverdeling Claude">
+      <span class="account-segment account-business block h-full float-left bg-[#5A8F19]" style="width:44%"></span>
+      <span class="account-segment account-own block h-full float-left bg-[#D08212]" style="width:38%"></span>
+      <span class="account-segment account-mixed block h-full float-left bg-[#8B5CF6]" style="width:18%"></span>
+    </div>
+    <div class="grid grid-cols-3 gap-1.5 text-[11px] font-medium text-slate-500">
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#5A8F19]"></span>Zakelijk 44%</span>
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#D08212]"></span>Privé 38%</span>
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#8B5CF6]"></span>Gemengd 18%</span>
+    </div>
+  </div>
+</td>
+</tr>
+<tr class="participant-row hover:bg-indigo-50/20 transition-colors" data-dept="Prohibited" data-status="Observed" data-field="Marketing & Communicatie|Anders" data-users="8" data-account-business="9" data-account-own="67" data-account-mixed="24">
+<td class="pl-4 pr-3 py-3" data-label="Tool naam + leverancier"><div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700"><span style="display:inline-flex;align-items:center;justify-content:center;transform:scale(1.2);transform-origin:center;"><svg viewBox="0 0 24 24" width="18" height="18" aria-label="Midjourney logo" role="img"><g fill="none" stroke="#111827" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15.4h16"/><path d="M6.5 15.2 9 5.3c.1-.5.8-.7 1.2-.3 1.8 1.8 2.9 4.3 3.1 7l-6.8 3.2z"/><path d="M13.6 7.2c2.2 1.1 3.9 3.1 4.6 5.5l-3.9 1.8"/><path d="M3.8 17.5c1 .6 1.9.6 2.9 0s1.9-.6 2.9 0 1.9.6 2.9 0 1.9-.6 2.9 0 1.9.6 2.9 0"/></g></svg></span></div><div><p class="text-xs font-bold text-slate-800">Midjourney</p><p class="mt-0.5 text-[11px] text-slate-500">Independent | Beeldgeneratie</p></div></div></td>
+<td class="usage-count px-1 py-3 text-center text-xs font-semibold text-slate-600 whitespace-nowrap" data-label="Gebruik">8</td>
+<td class="px-3 py-3" data-label="Beleidsstatus"><select class="tool-status-select w-[116px] rounded-md border px-2 py-2 text-xs font-bold outline-none transition-colors focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white" data-default-value="Prohibited"><option value="" data-plain="Nieuw" style="color:#94A3B8;">Nieuw</option><option value="Approved" data-plain="Toegestaan" style="color:#5A8F19;">Toegestaan</option><option value="Restricted" data-plain="Beperkt" style="color:#D08212;">Beperkt</option><option value="Under Review" data-plain="Beoordeling" style="color:#59728A;">Beoordeling</option><option value="Prohibited" data-plain="Verboden" style="color:#D13F3F;">Verboden</option></select></td>
+      <td class="field-summary pl-8 pr-2 py-3 text-[13px] text-slate-600 font-medium leading-snug" data-label="Vakgebieden">2 vakgebieden</td>
+<td class="pl-8 pr-3 py-3" data-label="Accountverdeling">
+  <div class="space-y-1.5 w-full max-w-[204px] ml-auto">
+    <div class="account-distribution h-2.5 overflow-hidden rounded-full bg-slate-100" aria-label="Accountverdeling Midjourney">
+      <span class="account-segment account-business block h-full float-left bg-[#5A8F19]" style="width:9%"></span>
+      <span class="account-segment account-own block h-full float-left bg-[#D08212]" style="width:67%"></span>
+      <span class="account-segment account-mixed block h-full float-left bg-[#8B5CF6]" style="width:24%"></span>
+    </div>
+    <div class="grid grid-cols-3 gap-1.5 text-[11px] font-medium text-slate-500">
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#5A8F19]"></span>Zakelijk 9%</span>
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#D08212]"></span>Privé 67%</span>
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#8B5CF6]"></span>Gemengd 24%</span>
+    </div>
+  </div>
+</td>
+</tr>
+<tr class="participant-row hover:bg-indigo-50/20 transition-colors" data-dept="Approved" data-status="Core" data-field="Marketing & Communicatie|Sales & Accountmanagement" data-users="17" data-account-business="58" data-account-own="24" data-account-mixed="18">
+<td class="pl-4 pr-3 py-3" data-label="Tool naam + leverancier"><div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700"><span style="display:inline-flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="18" height="18" aria-label="Jasper logo" role="img"><defs><linearGradient id="jaspInventory" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#ec4899"/><stop offset="50%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#22d3ee"/></linearGradient></defs><path d="M12 3.2c-4.9 0-8.8 3.9-8.8 8.8s3.9 8.8 8.8 8.8 8.8-3.9 8.8-8.8S16.9 3.2 12 3.2z" fill="none" stroke="url(#jaspInventory)" stroke-width="3.2" stroke-linecap="round"/><path d="M8.8 13.3c1 .9 2 .9 3.2 0 1.2.9 2.2.9 3.2 0" fill="none" stroke="#111827" stroke-width="1.6" stroke-linecap="round"/></svg></span></div><div><p class="text-xs font-bold text-slate-800">Jasper</p><p class="mt-0.5 text-[11px] text-slate-500">Jasper AI | Marketing</p></div></div></td>
+<td class="usage-count px-1 py-3 text-center text-xs font-semibold text-slate-600 whitespace-nowrap" data-label="Gebruik">17</td>
+<td class="px-3 py-3" data-label="Beleidsstatus"><select class="tool-status-select w-[116px] rounded-md border px-2 py-2 text-xs font-bold outline-none transition-colors focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white" data-default-value="Approved"><option value="" data-plain="Nieuw" style="color:#94A3B8;">Nieuw</option><option value="Approved" data-plain="Toegestaan" style="color:#5A8F19;">Toegestaan</option><option value="Restricted" data-plain="Beperkt" style="color:#D08212;">Beperkt</option><option value="Under Review" data-plain="Beoordeling" style="color:#59728A;">Beoordeling</option><option value="Prohibited" data-plain="Verboden" style="color:#D13F3F;">Verboden</option></select></td>
+      <td class="field-summary pl-8 pr-2 py-3 text-[13px] text-slate-600 font-medium leading-snug" data-label="Vakgebieden">2 vakgebieden</td>
+<td class="pl-8 pr-3 py-3" data-label="Accountverdeling">
+  <div class="space-y-1.5 w-full max-w-[204px] ml-auto">
+    <div class="account-distribution h-2.5 overflow-hidden rounded-full bg-slate-100" aria-label="Accountverdeling Jasper">
+      <span class="account-segment account-business block h-full float-left bg-[#5A8F19]" style="width:58%"></span>
+      <span class="account-segment account-own block h-full float-left bg-[#D08212]" style="width:24%"></span>
+      <span class="account-segment account-mixed block h-full float-left bg-[#8B5CF6]" style="width:18%"></span>
+    </div>
+    <div class="grid grid-cols-3 gap-1.5 text-[11px] font-medium text-slate-500">
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#5A8F19]"></span>Zakelijk 58%</span>
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#D08212]"></span>Privé 24%</span>
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#8B5CF6]"></span>Gemengd 18%</span>
+    </div>
+  </div>
+</td>
+</tr>
+<tr class="participant-row hover:bg-indigo-50/20 transition-colors" data-dept="Restricted" data-status="Observed" data-field="Operations & Support|Directie & Management|IT, Data & Development" data-users="31" data-account-business="22" data-account-own="51" data-account-mixed="27">
+<td class="pl-4 pr-3 py-3" data-label="Tool naam + leverancier"><div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700"><img src="https://cdn.simpleicons.org/notion/4f46e5" alt="Notion AI logo" class="h-[18px] w-[18px] object-contain" loading="lazy" onerror="this.onerror=null;this.outerHTML='<span class=&quot;material-symbols-outlined h-[18px] w-[18px] text-slate-700&quot;>book</span>';"/></div><div><p class="text-xs font-bold text-slate-800">Notion AI</p><p class="mt-0.5 text-[11px] text-slate-500">Notion Labs | Productiviteit</p></div></div></td>
+<td class="usage-count px-1 py-3 text-center text-xs font-semibold text-slate-600 whitespace-nowrap" data-label="Gebruik">31</td>
+<td class="px-3 py-3" data-label="Beleidsstatus"><select class="tool-status-select w-[116px] rounded-md border px-2 py-2 text-xs font-bold outline-none transition-colors focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white" data-default-value="Restricted"><option value="" data-plain="Nieuw" style="color:#94A3B8;">Nieuw</option><option value="Approved" data-plain="Toegestaan" style="color:#5A8F19;">Toegestaan</option><option value="Restricted" data-plain="Beperkt" style="color:#D08212;">Beperkt</option><option value="Under Review" data-plain="Beoordeling" style="color:#59728A;">Beoordeling</option><option value="Prohibited" data-plain="Verboden" style="color:#D13F3F;">Verboden</option></select></td>
+      <td class="field-summary pl-8 pr-2 py-3 text-[13px] text-slate-600 font-medium leading-snug" data-label="Vakgebieden">3 vakgebieden</td>
+<td class="pl-8 pr-3 py-3" data-label="Accountverdeling">
+  <div class="space-y-1.5 w-full max-w-[204px] ml-auto">
+    <div class="account-distribution h-2.5 overflow-hidden rounded-full bg-slate-100" aria-label="Accountverdeling Notion AI">
+      <span class="account-segment account-business block h-full float-left bg-[#5A8F19]" style="width:22%"></span>
+      <span class="account-segment account-own block h-full float-left bg-[#D08212]" style="width:51%"></span>
+      <span class="account-segment account-mixed block h-full float-left bg-[#8B5CF6]" style="width:27%"></span>
+    </div>
+    <div class="grid grid-cols-3 gap-1.5 text-[11px] font-medium text-slate-500">
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#5A8F19]"></span>Zakelijk 22%</span>
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#D08212]"></span>Privé 51%</span>
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#8B5CF6]"></span>Gemengd 27%</span>
+    </div>
+  </div>
+</td>
+</tr>
+<tr class="participant-row hover:bg-indigo-50/20 transition-colors" data-dept="Approved" data-status="Core" data-field="IT, Data & Development" data-users="53" data-account-business="81" data-account-own="11" data-account-mixed="8">
+<td class="pl-4 pr-3 py-3" data-label="Tool naam + leverancier"><div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700"><img src="https://cdn.simpleicons.org/githubcopilot/8b5cf6" alt="GitHub Copilot logo" class="h-[18px] w-[18px] object-contain" loading="lazy" onerror="this.onerror=null;this.outerHTML='<span class=&quot;material-symbols-outlined h-[18px] w-[18px] text-slate-700&quot;>code_blocks</span>';"/></div><div><p class="text-xs font-bold text-slate-800">GitHub Copilot</p><p class="mt-0.5 text-[11px] text-slate-500">Microsoft | Coding</p></div></div></td>
+<td class="usage-count px-1 py-3 text-center text-xs font-semibold text-slate-600 whitespace-nowrap" data-label="Gebruik">53</td>
+<td class="px-3 py-3" data-label="Beleidsstatus"><select class="tool-status-select w-[116px] rounded-md border px-2 py-2 text-xs font-bold outline-none transition-colors focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white" data-default-value="Approved"><option value="" data-plain="Nieuw" style="color:#94A3B8;">Nieuw</option><option value="Approved" data-plain="Toegestaan" style="color:#5A8F19;">Toegestaan</option><option value="Restricted" data-plain="Beperkt" style="color:#D08212;">Beperkt</option><option value="Under Review" data-plain="Beoordeling" style="color:#59728A;">Beoordeling</option><option value="Prohibited" data-plain="Verboden" style="color:#D13F3F;">Verboden</option></select></td>
+      <td class="field-summary pl-8 pr-2 py-3 text-[13px] text-slate-600 font-medium leading-snug" data-label="Vakgebieden">1 vakgebied</td>
+<td class="pl-8 pr-3 py-3" data-label="Accountverdeling">
+  <div class="space-y-1.5 w-full max-w-[204px] ml-auto">
+    <div class="account-distribution h-2.5 overflow-hidden rounded-full bg-slate-100" aria-label="Accountverdeling GitHub Copilot">
+      <span class="account-segment account-business block h-full float-left bg-[#5A8F19]" style="width:81%"></span>
+      <span class="account-segment account-own block h-full float-left bg-[#D08212]" style="width:11%"></span>
+      <span class="account-segment account-mixed block h-full float-left bg-[#8B5CF6]" style="width:8%"></span>
+    </div>
+    <div class="grid grid-cols-3 gap-1.5 text-[11px] font-medium text-slate-500">
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#5A8F19]"></span>Zakelijk 81%</span>
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#D08212]"></span>Privé 11%</span>
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#8B5CF6]"></span>Gemengd 8%</span>
+    </div>
+  </div>
+</td>
+</tr>
+<tr class="participant-row hover:bg-indigo-50/20 transition-colors" data-dept="Under Review" data-status="Observed" data-field="Finance & Legal|Operations & Support" data-users="11" data-account-business="16" data-account-own="49" data-account-mixed="35">
+<td class="pl-4 pr-3 py-3" data-label="Tool naam + leverancier"><div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700"><span class="material-symbols-outlined text-[19px]">translate</span></div><div><p class="text-xs font-bold text-slate-800">DeepL Write</p><p class="mt-0.5 text-[11px] text-slate-500">DeepL SE | Vertaling</p></div></div></td>
+<td class="usage-count px-1 py-3 text-center text-xs font-semibold text-slate-600 whitespace-nowrap" data-label="Gebruik">11</td>
+<td class="px-3 py-3" data-label="Beleidsstatus"><select class="tool-status-select w-[116px] rounded-md border px-2 py-2 text-xs font-bold outline-none transition-colors focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white" data-default-value="Under Review"><option value="" data-plain="Nieuw" style="color:#94A3B8;">Nieuw</option><option value="Approved" data-plain="Toegestaan" style="color:#5A8F19;">Toegestaan</option><option value="Restricted" data-plain="Beperkt" style="color:#D08212;">Beperkt</option><option value="Under Review" data-plain="Beoordeling" style="color:#59728A;">Beoordeling</option><option value="Prohibited" data-plain="Verboden" style="color:#D13F3F;">Verboden</option></select></td>
+      <td class="field-summary pl-8 pr-2 py-3 text-[13px] text-slate-600 font-medium leading-snug" data-label="Vakgebieden">2 vakgebieden</td>
+<td class="pl-8 pr-3 py-3" data-label="Accountverdeling">
+  <div class="space-y-1.5 w-full max-w-[204px] ml-auto">
+    <div class="account-distribution h-2.5 overflow-hidden rounded-full bg-slate-100" aria-label="Accountverdeling DeepL Write">
+      <span class="account-segment account-business block h-full float-left bg-[#5A8F19]" style="width:16%"></span>
+      <span class="account-segment account-own block h-full float-left bg-[#D08212]" style="width:49%"></span>
+      <span class="account-segment account-mixed block h-full float-left bg-[#8B5CF6]" style="width:35%"></span>
+    </div>
+    <div class="grid grid-cols-3 gap-1.5 text-[11px] font-medium text-slate-500">
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#5A8F19]"></span>Zakelijk 16%</span>
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#D08212]"></span>Privé 49%</span>
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#8B5CF6]"></span>Gemengd 35%</span>
+    </div>
+  </div>
+</td>
+</tr>
+<tr class="participant-row hover:bg-indigo-50/20 transition-colors" data-dept="Restricted" data-status="Deprecated" data-field="Marketing & Communicatie|IT, Data & Development" data-users="6" data-account-business="12" data-account-own="54" data-account-mixed="34">
+<td class="pl-4 pr-3 py-3" data-label="Tool naam + leverancier"><div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700"><span class="material-symbols-outlined text-[19px]">image</span></div><div><p class="text-xs font-bold text-slate-800">Stable Diffusion</p><p class="mt-0.5 text-[11px] text-slate-500">Open Source | Beeldgeneratie</p></div></div></td>
+<td class="usage-count px-1 py-3 text-center text-xs font-semibold text-slate-600 whitespace-nowrap" data-label="Gebruik">6</td>
+<td class="px-3 py-3" data-label="Beleidsstatus"><select class="tool-status-select w-[116px] rounded-md border px-2 py-2 text-xs font-bold outline-none transition-colors focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white" data-default-value="Restricted"><option value="" data-plain="Nieuw" style="color:#94A3B8;">Nieuw</option><option value="Approved" data-plain="Toegestaan" style="color:#5A8F19;">Toegestaan</option><option value="Restricted" data-plain="Beperkt" style="color:#D08212;">Beperkt</option><option value="Under Review" data-plain="Beoordeling" style="color:#59728A;">Beoordeling</option><option value="Prohibited" data-plain="Verboden" style="color:#D13F3F;">Verboden</option></select></td>
+      <td class="field-summary pl-8 pr-2 py-3 text-[13px] text-slate-600 font-medium leading-snug" data-label="Vakgebieden">2 vakgebieden</td>
+<td class="pl-8 pr-3 py-3" data-label="Accountverdeling">
+  <div class="space-y-1.5 w-full max-w-[204px] ml-auto">
+    <div class="account-distribution h-2.5 overflow-hidden rounded-full bg-slate-100" aria-label="Accountverdeling Stable Diffusion">
+      <span class="account-segment account-business block h-full float-left bg-[#5A8F19]" style="width:12%"></span>
+      <span class="account-segment account-own block h-full float-left bg-[#D08212]" style="width:54%"></span>
+      <span class="account-segment account-mixed block h-full float-left bg-[#8B5CF6]" style="width:34%"></span>
+    </div>
+    <div class="grid grid-cols-3 gap-1.5 text-[11px] font-medium text-slate-500">
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#5A8F19]"></span>Zakelijk 12%</span>
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#D08212]"></span>Privé 54%</span>
+      <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#8B5CF6]"></span>Gemengd 34%</span>
+    </div>
+  </div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="px-6 py-3 bg-white border-t border-slate-100"></div>
+</section>
+<section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+  <div class="px-6 pt-6 pb-5">
+    <div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-sky-500 text-[26px] flex-shrink-0 mt-1">grid_view</span>
+<div class="min-w-0 flex-1">
+<h2 class="text-xl font-bold text-slate-800">DPO-matrix</h2>
+<p class="text-sm text-slate-500 mt-1">Analyseer AI-gebruik op risico's en juridische aandachtspunten. De matrix selecteert uit de gehele set aan tools en toepassingen vanuit de Tool Inventaris. Koppelen aan de filters benut automatisch selecties zoals vakgebied en beleidsstatus in de analyse.</p>
+</div>
+</div>
+  </div>
+  <div class="p-6">
+    <div class="dpo-matrix-wrap">
+      <div class="dpo-matrix-main">
+        <div class="dpo-matrix-audit" id="dpo-matrix-audit-banner">Auditmode - potentiële EU AI-signalen</div>
+        <div class="dpo-matrix-info" id="dpo-matrix-info-bar"></div>
+        <table class="dpo-matrix-table" id="dpo-matrix-table"></table>
+        <p class="dpo-matrix-note" id="dpo-matrix-sort-note"></p>
+        <div class="dpo-matrix-legend">
+          <div class="dpo-matrix-legend-item"><div class="dpo-matrix-legend-swatch" style="background:#E24B4A"></div>Hoog risico</div>
+          <div class="dpo-matrix-legend-item"><div class="dpo-matrix-legend-swatch" style="background:#EF9F27"></div>Gemiddeld risico</div>
+          <div class="dpo-matrix-legend-item"><div class="dpo-matrix-legend-swatch" style="background:#97C459"></div>Geborgd</div>
+          <div class="dpo-matrix-legend-item"><div class="dpo-matrix-legend-dashed"></div>Niet van toepassing</div>
+          <div class="dpo-matrix-divider"></div>
+          <div class="dpo-matrix-legend-item dpo-matrix-legend-legal" tabindex="0" aria-describedby="art5-legend-tip">
+            <div style="position:relative;width:12px;height:12px;flex-shrink:0">
+              <div style="position:absolute;top:-2px;right:-2px;width:12px;height:12px;border-radius:50%;background:#ffffff;display:flex;align-items:center;justify-content:center;">
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <circle cx="8" cy="8" r="6.2" fill="#ffffff" stroke="#FF5A6B" stroke-width="1.8"></circle>
+                  <path d="M4.2 4.2 11.8 11.8" stroke="#FF5A6B" stroke-width="1.8" stroke-linecap="round"></path>
+                </svg>
+              </div>
+            </div>Pot. Art. 5
+            <span class="dpo-matrix-legend-tip" id="art5-legend-tip" role="tooltip"><strong>Potentieel Art. 5-signaal</strong>Indicatie dat de combinatie mogelijk raakt aan verboden AI-praktijken uit artikel 5 van de EU AI Act. Dit is een triagesignaal voor juridische beoordeling, geen automatisch oordeel.</span>
+          </div>
+          <div class="dpo-matrix-legend-item dpo-matrix-legend-legal" tabindex="0" aria-describedby="annex-legend-tip">
+            <div style="position:relative;width:12px;height:12px;flex-shrink:0">
+              <div style="position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:999px;background:#ffffff;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 1px rgba(219,227,236,.95);">
+                <svg viewBox="0 0 16 16" aria-hidden="true" style="display:block;width:15px;height:15px;">
+                  <circle cx="8" cy="8" r="7.5" fill="#ffffff"></circle>
+                  <path d="M8 1.9 14.7 13.8H1.3L8 1.9Z" fill="#FF3B30"></path>
+                  <rect x="7.2" y="5.7" width="1.6" height="4.4" rx=".8" fill="#ffffff"></rect>
+                  <circle cx="8" cy="12" r=".95" fill="#ffffff"></circle>
+                </svg>
+              </div>
+            </div>Pot. Annex III
+            <span class="dpo-matrix-legend-tip" id="annex-legend-tip" role="tooltip"><strong>Potentieel Annex III-signaal</strong>Indicatie dat de toepassing mogelijk binnen een hoog-risico-domein uit Annex III valt, bijvoorbeeld HR, onderwijs, krediet of kritieke processen. Vereist contextbeoordeling door DPO/juridisch.</span>
+          </div>
+        </div>
+        <div class="dpo-matrix-scope-footer"><span class="dpo-matrix-pill" id="dpo-matrix-usecase-scope">Use-cases in scope: 11</span></div>
+      </div>
+
+      <div class="dpo-matrix-side">
+        <div class="dpo-matrix-side-section">
+          <div class="dpo-matrix-side-card">
+            <div class="dpo-matrix-side-label">Sorteer tools op</div>
+            <label class="dpo-matrix-radio"><input type="radio" name="dpoToolSort" value="risico" checked><span class="dpo-matrix-radio-text">Hoogste risico<span class="dpo-matrix-radio-sub">Beleidsstatus x gebruik x accounttype</span></span></label>
+            <label class="dpo-matrix-radio"><input type="radio" name="dpoToolSort" value="gebruik"><span class="dpo-matrix-radio-text">Meest gebruikt<span class="dpo-matrix-radio-sub">Aantal respondenten</span></span></label>
+            <label class="dpo-matrix-radio"><input type="radio" name="dpoToolSort" value="euai"><span class="dpo-matrix-radio-text">EU AI-signalen<span class="dpo-matrix-radio-sub">Potentieel boven</span></span></label>
+          </div>
+        </div>
+        <div class="dpo-matrix-side-section">
+          <div class="dpo-matrix-side-card">
+            <div class="dpo-matrix-side-label">Sorteer doeleinden op</div>
+            <label class="dpo-matrix-radio"><input type="radio" name="dpoUcSort" value="risico" checked><span class="dpo-matrix-radio-text">Hoogste kritikaliteit<span class="dpo-matrix-radio-sub">Impactfactor 2.0x voor 1.5x</span></span></label>
+            <label class="dpo-matrix-radio"><input type="radio" name="dpoUcSort" value="gebruik"><span class="dpo-matrix-radio-text">Meest gebruikt<span class="dpo-matrix-radio-sub">Respondenten per doeleinde</span></span></label>
+            <label class="dpo-matrix-radio"><input type="radio" name="dpoUcSort" value="shadow"><span class="dpo-matrix-radio-text">Meeste shadow hits<span class="dpo-matrix-radio-sub">Risicovolle cellen</span></span></label>
+          </div>
+        </div>
+        <div class="dpo-matrix-side-section">
+          <div class="dpo-matrix-side-card">
+            <div class="dpo-matrix-side-label">Auditmode</div>
+            <div class="dpo-matrix-toggle-row">
+              <span class="dpo-matrix-toggle-label">EU AI-signalen<span class="dpo-matrix-toggle-sub">Alleen signalen</span></span>
+              <label class="dpo-matrix-toggle">
+                <input type="checkbox" id="dpo-matrix-toggle-euai">
+                <div class="dpo-matrix-toggle-track"></div>
+                <div class="dpo-matrix-toggle-thumb"></div>
+              </label>
+            </div>
+            <div class="dpo-matrix-toggle-row">
+              <span class="dpo-matrix-toggle-label">Koppel aan filters<span class="dpo-matrix-toggle-sub">Gebruik zichtbare tools uit Tool Inventaris</span></span>
+              <label class="dpo-matrix-toggle">
+                <input type="checkbox" id="dpo-matrix-toggle-linked">
+                <div class="dpo-matrix-toggle-track"></div>
+                <div class="dpo-matrix-toggle-thumb"></div>
+              </label>
+            </div>
+            <button class="dpo-matrix-reset" id="dpo-matrix-reset-btn" type="button"><span class="material-symbols-outlined text-sm">filter_alt_off</span>Filters wissen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Gebruiksstromen Sankey Component ── -->
+<section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+  <div class="px-6 pt-6 pb-3 flex items-center justify-between">
+    <div class="flex items-start gap-3 min-w-0 flex-1">
+<span class="material-symbols-outlined text-sky-500 text-[26px] flex-shrink-0 mt-1">account_tree</span>
+<div class="min-w-0 flex-1">
+<h2 class="text-xl font-bold text-slate-800">Gebruiksstromen</h2>
+<p class="text-sm text-slate-500 mt-1">Risico-indicatie op basis van gerapporteerd gebruikersgedrag. Klik op de filters en status.</p>
+</div>
+</div>
+    <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-200 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.04em] text-amber-700 flex-shrink-0 self-start"><span class="material-symbols-outlined text-amber-500" style="font-size:14px;">info</span>Op basis van zelfrapportage</span>
+  </div>
+
+
+  <!-- Tab toggle + legend -->
+  <div class="px-6 pb-4 pt-3 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-center gap-2">
+      <button class="sankey-tab-btn sankey-active" id="stab-uses" onclick="sankeySetView('uses')">Tools → Toepassingen</button>
+      <button class="sankey-tab-btn" id="stab-accounts" onclick="sankeySetView('accounts')">Tools → Accounttype</button>
+      <button class="sankey-tab-btn" id="stab-full" onclick="sankeySetView('full')">Volledig (3 lagen)</button>
+    </div>
+    <div class="flex flex-wrap items-center gap-2" id="sankey-legend"></div>
+  </div>
+
+  <!-- Diagram -->
+  <div class="px-6 pb-6 relative" id="sankey-wrap">
+    <div id="sankey-tip" style="position:absolute;background:#1e293b;color:#f8fafc;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:600;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:100;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,0.2);font-family:Inter,sans-serif;"></div>
+    <svg id="sankey-svg" width="100%" style="display:block;"></svg>
+  </div>
+
+</section>
+
+<!-- Gebruiksstromen KPIs -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4" id="sankey-kpis"></div>
+
+<style>
+  .sankey-tab-btn {
+    padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 700;
+    cursor: pointer; border: 1px solid #e2e8f0; background: white; color: #40484e;
+    transition: all 0.18s; font-family: 'Manrope', sans-serif;
+  }
+  .sankey-tab-btn.sankey-active { background: #00658b; color: white; border-color: #00658b; }
+  .sankey-tab-btn:not(.sankey-active):hover { background: #f1f4f6; }
+  .sankey-link-path { transition: opacity 0.15s; }
+</style>
+
+<script>
+(function() {
+  const TOOLS = [
+    { name: 'GitHub Copilot', users: 53, policy: 'Approved',     business: 81, own: 11, mixed:  8, uses: ['Code schrijven'] },
+    { name: 'ChatGPT',        users: 46, policy: 'Approved',     business: 72, own: 18, mixed: 10, uses: ['Teksten schrijven','Samenvatten','Brainstormen','Informatie opzoeken'] },
+    { name: 'Notion AI',      users: 31, policy: 'Restricted',   business: 22, own: 51, mixed: 27, uses: ['Samenvatten','Automatisering','Notuleren'] },
+    { name: 'Claude',         users: 29, policy: 'Under Review', business: 44, own: 38, mixed: 18, uses: ['Teksten schrijven','Samenvatten','Informatie opzoeken'] },
+    { name: 'Jasper',         users: 17, policy: 'Approved',     business: 58, own: 24, mixed: 18, uses: ['Teksten schrijven','Afbeeldingen genereren'] },
+    { name: 'DeepL Write',    users: 11, policy: 'Under Review', business: 16, own: 49, mixed: 35, uses: ['Vertalen'] },
+    { name: 'Midjourney',     users:  8, policy: 'Prohibited',   business:  9, own: 67, mixed: 24, uses: ['Afbeeldingen genereren','Brainstormen'] },
+    { name: 'Stable Diffusion', users: 6, policy: 'Restricted',  business: 12, own: 54, mixed: 34, uses: ['Afbeeldingen genereren'] },
+  ];
+  const PC = { Approved:'#5A8F19', Restricted:'#D08212', 'Under Review':'#59728A', Prohibited:'#D13F3F' };
+  const UC = { 'Code schrijven':'#0E5A75','Teksten schrijven':'#5C9E1A','Samenvatten':'#3b82f6','Brainstormen':'#8b5cf6','Informatie opzoeken':'#0891b2','Automatisering':'#d97706','Notuleren':'#64748b','Afbeeldingen genereren':'#ec4899','Vertalen':'#059669' };
+  const AC = { 'Zakelijk':'#3e6a00','Privé gratis':'#D08212','Privé betaald':'#B45309','Gemengd':'#8B5CF6' };
+      const splitOwnAccount = stats => { const ownTotal = Number(stats.own || 0); const free = Math.round(ownTotal * 0.45); return { free, paid: Math.max(0, ownTotal - free), own: ownTotal }; };
+
+  let view = 'uses';
+  const hiddenPolicies = new Set();
+
+  function buildGraph(v) {
+    const nodes = [], links = [], map = {};
+    const add = (id, label, color, layer) => {
+      if (map[id] === undefined) { map[id] = nodes.length; nodes.push({id, label, color, layer}); }
+      return map[id];
+    };
+    if (v === 'uses') {
+      TOOLS.forEach(t => {
+        const ti = add('t_'+t.name, t.name, PC[t.policy], 0);
+        t.uses.forEach(u => {
+          const ui = add('u_'+u, u, UC[u]||'#94a3b8', 1);
+          links.push({source:ti, target:ui, value:Math.max(1,Math.round(t.users/t.uses.length)), policy:t.policy});
+        });
+      });
+    } else if (v === 'accounts') {
+      TOOLS.forEach(t => {
+        const ti = add('t_'+t.name, t.name, PC[t.policy], 0);
+        const split = splitOwnAccount(t); [{k:'Zakelijk',p:t.business},{k:'Privé gratis',p:split.free},{k:'Privé betaald',p:split.paid},{k:'Gemengd',p:t.mixed}].forEach(a => {
+          const ai = add('a_'+a.k, a.k, AC[a.k], 1);
+          links.push({source:ti, target:ai, value:Math.max(1,Math.round(t.users*a.p/100)), policy:t.policy});
+        });
+      });
+    } else {
+      TOOLS.forEach(t => {
+        const ti = add('t_'+t.name, t.name, PC[t.policy], 0);
+        t.uses.forEach(u => {
+          const ui = add('u_'+u, u, UC[u]||'#94a3b8', 1);
+          const uv = Math.max(1,Math.round(t.users/t.uses.length));
+          links.push({source:ti, target:ui, value:uv, policy:t.policy});
+          const split = splitOwnAccount(t); [{k:'Zakelijk',p:t.business},{k:'Privé gratis',p:split.free},{k:'Privé betaald',p:split.paid},{k:'Gemengd',p:t.mixed}].forEach(a => {
+            const ai = add('a_'+a.k, a.k, AC[a.k], 2);
+            links.push({source:ui, target:ai, value:Math.max(1,Math.round(uv*a.p/100)), policy:t.policy});
+          });
+        });
+      });
+    }
+    return {nodes, links};
+  }
+
+  function layout(nodes, links, W, H, gap) {
+    const layers = [...new Set(nodes.map(n=>n.layer))].sort((a,b)=>a-b);
+    const nl = layers.length, nw = 16, xs = (W-nw)/(nl-1);
+    nodes.forEach(n => { n.x0 = n.layer*xs; n.x1 = n.x0+nw; n.value = 0; });
+    links.forEach(l => { nodes[l.target].value += l.value; });
+    layers.forEach(layer => {
+      const ln = nodes.filter(n=>n.layer===layer);
+      if (layer===0) ln.forEach(n => { n.value = links.filter(l=>l.source===nodes.indexOf(n)).reduce((s,l)=>s+l.value,0); });
+      const tot = ln.reduce((s,n)=>s+n.value,0), avail = H-gap*(ln.length-1);
+      let y=0;
+      ln.forEach(n => { n.h = Math.max(6,(n.value/tot)*avail); n.y0=y; n.y1=y+n.h; y+=n.h+gap; });
+    });
+    const so={}, to={};
+    links.forEach(l => {
+      const s=nodes[l.source], t=nodes[l.target], sk=l.source, tk=l.target;
+      if(!so[sk]) so[sk]=0; if(!to[tk]) to[tk]=0;
+      const tout=links.filter(x=>x.source===sk).reduce((a,x)=>a+x.value,0);
+      const tin =links.filter(x=>x.target===tk).reduce((a,x)=>a+x.value,0);
+      l.sy0=s.y0+(so[sk]/tout)*s.h; l.sy1=s.y0+((so[sk]+l.value)/tout)*s.h;
+      l.ty0=t.y0+(to[tk]/tin )*t.h; l.ty1=t.y0+((to[tk]+l.value)/tin )*t.h;
+      so[sk]+=l.value; to[tk]+=l.value;
+    });
+    return {nodes, links};
+  }
+
+  function render() {
+    const wrap = document.getElementById('sankey-wrap');
+    const svgEl = document.getElementById('sankey-svg');
+    const tip = document.getElementById('sankey-tip');
+    const W = wrap.clientWidth - 32, H = 460;
+    const PL = 148, PR = 164, iW = W - PL - PR;
+    svgEl.setAttribute('height', H);
+    svgEl.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+    const {nodes: rawNodes, links: rawLinks} = buildGraph(view);
+    const {nodes, links} = layout(rawNodes.map(n=>({...n})), rawLinks.map(l=>({...l})), iW, H-40, 12);
+
+    const ns='http://www.w3.org/2000/svg';
+    svgEl.innerHTML='';
+    const g=document.createElementNS(ns,'g');
+    g.setAttribute('transform',`translate(${PL},20)`);
+    svgEl.appendChild(g);
+
+    // Links
+    links.forEach(l => {
+      const s=nodes[l.source], t=nodes[l.target];
+      const cx=(s.x1+t.x0)/2;
+      const p=document.createElementNS(ns,'path');
+      p.setAttribute('d',`M${s.x1},${l.sy0} C${cx},${l.sy0} ${cx},${l.ty0} ${t.x0},${l.ty0} L${t.x0},${l.ty1} C${cx},${l.ty1} ${cx},${l.sy1} ${s.x1},${l.sy1} Z`);
+      const fc = l.policy==='Prohibited'?'#D13F3F': l.policy==='Restricted'?'#D08212': nodes[l.source].color;
+      p.setAttribute('fill', fc);
+      const isHidden = hiddenPolicies.has(l.policy);
+      p.setAttribute('opacity', isHidden ? '0' : '0.2');
+      p.style.pointerEvents = isHidden ? 'none' : '';
+      p.setAttribute('class','sankey-link-path');
+      p.addEventListener('mouseenter', e => {
+        p.setAttribute('opacity','0.5');
+        tip.textContent=`${nodes[l.source].label} → ${nodes[l.target].label}: ${l.value} gebruikers`;
+        tip.style.opacity='1';
+      });
+      p.addEventListener('mousemove', e => {
+        const r=wrap.getBoundingClientRect();
+        tip.style.left=(e.clientX-r.left+12)+'px';
+        tip.style.top=(e.clientY-r.top-38)+'px';
+      });
+      p.addEventListener('mouseleave', () => { p.setAttribute('opacity','0.2'); tip.style.opacity='0'; });
+      g.appendChild(p);
+    });
+
+    // Nodes + labels
+    const maxL = Math.max(...nodes.map(n=>n.layer));
+    nodes.forEach(n => {
+      const r=document.createElementNS(ns,'rect');
+      r.setAttribute('x',n.x0); r.setAttribute('y',n.y0);
+      r.setAttribute('width',16); r.setAttribute('height',Math.max(n.h,6));
+      r.setAttribute('rx',4);
+      if (n.layer===0) {
+        const tool = TOOLS.find(t=>'t_'+t.name===n.id);
+        const nodeHidden = tool && hiddenPolicies.has(tool.policy);
+        r.setAttribute('fill', nodeHidden ? '#e2e8f0' : n.color);
+        r.setAttribute('opacity', nodeHidden ? '0.4' : '1');
+      } else {
+        r.setAttribute('fill', n.color);
+      }
+      g.appendChild(r);
+
+      const mk = (x,y,anchor,txt,sz,w,fill) => {
+        const t=document.createElementNS(ns,'text');
+        t.setAttribute('x',x); t.setAttribute('y',y);
+        t.setAttribute('text-anchor',anchor);
+        t.setAttribute('font-size',sz); t.setAttribute('font-weight',w);
+        t.setAttribute('font-family','Manrope,sans-serif');
+        t.setAttribute('fill',fill); t.textContent=txt;
+        g.appendChild(t);
+      };
+
+      if (n.layer===0) {
+        mk(n.x0-8, n.y0+n.h/2+4,  'end', n.label, 12, 700, '#1e293b');
+        const u=TOOLS.find(t=>'t_'+t.name===n.id);
+        if(u) mk(n.x0-8, n.y0+n.h/2+16, 'end', u.users+' gebr.', 10, 400, '#94a3b8');
+      }
+      if (n.layer===maxL) mk(n.x1+8, n.y0+n.h/2+4, 'start', n.label, 12, 700, '#1e293b');
+      if (n.layer>0 && n.layer<maxL) mk(n.x0+8, n.y0-5, 'middle', n.label, 10, 600, '#64748b');
+    });
+
+    // Legend — clickable filter pills (only build once)
+    const leg = document.getElementById('sankey-legend');
+    if (!leg.hasChildNodes()) {
+      const LEGEND_ITEMS = [
+        {label:'Toegestaan',  c:'#5A8F19', key:'Approved'},
+        {label:'Beperkt',     c:'#D08212', key:'Restricted'},
+        {label:'In beoordeling', c:'#59728A', key:'Under Review'},
+        {label:'Verboden',    c:'#D13F3F', key:'Prohibited'},
+      ];
+      LEGEND_ITEMS.forEach(item=>{
+        const s=document.createElement('span');
+        s.dataset.policy = item.key;
+        s.style.cssText=`display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;font-family:Inter,sans-serif;cursor:pointer;user-select:none;transition:all 0.18s;background:${item.c}14;color:${item.c};border:1px solid ${item.c}30;`;
+        s.innerHTML=`<span style="width:8px;height:8px;border-radius:50%;background:${item.c};flex-shrink:0;display:inline-block;transition:background 0.18s;"></span>${item.label}`;
+        s.title = 'Klik om te verbergen/tonen';
+        s.addEventListener('click', () => {
+          if (hiddenPolicies.has(item.key)) {
+            hiddenPolicies.delete(item.key);
+            s.style.background = item.c + '14';
+            s.style.color = item.c;
+            s.style.border = `1px solid ${item.c}30`;
+            s.style.opacity = '1';
+            s.querySelector('span').style.background = item.c;
+          } else {
+            hiddenPolicies.add(item.key);
+            s.style.background = '#f1f4f6';
+            s.style.color = '#94a3b8';
+            s.style.border = '1px solid #e2e8f0';
+            s.style.opacity = '0.55';
+            s.querySelector('span').style.background = '#cbd5e1';
+          }
+          render();
+        });
+        leg.appendChild(s);
+      });
+    }
+
+    // KPIs — render once only
+    if (!document.getElementById('sankey-kpis').hasChildNodes()) {
+      const kpis = document.getElementById('sankey-kpis');
+      const totalU = TOOLS.reduce((s,t)=>s+t.users,0);
+      const shadowU = TOOLS.filter(t=>t.policy==='Prohibited'||t.policy==='Restricted').reduce((s,t)=>s+t.users,0);
+      const privPct = Math.round(TOOLS.reduce((s,t)=>s+t.users*t.own/100,0)/totalU*100);
+      const top = [...TOOLS].sort((a,b)=>b.users-a.users)[0];
+      [
+        {label:'Totaal gebruikers',value:totalU,sub:'geteld over alle tools',color:'#0E5A75'},
+        {label:'Niet-goedgekeurde tools',value:shadowU,sub:Math.round(shadowU/totalU*100)+'% van totaal · beperkt + verboden',color:'#D13F3F'},
+        {label:'Privé accountgebruik',value:privPct+'%',sub:'privé gratis/betaald of gemengd',color:'#D08212'},
+        {label:'Meest gebruikte tool',value:top.name,sub:top.users+' gebruikers · '+top.policy,color:'#5A8F19',sm:true},
+      ].forEach(k=>{
+        const d=document.createElement('div');
+        d.className='bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/10 shadow-[0_8px_24px_rgba(26,32,44,0.06)] text-center';
+        d.innerHTML='<p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-tight mb-1">'+k.label+'</p>'
+          +'<h3 class="font-bold font-headline tabular-nums" style="color:'+k.color+';font-size:'+(k.sm?'1.3rem':'2.25rem')+';line-height:1.1;">'+k.value+'</h3>'
+          +'<p class="text-[10px] text-on-surface-variant mt-1" style="min-height:2.5em;display:flex;align-items:flex-start;justify-content:center;text-align:center;">'+k.sub+'</p>';
+        kpis.appendChild(d);
+      });
+    }
+
+  }
+
+  window.sankeySetView = function(v) {
+    view = v;
+    ['uses','accounts','full'].forEach(id => document.getElementById('stab-'+id).classList.remove('sankey-active'));
+    document.getElementById('stab-'+v).classList.add('sankey-active');
+
+    render();
+  };
+
+  // Init after DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => { render(); window.addEventListener('resize', render); });
+  } else {
+    render(); window.addEventListener('resize', render);
+  }
+})();
+</script>
+
+</div>
+  
+
+<footer class="mt-auto px-8 pt-8 pb-4">
+  <div class="border-t border-slate-200/60 pt-4">
+    <p class="text-[11px] text-slate-400 flex items-center gap-1.5 leading-relaxed">
+      <span class="material-symbols-outlined text-[14px] opacity-70">error</span>
+      Review- en juridische signalen zijn indicatief en gebaseerd op zelfrapportage. Menselijk oordeel blijft leidend.
+    </p>
+  </div>
+</footer>
+</div>
+
+</main>
+<div class="dpo-matrix-modal-bg" id="dpo-matrix-modal-bg">
+  <div class="dpo-matrix-modal">
+    <div class="dpo-matrix-modal-head">
+      <span class="dpo-matrix-modal-title" id="dpo-matrix-modal-title"></span>
+      <button class="dpo-matrix-modal-close" id="dpo-matrix-modal-close" type="button">x</button>
+    </div>
+    <div id="dpo-matrix-modal-body"></div>
+    <button class="dpo-matrix-modal-action" id="dpo-matrix-modal-action" type="button">Terug naar matrix</button>
+  </div>
+</div>
+<script>
+  document.querySelectorAll('[data-accordion-trigger]').forEach((button) => {
+    button.addEventListener('click', () => {
+      button.closest('.accordion-item')?.classList.toggle('is-open');
+    });
+  });
+
+  const searchInput = document.getElementById('participant-search');
+  const deptFilter = document.getElementById('dept-filter');
+  const fieldFilter = document.getElementById('field-filter');
+  const usersSortBtn = document.getElementById('users-sort-btn');
+  const accountSortBtn = document.getElementById('account-sort-btn');
+  const clearFiltersBtn = document.getElementById('clear-filters-btn');
+  const participantBody = document.getElementById('participant-body');
+  const rows = () => Array.from(document.querySelectorAll('#participant-body tr'));
+
+  const FIELD_STATS = [
+    {
+      'IT, Data & Development': { users: 18, business: 78, own: 12, mixed: 10 },
+      'HR & Recruitment': { users: 9, business: 65, own: 25, mixed: 10 },
+      'Operations & Support': { users: 19, business: 70, own: 18, mixed: 12 }
+    },
+    {
+      'IT, Data & Development': { users: 21, business: 48, own: 34, mixed: 18 },
+      'Finance & Legal': { users: 8, business: 34, own: 48, mixed: 18 }
+    },
+    {
+      'Marketing & Communicatie': { users: 6, business: 10, own: 70, mixed: 20 },
+      'Anders': { users: 2, business: 5, own: 60, mixed: 35 }
+    },
+    {
+      'Marketing & Communicatie': { users: 13, business: 62, own: 21, mixed: 17 },
+      'Sales & Accountmanagement': { users: 4, business: 45, own: 35, mixed: 20 }
+    },
+    {
+      'Operations & Support': { users: 18, business: 18, own: 55, mixed: 27 },
+      'Directie & Management': { users: 5, business: 40, own: 32, mixed: 28 },
+      'IT, Data & Development': { users: 8, business: 24, own: 48, mixed: 28 }
+    },
+    {
+      'IT, Data & Development': { users: 53, business: 81, own: 11, mixed: 8 }
+    },
+    {
+      'Finance & Legal': { users: 7, business: 12, own: 55, mixed: 33 },
+      'Operations & Support': { users: 4, business: 22, own: 39, mixed: 39 }
+    },
+    {
+      'Marketing & Communicatie': { users: 2, business: 8, own: 60, mixed: 32 },
+      'IT, Data & Development': { users: 4, business: 14, own: 51, mixed: 35 }
+    }
+  ];
+
+  function allStatsForRow(row) {
+    const index = Number(row.dataset.originalOrder || 0);
+    return FIELD_STATS[index] || {};
+  }
+
+  function splitOwnAccount(stats) {
+    const ownTotal = Number(stats.own || 0);
+    const explicitFree = Number(stats.free);
+    const explicitPaid = Number(stats.paid);
+    if (Number.isFinite(explicitFree) && Number.isFinite(explicitPaid)) {
+      return { free: explicitFree, paid: explicitPaid, own: explicitFree + explicitPaid };
+    }
+    const free = Math.round(ownTotal * 0.45);
+    return { free, paid: Math.max(0, ownTotal - free), own: ownTotal };
+  }
+
+  function withAccountSplit(stats) {
+    const split = splitOwnAccount(stats);
+    return { ...stats, free: split.free, paid: split.paid, own: split.own };
+  }
+  function totalStatsForRow(row) {
+    const stats = {
+      users: Number(row.dataset.totalUsers || row.dataset.users || 0),
+      business: Number(row.dataset.totalAccountBusiness || row.dataset.accountBusiness || 0),
+      free: row.dataset.totalAccountFree ? Number(row.dataset.totalAccountFree) : NaN,
+      paid: row.dataset.totalAccountPaid ? Number(row.dataset.totalAccountPaid) : NaN,
+      own: Number(row.dataset.totalAccountOwn || row.dataset.accountOwn || 0),
+      mixed: Number(row.dataset.totalAccountMixed || row.dataset.accountMixed || 0)
+    };
+    return withAccountSplit(stats);
+  }
+
+  function setAccountDistribution(row, stats) {
+    const splitStats = withAccountSplit(stats);
+    row.dataset.users = String(splitStats.users);
+    row.dataset.accountBusiness = String(splitStats.business);
+    row.dataset.accountFree = String(splitStats.free);
+    row.dataset.accountPaid = String(splitStats.paid);
+    row.dataset.accountOwn = String(splitStats.own);
+    row.dataset.accountMixed = String(splitStats.mixed);
+
+    const usageCell = row.querySelector('.usage-count');
+    if (usageCell) usageCell.textContent = String(splitStats.users);
+
+    const business = row.querySelector('.account-business');
+    let free = row.querySelector('.account-free');
+    let paid = row.querySelector('.account-paid');
+    const mixed = row.querySelector('.account-mixed');
+
+    if (!free) {
+      const oldOwn = row.querySelector('.account-own');
+      if (oldOwn) {
+        oldOwn.classList.remove('account-own');
+        oldOwn.classList.add('account-free');
+        free = oldOwn;
+      }
+    }
+    if (!paid && free) {
+      paid = document.createElement('span');
+      paid.className = 'account-segment account-paid block h-full float-left';
+      paid.style.backgroundColor = '#B45309';
+      free.insertAdjacentElement('afterend', paid);
+    }
+    if (free) free.style.backgroundColor = '#D08212';
+    if (paid) paid.style.backgroundColor = '#B45309';
+
+    if (business) business.style.width = `${splitStats.business}%`;
+    if (free) free.style.width = `${splitStats.free}%`;
+    if (paid) paid.style.width = `${splitStats.paid}%`;
+    if (mixed) mixed.style.width = `${splitStats.mixed}%`;
+
+    const labelsWrap = row.querySelector('[data-label="Accountverdeling"] .grid');
+    if (labelsWrap) {
+      labelsWrap.className = 'grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-[10px] font-medium text-slate-500';
+      labelsWrap.innerHTML = [
+        `<span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#5A8F19]"></span>Zakelijk ${splitStats.business}%</span>`,
+        `<span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#D08212]"></span>Privé gratis ${splitStats.free}%</span>`,
+        `<span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full" style="background:#B45309"></span>Privé betaald ${splitStats.paid}%</span>`,
+        `<span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#8B5CF6]"></span>Gemengd ${splitStats.mixed}%</span>`
+      ].join('');
+    }
+  }
+
+  function applyFieldScope(row, selectedField) {
+    const fieldStats = allStatsForRow(row);
+    const fieldNames = Object.keys(fieldStats);
+    const summary = row.querySelector('.field-summary');
+
+    if (!row.dataset.totalUsers) {
+      row.dataset.totalUsers = row.dataset.users || '0';
+      row.dataset.totalAccountBusiness = row.dataset.accountBusiness || '0';
+      row.dataset.totalAccountFree = row.dataset.accountFree || '';
+      row.dataset.totalAccountPaid = row.dataset.accountPaid || '';
+      row.dataset.totalAccountOwn = row.dataset.accountOwn || '0';
+      row.dataset.totalAccountMixed = row.dataset.accountMixed || '0';
+    }
+
+    if (!selectedField) {
+      setAccountDistribution(row, totalStatsForRow(row));
+      if (summary) summary.textContent = fieldNames.length === 1 ? '1 vakgebied' : `${fieldNames.length} vakgebieden`;
+      return true;
+    }
+
+    const stats = fieldStats[selectedField];
+    if (!stats) return false;
+    setAccountDistribution(row, stats);
+    if (summary) summary.textContent = selectedField;
+    return true;
+  }
+  const toolStatusClassMap = {
+    '': 'bg-white text-[#94A3B8] border-slate-200',
+    Approved: 'bg-white text-[#5A8F19] border-[#CFE3B0]',
+    Restricted: 'bg-white text-[#D08212] border-[#F0D7A5]',
+    Prohibited: 'bg-white text-[#D13F3F] border-[#F0C7CB]',
+    'Under Review': 'bg-white text-[#59728A] border-[#CFDAE4]'
+  };
+
+  rows().forEach((row, index) => {
+    row.dataset.originalOrder = row.dataset.originalOrder || String(index);
+  });
+
+  function syncUsersSortButton() {
+    if (!usersSortBtn) return;
+    const direction = usersSortBtn.dataset.sortDirection === 'asc' ? 'asc' : 'desc';
+    const [upIcon, downIcon] = usersSortBtn.querySelectorAll('.material-symbols-outlined');
+    upIcon?.classList.toggle('text-slate-700', direction === 'asc');
+    upIcon?.classList.toggle('text-slate-400', direction !== 'asc');
+    downIcon?.classList.toggle('text-slate-700', direction === 'desc');
+    downIcon?.classList.toggle('text-slate-400', direction !== 'desc');
+  }
+
+  function syncAccountSortButton() {
+    if (!accountSortBtn) return;
+    const mode = accountSortBtn.dataset.sortMode || 'none';
+    const [upIcon, downIcon] = accountSortBtn.querySelectorAll('.material-symbols-outlined');
+    accountSortBtn.title =
+      mode === 'business' ? 'Sorteert nu op hoogste percentage Zakelijk' :
+      mode === 'own' ? 'Sorteert nu op hoogste percentage Privé totaal' :
+      mode === 'mixed' ? 'Sorteert nu op hoogste percentage Gemengd' :
+      'Sorteer accounttype';
+    upIcon?.classList.toggle('text-slate-700', mode === 'business');
+    upIcon?.classList.toggle('text-slate-400', mode !== 'business');
+    downIcon?.classList.toggle('text-slate-700', mode === 'own' || mode === 'mixed');
+    downIcon?.classList.toggle('text-slate-400', mode !== 'own' && mode !== 'mixed');
+  }
+
+  function syncToolStatusSelect(select) {
+    if (!select.value && select.dataset.defaultValue) {
+      select.value = select.dataset.defaultValue;
+    }
+    const tone = toolStatusClassMap[select.value] || toolStatusClassMap[''];
+    select.className = `tool-status-select w-[116px] rounded-md border px-2 py-2 text-xs font-bold outline-none transition-colors ${tone}`;
+    select.closest('tr')?.setAttribute('data-dept', select.value);
+  }
+
+  function getRowPolicyStatus(row) {
+    return row.querySelector('.tool-status-select')?.value || row.dataset.dept || '';
+  }
+
+  function syncAccountDistributionBars() {
+    document.querySelectorAll('.account-distribution').forEach((bar) => {
+      const segments = Array.from(bar.querySelectorAll('.account-segment'));
+      const widths = segments.map((segment) => {
+        const match = (segment.getAttribute('style') || '').match(/width:\s*(\d+(?:\.\d+)?)%/i);
+        return match ? Number(match[1]) : 0;
+      });
+      const total = widths.reduce((sum, width) => sum + width, 0);
+      segments.forEach((segment, index) => {
+        const width = total > 100.5 ? (widths[index] / total) * 100 : widths[index];
+        segment.style.width = `${width}%`;
+      });
+    });
+  }
+
+  function visibleRows() {
+    return rows().filter((row) => row.style.display !== 'none');
+  }
+
+  function recalculateToolKPIs() {
+    const allRows = rows();
+    const scopedRows = visibleRows();
+    const totalEl = document.getElementById('kpi-total');
+    const newEl = document.getElementById('kpi-new');
+    const ratioEl = document.getElementById('kpi-shadow-ratio');
+    const barEl = document.getElementById('kpi-shadow-bar');
+    const usersRatioEl = document.getElementById('kpi-shadow-users-ratio');
+    const usersBarEl = document.getElementById('kpi-shadow-users-bar');
+    const reviewsEl = document.getElementById('kpi-reviews');
+
+    const visibleTotal = scopedRows.length;
+    const shadowCount = scopedRows.filter((row) => {
+      const status = getRowPolicyStatus(row);
+      return !status || status === 'Restricted' || status === 'Prohibited' || status === 'Under Review';
+    }).length;
+    const reviewCount = scopedRows.filter((row) => getRowPolicyStatus(row) === 'Under Review').length;
+    const newCount = allRows.filter((row) => !getRowPolicyStatus(row)).length;
+    const totalUsers = scopedRows.reduce((sum, row) => sum + Number(row.dataset.users || 0), 0);
+    const shadowUsers = scopedRows.reduce((sum, row) => {
+      const status = getRowPolicyStatus(row);
+      const isShadow = !status || status === 'Restricted' || status === 'Prohibited' || status === 'Under Review';
+      return sum + (isShadow ? Number(row.dataset.users || 0) : 0);
+    }, 0);
+    const ratio = visibleTotal ? Math.round((shadowCount / visibleTotal) * 100) : 0;
+    const usersRatio = totalUsers ? Math.round((shadowUsers / totalUsers) * 100) : 0;
+    const ratioColor = ratio > 60 ? '#D13F3F' : ratio > 30 ? '#D08212' : '#5A8F19';
+    const usersRatioColor = usersRatio > 60 ? '#D13F3F' : usersRatio > 30 ? '#D08212' : '#5A8F19';
+
+    if (totalEl) totalEl.textContent = allRows.length;
+    if (newEl) newEl.textContent = newCount;
+    if (reviewsEl) reviewsEl.textContent = reviewCount;
+    if (ratioEl) {
+      ratioEl.textContent = `${ratio}%`;
+      ratioEl.style.color = ratioColor;
+    }
+    if (barEl) {
+      barEl.style.width = `${ratio}%`;
+      barEl.style.background = ratioColor;
+    }
+    if (usersRatioEl) {
+      usersRatioEl.textContent = `${usersRatio}%`;
+      usersRatioEl.style.color = usersRatioColor;
+    }
+    if (usersBarEl) {
+      usersBarEl.style.width = `${usersRatio}%`;
+      usersBarEl.style.background = usersRatioColor;
+    }
+  }
+
+  function filterTable() {
+    const searchTerm = (searchInput?.value || '').toLowerCase();
+    const selectedDept = deptFilter?.value || '';
+    const selectedField = fieldFilter?.value || '';
+
+    rows().forEach((row) => {
+      const name = row.querySelector('td:first-child')?.textContent.toLowerCase() || '';
+      const dept = row.dataset.dept || '';
+      const field = row.dataset.field || '';
+      const matchesScope = applyFieldScope(row, selectedField);
+      const matchesSearch = name.includes(searchTerm);
+      const matchesDept = !selectedDept || dept === selectedDept;
+      const matchesField = !selectedField || (matchesScope && field.split('|').includes(selectedField));
+      row.style.display = matchesSearch && matchesDept && matchesField ? '' : 'none';
+    });
+
+    recalculateToolKPIs();
+    dpoMatrixRender();
+  }
+
+  function resetFilters() {
+    if (searchInput) searchInput.value = '';
+    if (deptFilter) deptFilter.value = '';
+    if (fieldFilter) fieldFilter.value = '';
+    filterTable();
+  }
+
+  const DPO_MATRIX_MAX_TOOLS = 8;
+  const DPO_MATRIX_MAX_UC = 6;
+  const DPO_MATRIX_TOOLS = [
+    { id:'chatgpt', name:'ChatGPT', sub:'OpenAI', policy:'shadow', eigenPct:52, gebruikers:46, euai:true },
+    { id:'claude', name:'Claude', sub:'Anthropic', policy:'review', eigenPct:38, gebruikers:29, euai:false },
+    { id:'midj', name:'Midjourney', sub:'Independent', policy:'prohibited', eigenPct:88, gebruikers:8, euai:false },
+    { id:'jasper', name:'Jasper', sub:'Jasper AI', policy:'approved', eigenPct:12, gebruikers:17, euai:false },
+    { id:'notion', name:'Notion AI', sub:'Notion Labs', policy:'shadow', eigenPct:71, gebruikers:31, euai:false },
+    { id:'copilot', name:'GitHub Copilot', sub:'Microsoft', policy:'approved', eigenPct:9, gebruikers:53, euai:false },
+    { id:'deepl', name:'DeepL Write', sub:'DeepL SE', policy:'review', eigenPct:64, gebruikers:11, euai:false },
+    { id:'stabdif', name:'Stable Diffusion', sub:'Open Source', policy:'prohibited', eigenPct:100, gebruikers:6, euai:false },
+    { id:'make', name:'Make / Akkio', sub:'Automatisering', policy:'review', eigenPct:55, gebruikers:19, euai:true },
+    { id:'gemini', name:'Gemini', sub:'Google', policy:'shadow', eigenPct:61, gebruikers:28, euai:false }
+  ];
+  const DPO_MATRIX_UC = [
+    { id:'klant', label:'Klantenservice', impactfactor:2.0, risk:'hoog', gebruikers:18, euai:true },
+    { id:'hr', label:'HR & evaluatie', impactfactor:2.0, risk:'hoog', gebruikers:12, euai:true },
+    { id:'auto', label:'Automatisering', impactfactor:2.0, risk:'hoog', gebruikers:24, euai:false },
+    { id:'systeem', label:'Systemen aansturen', impactfactor:2.0, risk:'hoog', gebruikers:9, euai:false },
+    { id:'data', label:'Data analyseren', impactfactor:1.5, risk:'midden', gebruikers:38, euai:false },
+    { id:'code', label:'Code schrijven', impactfactor:1.5, risk:'midden', gebruikers:41, euai:false },
+    { id:'samen', label:'Samenvatten', impactfactor:1.5, risk:'midden', gebruikers:52, euai:false },
+    { id:'notul', label:'Vergaderingen notuleren', impactfactor:1.5, risk:'midden', gebruikers:33, euai:false },
+    { id:'fin', label:'Financieel & juridisch', impactfactor:1.5, risk:'midden', gebruikers:14, euai:true },
+    { id:'brainstorm', label:'Brainstormen', impactfactor:1.0, risk:'laag', gebruikers:48, euai:false },
+    { id:'vertalen', label:'Vertalen', impactfactor:1.0, risk:'laag', gebruikers:29, euai:false }
+  ];
+  const DPO_MATRIX_CELLS = {
+    chatgpt: { klant:{a:true,f:'art5'}, hr:{a:true,f:'art5'}, auto:{a:true,f:null}, data:{a:true,f:null}, code:{a:true,f:null}, samen:{a:true,f:null}, notul:{a:true,f:null}, fin:{a:true,f:'annex'}, brainstorm:{a:true,f:null}, vertalen:{a:true,f:null} },
+    claude: { auto:{a:true,f:null}, data:{a:true,f:null}, code:{a:true,f:null}, samen:{a:true,f:null}, notul:{a:true,f:null}, fin:{a:true,f:null}, brainstorm:{a:true,f:null} },
+    midj: { brainstorm:{a:true,f:null} },
+    jasper: { klant:{a:true,f:null}, samen:{a:true,f:null}, brainstorm:{a:true,f:null} },
+    notion: { data:{a:true,f:null}, samen:{a:true,f:null}, notul:{a:true,f:null}, brainstorm:{a:true,f:null} },
+    copilot: { auto:{a:true,f:null}, systeem:{a:true,f:null}, data:{a:true,f:null}, code:{a:true,f:null} },
+    deepl: { samen:{a:true,f:null}, notul:{a:true,f:null}, fin:{a:true,f:'annex'}, vertalen:{a:true,f:null} },
+    stabdif: { brainstorm:{a:true,f:null} },
+    make: { hr:{a:true,f:'art5'}, auto:{a:true,f:null}, systeem:{a:true,f:null}, data:{a:true,f:null}, fin:{a:true,f:'annex'} },
+    gemini: { klant:{a:true,f:null}, auto:{a:true,f:null}, data:{a:true,f:null}, code:{a:true,f:null}, samen:{a:true,f:null}, notul:{a:true,f:null}, brainstorm:{a:true,f:null}, vertalen:{a:true,f:null} }
+  };
+  const DPO_MATRIX_CELL_USAGE = {
+    chatgpt: { klant: 12, hr: 9, auto: 14, data: 17, code: 11, samen: 22, notul: 18, fin: 7, brainstorm: 24, vertalen: 13 },
+    claude: { auto: 7, data: 12, code: 8, samen: 13, notul: 9, fin: 6, brainstorm: 11 },
+    midj: { brainstorm: 8 },
+    jasper: { klant: 8, samen: 6, brainstorm: 12 },
+    notion: { data: 11, samen: 19, notul: 15, brainstorm: 16 },
+    copilot: { auto: 21, systeem: 15, data: 18, code: 31 },
+    deepl: { samen: 8, notul: 7, fin: 6, vertalen: 11 },
+    stabdif: { brainstorm: 6 },
+    make: { hr: 6, auto: 14, systeem: 12, data: 11, fin: 7 },
+    gemini: { klant: 9, auto: 10, data: 13, code: 9, samen: 14, notul: 11, brainstorm: 15, vertalen: 8 }
+  };
+  Object.entries(DPO_MATRIX_CELL_USAGE).forEach(([toolId, useCases]) => {
+    Object.entries(useCases).forEach(([useCaseId, gebruikers]) => {
+      if (DPO_MATRIX_CELLS[toolId]?.[useCaseId]?.a) DPO_MATRIX_CELLS[toolId][useCaseId].gebruikers = gebruikers;
+    });
+  });
+
+  const dpoMatrixPolicyLabel = { approved:'Toegestaan', shadow:'Shadow AI', review:'Beoordeling', prohibited:'Verboden' };
+  const dpoMatrixPolicyColor = { approved:'#4D7800', shadow:'#9f403d', review:'#C77700', prohibited:'#8E1B1B' };
+  const dpoMatrixPolicyBg = { approved:'#E6F4CF', shadow:'#FEF2F2', review:'#FFF1CC', prohibited:'#FCEBEB' };
+  const dpoMatrixPolicyWeight = { approved:0, review:1, shadow:2, prohibited:3 };
+  const dpoMatrixAliases = { 'github copilot':'copilot', 'stable diffusion':'stabdif' };
+  const dpoMatrixNameLookup = Object.fromEntries(DPO_MATRIX_TOOLS.map((tool) => [tool.name.toLowerCase(), tool]));
+
+  function dpoMatrixNormalizePolicy(value) {
+    if (value === 'Approved') return 'approved';
+    if (value === 'Under Review') return 'review';
+    if (value === 'Prohibited') return 'prohibited';
+    return value === 'Restricted' ? 'shadow' : 'shadow';
+  }
+
+  function dpoMatrixBuildTools(linkInventory = false) {
+    const sourceRows = linkInventory ? visibleRows() : rows();
+    if (!sourceRows.length) return DPO_MATRIX_TOOLS.map((tool) => ({ ...tool }));
+    return sourceRows.map((row) => {
+      const name = row.querySelector('td:first-child p')?.textContent.trim() || '';
+      const sub = row.querySelector('td:first-child p + p')?.textContent.trim() || '';
+      const defaultTool = DPO_MATRIX_TOOLS.find((tool) => tool.id === dpoMatrixAliases[name.toLowerCase()]) || dpoMatrixNameLookup[name.toLowerCase()] || null;
+      const own = Number(row.dataset.accountOwn || '0');
+      const mixed = Number(row.dataset.accountMixed || '0');
+      return {
+        id: defaultTool?.id || name.toLowerCase().replace(/[^a-z0-9]+/g, ''),
+        name: name || defaultTool?.name || 'Onbekende tool',
+        sub: sub || defaultTool?.sub || 'Onbekende leverancier',
+        policy: dpoMatrixNormalizePolicy(getRowPolicyStatus(row)),
+        eigenPct: Math.max(0, Math.min(100, Math.round(own + (mixed * 0.6)))),
+        gebruikers: Number(row.dataset.users || defaultTool?.gebruikers || 0),
+        euai: defaultTool?.euai || false
+      };
+    });
+  }
+
+  function dpoMatrixBuildUseCases(tools) {
+    return DPO_MATRIX_UC.map((useCase) => {
+      const matchedTools = tools.filter((tool) => DPO_MATRIX_CELLS[tool.id]?.[useCase.id]?.a);
+      const gebruikers = matchedTools.reduce((sum, tool) => sum + tool.gebruikers, 0);
+      const shadowHits = matchedTools.filter((tool) => tool.policy !== 'approved').length;
+      const highestWeight = matchedTools.reduce((max, tool) => Math.max(max, dpoMatrixPolicyWeight[tool.policy] || 0), 0);
+      return {
+        ...useCase,
+        gebruikers,
+        shadowHits,
+        risk: highestWeight >= 3 || useCase.impactfactor >= 2 ? 'hoog' : highestWeight >= 1 || useCase.impactfactor >= 1.5 ? 'midden' : 'laag'
+      };
+    });
+  }
+
+  function dpoMatrixToolRisk(tool) {
+    return (dpoMatrixPolicyWeight[tool.policy] || 0) * 20 + (tool.eigenPct / 100) * 15 + (tool.euai ? 10 : 0);
+  }
+
+  function dpoMatrixShadowHits(useCase, tools) {
+    return tools.reduce((count, tool) => count + (DPO_MATRIX_CELLS[tool.id]?.[useCase.id]?.a && tool.policy !== 'approved' ? 1 : 0), 0);
+  }
+
+  function dpoMatrixCellColor(tool, useCase, applies) {
+    if (!applies) return null;
+    const shadow = tool.policy !== 'approved';
+    const eigen = tool.eigenPct > 50;
+    if (tool.policy === 'approved' && !eigen) return '#97C459';
+    if (shadow && (eigen || useCase.risk === 'hoog')) return '#E24B4A';
+    return '#EF9F27';
+  }
+
+  function dpoMatrixCellSize(gebruikers, maxGebruikers) {
+    const min = 20;
+    const max = 38;
+    return maxGebruikers ? Math.round(min + (gebruikers / maxGebruikers) * (max - min)) : min;
+  }
+
+  function dpoMatrixOpenModal(tool, useCase, cell) {
+    const flagText = cell.f === 'art5' ? 'Pot. Art. 5' : cell.f === 'annex' ? 'Pot. Annex III' : 'Geen flag';
+    const actionText = tool.policy === 'prohibited' ? 'Directe escalatie vereist' : tool.policy === 'shadow' ? 'Governance-review starten' : cell.f ? 'DPO/juridische duiding nodig' : 'Monitoren en opvolgen';
+    document.getElementById('dpo-matrix-modal-title').textContent = `${tool.name} x ${useCase.label}`;
+    document.getElementById('dpo-matrix-modal-body').innerHTML = `
+      <div class="dpo-matrix-modal-row"><span class="dpo-matrix-modal-key">Beleidsstatus</span><span class="dpo-matrix-modal-val" style="color:${dpoMatrixPolicyColor[tool.policy]}">${dpoMatrixPolicyLabel[tool.policy]}</span></div>
+      <div class="dpo-matrix-modal-row"><span class="dpo-matrix-modal-key">Impactfactor</span><span class="dpo-matrix-modal-val">${useCase.impactfactor}x</span></div>
+      <div class="dpo-matrix-modal-row"><span class="dpo-matrix-modal-key">Respondenten in cluster</span><span class="dpo-matrix-modal-val">${Number(cell.gebruikers || 0)}</span></div>
+      <div class="dpo-matrix-modal-row"><span class="dpo-matrix-modal-key">Privéaccountgebruik</span><span class="dpo-matrix-modal-val">${tool.eigenPct}%</span></div>
+      <div class="dpo-matrix-modal-row"><span class="dpo-matrix-modal-key">Potentieel signaal</span><span class="dpo-matrix-modal-val">${flagText}</span></div>
+      <div class="dpo-matrix-modal-row"><span class="dpo-matrix-modal-key">Aanbevolen actie</span><span class="dpo-matrix-modal-val" style="color:#0E5A75">${actionText}</span></div>
+      <div class="dpo-matrix-modal-row"><span class="dpo-matrix-modal-key">Herleidbaarheid</span><span class="dpo-matrix-modal-val">Alleen anonieme clusterweergave</span></div>`;
+    document.getElementById('dpo-matrix-modal-bg').classList.add('open');
+  }
+
+  function dpoMatrixRender() {
+    const table = document.getElementById('dpo-matrix-table');
+    if (!table) return;
+    const toolSort = document.querySelector('input[name="dpoToolSort"]:checked')?.value || 'risico';
+    const ucSort = document.querySelector('input[name="dpoUcSort"]:checked')?.value || 'risico';
+    const auditMode = document.getElementById('dpo-matrix-toggle-euai')?.checked;
+    const linkInventory = document.getElementById('dpo-matrix-toggle-linked')?.checked;
+    let tools = dpoMatrixBuildTools(linkInventory);
+    let useCases = dpoMatrixBuildUseCases(tools);
+
+    if (auditMode) {
+      tools = tools.filter((tool) => tool.euai);
+      useCases = useCases.filter((useCase) => useCase.euai);
+    }
+
+    tools.sort((a, b) => {
+      if (toolSort === 'gebruik') return b.gebruikers - a.gebruikers;
+      if (toolSort === 'euai') return Number(b.euai) - Number(a.euai) || dpoMatrixToolRisk(b) - dpoMatrixToolRisk(a);
+      return dpoMatrixToolRisk(b) - dpoMatrixToolRisk(a);
+    });
+    useCases.sort((a, b) => {
+      if (ucSort === 'gebruik') return b.gebruikers - a.gebruikers;
+      if (ucSort === 'shadow') return dpoMatrixShadowHits(b, tools) - dpoMatrixShadowHits(a, tools);
+      return b.impactfactor - a.impactfactor || b.gebruikers - a.gebruikers;
+    });
+
+    const topTools = tools.slice(0, DPO_MATRIX_MAX_TOOLS);
+    const topUseCases = useCases.slice(0, DPO_MATRIX_MAX_UC);
+    const usageValues = topTools.flatMap((tool) => topUseCases.map((useCase) => DPO_MATRIX_CELLS[tool.id]?.[useCase.id]?.gebruikers || 0)).filter(Boolean);
+    const maxGebruikers = Math.max(...usageValues, 0);
+
+    document.getElementById('dpo-matrix-audit-banner').style.display = auditMode ? 'block' : 'none';
+    document.getElementById('dpo-matrix-info-bar').innerHTML = `<span class="dpo-matrix-pill">Tools in scope: ${tools.length}</span>`;
+    const useCaseScopeEl = document.getElementById('dpo-matrix-usecase-scope');
+    if (useCaseScopeEl) useCaseScopeEl.textContent = `Use-cases in scope: ${useCases.length}`;
+    const toolText = toolSort === 'risico' ? 'risico' : toolSort === 'gebruik' ? 'gebruik' : 'EU AI-signaal';
+    const useCaseText = ucSort === 'risico' ? 'kritikaliteit' : ucSort === 'gebruik' ? 'gebruik' : 'shadow-hits';
+    document.getElementById('dpo-matrix-sort-note').textContent = `Tools op ${toolText} - verwerkingsdoeleinden op ${useCaseText}${auditMode ? ' - auditmode actief' : ''}`;
+
+    table.innerHTML = '';
+    const thead = document.createElement('thead');
+    const headRow = document.createElement('tr');
+    const leftCorner = document.createElement('th');
+    leftCorner.style.width = '36px';
+    headRow.appendChild(leftCorner);
+    topTools.forEach((tool) => {
+      const th = document.createElement('th');
+      th.className = 'dpo-matrix-col-head';
+      th.innerHTML = `<span class="dpo-matrix-col-name" title="${tool.name}">${tool.name}</span><span class="dpo-matrix-col-badge" style="background:${dpoMatrixPolicyBg[tool.policy]};color:${dpoMatrixPolicyColor[tool.policy]}">${dpoMatrixPolicyLabel[tool.policy]}</span><span class="dpo-matrix-col-sub">${tool.gebruikers} gebr.</span>`;
+      headRow.appendChild(th);
+    });
+    const rightCorner = document.createElement('th');
+    rightCorner.style.minWidth = '156px';
+    rightCorner.style.textAlign = 'left';
+    rightCorner.innerHTML = '';
+    headRow.appendChild(rightCorner);
+    thead.appendChild(headRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    topUseCases.forEach((useCase) => {
+      const tr = document.createElement('tr');
+      const spacer = document.createElement('th');
+      spacer.className = 'dpo-matrix-row-spacer';
+      spacer.setAttribute('aria-hidden', 'true');
+      tr.appendChild(spacer);
+      const riskColor = useCase.risk === 'hoog' ? '#9f403d' : useCase.risk === 'midden' ? '#C77700' : '#475569';
+      const riskBg = useCase.risk === 'hoog' ? '#FEF2F2' : useCase.risk === 'midden' ? '#FFF1CC' : '#F8FAFC';
+
+      topTools.forEach((tool) => {
+        const td = document.createElement('td');
+        const cell = DPO_MATRIX_CELLS[tool.id]?.[useCase.id] || { a:false, f:null };
+        const color = dpoMatrixCellColor(tool, useCase, cell.a);
+        const wrap = document.createElement('div');
+        const cellEl = document.createElement('div');
+        wrap.className = 'dpo-matrix-cell-wrap';
+        cellEl.className = cell.a ? 'dpo-matrix-cell' : 'dpo-matrix-cell-na';
+        if (color) cellEl.style.background = color;
+
+        if (cell.a && cell.f === 'art5') {
+          const dot = document.createElement('div');
+          dot.className = 'dpo-matrix-cell-dot';
+          dot.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2" fill="#ffffff" stroke="#FF5A6B" stroke-width="1.8"></circle><path d="M4.2 4.2 11.8 11.8" stroke="#FF5A6B" stroke-width="1.8" stroke-linecap="round"></path></svg>';
+          cellEl.appendChild(dot);
+        } else if (cell.a && cell.f === 'annex') {
+          const dot = document.createElement('div');
+          dot.className = 'dpo-matrix-cell-dot';
+          dot.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.5" fill="#ffffff"></circle><path d="M8 2.2 14.4 13.6H1.6L8 2.2Z" fill="#FF3B30"></path><rect x="7.2" y="5.8" width="1.6" height="4.4" rx=".8" fill="#ffffff"></rect><circle cx="8" cy="12" r="0.95" fill="#ffffff"></circle></svg>';
+          cellEl.appendChild(dot);
+        }
+
+        if (cell.a) {
+          const gebruikers = Number(cell.gebruikers || 0);
+          const size = dpoMatrixCellSize(gebruikers, maxGebruikers);
+          cellEl.style.width = `${size}px`;
+          cellEl.style.height = `${size}px`;
+          const count = document.createElement('span');
+          count.className = `dpo-matrix-cell-count${size < 26 ? ' is-hidden' : ''}`;
+          count.textContent = gebruikers;
+          cellEl.appendChild(count);
+          cellEl.addEventListener('click', () => dpoMatrixOpenModal(tool, useCase, cell));
+        }
+        wrap.appendChild(cellEl);
+        td.appendChild(wrap);
+        tr.appendChild(td);
+      });
+
+      const rightHead = document.createElement('th');
+      rightHead.className = 'dpo-matrix-row-head-right';
+      rightHead.innerHTML = `<div class="dpo-matrix-row-name">${useCase.label}</div><span class="dpo-matrix-row-badge" style="background:${riskBg};color:${riskColor}">${useCase.impactfactor}x</span>`;
+      tr.appendChild(rightHead);
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+  }
+
+  [searchInput, deptFilter, fieldFilter].forEach((el) => el?.addEventListener('input', filterTable));
+  [deptFilter, fieldFilter].forEach((el) => el?.addEventListener('change', filterTable));
+  clearFiltersBtn?.addEventListener('click', resetFilters);
+  usersSortBtn?.addEventListener('click', () => {
+    if (!participantBody) return;
+    const nextDirection = usersSortBtn.dataset.sortDirection === 'asc' ? 'desc' : 'asc';
+    rows().sort((a, b) => {
+      const diff = Number(a.dataset.users || 0) - Number(b.dataset.users || 0);
+      return nextDirection === 'asc' ? diff : -diff;
+    }).forEach((row) => participantBody.appendChild(row));
+    usersSortBtn.dataset.sortDirection = nextDirection;
+    syncUsersSortButton();
+    filterTable();
+  });
+  accountSortBtn?.addEventListener('click', () => {
+    if (!participantBody) return;
+    const currentMode = accountSortBtn.dataset.sortMode || 'none';
+    const nextMode = currentMode === 'none' ? 'business' : currentMode === 'business' ? 'own' : currentMode === 'own' ? 'mixed' : 'none';
+    rows().sort((a, b) => {
+      if (nextMode === 'none') return Number(a.dataset.originalOrder || 0) - Number(b.dataset.originalOrder || 0);
+      const field = nextMode === 'business' ? 'accountBusiness' : nextMode === 'own' ? 'accountOwn' : 'accountMixed';
+      return Number(b.dataset[field] || 0) - Number(a.dataset[field] || 0);
+    }).forEach((row) => participantBody.appendChild(row));
+    accountSortBtn.dataset.sortMode = nextMode;
+    syncAccountSortButton();
+    filterTable();
+  });
+  document.querySelectorAll('.tool-status-select').forEach((select) => {
+    syncToolStatusSelect(select);
+    select.addEventListener('change', () => {
+      syncToolStatusSelect(select);
+      filterTable();
+    });
+  });
+  document.querySelectorAll('input[name="dpoToolSort"], input[name="dpoUcSort"], #dpo-matrix-toggle-euai, #dpo-matrix-toggle-linked').forEach((input) => input.addEventListener('change', dpoMatrixRender));
+  document.getElementById('dpo-matrix-reset-btn')?.addEventListener('click', () => {
+    document.querySelector('input[name="dpoToolSort"][value="risico"]').checked = true;
+    document.querySelector('input[name="dpoUcSort"][value="risico"]').checked = true;
+    document.getElementById('dpo-matrix-toggle-euai').checked = false;
+    document.getElementById('dpo-matrix-toggle-linked').checked = false;
+    dpoMatrixRender();
+  });
+  document.getElementById('dpo-matrix-modal-bg')?.addEventListener('click', (event) => {
+    if (event.target === event.currentTarget) event.currentTarget.classList.remove('open');
+  });
+  document.getElementById('dpo-matrix-modal-close')?.addEventListener('click', () => document.getElementById('dpo-matrix-modal-bg')?.classList.remove('open'));
+  document.getElementById('dpo-matrix-modal-action')?.addEventListener('click', () => document.getElementById('dpo-matrix-modal-bg')?.classList.remove('open'));
+
+  const profileMenuButton = document.getElementById('profile-menu-button');
+  const profileMenu = document.getElementById('profile-menu');
+  profileMenuButton?.addEventListener('click', () => {
+    const isOpen = profileMenu?.classList.toggle('is-open');
+    profileMenuButton.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+  document.addEventListener('click', (event) => {
+    if (!profileMenu || !profileMenuButton) return;
+    if (profileMenu.contains(event.target) || profileMenuButton.contains(event.target)) return;
+    profileMenu.classList.remove('is-open');
+    profileMenuButton.setAttribute('aria-expanded', 'false');
+  });
+
+  syncUsersSortButton();
+  syncAccountSortButton();
+  syncAccountDistributionBars();
+  filterTable();
+</script>
+</body></html>

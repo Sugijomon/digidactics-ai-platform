@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html class="light" lang="nl">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Voortgang | Shadow AI Governance</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "surface-container-low": "#f0f4f7",
+          "surface-container-lowest": "#ffffff",
+          "on-secondary": "#eeffd5",
+          "on-tertiary-fixed": "#000000",
+          "surface-bright": "#f7f9fb",
+          "on-background": "#2a3439",
+          "background": "#f7f9fb",
+          "inverse-primary": "#e8eeff",
+          "error-dim": "#4e0309",
+          "primary-dim": "#4c5260",
+          "tertiary-fixed-dim": "#ed5351",
+          "outline": "#717c82",
+          "on-primary-container": "#4c525f",
+          "inverse-surface": "#0b0f10",
+          "tertiary-container": "#ff605d",
+          "surface": "#f7f9fb",
+          "surface-container-highest": "#d9e4ea",
+          "primary-fixed-dim": "#cfd4e5",
+          "on-secondary-fixed": "#284700",
+          "secondary-fixed-dim": "#aae667",
+          "on-tertiary": "#fff7f6",
+          "primary-container": "#dde2f3",
+          "tertiary": "#b4292d",
+          "on-tertiary-fixed-variant": "#4d0006",
+          "inverse-on-surface": "#9a9d9f",
+          "outline-variant": "#a9b4b9",
+          "error": "#9f403d",
+          "surface-container": "#e8eff3",
+          "surface-dim": "#cfdce3",
+          "tertiary-fixed": "#ff605d",
+          "primary-fixed": "#dde2f3",
+          "surface-container-high": "#e1e9ee",
+          "on-tertiary-container": "#380003",
+          "surface-variant": "#d9e4ea",
+          "on-secondary-fixed-variant": "#3c6600",
+          "on-primary": "#f7f7ff",
+          "on-surface-variant": "#566166",
+          "on-primary-fixed-variant": "#565b69",
+          "on-error-container": "#752121",
+          "tertiary-dim": "#a21b22",
+          "primary": "#585e6c",
+          "error-container": "#fe8983",
+          "on-secondary-container": "#355c00",
+          "secondary-fixed": "#b7f473",
+          "secondary-dim": "#365d00",
+          "on-primary-fixed": "#393f4c",
+          "on-error": "#fff7f6",
+          "secondary-container": "#b7f473",
+          "on-surface": "#2a3439",
+          "surface-tint": "#585e6c",
+          "secondary": "#3e6a00"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.125rem",
+          "lg": "0.25rem",
+          "xl": "0.5rem",
+          "full": "0.75rem"
+        },
+        "fontFamily": {
+          "headline": ["Manrope"],
+          "body": ["Inter"],
+          "label": ["Inter"]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+  }
+  body { font-family: 'Inter', sans-serif; }
+  h1, h2, h3, h4 { font-family: 'Manrope', sans-serif; }
+  .profile-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 256px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.10);
+    overflow: hidden;
+    display: none;
+    z-index: 30;
+  }
+  .profile-menu.is-open { display: block; }
+  #eerste-scan-view { display: none !important; }
+  #herhaal-scan-view { display: block !important; }
+
+  /* Greyed-out nav state for eerste scan */
+  .nav-disabled {
+    opacity: 0.4;
+    pointer-events: none;
+    cursor: not-allowed;
+  }
+
+  /* Locked overlay for first-scan state */
+  .locked-overlay {
+    position: relative;
+  }
+  .locked-overlay::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(247,249,251,0.75);
+    border-radius: inherit;
+    backdrop-filter: blur(1px);
+    pointer-events: none;
+  }
+
+  /* Compliance trend table */
+  .trend-positive { color: #3e6a00; }
+  .trend-negative-good { color: #3e6a00; }
+  .trend-warning { color: #b4292d; }
+
+  /* Animated badge for "Eerste scan" banner */
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  .pulse-soft { animation: pulse-soft 2.5s ease-in-out infinite; }
+
+/* Integrated v3 progress layout */
+
+/* ── Reset & base ── */
+ .progress-v3, .progress-v3 * { box-sizing: border-box; }
+.progress-v3 { width:100%; max-width:none; margin:0; padding:0 0 24px; color:#1e293b; font-size:14px; line-height:1.5; }
+
+/* ── Typography ── */
+ .progress-v3 h1 { font: 800 30px/1.12 'Manrope', sans-serif; letter-spacing: 0; color:#2a3439; }
+ .progress-v3 h2 { font: 700 20px/1.2 'Manrope', sans-serif; letter-spacing: 0; color:#1e293b; }
+ .progress-v3 h3 { font: 700 13px/1.3 'Manrope', sans-serif; }
+ .progress-v3 .label {
+  font: 800 10px/1 'Manrope', sans-serif;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+ .progress-v3 .mono { font-family: 'DM Mono', monospace; }
+
+/* ── Layout ── */
+ .progress-v3 .page-head {
+  padding-bottom: 0;
+  border-bottom: 0;
+  margin-bottom: 20px;
+  margin-top: 0;
+}
+ .progress-v3 .page-head h2 {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: 800;
+  color: #2a3439;
+ }
+ .progress-v3 .page-head p { color: #566166; font-size: 14px; font-weight:500; margin-top: 6px; max-width: none; line-height: 1.55; }
+
+ .progress-v3 section { margin-bottom: 28px; }
+ .progress-v3 .section-head { margin-bottom: 14px; }
+ .progress-v3 .section-title { display:flex; align-items:center; gap:12px; margin-bottom:6px; }
+ .progress-v3 .section-title .material-symbols-outlined { font-size:26px; color:#0E5A75; flex:0 0 auto; }
+ .progress-v3 .section-head p { color: #64748b; font-size: 14px; margin-top: 3px; margin-left: 38px; max-width: none; line-height:1.5; }
+ .progress-v3 .component-shell {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04), 0 6px 20px rgba(0,0,0,.04);
+}
+
+/* ── Cards ── */
+ .progress-v3 .card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
+}
+
+/* ── Pills ── */
+ .progress-v3 .pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  border-radius: 999px; padding: 4px 10px;
+  font: 800 10.5px/1 'Manrope', sans-serif;
+  white-space: nowrap; flex-shrink: 0;
+}
+ .progress-v3 .ok   { background: #e6f4cf; color: #3e6a00; }
+ .progress-v3 .warn { background: #fff7ed; color: #b45309; }
+ .progress-v3 .bad  { background: #fdecea; color: #b4292d; }
+ .progress-v3 .info { background: #e8f4fb; color: #0e5a75; }
+
+/* ── Scan context bar ── */
+ .progress-v3 .ctx-bar {
+  display: flex; flex-wrap: wrap; gap: 0;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+ .progress-v3 .ctx-cell {
+  padding: 12px 18px;
+  border-right: 1px solid #eef2f7;
+  flex: 1;
+  min-width: 110px;
+}
+ .progress-v3 .ctx-cell:last-child { border-right: 0; }
+ .progress-v3 .ctx-cell .v {
+  font: 700 13px/1.2 'Manrope', sans-serif;
+  color: #1e293b;
+  margin-top: 5px;
+}
+
+/* ── KPI strip ── */
+ .progress-v3 .kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+ .progress-v3 .kpi {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 18px 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  text-align:center;
+}
+ .progress-v3 .kpi-top { display: flex; flex-direction:column; align-items:center; justify-content:flex-start; gap: 8px; margin-bottom: 10px; }
+ .progress-v3 .kpi-lbl { font: 800 11px/1.25 'Manrope', sans-serif; text-transform: uppercase; color: #566166; }
+ .progress-v3 .kpi-val { font: 800 36px/1 'Manrope', sans-serif; color: #1e293b; }
+ .progress-v3 .kpi-base { font-size: 10px; color: #64748b; margin-top: 4px; min-height:2.5em; }
+ .progress-v3 .delta { display: inline-flex; align-items: center; gap: 3px; padding: 3px 8px; border-radius: 999px; font: 800 11px/1 'Manrope', sans-serif; }
+
+/* Governance evidence blocks */
+ .progress-v3 .insight-grid {
+  display: grid;
+  grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
+  gap: 14px;
+}
+ .progress-v3 .evidence-card { padding: 18px 20px; }
+ .progress-v3 .evidence-list { display: grid; gap: 10px; margin-top: 14px; }
+ .progress-v3 .evidence-item {
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid #eef2f7;
+}
+ .progress-v3 .evidence-item:first-child { border-top: 0; padding-top: 0; }
+
+ .progress-v3 .evidence-check {
+  width: 18px; height: 18px;
+  border: 2px solid #0E5A75;
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  color: #0E5A75;
+}
+ .progress-v3 .evidence-check .material-symbols-outlined {
+  font-size: 15px !important;
+  font-weight: 700;
+  line-height: 1;
+}
+ .progress-v3 .evidence-title { font: 800 12px/1.25 'Manrope', sans-serif; color: #1e293b; }
+ .progress-v3 .evidence-copy { font-size: 11.5px; color: #64748b; margin-top: 2px; }
+
+ .progress-v3 .stack-wrap { margin-top: 14px; display: grid; gap: 12px; }
+ .progress-v3 .stack-row {
+  display: grid;
+  grid-template-columns: 58px 1fr 46px;
+  gap: 10px;
+  align-items: center;
+}
+ .progress-v3 .stack-label { font: 800 10px/1 'Manrope', sans-serif; color: #64748b; text-transform: uppercase; }
+ .progress-v3 .stack {
+  height: 18px; border-radius: 999px; overflow: hidden; display: flex; background: #eef2f7;
+  box-shadow: inset 0 0 0 1px rgba(15,23,42,.04);
+}
+ .progress-v3 .stack span { height: 100%; display: block; }
+ .progress-v3 .stack-total { font: 800 11px/1 'DM Mono', monospace; color: #64748b; text-align: right; }
+ .progress-v3 .legend {
+  display: flex; flex-wrap: wrap; gap: 8px 12px; margin-top: 12px;
+  font-size: 11px; color: #64748b;
+}
+ .progress-v3 .legend i { width: 9px; height: 9px; border-radius: 3px; display: inline-block; margin-right: 5px; vertical-align: -1px; }
+
+ .progress-v3 .driver-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+ .progress-v3 .driver-card { padding: 15px 16px; }
+ .progress-v3 .driver-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+ .progress-v3 .driver-title { font: 800 12px/1.25 'Manrope', sans-serif; color: #1e293b; }
+ .progress-v3 .driver-sub { font-size: 11.5px; color: #64748b; line-height: 1.45; min-height: 33px; }
+ .progress-v3 .driver-scale {
+  display: flex; align-items: center; gap: 6px; margin-top: 12px;
+  font: 700 10px/1 'DM Mono', monospace; color: #94a3b8;
+}
+ .progress-v3 .driver-line { flex: 1; height: 6px; border-radius: 999px; background: #eef2f7; position: relative; overflow: hidden; }
+ .progress-v3 .driver-line span { position: absolute; inset: 0 auto 0 0; border-radius: 999px; background: #3e6a00; }
+
+ .progress-v3 .effect-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+ .progress-v3 .effect-card { padding: 15px 16px; }
+ .progress-v3 .effect-value { font: 900 22px/1 'Manrope', sans-serif; color: #1e293b; margin-top: 8px; }
+ .progress-v3 .effect-note { font-size: 11.5px; color: #64748b; margin-top: 6px; line-height: 1.45; }
+
+/* Bullet bar under KPI */
+ .progress-v3 .blt {
+  height: 8px; border-radius: 999px; background: #eef2f7;
+  position: relative; overflow: hidden; margin-top: 12px;
+}
+ .progress-v3 .blt-fill { position: absolute; inset: 0 auto 0 0; border-radius: 999px; }
+ .progress-v3 .blt-ref {
+  position: absolute; top: -3px; bottom: -3px; width: 2px;
+  background: #334155; border-radius: 1px;
+}
+
+/* ── Dumbbell ── */
+ .progress-v3 .dumbbell { padding: 6px 20px 16px; }
+ .progress-v3 .db-head {
+  display: grid;
+  grid-template-columns: 220px 52px 1fr 52px 80px;
+  gap: 10px; align-items: center;
+  padding: 8px 0 10px;
+  font: 800 10px/1 'Manrope', sans-serif;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: #94a3b8; border-bottom: 1px solid #eef2f7;
+}
+ .progress-v3 .db-group {
+  font: 800 10px/1 'Manrope', sans-serif;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: #94a3b8; padding: 14px 0 6px;
+  border-top: 1px solid #eef2f7;
+  margin-top: 4px;
+}
+ .progress-v3 .db-row {
+  display: grid;
+  grid-template-columns: 220px 52px 1fr 52px 80px;
+  gap: 10px; align-items: center;
+  padding: 11px 0;
+  border-top: 1px solid #f8fafc;
+}
+ .progress-v3 .db-row:first-of-type { border-top: 0; }
+ .progress-v3 .db-title { font: 700 13px/1.25 'Manrope', sans-serif; }
+ .progress-v3 .db-sub { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+ .progress-v3 .db-t1 { font: 600 12px/1 'DM Mono', monospace; color: #94a3b8; }
+ .progress-v3 .db-t2 { font: 700 13px/1 'DM Mono', monospace; }
+
+/* Track */
+ .progress-v3 .track {
+  height: 8px; background: #eef2f7; border-radius: 999px; position: relative;
+}
+ .progress-v3 .track-line { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: #cbd5e1; }
+ .progress-v3 .seg { position: absolute; top: 50%; height: 4px; border-radius: 999px; transform: translateY(-50%); }
+ .progress-v3 .pt {
+  position: absolute; top: 50%; transform: translate(-50%,-50%);
+  width: 13px; height: 13px; border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(15,23,42,.2);
+}
+
+/* ── Quadrant ── */
+ .progress-v3 .quad-wrap { padding: 18px 20px 14px; }
+
+/* ── Restrisico cards ── */
+
+ .progress-v3 .risk-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+ .progress-v3 .risk-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: grid;
+  grid-template-columns: minmax(190px,.8fr) minmax(280px,1.15fr) minmax(230px,.95fr);
+  gap: 16px;
+  align-items: center;
+}
+ .progress-v3 .risk-card h3 { font: 700 14px/1.3 'Manrope', sans-serif; margin: 8px 0 0; color:#1e293b; }
+ .progress-v3 .risk-card p  { font-size: 13px; color: #64748b; line-height: 1.5; margin:0; }
+ .progress-v3 .risk-metric { min-width: 0; }
+ .progress-v3 .risk-values { display:flex; justify-content:space-between; align-items:center; gap:10px; font:700 11px/1 'DM Mono', monospace; color:#94a3b8; margin-bottom:8px; }
+ .progress-v3 .risk-values strong { color:#1e293b; font-size:12px; }
+ .progress-v3 .risk-track { position:relative; height:8px; border-radius:999px; background:#eef2f7; }
+ .progress-v3 .risk-fill { position:absolute; inset:0 auto 0 0; border-radius:999px; opacity:.72; }
+ .progress-v3 .risk-fill.bad { background:#b4292d; }
+ .progress-v3 .risk-fill.warn { background:#b45309; }
+ .progress-v3 .risk-fill.good { background:#3e6a00; }
+ .progress-v3 .risk-marker { position:absolute; top:-4px; width:2px; height:16px; border-radius:999px; background:#94a3b8; transform:translateX(-1px); }
+ .progress-v3 .risk-caption { margin-top:7px; font-size:11px; color:#64748b; }
+/* ── Unit chart ── */
+ .progress-v3 .dots { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 8px; }
+ .progress-v3 .dot  { width: 11px; height: 11px; border-radius: 50%; }
+
+/* ── Axis labels ── */
+ .progress-v3 .axis-note {
+  display: flex; justify-content: space-between;
+  font: 600 10px/1 'DM Mono', monospace; color: #94a3b8;
+  margin-top: 8px; padding-top: 6px;
+  border-top: 1px solid #eef2f7;
+}
+
+/* ── Responsive ── */
+@media (max-width: 960px) { .progress-v3 .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .progress-v3 .risk-grid { grid-template-columns: 1fr; }
+  .progress-v3 .risk-card { grid-template-columns: 1fr; }
+  .progress-v3 .insight-grid { grid-template-columns: 1fr; }
+  .progress-v3 .driver-grid, .progress-v3 .effect-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .progress-v3 .ctx-bar   { flex-direction: column; }
+  .progress-v3 .ctx-cell  { border-right: 0; border-bottom: 1px solid #eef2f7; }
+  .progress-v3 .ctx-cell:last-child { border-bottom: 0; }
+}
+@media (max-width: 720px) { .progress-v3 { padding: 0 0 24px; }
+  .progress-v3 .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .progress-v3 .driver-grid, .progress-v3 .effect-grid { grid-template-columns: 1fr; }
+  .progress-v3 .evidence-item { grid-template-columns: 28px 1fr; }
+  .progress-v3 .evidence-item .pill { grid-column: 2; justify-self: start; }
+  .progress-v3 .db-head, .progress-v3 .db-row { grid-template-columns: 1fr; }
+  .progress-v3 .db-head { display: none; }
+  .progress-v3 .db-t1, .progress-v3 .track, .progress-v3 .db-t2 { display: none; }
+}
+
+</style>
+</head>
+<body class="bg-surface text-on-surface flex min-h-screen overflow-x-hidden">
+
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 z-[90] h-full w-64 bg-slate-50 dark:bg-slate-900 flex flex-col gap-2 p-4 border-r border-slate-200 dark:border-slate-800">
+  <div class="mb-8 px-4">
+    <h1 class="font-bold text-slate-800 dark:text-slate-100 text-lg">DPO Governance</h1>
+    <p class="text-sm font-medium text-slate-500">Beheerdersdashboard</p>
+  </div>
+  <nav class="flex flex-col gap-2">
+    <a class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg px-4 py-3 flex items-center gap-3 transition-all duration-200 ease-in-out" href="#">
+      <span class="material-symbols-outlined" data-icon="play_circle">play_circle</span>
+      <span class="font-manrope text-sm">Activatie</span>
+    </a>
+    <a class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg px-4 py-3 flex items-center gap-3 transition-all duration-200 ease-in-out" href="#">
+      <span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+      <span class="font-manrope text-sm">Tool Inventaris</span>
+    </a>
+    <a class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg px-4 py-3 flex items-center gap-3 transition-all duration-200 ease-in-out" href="#">
+      <span class="material-symbols-outlined" data-icon="assessment">assessment</span>
+      <span class="font-manrope text-sm">Risicoprofiel</span>
+    </a>
+    <a class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg px-4 py-3 flex items-center gap-3 transition-all duration-200 ease-in-out" href="#">
+      <span class="material-symbols-outlined" data-icon="gavel">gavel</span>
+      <span class="font-manrope text-sm">Governance</span>
+    </a>
+    <a class="bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white font-bold rounded-lg px-4 py-3 flex items-center gap-3 transition-all duration-200 ease-in-out" href="#">
+      <span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+      <span class="font-manrope text-sm">Voortgang</span>
+    </a>
+    <a class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg px-4 py-3 flex items-center gap-3 transition-all duration-200 ease-in-out" href="#">
+      <span class="material-symbols-outlined" data-icon="description">description</span>
+      <span class="font-manrope text-sm">Rapportage</span>
+    </a>
+  </nav>
+  <div class="mt-auto px-2 pb-2">
+    <div class="space-y-0.5">
+      <a class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-slate-500 hover:bg-slate-100 transition-colors" href="#">
+        <span class="material-symbols-outlined text-[15px]">lightbulb</span>
+        <span class="text-[12px] font-medium">Kennisbank</span>
+      </a>
+      <a class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-slate-500 hover:bg-slate-100 transition-colors" href="#">
+        <span class="material-symbols-outlined text-[15px]">notifications_none</span>
+        <span class="text-[12px] font-medium">Support</span>
+      </a>
+    </div>
+  </div>
+</aside>
+
+<!-- Main Content Canvas -->
+<main class="ml-64 w-[calc(100vw-16rem)] max-w-[calc(100vw-16rem)] flex flex-col min-h-screen overflow-x-hidden">
+
+  <!-- TopNavBar -->
+  <header class="bg-slate-50/95 dark:bg-slate-900/95 sticky top-0 z-[80] border-b border-slate-200/70 shadow-[0_1px_0_rgba(148,163,184,0.10)] backdrop-blur-sm">
+    <div class="w-full px-7 py-2.5 grid grid-cols-[minmax(320px,1fr)_minmax(320px,1fr)_minmax(210px,1fr)] items-center gap-4">
+      <div class="min-w-0 flex items-center gap-4">
+        <span class="text-[24px] font-bold tracking-tight text-slate-800 dark:text-slate-100">Shadow AI Scan</span>
+        <span class="px-3.5 py-1.5 rounded-full bg-[#CFEA7B] text-[#4D7800] font-bold text-[13px] flex items-center gap-2 shadow-sm leading-none shrink-0">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#4D7800]"></span>
+          Open
+        </span>
+      </div>
+      <div class="flex items-center justify-center gap-2 min-w-0">
+        <span class="material-symbols-outlined text-slate-500 text-[19px] leading-none shrink-0">calendar_today</span>
+        <span class="text-[15px] font-bold text-slate-800 whitespace-nowrap leading-none">Sluit op 23 april</span>
+        <span class="text-[12px] text-slate-600 bg-slate-100 px-3 py-1.5 rounded-xl whitespace-nowrap">(nog 8 dagen)</span>
+      </div>
+      <div class="relative flex justify-end min-w-0">
+        <button id="profile-menu-button" class="flex items-center gap-2.5 rounded-full px-2.5 py-1 hover:bg-slate-100 transition-colors" type="button" aria-expanded="false">
+          <div class="w-10 h-10 rounded-full border border-slate-200 text-slate-500 flex items-center justify-center bg-white">
+            <span class="material-symbols-outlined text-[18px]">person</span>
+          </div>
+          <div class="text-left leading-tight">
+            <p class="text-[13px] font-bold text-slate-800">Marjan Jansen</p>
+            <p class="text-[9px] font-semibold text-slate-500 mt-0.5">DPO</p>
+          </div>
+          <span class="material-symbols-outlined text-[18px] text-slate-500">expand_more</span>
+        </button>
+        <div id="profile-menu" class="profile-menu">
+          <div class="px-4 py-3.5 border-b border-slate-100">
+            <p class="text-[15px] font-bold text-slate-800">Marjan Jansen</p>
+            <p class="text-[12px] text-slate-500 mt-1">marjan@digidactics.nl</p>
+          </div>
+          <button class="w-full flex items-center gap-3 px-4 py-3.5 text-left text-slate-800 hover:bg-slate-50 transition-colors" type="button">
+            <span class="material-symbols-outlined text-[18px]">person</span>
+            <span class="text-[15px]">Mijn Profiel</span>
+          </button>
+          <button class="w-full flex items-center gap-3 px-4 py-3.5 text-left text-[#ff4b3e] hover:bg-red-50 transition-colors border-t border-slate-100" type="button">
+            <span class="material-symbols-outlined text-[18px]">logout</span>
+            <span class="text-[15px]">Uitloggen</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Content Area -->
+  <div class="p-8 space-y-8">
+
+    <div>
+      <h2 class="text-3xl font-extrabold text-on-surface tracking-tight mb-1">Voortgang</h2>
+      <p class="text-sm font-medium text-on-surface-variant">Vergelijking van de nulmeting (t=1, sep 2024) met de huidige ronde (t=2, apr 2026). Alle delta's zijn op groepsniveau - geen individuele tracking.</p>
+    </div>
+
+    <div id="eerste-scan-view" style="display:none">
+      <div class="bg-primary-container border border-primary/20 rounded-2xl px-6 py-5 flex items-start gap-4">
+        <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+          <span class="material-symbols-outlined text-primary text-[22px]" style="font-variation-settings:'FILL' 1;">lock_clock</span>
+        </div>
+        <div class="flex-1">
+          <h3 class="font-bold text-on-primary-container text-[15px] mb-1">Huidige ronde zichtbaar, vergelijking volgt na tweede scan</h3>
+          <p class="text-sm text-on-primary-container/70 leading-relaxed">
+            Deze pagina toont nu de belangrijkste indicatoren van de <strong>huidige nulmeting (t=1)</strong>. Zodra er een tweede scanronde is afgesloten, worden dezelfde indicatoren aangevuld met delta's, trends en interventie-effecten op groepsniveau.
+          </p>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary rounded-full text-[11px] font-bold"><span class="material-symbols-outlined text-[13px]">check_circle</span> Nulmeting actief</span>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-outline-variant/20 text-on-surface-variant rounded-full text-[11px] font-bold pulse-soft"><span class="material-symbols-outlined text-[13px]">schedule</span> Vergelijking na t=2</span>
+          </div>
+        </div>
+      </div>
+      <div class="mt-6 space-y-3">
+        <p class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant px-1">Huidige ronde - wat nu al zichtbaar is</p>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/10"><p class="text-[11px] font-medium text-on-surface-variant uppercase tracking-tight mb-2">Responsgraad</p><div class="flex items-end gap-2 mb-2"><span class="text-3xl font-extrabold">66%</span></div><span class="px-2 py-0.5 bg-primary-container text-primary text-xs font-bold rounded-full">163 afgerond</span></div>
+          <div class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/10"><p class="text-[11px] font-medium text-on-surface-variant uppercase tracking-tight mb-2">Shadow AI-ratio</p><div class="flex items-end gap-2 mb-2"><span class="text-3xl font-extrabold">34%</span></div><span class="px-2 py-0.5 bg-primary-container text-primary text-xs font-bold rounded-full">nulmeting</span></div>
+          <div class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/10"><p class="text-[11px] font-medium text-on-surface-variant uppercase tracking-tight mb-2">Anonimisering</p><div class="flex items-end gap-2 mb-2"><span class="text-3xl font-extrabold">62%</span></div><span class="px-2 py-0.5 bg-primary-container text-primary text-xs font-bold rounded-full">huidige ronde</span></div>
+          <div class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/10"><p class="text-[11px] font-medium text-on-surface-variant uppercase tracking-tight mb-2">Potentiële juridische signalen</p><div class="flex items-end gap-2 mb-2"><span class="text-3xl font-extrabold">5</span></div><span class="px-2 py-0.5 bg-primary-container text-primary text-xs font-bold rounded-full">voor beoordeling</span></div>
+        </div>
+        <p class="text-xs text-on-surface-variant italic px-1">Deze nulmeting vormt straks de vergelijkingsbasis. Delta's verschijnen pas na een tweede afgesloten scanronde.</p>
+      </div>
+    </div>
+    <div id="herhaal-scan-view" class="progress-v3" style="display:block">
+
+  <!-- ── 0. Scancontext ── -->
+  <div class="ctx-bar">
+    <div class="ctx-cell"><div class="label">Nulmeting</div><div class="v">Sep 2024 · t=1</div></div>
+    <div class="ctx-cell"><div class="label">Huidig</div><div class="v">Apr 2026 · t=2</div></div>
+    <div class="ctx-cell"><div class="label">Respons</div><div class="v">163 → 171</div></div>
+    <div class="ctx-cell"><div class="label">Responsgraad</div><div class="v">66% → 69%</div></div>
+    <div class="ctx-cell"><div class="label">Scoringversie</div><div class="v mono" style="font-size:12px">V8.1 (gelijk)</div></div>
+    <div class="ctx-cell"><div class="label">Privacygrens</div><div class="v">min. n ≥ 5</div></div>
+  </div>
+
+  <!-- ── 1. KPI strip ── -->
+  <section class="component-shell">
+    <div class="section-head">
+      <div class="section-title"><span class="material-symbols-outlined">dashboard</span><h2>Kernsignalen</h2></div>
+      <p>Is het risicoprofiel beter, slechter of gelijk geworden?</p>
+    </div>
+    <div class="kpi-grid">
+
+      <div class="kpi">
+        <div class="kpi-top">
+          <div class="kpi-lbl">Shadow AI-ratio</div>
+          <span class="pill ok delta">↓ −7pp</span>
+        </div>
+        <div class="kpi-val">34%</div>
+        <div class="kpi-base">t=1: 41% &nbsp;·&nbsp; doel &lt;25%</div>
+        <div class="blt">
+          <div class="blt-fill" style="width:34%;background:#3e6a00;opacity:.7"></div>
+          <div class="blt-ref" style="left:41%"></div>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-top">
+          <div class="kpi-lbl">Toxic combinations</div>
+          <span class="pill ok delta">↓ −19</span>
+        </div>
+        <div class="kpi-val">5</div>
+        <div class="kpi-base">t=1: 24 &nbsp;·&nbsp; doel &lt;5</div>
+        <div class="blt">
+          <div class="blt-fill" style="width:21%;background:#3e6a00;opacity:.7"></div>
+          <div class="blt-ref" style="left:100%"></div>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-top">
+          <div class="kpi-lbl">Anonimisering</div>
+          <span class="pill ok delta">↑ +33pp</span>
+        </div>
+        <div class="kpi-val">62%</div>
+        <div class="kpi-base">t=1: 29% &nbsp;·&nbsp; doel 75%</div>
+        <div class="blt">
+          <div class="blt-fill" style="width:62%;background:#3e6a00;opacity:.7"></div>
+          <div class="blt-ref" style="left:29%"></div>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-top">
+          <div class="kpi-lbl">Reviewbacklog</div>
+          <span class="pill warn delta">↑ +3</span>
+        </div>
+        <div class="kpi-val">15</div>
+        <div class="kpi-base">t=1: 12 &nbsp;·&nbsp; doel &lt;5</div>
+        <div class="blt">
+          <div class="blt-fill" style="width:75%;background:#b45309;opacity:.7"></div>
+          <div class="blt-ref" style="left:60%"></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── 2. Dumbbell ── -->
+  <section class="component-shell">
+    <div class="section-head">
+      <div class="section-title"><span class="material-symbols-outlined">fact_check</span><h2>Wat veranderde tussen t=1 en t=2?</h2></div>
+      <p>Context voor de delta's: welke governance-acties zijn uitgevoerd en hoe verschoof de beleidsstatus van tools?</p>
+    </div>
+    <div class="insight-grid">
+      <div class="card evidence-card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+          <div>
+            <div class="label">Interventiecontext</div>
+            <h3 style="font-size:15px;margin-top:6px">Maatregelen sinds de nulmeting</h3>
+          </div>
+          <span class="pill info">Auditcontext</span>
+        </div>
+        <div class="evidence-list">
+          <div class="evidence-item">
+            <span class="evidence-check"><span class="material-symbols-outlined">check</span></span>
+            <div><div class="evidence-title">Toolcatalogus opgeschoond</div><div class="evidence-copy">14 tools beoordeeld, 6 goedgekeurd, 3 beperkt en 2 verboden gemarkeerd.</div></div>
+            <span class="pill ok">beleid</span>
+          </div>
+          <div class="evidence-item">
+            <span class="evidence-check"><span class="material-symbols-outlined">check</span></span>
+            <div><div class="evidence-title">Training en communicatie</div><div class="evidence-copy">AI-gebruik, accountkeuze en anonimiseren uitgerold naar vier afdelingen.</div></div>
+            <span class="pill ok">gedrag</span>
+          </div>
+          <div class="evidence-item">
+            <span class="evidence-check"><span class="material-symbols-outlined">check</span></span>
+            <div><div class="evidence-title">Policy-update klantdata</div><div class="evidence-copy">Priveaccounts en invoer van persoonsgegevens aangescherpt in de werkinstructies.</div></div>
+            <span class="pill warn">scope</span>
+          </div>
+          <div class="evidence-item">
+            <span class="evidence-check"><span class="material-symbols-outlined">check</span></span>
+            <div><div class="evidence-title">Reviewproces ingericht</div><div class="evidence-copy">Reviewdrempel 40 en triageroute toegepast; backlog blijft aandachtspunt.</div></div>
+            <span class="pill warn">capaciteit</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card evidence-card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+          <div>
+            <div class="label">Shadow base per beleidsstatus</div>
+            <h3 style="font-size:15px;margin-top:6px">Niet alleen minder shadow, ook beter geclassificeerd</h3>
+          </div>
+          <span class="pill ok">41% &rarr; 34%</span>
+        </div>
+        <div class="stack-wrap" aria-label="Shadow-verdeling per beleidsstatus">
+          <div class="stack-row">
+            <div class="stack-label">t=1</div>
+            <div class="stack">
+              <span style="width:31%;background:#3e6a00" title="Toegestaan"></span>
+              <span style="width:28%;background:#0e5a75" title="Te beoordelen"></span>
+              <span style="width:24%;background:#b45309" title="Beperkt"></span>
+              <span style="width:17%;background:#b4292d" title="Verboden of onbekend"></span>
+            </div>
+            <div class="stack-total">41%</div>
+          </div>
+          <div class="stack-row">
+            <div class="stack-label">t=2</div>
+            <div class="stack">
+              <span style="width:43%;background:#3e6a00" title="Toegestaan"></span>
+              <span style="width:23%;background:#0e5a75" title="Te beoordelen"></span>
+              <span style="width:20%;background:#b45309" title="Beperkt"></span>
+              <span style="width:14%;background:#b4292d" title="Verboden of onbekend"></span>
+            </div>
+            <div class="stack-total">34%</div>
+          </div>
+        </div>
+        <div class="legend">
+          <span><i style="background:#3e6a00"></i>Toegestaan</span>
+          <span><i style="background:#0e5a75"></i>Te beoordelen</span>
+          <span><i style="background:#b45309"></i>Beperkt</span>
+          <span><i style="background:#b4292d"></i>Verboden/onbekend</span>
+        </div>
+        <p style="font-size:11.5px;color:#64748b;line-height:1.55;margin-top:14px">Interpretatie: de daling komt niet alleen door minder gebruik van niet-goedgekeurde tools, maar ook door catalogusbeheer en beleidsbesluiten. Dat maakt de trend bestuurlijk verklaarbaar.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="component-shell">
+    <div class="section-head">
+      <div class="section-title"><span class="material-symbols-outlined">travel_explore</span><h2>Exposure-delta verklaard</h2></div>
+      <p>De daling van datablootstelling wordt uitgesplitst naar de bestuurbare V8.1-drivers.</p>
+    </div>
+    <div class="driver-grid">
+      <div class="card driver-card">
+        <div class="driver-top"><div class="driver-title">Accounttype</div><span class="pill ok">-8pp</span></div>
+        <p class="driver-sub">Minder prive en gemengde accounts bij tools met gevoelige invoer.</p>
+        <div class="driver-scale"><span>48</span><div class="driver-line"><span style="width:40%"></span></div><span>40</span></div>
+      </div>
+      <div class="card driver-card">
+        <div class="driver-top"><div class="driver-title">Datatype</div><span class="pill ok">-6pp</span></div>
+        <p class="driver-sub">Minder persoonsgegevens en vertrouwelijke data in onbeheerde tools.</p>
+        <div class="driver-scale"><span>52</span><div class="driver-line"><span style="width:46%"></span></div><span>46</span></div>
+      </div>
+      <div class="card driver-card">
+        <div class="driver-top"><div class="driver-title">Use-case context</div><span class="pill ok">-4pp</span></div>
+        <p class="driver-sub">Minder hoog-risico toepassingen zoals HR-evaluatie en klantbesluitvorming.</p>
+        <div class="driver-scale"><span>39</span><div class="driver-line"><span style="width:35%"></span></div><span>35</span></div>
+      </div>
+      <div class="card driver-card">
+        <div class="driver-top"><div class="driver-title">Technische versnellers</div><span class="pill warn">+2</span></div>
+        <p class="driver-sub">Extensions en automations nemen licht toe; apart bewaken in triage.</p>
+        <div class="driver-scale"><span>7</span><div class="driver-line"><span style="width:9%;background:#b45309"></span></div><span>9</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="component-shell">
+    <div class="section-head">
+      <div class="section-title"><span class="material-symbols-outlined">monitoring</span><h2>Risico, gedrag en capaciteit</h2></div>
+      <p>Grijze stip = t=1 nulmeting &nbsp;·&nbsp; gekleurde stip = t=2 huidig &nbsp;·&nbsp; verbindingssegment = richting van verandering</p>
+    </div>
+    <div class="card dumbbell">
+      <div class="db-head">
+        <div>Metric</div><div>t=1</div><div>Verschuiving</div><div>t=2</div><div>Delta</div>
+      </div>
+
+      <div class="db-group" style="border-top:0;padding-top:6px">Risico-indicatoren &nbsp;·&nbsp; lager is beter</div>
+
+      <div class="db-row">
+        <div><div class="db-title">Shadow AI-ratio</div><div class="db-sub">Niet-goedgekeurde tools</div></div>
+        <div class="db-t1">41%</div>
+        <div class="track"><span class="track-line"></span><span class="seg" style="left:34%;width:7%;background:#3e6a00"></span><span class="pt" style="left:41%;background:#94a3b8"></span><span class="pt" style="left:34%;background:#3e6a00"></span></div>
+        <div class="db-t2" style="color:#3e6a00">34%</div>
+        <div><span class="pill ok">−7pp</span></div>
+      </div>
+
+      <div class="db-row">
+        <div><div class="db-title">Datablootstelling</div><div class="db-sub">Gevoelige data in risicocontext</div></div>
+        <div class="db-t1">68%</div>
+        <div class="track"><span class="track-line"></span><span class="seg" style="left:61%;width:7%;background:#3e6a00"></span><span class="pt" style="left:68%;background:#94a3b8"></span><span class="pt" style="left:61%;background:#3e6a00"></span></div>
+        <div class="db-t2" style="color:#3e6a00">61%</div>
+        <div><span class="pill ok">−7pp</span></div>
+      </div>
+
+      <div class="db-row">
+        <div><div class="db-title">Toxic combinations</div><div class="db-sub">Actieve hard-risk combinaties</div></div>
+        <div class="db-t1">24</div>
+        <div class="track"><span class="track-line"></span><span class="seg" style="left:20%;width:76%;background:#3e6a00"></span><span class="pt" style="left:96%;background:#94a3b8"></span><span class="pt" style="left:20%;background:#3e6a00"></span></div>
+        <div class="db-t2" style="color:#3e6a00">5</div>
+        <div><span class="pill ok">−19</span></div>
+      </div>
+
+      <div class="db-row">
+        <div><div class="db-title">Juridische signalen</div><div class="db-sub">Art. 5 / Annex III</div></div>
+        <div class="db-t1">13</div>
+        <div class="track"><span class="track-line"></span><span class="seg" style="left:38%;width:62%;background:#3e6a00"></span><span class="pt" style="left:100%;background:#94a3b8"></span><span class="pt" style="left:38%;background:#3e6a00"></span></div>
+        <div class="db-t2" style="color:#3e6a00">5</div>
+        <div><span class="pill ok">−8</span></div>
+      </div>
+
+      <div class="db-group">Gedragsindicatoren &nbsp;·&nbsp; hoger is beter</div>
+
+      <div class="db-row">
+        <div><div class="db-title">Anonimisering prompts</div><div class="db-sub">Data reduceren voor invoer</div></div>
+        <div class="db-t1">29%</div>
+        <div class="track"><span class="track-line"></span><span class="seg" style="left:29%;width:33%;background:#3e6a00"></span><span class="pt" style="left:29%;background:#94a3b8"></span><span class="pt" style="left:62%;background:#3e6a00"></span></div>
+        <div class="db-t2" style="color:#3e6a00">62%</div>
+        <div><span class="pill ok">+33pp</span></div>
+      </div>
+
+      <div class="db-row">
+        <div><div class="db-title">Outputverificatie</div><div class="db-sub">Human-in-the-loop gedrag</div></div>
+        <div class="db-t1">64%</div>
+        <div class="track"><span class="track-line"></span><span class="seg" style="left:64%;width:17%;background:#3e6a00"></span><span class="pt" style="left:64%;background:#94a3b8"></span><span class="pt" style="left:81%;background:#3e6a00"></span></div>
+        <div class="db-t2" style="color:#3e6a00">81%</div>
+        <div><span class="pill ok">+17pp</span></div>
+      </div>
+
+      <div class="db-row">
+        <div><div class="db-title">Policy awareness</div><div class="db-sub">Weet wat wel/niet mag</div></div>
+        <div class="db-t1">22%</div>
+        <div class="track"><span class="track-line"></span><span class="seg" style="left:22%;width:22%;background:#3e6a00"></span><span class="pt" style="left:22%;background:#94a3b8"></span><span class="pt" style="left:44%;background:#3e6a00"></span></div>
+        <div class="db-t2" style="color:#3e6a00">44%</div>
+        <div><span class="pill ok">+22pp</span></div>
+      </div>
+
+      <div class="db-group">Governancecapaciteit &nbsp;·&nbsp; lager is beter</div>
+
+      <div class="db-row">
+        <div><div class="db-title">Reviewbacklog</div><div class="db-sub">Nieuwe tools zonder toetsing</div></div>
+        <div class="db-t1">12</div>
+        <div class="track"><span class="track-line"></span><span class="seg" style="left:60%;width:15%;background:#b45309"></span><span class="pt" style="left:60%;background:#94a3b8"></span><span class="pt" style="left:75%;background:#b45309"></span></div>
+        <div class="db-t2" style="color:#b45309">15</div>
+        <div><span class="pill warn">+3 ⚠</span></div>
+      </div>
+
+      <div class="axis-note"><span>← minder / lager</span><span>hoger / meer →</span></div>
+    </div>
+  </section>
+
+  <!-- ── 3. Quadrant afdelingen ── -->
+  <section class="component-shell">
+    <div class="section-head">
+      <div class="section-title"><span class="material-symbols-outlined">school</span><h2>Interventie-effecten</h2></div>
+      <p>Sociale indicatoren sturen de governance-aanpak, maar tellen niet mee in de risicoscore.</p>
+    </div>
+    <div class="effect-grid">
+      <div class="card effect-card">
+        <div class="label">Policy awareness</div>
+        <div class="effect-value">22% &rarr; 44%</div>
+        <p class="effect-note">Meer medewerkers weten welke tools en data wel of niet zijn toegestaan.</p>
+      </div>
+      <div class="card effect-card">
+        <div class="label">AI literacy basisniveau</div>
+        <div class="effect-value">38% &rarr; 57%</div>
+        <p class="effect-note">Vaardigheidsniveau stijgt vooral bij HR, Operations en Finance.</p>
+      </div>
+      <div class="card effect-card">
+        <div class="label">Awareness-gaps</div>
+        <div class="effect-value">31% &rarr; 18%</div>
+        <p class="effect-note">Minder teams combineren onbekende toolstatus met gevoelige context.</p>
+      </div>
+      <div class="card effect-card">
+        <div class="label">Meldingsbereidheid</div>
+        <div class="effect-value">41% &rarr; 49%</div>
+        <p class="effect-note">Lichte stijging; blijft relevant om onderrapportage te beperken.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="component-shell">
+    <div class="section-head">
+      <div class="section-title"><span class="material-symbols-outlined">bubble_chart</span><h2>Afdelingen</h2></div>
+      <p>Horizontale as = richting van verandering &nbsp;·&nbsp; Verticale as = huidig risiconiveau &nbsp;·&nbsp; Bolgrootte = omvang afdeling</p>
+    </div>
+    <div class="card quad-wrap">
+      <svg viewBox="0 0 900 320" style="width:100%;height:auto;display:block" role="img" aria-label="Afdelingskwadranten">
+        <!-- Achtergrond kwadranten -->
+        <rect x="88" y="42" width="368" height="212" fill="#f0fdf4" rx="4" opacity=".6"/>
+        <rect x="456" y="42" width="420" height="212" fill="#fef2f2" rx="4" opacity=".5"/>
+        <rect x="88" y="254" width="368" height="52" fill="#f8fafc" rx="4" opacity=".7"/>
+        <rect x="456" y="254" width="420" height="52" fill="#fffbeb" rx="4" opacity=".7"/>
+
+        <!-- Assen -->
+        <line x1="88" y1="270" x2="876" y2="270" stroke="#dbe3ec" stroke-width="1.5"/>
+        <line x1="462" y1="42" x2="462" y2="270" stroke="#dbe3ec" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <line x1="88" y1="155" x2="876" y2="155" stroke="#dbe3ec" stroke-width="1" stroke-dasharray="4 3"/>
+
+        <!-- As-labels -->
+        <text x="88" y="300" font-size="11" fill="#94a3b8" font-family="Inter,sans-serif">↑ verbetert</text>
+        <text x="810" y="300" font-size="11" fill="#94a3b8" font-family="Inter,sans-serif">verslechtert ↑</text>
+        <text x="91" y="30" font-size="11" fill="#94a3b8" font-family="Inter,sans-serif" font-weight="600">Risiconiveau t=2 →</text>
+
+        <!-- Kwadranttitels -->
+        <text x="108" y="66" font-size="11" fill="#3e6a00" font-weight="700" font-family="Manrope,sans-serif">Hoog risico · daalt</text>
+        <text x="476" y="66" font-size="11" fill="#b4292d" font-weight="700" font-family="Manrope,sans-serif">Hoog risico · stijgt</text>
+        <text x="108" y="258" font-size="11" fill="#64748b" font-weight="700" font-family="Manrope,sans-serif">Laag risico · stabiel</text>
+        <text x="476" y="258" font-size="11" fill="#b45309" font-weight="700" font-family="Manrope,sans-serif">Laag risico · bewaken</text>
+
+        <!-- Afdelingen -->
+        <!-- IT: hoog risico, dalende trend -->
+        <circle cx="340" cy="118" r="26" fill="#e6f4cf" stroke="#3e6a00" stroke-width="2"/>
+        <text x="340" y="123" font-size="12" font-weight="800" fill="#3e6a00" text-anchor="middle" font-family="Manrope,sans-serif">IT</text>
+
+        <!-- HR: laag risico, dalend -->
+        <circle cx="270" cy="218" r="21" fill="#e6f4cf" stroke="#3e6a00" stroke-width="2"/>
+        <text x="270" y="223" font-size="12" font-weight="800" fill="#3e6a00" text-anchor="middle" font-family="Manrope,sans-serif">HR</text>
+
+        <!-- Operations: midden, stabiel dalend -->
+        <circle cx="395" cy="200" r="23" fill="#e6f4cf" stroke="#3e6a00" stroke-width="2"/>
+        <text x="395" y="205" font-size="11" font-weight="800" fill="#3e6a00" text-anchor="middle" font-family="Manrope,sans-serif">OPS</text>
+
+        <!-- R&D: midden, lichte verslechtering -->
+        <circle cx="540" cy="215" r="18" fill="#fff7ed" stroke="#b45309" stroke-width="2"/>
+        <text x="540" y="220" font-size="11" font-weight="800" fill="#b45309" text-anchor="middle" font-family="Manrope,sans-serif">R&D</text>
+
+        <!-- Finance: hoog risico, stijgt -->
+        <circle cx="640" cy="128" r="24" fill="#fdecea" stroke="#b4292d" stroke-width="2"/>
+        <text x="640" y="133" font-size="11" font-weight="800" fill="#b4292d" text-anchor="middle" font-family="Manrope,sans-serif">FIN</text>
+
+        <!-- Marketing: hoog risico, stijgt sterker -->
+        <circle cx="710" cy="100" r="27" fill="#fdecea" stroke="#b4292d" stroke-width="2"/>
+        <text x="710" y="105" font-size="11" font-weight="800" fill="#b4292d" text-anchor="middle" font-family="Manrope,sans-serif">MKT</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ── 4. Restrisico's + unit chart ── -->
+  <section class="component-shell">
+    <div class="section-head">
+      <div class="section-title"><span class="material-symbols-outlined">report</span><h2>Openstaande risico's</h2></div>
+      <p>Indicatieve signalen die ondanks verbetering nog opvolging vragen. Menselijk oordeel blijft leidend.</p>
+    </div>
+
+    <div class="risk-grid" style="margin-bottom:14px">
+      <div class="risk-card">
+        <div>
+          <span class="pill bad">Hoog · Finance</span>
+          <h3>Gevoelige data in niet-beheerde tools</h3>
+        </div>
+        <p>Finance voert klantdata in bij shadow-tools. Shadow-ratio gestegen naar 45% — DPO-duiding vereist.</p>
+        <div class="risk-metric" aria-label="Shadow-ratio Finance huidig signaal">
+          <div class="risk-values"><span>Shadow-ratio</span><strong>45% · stijgt</strong></div>
+          <div class="risk-track"><span class="risk-fill bad" style="width:45%"></span></div>
+          <div class="risk-caption">Gestegen naar 45%</div>
+        </div>
+      </div>
+      <div class="risk-card">
+        <div>
+          <span class="pill bad">Hoog · Marketing</span>
+          <h3>Annex III gebruik zonder contextregistratie</h3>
+        </div>
+        <p>5 resterende potentiële high-risk signalen zonder gedocumenteerde menselijke toetsing.</p>
+        <div class="risk-metric" aria-label="High-risk signalen Marketing huidig signaal">
+          <div class="risk-values"><span>High-risk signalen</span><strong>5 · review</strong></div>
+          <div class="risk-track"><span class="risk-fill bad" style="width:50%"></span></div>
+          <div class="risk-caption">Nog 5 signalen voor review</div>
+        </div>
+      </div>
+      <div class="risk-card">
+        <div>
+          <span class="pill warn">Middel · R&amp;D</span>
+          <h3>Experimenteel toolgebruik neemt toe</h3>
+        </div>
+        <p>Nieuwe extern gerichte use-cases bij onbekende tools. Compliance licht gedaald (−5pp).</p>
+        <div class="risk-metric" aria-label="Compliance R en D huidig signaal">
+          <div class="risk-values"><span>Compliance</span><strong>-5pp · daalt</strong></div>
+          <div class="risk-track"><span class="risk-fill warn" style="width:55%"></span></div>
+          <div class="risk-caption">Lichte daling in compliance</div>
+        </div>
+      </div>
+    </div>
+    <!-- Unit chart voor reviewdruk -->
+    <div class="card" style="padding:16px 20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:4px">
+        <div>
+          <h3 style="font-size:13px">Open reviewdruk — 29 signalen</h3>
+          <p style="font-size:11.5px;color:#64748b;margin-top:2px">Elk stipje = één respondent. Rood = directe actie &nbsp;·&nbsp; Amber = opvolgen &nbsp;·&nbsp; Groen = afgerond</p>
+        </div>
+        <span class="pill warn">Was 24 · t=1</span>
+      </div>
+      <div class="dots" aria-label="29 reviewsignalen">
+        <span class="dot" style="background:#b4292d"></span><span class="dot" style="background:#b4292d"></span>
+        <span class="dot" style="background:#b4292d"></span><span class="dot" style="background:#b4292d"></span>
+        <span class="dot" style="background:#b4292d"></span><span class="dot" style="background:#b4292d"></span>
+        <span class="dot" style="background:#b4292d"></span><span class="dot" style="background:#b4292d"></span>
+        <span class="dot" style="background:#b45309"></span><span class="dot" style="background:#b45309"></span>
+        <span class="dot" style="background:#b45309"></span><span class="dot" style="background:#b45309"></span>
+        <span class="dot" style="background:#b45309"></span><span class="dot" style="background:#b45309"></span>
+        <span class="dot" style="background:#b45309"></span><span class="dot" style="background:#b45309"></span>
+        <span class="dot" style="background:#b45309"></span><span class="dot" style="background:#b45309"></span>
+        <span class="dot" style="background:#b45309"></span><span class="dot" style="background:#b45309"></span>
+        <span class="dot" style="background:#b45309"></span><span class="dot" style="background:#3e6a00"></span>
+        <span class="dot" style="background:#3e6a00"></span><span class="dot" style="background:#3e6a00"></span>
+        <span class="dot" style="background:#3e6a00"></span><span class="dot" style="background:#3e6a00"></span>
+        <span class="dot" style="background:#3e6a00"></span><span class="dot" style="background:#3e6a00"></span>
+        <span class="dot" style="background:#3e6a00"></span>
+      </div>
+      <div style="display:flex;gap:16px;font-size:11px;color:#64748b;margin-top:4px">
+        <span style="display:flex;align-items:center;gap:5px"><span class="dot" style="width:9px;height:9px;background:#b4292d"></span> 8 directe actie</span>
+        <span style="display:flex;align-items:center;gap:5px"><span class="dot" style="width:9px;height:9px;background:#b45309"></span> 13 opvolgen</span>
+        <span style="display:flex;align-items:center;gap:5px"><span class="dot" style="width:9px;height:9px;background:#3e6a00"></span> 8 afgerond</span>
+      </div>
+    </div>
+  </section>
+      <div class="card" style="padding:12px 16px;margin-top:4px;background:#fff">
+        <p style="font-size:11.5px;color:#64748b;line-height:1.55;margin:0"><strong>Vergelijkbaarheid:</strong> t=1 en t=2 gebruiken scoring_config V8.1 en min. celgrootte n ≥ 5. Shadow-, exposure- en sociale delta's blijven indicatieve voortgangssignalen op groepsniveau.</p>
+      </div>
+    </div>
+    <footer class="mt-auto pt-8 pb-4">
+      <div class="border-t border-slate-200/60 pt-4">
+        <p class="text-[11px] text-slate-400 flex items-center gap-1.5 leading-relaxed">
+          <span class="material-symbols-outlined text-[14px] opacity-70">error</span>
+          Review- en juridische signalen zijn indicatief en gebaseerd op zelfrapportage. Menselijk oordeel blijft leidend.
+        </p>
+      </div>
+    </footer>
+  </div>
+</main>
+
+<script>
+  // ============================================================
+  // Scan-state toggle
+  // Zet isEersteScan = true voor de nulmeting-weergave (locked),
+  // false voor de herhaalmeting-weergave (volledig dashboard).
+  // ============================================================
+  const isEersteScan = false; // false = gevulde mockdata-weergave met vergelijking vanaf tweede scanronde
+
+  const eersteView = document.getElementById('eerste-scan-view');
+  const herhaalView = document.getElementById('herhaal-scan-view');
+
+  if (isEersteScan) {
+    eersteView.style.display = 'block';
+    herhaalView.style.display = 'none';
+  } else {
+    eersteView.style.display = 'none';
+    herhaalView.style.display = 'block';
+  }
+
+  // ============================================================
+  // Profile menu toggle
+  // ============================================================
+  const profileMenuButton = document.getElementById('profile-menu-button');
+  const profileMenu = document.getElementById('profile-menu');
+
+  profileMenuButton?.addEventListener('click', () => {
+    const isOpen = profileMenu?.classList.toggle('is-open');
+    profileMenuButton.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!profileMenu || !profileMenuButton) return;
+    if (profileMenu.contains(event.target) || profileMenuButton.contains(event.target)) return;
+    profileMenu.classList.remove('is-open');
+    profileMenuButton.setAttribute('aria-expanded', 'false');
+  });
+</script>
+</body>
+</html>

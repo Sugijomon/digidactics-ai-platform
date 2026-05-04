@@ -1,0 +1,100 @@
+{
+  "scoring_config_id": "sai_v8_1_default_2026_05_04",
+  "methodology_version": "V8.1",
+  "status": "canonical",
+  "source_document": "Shadow_AI_Scan_Scoring_V8_1.md",
+  "locked_at": "2026-05-04",
+  "defaults": {
+    "review_threshold": 40,
+    "min_cell_size": 5,
+    "max_score": 100
+  },
+  "shadow_base": {
+    "allowed": 0,
+    "newly_discovered": 20,
+    "under_review": 20,
+    "restricted": 40,
+    "not_allowed": 80
+  },
+  "use_case_base": {
+    "low": 10,
+    "medium": 20,
+    "high": 35
+  },
+  "context_multiplier": {
+    "intern_gebruik": 1.0,
+    "klantgerichte_toepassing": 1.25,
+    "beslisondersteuning": 1.4,
+    "besluiten_over_personen": 1.6,
+    "hr_evaluatie": 1.8,
+    "kritieke_systemen": 2.0
+  },
+  "account_multiplier": {
+    "zakelijke_licentie": 1.0,
+    "prive_gratis": 1.4,
+    "prive_betaald": 1.8,
+    "beide": "worst_case_account_multiplier"
+  },
+  "frequency_boost": {
+    "maandelijks": 0,
+    "wekelijks": 8,
+    "dagelijks": 15
+  },
+  "data_boost": {
+    "public": 0,
+    "internal": 15,
+    "sensitive": 30,
+    "uncertain": null
+  },
+  "technical_boosts": {
+    "browser_extension_usage": 10,
+    "automation_flag": 15,
+    "agentic_usage": 20
+  },
+  "formulas": {
+    "shadow_score": "shadow_base",
+    "raw_exposure_score": "(use_case_base * context_multiplier * account_multiplier) + data_boost + frequency_boost + automation_boost + extension_boost + agentic_boost",
+    "exposure_score": "min(raw_exposure_score, 100)",
+    "toxic_boost": "shadow_score > 50 && exposure_score > 50 ? 20 : 0",
+    "priority_score_raw": "(0.45 * shadow_score) + (0.45 * exposure_score) + toxic_boost + review_boost",
+    "priority_score": "min(priority_score_raw, 100)"
+  },
+  "review_triggers": [
+    { "code": "exposure_threshold", "condition": "exposure_score >= review_threshold" },
+    { "code": "not_allowed_tool", "condition": "shadow_base == 80" },
+    { "code": "approved_sensitive_data", "condition": "shadow_base == 0 && data_boost == 30" },
+    { "code": "hr_evaluation", "condition": "context == 'hr_evaluatie'" },
+    { "code": "agentic_usage", "condition": "agentic_usage == true" },
+    { "code": "automation_shadow", "condition": "automation_flag == true && shadow_base > 0" },
+    { "code": "extension_shadow", "condition": "extension_flag == true && shadow_base > 0" },
+    { "code": "manual_override", "condition": "override_active == true && override_reason is not null" }
+  ],
+  "banding": [
+    { "tier": "low", "min": 0, "max": 24 },
+    { "tier": "elevated", "min": 25, "max": 49 },
+    { "tier": "high", "min": 50, "max": 74 },
+    { "tier": "critical", "min": 75, "max": 100 }
+  ],
+  "privacy": {
+    "min_cell_size": 5,
+    "analysis_views_show_individuals": false,
+    "activation_admin_can_show_individuals": true,
+    "small_cell_handling": ["suppress", "merge", "qualitative_only"]
+  },
+  "audit_fields_required": [
+    "scoring_config_id",
+    "scan_round_id",
+    "policy_snapshot_id",
+    "review_threshold",
+    "min_cell_size",
+    "trigger_codes_used",
+    "exported_at",
+    "exported_by",
+    "view_or_query_version"
+  ],
+  "validation_todo": [
+    "Validate toxic_boost threshold >50 after first production scan round",
+    "Validate agentic_boost value +20 after first production scan round",
+    "Finalize dampened respondent aggregation function for production"
+  ]
+}

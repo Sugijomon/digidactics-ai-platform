@@ -1,0 +1,144 @@
+[
+  {
+    "id": "17b38460-9023-453a-be69-67f1063415ce",
+    "user_id": "3b9e5d6c-56a2-4d6f-92b1-f4d494fd72cb",
+    "lesson_id": "2d5c558b-6376-40b9-8bb6-bbfc6b9de058",
+    "current_block_index": 1,
+    "blocks_completed": [],
+    "progress_percentage": 0,
+    "quiz_attempts": {
+      "c3cfb524-363a-4ebd-937f-cfe2da9fdd2e": 1,
+      "result_c3cfb524-363a-4ebd-937f-cfe2da9fdd2e": {
+        "points": 0,
+        "correct": false
+      }
+    },
+    "started_at": "2026-03-14T11:48:25.167172+00:00",
+    "updated_at": "2026-03-14T14:44:02.366507+00:00",
+    "org_id": null
+  },
+  {
+    "id": "2e72b301-3b96-4be1-8104-1c83c72cfd60",
+    "user_id": "b9760186-050a-47e7-a480-197ba0dc5c5a",
+    "lesson_id": "52b3c300-fa99-49b1-8b8a-7682b4c3d97c",
+    "current_block_index": 0,
+    "blocks_completed": [],
+    "progress_percentage": 0,
+    "quiz_attempts": {},
+    "started_at": "2026-02-14T10:24:27.330519+00:00",
+    "updated_at": "2026-02-14T10:24:27.330519+00:00",
+    "org_id": null
+  },
+  {
+    "id": "9264c03d-6e76-4b0d-9ef7-44d6bc1f0180",
+    "user_id": "b9760186-050a-47e7-a480-197ba0dc5c5a",
+    "lesson_id": "2a89ae21-5c9e-4943-9f0f-bf0f1397e8e2",
+    "current_block_index": 0,
+    "blocks_completed": [],
+    "progress_percentage": 0,
+    "quiz_attempts": {},
+    "started_at": "2026-02-14T10:25:45.056906+00:00",
+    "updated_at": "2026-02-14T10:25:45.056906+00:00",
+    "org_id": null
+  },
+  {
+    "id": "827ba7c0-8689-41e1-8d51-7870e3359e41",
+    "user_id": "3b9e5d6c-56a2-4d6f-92b1-f4d494fd72cb",
+    "lesson_id": "52b3c300-fa99-49b1-8b8a-7682b4c3d97c",
+    "current_block_index": 0,
+    "blocks_completed": [
+      "75931e74-2267-4d55-8846-6f0d178da550",
+      "bb031859-dff7-4844-a896-32dc0ce9e21e",
+      "1cc108f7-71bf-465f-8a47-994e55a62158"
+    ],
+    "progress_percentage": 33,
+    "quiz_attempts": {
+      "1cc108f7-71bf-465f-8a47-994e55a62158": 2,
+      "d08b4b71-f2c4-4418-b19b-07c3a3158e67": 1,
+      "result_1cc108f7-71bf-465f-8a47-994e55a62158": {
+        "points": 10,
+        "correct": true
+      },
+      "result_d08b4b71-f2c4-4418-b19b-07c3a3158e67": {
+        "points": 0,
+        "correct": false
+      }
+    },
+    "started_at": "2026-03-14T03:56:09.506+00:00",
+    "updated_at": "2026-03-14T12:04:10.771668+00:00",
+    "org_id": null
+  },
+  {
+    "id": "90b7bf24-48eb-4459-b9cd-6757600368b5",
+    "user_id": "3b9e5d6c-56a2-4d6f-92b1-f4d494fd72cb",
+    "lesson_id": "b40e2e63-8fb2-4868-9dcd-19a36a2e0f69",
+    "current_block_index": 1,
+    "blocks_completed": [
+      "87e183ca-3799-4833-94be-7a364d96da07",
+      "9592394e-8a5f-4e8c-9d43-e1da5c6dd76b",
+      "87ce699e-dd0f-4053-9c82-90247154b7f6",
+      "89530014-a599-4230-b9d7-faeb0a45a45b",
+      "40393a2a-8de4-4288-a824-9f34cf23efe0"
+    ],
+    "progress_percentage": 63,
+    "quiz_attempts": {},
+    "started_at": "2026-03-14T09:10:01.960426+00:00",
+    "updated_at": "2026-03-14T14:45:37.30852+00:00",
+    "org_id": null
+  },
+  {
+    "id": "8b8f6cb1-8809-47ed-b218-ceed494cd0be",
+    "user_id": "3b9e5d6c-56a2-4d6f-92b1-f4d494fd72cb",
+    "lesson_id": "2a89ae21-5c9e-4943-9f0f-bf0f1397e8e2",
+    "current_block_index": 1,
+    "blocks_completed": [
+      "62420b06-f4bb-4253-bcc3-3159778f115d"
+    ],
+    "progress_percentage": 100,
+    "quiz_attempts": {
+      "62420b06-f4bb-4253-bcc3-3159778f115d": 1,
+      "result_62420b06-f4bb-4253-bcc3-3159778f115d": {
+        "points": 10,
+        "correct": true
+      }
+    },
+    "started_at": "2026-01-28T14:29:47.142763+00:00",
+    "updated_at": "2026-03-14T12:03:31.081481+00:00",
+    "org_id": null
+  },
+  {
+    "id": "c3ceb194-8fa0-4429-8756-48081af85c45",
+    "user_id": "3b9e5d6c-56a2-4d6f-92b1-f4d494fd72cb",
+    "lesson_id": "ee735f9c-95f2-4ca1-9b41-5d5ce4cfc0bf",
+    "current_block_index": 3,
+    "blocks_completed": [
+      "d0df6318-b074-408f-ae4d-07a6a751bfdc",
+      "132ae31f-b12a-4964-aade-c5f8907b6cd7",
+      "fa8601c0-d795-4e7e-b299-8a55836d8501",
+      "566eecc9-ba81-4dd8-9e80-87aec811f6cb"
+    ],
+    "progress_percentage": 100,
+    "quiz_attempts": {
+      "fa8601c0-d795-4e7e-b299-8a55836d8501": 1,
+      "result_fa8601c0-d795-4e7e-b299-8a55836d8501": {
+        "points": 10,
+        "correct": true
+      }
+    },
+    "started_at": "2026-01-28T14:29:01.547098+00:00",
+    "updated_at": "2026-03-29T04:38:58.870769+00:00",
+    "org_id": null
+  },
+  {
+    "id": "5fc3b0f1-cb12-47a2-ab91-5af62cbae339",
+    "user_id": "3b9e5d6c-56a2-4d6f-92b1-f4d494fd72cb",
+    "lesson_id": "a1000000-0000-0000-0000-000000000002",
+    "current_block_index": 5,
+    "blocks_completed": [],
+    "progress_percentage": 0,
+    "quiz_attempts": {},
+    "started_at": "2026-03-29T04:39:39.122307+00:00",
+    "updated_at": "2026-03-29T04:39:55.121238+00:00",
+    "org_id": null
+  }
+]

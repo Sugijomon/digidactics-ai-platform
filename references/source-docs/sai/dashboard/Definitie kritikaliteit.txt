@@ -1,0 +1,23 @@
+Binnen de context van jouw **Shadow AI Scan** en het bijbehorende **DPO-dashboard** wordt de definitie van **kritikaliteit** bepaald door de potentiële impact van een AI-toepassing op de organisatie, de dataveiligheid en de wettelijke compliance.
+
+In jouw systeem is kritikaliteit opgebouwd uit de volgende aspecten:
+
+### 1. Risico-impact per Doeleinde
+Kritikaliteit verwijst naar de **impactfactor** die gekoppeld is aan een specifiek verwerkingsdoeleinde. 
+* **HR & evaluatie** of **Klantenservice** hebben bijvoorbeeld een hogere factor (bijv. **2.0x**) dan algemene taken zoals **Samenvatten** (bijv. **1.5x**).
+* Dit weerspiegelt hoe gevoelig de data is die voor dat doeleinde wordt gebruikt (bijv. persoonsgegevens vs. algemene teksten).
+
+### 2. De EU AI Act Classificatie
+Kritikaliteit wordt direct beïnvloed door de juridische kaders van de **EU AI Act**. 
+* Toepassingen die vallen onder **Art. 5** (onacceptabel risico) of **Annex III** (hoog risico) krijgen een hogere kritikaliteitsscore in de matrix.
+* Dit wordt in jouw dashboard gevisualiseerd met specifieke iconen (zoals de rode verbodscirkel of het waarschuwingsdriehoekje) bij de betreffende cellen.
+
+### 3. Kwantitatieve Blootstelling
+Hoewel de *basis*kritikaliteit wordt bepaald door het doeleinde, wordt de **totale kritikaliteit** in de matrix ook visueel versterkt door het gebruik.
+* De **grootte van de vierkantjes** in de matrix geeft aan hoeveel medewerkers de tool voor dat specifieke doeleinde gebruiken. 
+* Hoe meer gebruikers een risicovolle tool gebruiken, hoe "kritieker" de situatie wordt voor de DPO om actie te ondernemen.
+
+### Samenvattend in jouw systeem:
+> **Kritikaliteit = (Gevoeligheid van het Doeleinde) × (Juridisch Risicoprofiel van de Tool).**
+
+In de sorteeropties van je dashboard zie je dit terug als de functie **"Hoogste kritikaliteit"**, waarbij doeleinden met een hoge impactfactor (bijv. 2.0x) bovenaan worden geplaatst om de DPO te wijzen op de meest risicovolle onderdelen van de organisatie.

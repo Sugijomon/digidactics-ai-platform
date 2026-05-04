@@ -1,0 +1,1621 @@
+[
+  {
+    "id": "2a89ae21-5c9e-4943-9f0f-bf0f1397e8e2",
+    "title": "Wat is AI?",
+    "description": null,
+    "lesson_type": "standalone",
+    "blocks": {
+      "topics": [
+        {
+          "id": "migrated-62420b06-f4bb-4253-bcc3-3159778f115d",
+          "order": 0,
+          "title": "Oefenvraag",
+          "blocks": [
+            {
+              "id": "62420b06-f4bb-4253-bcc3-3159778f115d",
+              "type": "quiz_essay",
+              "order": 0,
+              "points": 20,
+              "question": "Beschrijf in je eigen woorden...",
+              "max_words": 200,
+              "min_words": 100,
+              "placeholder": "Schrijf hier je antwoord..."
+            }
+          ]
+        },
+        {
+          "id": "migrated-13e83349-242c-46e1-a20a-17bc59eaae87",
+          "order": 1,
+          "title": "Onderwerp 2",
+          "blocks": [
+            {
+              "id": "13e83349-242c-46e1-a20a-17bc59eaae87",
+              "type": "paragraph",
+              "order": 1,
+              "content": "✅ Strategic insight\n\nThe real opportunity is not building the most advanced AI governance tool.\n\nIt is building the simplest AI governance system that SMEs can actually use.\n\nThat difference in philosophy is what could allow RouteAI to compete against much larger enterprise vendors."
+            }
+          ]
+        }
+      ],
+      "version": 2
+    },
+    "estimated_duration": 5,
+    "passing_score": 80,
+    "is_published": true,
+    "created_by": "3b9e5d6c-56a2-4d6f-92b1-f4d494fd72cb",
+    "created_at": "2026-01-28T14:26:17.346213+00:00",
+    "updated_at": "2026-03-14T13:47:03.52312+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "f1b00000-0000-0000-0000-000000000001",
+    "title": "Wat is AI?",
+    "description": "Begrijp wat AI is en wat het niet is — d…[truncated]",
+    "lesson_type": "course_module",
+    "blocks": {
+      "topics": [
+        {
+          "id": "t1-wat-is-ai",
+          "order": 0,
+          "title": "Wat is AI?",
+          "blocks": [
+            {
+              "id": "l1-hero",
+              "type": "hero",
+              "title": "Wat is AI?",
+              "subtitle": "Begrijp wat AI is en wat het niet is — de basis voor verantwoord gebruik"
+            },
+            {
+              "id": "l1-p1",
+              "html": "<p>Kunstmatige intelligentie (AI) is software die taken uitvoert die normaal menselijke intelligentie vereisen: tekst schrijven, patronen herkennen, beslissingen ondersteunen. Belangrijk: AI heeft geen bewustzijn, geen intentie en geeft geen garantie op correcte uitkomsten.</p>",
+              "type": "paragraph"
+            },
+            {
+              "id": "l1-p2",
+              "html": "<p>Er zijn drie typen AI die je in de praktijk tegenkomt. <strong>Rule-based systemen</strong> volgen vaste regels (spamfilter, if-then-logica). <strong>Machine learning-modellen</strong> leren van data en herkennen patronen (aanbevelingssystemen, fraudedetectie). <strong>Generatieve AI (GPAI)</strong> produceert nieuwe inhoud — tekst, beelden, code — op basis van patronen in enorme trainingsdatasets.</p>",
+              "type": "paragraph"
+            },
+            {
+              "id": "l1-callout1",
+              "text": "AI heeft geen bewustzijn en begrijpt niet wat het produceert. Het maakt statistische voorspellingen op basis van trainingsdata. Fouten zijn inherent aan het systeem — niet door slechte bedoelingen.",
+              "type": "callout",
+              "title": "Wat AI niet is",
+              "variant": "blue"
+            },
+            {
+              "id": "l1-kt1",
+              "type": "key_takeaways",
+              "items": [
+                "AI voert taken uit die menselijke intelligentie vereisen, maar heeft geen bewustzijn",
+                "Generatieve AI (ChatGPT, Claude) produceert nieuwe inhoud op basis van trainingsdata",
+                "AI-output is altijd een voorspelling — altijd controleren"
+              ]
+            },
+            {
+              "id": "l1-q1",
+              "type": "quiz_mc",
+              "options": [
+                {
+                  "id": "a",
+                  "text": "Een spamfilter die e-mails sorteert",
+                  "isCorrect": false
+                },
+                {
+                  "id": "b",
+                  "text": "Een chatbot die tekst genereert op basis van een prompt",
+                  "isCorrect": true
+                },
+                {
+                  "id": "c",
+                  "text": "Een rekensysteem dat facturen verwerkt",
+                  "isCorrect": false
+                }
+              ],
+              "question": "Welk van deze is een voorbeeld van generatieve AI?",
+              "explanation": "Generatieve AI produceert nieuwe inhoud — tekst, code, beelden — op basis van patronen in trainingsdata."
+            },
+            {
+              "id": "l1-q2",
+              "type": "quiz_mc",
+              "options": [
+                {
+                  "id": "a",
+                  "text": "Rule-based AI is altijd veiliger",
+                  "isCorrect": false
+                },
+                {
+                  "id": "b",
+                  "text": "Machine learning leert van data; rule-based volgt vaste regels",
+                  "isCorrect": true
+                },
+                {
+                  "id": "c",
+                  "text": "Machine learning heeft bewustzijn",
+                  "isCorrect": false
+                }
+              ],
+              "question": "Wat is het grootste verschil tussen rule-based AI en machine learning?",
+              "explanation": "Rule-based systemen volgen geprogrammeerde regels. ML-modellen leren patronen uit data."
+            }
+          ]
+        }
+      ],
+      "version": 2
+    },
+    "estimated_duration": 10,
+    "passing_score": null,
+    "is_published": true,
+    "created_by": null,
+    "created_at": "2026-03-27T08:44:45.989407+00:00",
+    "updated_at": "2026-03-27T08:44:45.989407+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "f1b00000-0000-0000-0000-000000000002",
+    "title": "AI-risico's en de EU AI Act",
+    "description": "Vier risicoklassen, één doel: veilig en …[truncated]",
+    "lesson_type": "course_module",
+    "blocks": {
+      "topics": [
+        {
+          "id": "t2-risicos-eu-ai-act",
+          "order": 0,
+          "title": "AI-risico's en de EU AI Act",
+          "blocks": [
+            {
+              "id": "l2-hero",
+              "type": "hero",
+              "title": "AI-risico's en de EU AI Act",
+              "subtitle": "Vier risicoklassen, één doel: veilig en verantwoord AI-gebruik"
+            },
+            {
+              "id": "l2-p1",
+              "html": "<p>De EU AI Act categoriseert AI-systemen in vier risicoklassen. Elk niveau brengt andere verplichtingen mee voor organisaties die AI inzetten.</p>",
+              "type": "paragraph"
+            },
+            {
+              "id": "l2-callout1",
+              "text": "Sommige AI-toepassingen zijn volledig verboden in de EU: social scoring door overheden, subliminale manipulatie, real-time biometrische identificatie in openbare ruimtes voor handhaving, en AI die kwetsbaarheden van mensen uitbuit.",
+              "type": "callout",
+              "title": "Verboden AI (Art. 5)",
+              "variant": "red"
+            },
+            {
+              "id": "l2-p2",
+              "html": "<p><strong>Hoog-risico AI</strong> (Annex III) omvat systemen die worden ingezet bij CV-screening, kredietbeoordeling, medische diagnose, studentbeoordeling en rechtshandhaving. Deze systemen vereisen een DPIA, menselijk toezicht en DPO-betrokkenheid.</p><p><strong>Beperkt risico</strong> (bv. chatbots met externen) vereist transparantie: gebruikers moeten weten dat ze met AI communiceren.</p><p><strong>Minimaal risico</strong> (bv. spamfilters) kent geen specifieke verplichtingen.</p>",
+              "type": "paragraph"
+            },
+            {
+              "id": "l2-callout2",
+              "text": "Als jouw organisatie een AI-tool inkoopt en inzet (deployer), ben je verantwoordelijk voor correct gebruik. De leverancier (provider) is verantwoordelijk voor het systeem zelf. Beide hebben eigen verplichtingen.",
+              "type": "callout",
+              "title": "Deployer vs. provider",
+              "variant": "yellow"
+            },
+            {
+              "id": "l2-kt1",
+              "type": "key_takeaways",
+              "items": [
+                "Vier risicoklassen: verboden, hoog-risico, beperkt-risico, minimaal-risico",
+                "Hoog-risico AI vereist DPIA, menselijk toezicht en DPO-betrokkenheid",
+                "Als deployer ben je medeverantwoordelijk voor correct AI-gebruik"
+              ]
+            },
+            {
+              "id": "l2-q1",
+              "type": "quiz_mc",
+              "options": [
+                {
+                  "id": "a",
+                  "text": "Minimaal risico — het is slechts een hulpmiddel",
+                  "isCorrect": false
+                },
+                {
+                  "id": "b",
+                  "text": "Hoog risico — Annex III omvat personeelsselectie",
+                  "isCorrect": true
+                },
+                {
+                  "id": "c",
+                  "text": "Beperkt risico — alleen transparantie vereist",
+                  "isCorrect": false
+                }
+              ],
+              "question": "Een organisatie gebruikt AI voor CV-screening. Welke risicoklasse is van toepassing?",
+              "explanation": "Annex III van de EU AI Act benoemt personeelsselectie expliciet als hoog-risico toepassing."
+            },
+            {
+              "id": "l2-q2",
+              "type": "quiz_mc",
+              "options": [
+                {
+                  "id": "a",
+                  "text": "Een chatbot die klantvragen beantwoordt",
+                  "isCorrect": false
+                },
+                {
+                  "id": "b",
+                  "text": "Real-time gezichtsherkenning in openbare ruimtes voor handhaving",
+                  "isCorrect": true
+                },
+                {
+                  "id": "c",
+                  "text": "Een aanbevelingssysteem voor films",
+                  "isCorrect": false
+                }
+              ],
+              "question": "Welke AI-toepassing is verboden onder Art. 5 EU AI Act?",
+              "explanation": "Real-time biometrische identificatie voor handhaving in openbare ruimtes valt onder de verboden praktijken van Art. 5."
+            },
+            {
+              "id": "l2-q3",
+              "type": "quiz_tf",
+              "question": "Als een medewerker een AI-tool onjuist gebruikt, is alleen de leverancier aansprakelijk.",
+              "explanation": "Als deployer is de organisatie medeverantwoordelijk voor correct gebruik. Interne richtlijnen en training zijn vereist.",
+              "correctAnswer": false
+            }
+          ]
+        }
+      ],
+      "version": 2
+    },
+    "estimated_duration": 12,
+    "passing_score": null,
+    "is_published": true,
+    "created_by": null,
+    "created_at": "2026-03-27T08:44:45.989407+00:00",
+    "updated_at": "2026-03-27T08:44:45.989407+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "f1b00000-0000-0000-0000-000000000003",
+    "title": "Verantwoord gebruik en menselijk toezicht",
+    "description": "AI als gereedschap — jij blijft verantwo…[truncated]",
+    "lesson_type": "course_module",
+    "blocks": {
+      "topics": [
+        {
+          "id": "t3-verantwoord-gebruik",
+          "order": 0,
+          "title": "Verantwoord gebruik en menselijk toezicht",
+          "blocks": [
+            {
+              "id": "l3-hero",
+              "type": "hero",
+              "title": "Verantwoord gebruik en menselijk toezicht",
+              "subtitle": "AI als gereedschap — jij blijft verantwoordelijk"
+            },
+            {
+              "id": "l3-p1",
+              "html": "<p>Menselijk toezicht (Human-in-the-Loop, HITL) betekent dat een mens de AI-output controleert vóór er een beslissing op wordt gebaseerd. Dit is niet optioneel bij hoog-risico toepassingen — het is een wettelijke verplichting (EU AI Act Art. 14).</p>",
+              "type": "paragraph"
+            },
+            {
+              "id": "l3-p2",
+              "html": "<p>Er zijn drie toezichtsniveaus. <strong>Strikt HITL</strong>: elk resultaat wordt individueel gecontroleerd vóór gebruik — verplicht bij beslissingen over mensen. <strong>Toezicht met alertheid</strong>: outputs worden kritisch beoordeeld en bij twijfel gecheckt via het incidentsysteem. <strong>Geautomatiseerd</strong>: directe toepassing zonder menselijke tussenkomst — alleen toegestaan bij minimaal-risico toepassingen.</p>",
+              "type": "paragraph"
+            },
+            {
+              "id": "l3-callout1",
+              "text": "AI maakt fouten — ook bij hoge zekerheidsscores. Controleer feitelijke claims, bereken formules zelf na, en verifieer namen en datums. Gebruik AI als startpunt, niet als eindproduct.",
+              "type": "callout",
+              "title": "Verificatie is jouw verantwoordelijkheid",
+              "variant": "yellow"
+            },
+            {
+              "id": "l3-kt1",
+              "type": "key_takeaways",
+              "items": [
+                "Menselijk toezicht is wettelijk verplicht bij hoog-risico AI (Art. 14)",
+                "Drie niveaus: strikt HITL, toezicht met alertheid, geautomatiseerd",
+                "Fouten in AI-output zijn jouw verantwoordelijkheid als gebruiker — controleer altijd"
+              ]
+            },
+            {
+              "id": "l3-q1",
+              "type": "quiz_mc",
+              "options": [
+                {
+                  "id": "a",
+                  "text": "Geautomatiseerd — AI is nauwkeurig genoeg",
+                  "isCorrect": false
+                },
+                {
+                  "id": "b",
+                  "text": "Strikt HITL — elk resultaat controleren vóór gebruik",
+                  "isCorrect": true
+                },
+                {
+                  "id": "c",
+                  "text": "Geen toezicht nodig bij betrouwbare AI",
+                  "isCorrect": false
+                }
+              ],
+              "question": "Je gebruikt AI om een financieel rapport te analyseren voor een klant. Welk toezichtsniveau is vereist?",
+              "explanation": "Bij beslissingen die klanten beïnvloeden is strikt menselijk toezicht vereist. AI-fouten in financiële analyses kunnen aanzienlijke schade veroorzaken."
+            }
+          ]
+        }
+      ],
+      "version": 2
+    },
+    "estimated_duration": 10,
+    "passing_score": null,
+    "is_published": true,
+    "created_by": null,
+    "created_at": "2026-03-27T08:44:45.989407+00:00",
+    "updated_at": "2026-03-27T08:44:45.989407+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "f1b00000-0000-0000-0000-000000000004",
+    "title": "Privacy en AI",
+    "description": "AVG-verplichtingen bij AI-gebruik met pe…[truncated]",
+    "lesson_type": "course_module",
+    "blocks": {
+      "topics": [
+        {
+          "id": "t4-privacy-ai",
+          "order": 0,
+          "title": "Privacy en AI",
+          "blocks": [
+            {
+              "id": "l4-hero",
+              "type": "hero",
+              "title": "Privacy en AI",
+              "subtitle": "AVG-verplichtingen bij AI-gebruik met persoonsgegevens"
+            },
+            {
+              "id": "l4-p1",
+              "html": "<p>Wanneer AI persoonsgegevens verwerkt, gelden de AVG-regels volledig. Dit omvat namen, e-mailadressen, functietitels en zakelijke contactgegevens. Voor bijzondere persoonsgegevens (medische data, biometrische gegevens, financiële kwetsbaarheid, strafrechtelijke gegevens) gelden aanvullende, strengere eisen.</p>",
+              "type": "paragraph"
+            },
+            {
+              "id": "l4-p2",
+              "html": "<p>Voer nooit klantdata, medewerkersdossiers of medische informatie in bij publieke AI-diensten tenzij de organisatie een verwerkersovereenkomst (DPA) met de provider heeft. Controleer of de tool data opslaat voor modeltraining — dit is standaard bij veel gratis tools.</p>",
+              "type": "paragraph"
+            },
+            {
+              "id": "l4-callout1",
+              "text": "Persoonsgegevens in ChatGPT, Claude of andere publieke AI-tools invoeren zonder verwerkersovereenkomst is een AVG-overtreding. Gebruik bij twijfel alleen anonieme of geanonimiseerde data.",
+              "type": "callout",
+              "title": "Nooit invoeren zonder DPA",
+              "variant": "red"
+            },
+            {
+              "id": "l4-kt1",
+              "type": "key_takeaways",
+              "items": [
+                "AVG geldt volledig bij AI-verwerking van persoonsgegevens",
+                "Bijzondere persoonsgegevens (Art. 9 AVG) vereisen expliciete grondslag en verhoogde bescherming",
+                "Controleer altijd of een verwerkersovereenkomst bestaat vóór je data invoert"
+              ]
+            },
+            {
+              "id": "l4-q1",
+              "type": "quiz_mc",
+              "options": [
+                {
+                  "id": "a",
+                  "text": "Prima — ChatGPT is betrouwbaar",
+                  "isCorrect": false
+                },
+                {
+                  "id": "b",
+                  "text": "Alleen als er een getekende verwerkersovereenkomst is met OpenAI",
+                  "isCorrect": true
+                },
+                {
+                  "id": "c",
+                  "text": "Mag altijd als de data geanonimiseerd is",
+                  "isCorrect": false
+                }
+              ],
+              "question": "Een collega wil sollicitantgegevens invoeren in ChatGPT voor snellere CV-analyse. Wat doe je?",
+              "explanation": "Persoonsgegevens mogen alleen worden ingevoerd in AI-tools waarmee een verwerkersovereenkomst bestaat. OpenAI's standaard gebruiksvoorwaarden voldoen hier niet automatisch aan."
+            }
+          ]
+        }
+      ],
+      "version": 2
+    },
+    "estimated_duration": 10,
+    "passing_score": null,
+    "is_published": true,
+    "created_by": null,
+    "created_at": "2026-03-27T08:44:45.989407+00:00",
+    "updated_at": "2026-03-27T08:44:45.989407+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "f1b00000-0000-0000-0000-000000000005",
+    "title": "EU AI Act: jouw verplichtingen",
+    "description": "Wat de wet van jou verwacht als AI-gebru…[truncated]",
+    "lesson_type": "course_module",
+    "blocks": {
+      "topics": [
+        {
+          "id": "t5-eu-ai-act-verplichtingen",
+          "order": 0,
+          "title": "EU AI Act: jouw verplichtingen",
+          "blocks": [
+            {
+              "id": "l5-hero",
+              "type": "hero",
+              "title": "EU AI Act: jouw verplichtingen",
+              "subtitle": "Wat de wet van jou verwacht als AI-gebruiker"
+            },
+            {
+              "id": "l5-p1",
+              "html": "<p>De EU AI Act is de eerste uitgebreide AI-wet ter wereld en geldt per augustus 2026 volledig. Als medewerker die AI inzet (deployer) heb je verplichtingen die voortvloeien uit de deployer-rol. De belangrijkste: <strong>AI-geletterdheid</strong> (Art. 4), <strong>transparantie</strong> naar eindgebruikers (Art. 50), en <strong>menselijk toezicht</strong> (Art. 14).</p>",
+              "type": "paragraph"
+            },
+            {
+              "id": "l5-p2",
+              "html": "<p>AI-geletterdheid (Art. 4) is van kracht per 2 februari 2025. Organisaties moeten aantoonbaar maken dat medewerkers die met AI werken voldoende training hebben gevolgd. Dit is de wettelijke basis voor de cursus die je nu volgt en voor het AI-rijbewijs dat je na het examen ontvangt.</p>",
+              "type": "paragraph"
+            },
+            {
+              "id": "l5-callout1",
+              "text": "De provider (OpenAI, Google) is verantwoordelijk voor het AI-systeem. De deployer (jouw organisatie) is verantwoordelijk voor correct gebruik: juiste toepassing, training van medewerkers, menselijk toezicht, en melding van incidenten.",
+              "type": "callout",
+              "title": "Deployer vs. provider — wie is verantwoordelijk?",
+              "variant": "blue"
+            },
+            {
+              "id": "l5-kt1",
+              "type": "key_takeaways",
+              "items": [
+                "AI-geletterdheidsplicht (Art. 4) geldt al per 2 februari 2025",
+                "Als deployer ben je verantwoordelijk voor correct gebruik van AI",
+                "Transparantie naar externen is verplicht bij chatbots en AI-gegenereerde communicatie (Art. 50)"
+              ]
+            },
+            {
+              "id": "l5-q1",
+              "type": "quiz_mc",
+              "options": [
+                {
+                  "id": "a",
+                  "text": "Augustus 2026 — dan gaat de wet pas in",
+                  "isCorrect": false
+                },
+                {
+                  "id": "b",
+                  "text": "2 februari 2025 — al van kracht",
+                  "isCorrect": true
+                },
+                {
+                  "id": "c",
+                  "text": "Pas na publicatie van technische standaarden",
+                  "isCorrect": false
+                }
+              ],
+              "question": "Vanaf wanneer geldt de AI-geletterdheidsplicht (Art. 4) van de EU AI Act?",
+              "explanation": "De AI-geletterdheidsplicht (Art. 4) is het eerste onderdeel van de EU AI Act dat van kracht is gegaan, per 2 februari 2025."
+            },
+            {
+              "id": "l5-q2",
+              "type": "quiz_tf",
+              "question": "Als een medewerker een AI-tool fout gebruikt, is alleen de leverancier aansprakelijk.",
+              "explanation": "Als deployer is de organisatie medeverantwoordelijk voor correct gebruik inclusief training en toezicht.",
+              "correctAnswer": false
+            }
+          ]
+        }
+      ],
+      "version": 2
+    },
+    "estimated_duration": 12,
+    "passing_score": null,
+    "is_published": true,
+    "created_by": null,
+    "created_at": "2026-03-27T08:44:45.989407+00:00",
+    "updated_at": "2026-03-27T08:44:45.989407+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "f1b00000-0000-0000-0000-000000000006",
+    "title": "RouteAI: hoe het werkt",
+    "description": "Survey → route → instructies → Passport.",
+    "lesson_type": "course_module",
+    "blocks": {
+      "topics": [
+        {
+          "id": "t6-routeai-systeem",
+          "order": 0,
+          "title": "RouteAI: hoe het werkt",
+          "blocks": [
+            {
+              "id": "l6-hero",
+              "type": "hero",
+              "title": "RouteAI: hoe het werkt",
+              "subtitle": "Survey → route → instructies → Passport"
+            },
+            {
+              "id": "l6-p1",
+              "html": "<p>RouteAI helpt jou en je organisatie om AI-gebruik te registreren, beoordelen en verantwoorden. Het systeem werkt via vier routes: <strong>Groen</strong> (vrij gebruik), <strong>Geel</strong> (transparantieplicht), <strong>Oranje</strong> (DPO-goedkeuring vereist) en <strong>Rood</strong> (geblokkeerd). De route wordt bepaald door een korte survey van 5–6 vragen over de specifieke toepassing.</p>",
+              "type": "paragraph"
+            },
+            {
+              "id": "l6-p2",
+              "html": "<p>Een assessment aanmaken doe je via 'AI Check starten'. Je beschrijft de tool en het gebruik, en RouteAI bepaalt de route deterministisch op basis van de EU AI Act. Bij Oranje ontvangt je DPO automatisch een melding. Het resultaat wordt vastgelegd in het Accountability Passport — de documentatie die bij een audit getoond kan worden.</p>",
+              "type": "paragraph"
+            },
+            {
+              "id": "l6-callout1",
+              "text": "Het Passport bevat een register van alle AI-assessments, tool-gebruik, en leeractiviteiten van je organisatie. Auditors en toezichthouders kunnen hiermee aantonen dat jouw organisatie AI verantwoord inzet.",
+              "type": "callout",
+              "title": "Het Accountability Passport",
+              "variant": "blue"
+            },
+            {
+              "id": "l6-callout2",
+              "text": "Als iets misgaat met AI — ongewenst resultaat, datalek, ongepaste uitvoer — meld dit direct via het incidentformulier. Melden is geen aanklacht maar een governance-actie die helpt de organisatie te beschermen.",
+              "type": "callout",
+              "title": "Incidenten melden is goed gedrag",
+              "variant": "yellow"
+            },
+            {
+              "id": "l6-kt1",
+              "type": "key_takeaways",
+              "items": [
+                "RouteAI bepaalt de route via 5–6 vragen over de specifieke AI-toepassing",
+                "Vier routes: Groen, Geel, Oranje (DPO-melding), Rood (geblokkeerd)",
+                "Alle assessments worden vastgelegd in het Accountability Passport voor audit-doeleinden"
+              ]
+            },
+            {
+              "id": "l6-q1",
+              "type": "quiz_mc",
+              "options": [
+                {
+                  "id": "a",
+                  "text": "De tool direct gebruiken en achteraf melden",
+                  "isCorrect": false
+                },
+                {
+                  "id": "b",
+                  "text": "Een AI Check (assessment) aanmaken voor deze specifieke toepassing",
+                  "isCorrect": true
+                },
+                {
+                  "id": "c",
+                  "text": "Toestemming vragen aan de IT-afdeling",
+                  "isCorrect": false
+                }
+              ],
+              "question": "Je wilt een nieuwe AI-tool inzetten voor klantcommunicatie. Wat is je eerste stap in RouteAI?",
+              "explanation": "Elke nieuwe AI-toepassing vereist een assessment via de AI Check. Dit registreert het gebruik en bepaalt de route."
+            },
+            {
+              "id": "l6-q2",
+              "type": "quiz_mc",
+              "options": [
+                {
+                  "id": "a",
+                  "text": "De medewerker zelf",
+                  "isCorrect": false
+                },
+                {
+                  "id": "b",
+                  "text": "De org_admin",
+                  "isCorrect": false
+                },
+                {
+                  "id": "c",
+                  "text": "Niemand — het systeem schrijft automatisch bij slagen (SYSTEM_ONLY)",
+                  "isCorrect": true
+                }
+              ],
+              "question": "Wie heeft schrijftoegang tot het rijbewijs-veld in het Accountability Passport?",
+              "explanation": "Het AI-rijbewijs-veld is SYSTEM_ONLY: alleen het systeem kan dit veld bijwerken bij het succesvol afleggen van het examen."
+            }
+          ]
+        }
+      ],
+      "version": 2
+    },
+    "estimated_duration": 12,
+    "passing_score": null,
+    "is_published": true,
+    "created_by": null,
+    "created_at": "2026-03-27T08:44:45.989407+00:00",
+    "updated_at": "2026-03-27T08:44:45.989407+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "f1b00000-0000-0000-0000-000000000007",
+    "title": "AI-rijbewijs Examen",
+    "description": "Toets je kennis over AI, de EU AI Act en…[truncated]",
+    "lesson_type": "ai_literacy_exam",
+    "blocks": {
+      "topics": [
+        {
+          "id": "t7-examen",
+          "order": 0,
+          "title": "AI-rijbewijs Examen",
+          "blocks": [
+            {
+              "id": "ex-q1",
+              "type": "quiz_mc",
+              "options": [
+                {
+                  "id": "a",
+                  "text": "Rule-based systeem",
+                  "isCorrect": false
+                },
+                {
+                  "id": "b",
+                  "text": "Generatieve AI (GPAI)",
+                  "isCorrect": true
+                },
+                {
+                  "id": "c",
+                  "text": "Een beslissingsboom",
+                  "isCorrect": false
+                }
+              ],
+              "question": "Welk type AI produceert nieuwe inhoud zoals tekst en beelden?",
+              "explanation": "Generatieve AI zoals GPT-4 of Claude produceert nieuwe inhoud op basis van patronen in trainingsdata."
+            },
+            {
+              "id": "ex-q2",
+              "type": "quiz_tf",
+              "question": "AI heeft bewustzijn en begrijpt de inhoud die het produceert.",
+              "explanation": "AI maakt statistische voorspellingen op basis van trainingsdata — er is geen begrip of bewustzijn.",
+              "correctAnswer": false
+            },
+            {
+              "id": "ex-q3",
+              "type": "quiz_mc",
+              "options": [
+                {
+                  "id": "a",
+                  "text": "Minimaal risico",
+                  "isCorrect": false
+                },
+                {
+                  "id": "b",
+                  "text": "Hoog risico (Annex III)",
+                  "isCorrect": true
+                },
+                {
+                  "id": "c",
+                  "text": "Beperkt risico",
+                  "isCorrect": false
+                }
+              ],
+              "question": "Welke risicoklasse heeft CV-screening met AI?",
+              "explanation": "Annex III noemt personeelsselectie expliciet als hoog-risico toepassing."
+            },
+            {
+              "id": "ex-q4",
+              "type": "quiz_mc",
+              "options": [
+                {
+                  "id": "a",
+                  "text": "Chatbot voor klantenservice",
+                  "isCorrect": false
+                },
+                {
+                  "id": "b",
+                  "text": "Social scoring door overheidsinstanties",
+                  "isCorrect": true
+                },
+                {
+                  "id": "c",
+                  "text": "Aanbevelingssysteem voor producten",
+                  "isCorrect": false
+                }
+              ],
+              "question": "Welke AI-toepassing is volledig verboden onder Art. 5 EU AI Act?",
+              "explanation": "Social scoring door overheden is een van de verboden praktijken in Art. 5."
+            },
+            {
+              "id": "ex-q5",
+              "type": "quiz_tf",
+              "question": "Bij beperkt-risico AI geldt uitsluitend een transparantieverplichting.",
+              "explanation": "Beperkt-risico AI (bv. chatbots) vereist transparantie naar eindgebruikers dat ze met AI communiceren — geen DPIA.",
+              "correctAnswer": true
+            },
+            {
+              "id": "ex-q6",
+              "type": "quiz_mc",
+              "options": [
+                {
+                  "id": "a",
+                  "text": "De mens controleert output steekproefsgewijs",
+                  "isCorrect": false
+                },
+                {
+                  "id": "b",
+                  "text": "Elk resultaat wordt door een mens gecontroleerd vóór gebruik",
+                  "isCorrect": true
+                },
+                {
+                  "id": "c",
+                  "text": "Er is geen menselijke betrokkenheid",
+                  "isCorrect": false
+                }
+              ],
+              "question": "Wat betekent strikt Human-in-the-Loop (HITL)?",
+              "explanation": "Strikt HITL vereist menselijke controle van elk individueel resultaat."
+            },
+            {
+              "id": "ex-q7",
+              "type": "quiz_mc",
+              "options": [
+                {
+                  "id": "a",
+                  "text": "Geautomatiseerd — AI is nauwkeurig",
+                  "isCorrect": false
+                },
+                {
+                  "id": "b",
+                  "text": "Strikt HITL — altijd menselijke controle",
+                  "isCorrect": true
+                },
+                {
+                  "id": "c",
+                  "text": "Alertheid is voldoende",
+                  "isCorrect": false
+                }
+              ],
+              "question": "Een AI genereert een medisch advies. Welk toezichtsniveau is vereist?",
+              "explanation": "Medische beslissingen vereisen altijd strikt menselijk toezicht vanwege hoog-risico classificatie."
+            },
+            {
+              "id": "ex-q8",
+              "type": "quiz_tf",
+              "question": "AI-output is altijd betrouwbaar genoeg om direct te gebruiken zonder verificatie.",
+              "explanation": "AI maakt fouten — ook bij hoge zekerheidsscores. Verificatie is altijd vereist.",
+              "correctAnswer": false
+            },
+            {
+              "id": "ex-q9",
+              "type": "quiz_mc",
+              "options": [
+                {
+                  "id": "a",
+                  "text": "Toestemming van de IT-afdeling",
+                  "isCorrect": false
+                },
+                {
+                  "id": "b",
+                  "text": "Een verwerkersovereenkomst (DPA) met de AI-provider",
+                  "isCorrect": true
+                },
+                {
+                  "id": "c",
+                  "text": "Alleen technische beveiliging is voldoende",
+                  "isCorrect": false
+                }
+              ],
+              "question": "Je wilt klantgegevens verwerken met een externe AI-tool. Wat is een vereiste?",
+              "explanation": "Verwerking van persoonsgegevens via externe tools vereist een getekende verwerkersovereenkomst."
+            },
+            {
+              "id": "ex-q10",
+              "type": "quiz_tf",
+              "question": "Geanonimiseerde data mag altijd worden ingevoerd in publieke AI-tools.",
+              "explanation": "Echte anonimisering is technisch moeilijk. Pseudonimisering beschermt de AVG-bescherming niet volledig. Controleer altijd de DPA.",
+              "correctAnswer": false
+            },
+            {
+              "id": "ex-q11",
+              "type": "quiz_mc",
+              "options": [
+                {
+                  "id": "a",
+                  "text": "Bedrijfsvertrouwelijke documenten",
+                  "isCorrect": false
+                },
+                {
+                  "id": "b",
+                  "text": "Bijzondere persoonsgegevens (AVG Art. 9)",
+                  "isCorrect": true
+                },
+                {
+                  "id": "c",
+                  "text": "Publieke informatie",
+                  "isCorrect": false
+                }
+              ],
+              "question": "Welke categorie vereist de hoogste bescherming bij AI-verwerking?",
+              "explanation": "Bijzondere persoonsgegevens (medisch, biometrisch, strafrechtelijk) vereisen expliciete grondslag en verhoogde bescherming."
+            },
+            {
+              "id": "ex-q12",
+              "type": "quiz_mc",
+              "options": [
+                {
+                  "id": "a",
+                  "text": "Augustus 2026",
+                  "isCorrect": false
+                },
+                {
+                  "id": "b",
+                  "text": "2 februari 2025",
+                  "isCorrect": true
+                },
+                {
+                  "id": "c",
+                  "text": "Pas bij nationale implementatie",
+                  "isCorrect": false
+                }
+              ],
+              "question": "Vanaf wanneer geldt de AI-geletterdheidsplicht (Art. 4 EU AI Act)?",
+              "explanation": "Art. 4 is het eerste onderdeel van de EU AI Act dat in werking is getreden, per 2 februari 2025."
+            },
+            {
+              "id": "ex-q13",
+              "type": "quiz_tf",
+              "question": "Als deployer is de organisatie medeverantwoordelijk voor correct AI-gebruik.",
+              "explanation": "De deployer (gebruikende organisatie) is verantwoordelijk voor juiste toepassing, training en toezicht.",
+              "correctAnswer": true
+            },
+            {
+              "id": "ex-q14",
+              "type": "quiz_mc",
+              "options": [
+                {
+                  "id": "a",
+                  "text": "Persoonlijke portfolio van vaardigheden",
+                  "isCorrect": false
+                },
+                {
+                  "id": "b",
+                  "text": "Organisatie-breed register van AI-assessments voor audit-doeleinden",
+                  "isCorrect": true
+                },
+                {
+                  "id": "c",
+                  "text": "Dashboard voor DPO-meldingen",
+                  "isCorrect": false
+                }
+              ],
+              "question": "Wat is de functie van het Accountability Passport in RouteAI?",
+              "explanation": "Het Passport documenteert alle assessments, tools en leeractiviteiten voor auditoren en toezichthouders."
+            },
+            {
+              "id": "ex-q15",
+              "type": "quiz_mc",
+              "options": [
+                {
+                  "id": "a",
+                  "text": "Alleen bij hoog-risico toepassingen",
+                  "isCorrect": false
+                },
+                {
+                  "id": "b",
+                  "text": "Bij elke nieuwe AI-toepassing die je wilt inzetten",
+                  "isCorrect": true
+                },
+                {
+                  "id": "c",
+                  "text": "Jaarlijks als overzicht",
+                  "isCorrect": false
+                }
+              ],
+              "question": "Wanneer maak je een assessment aan in RouteAI?",
+              "explanation": "Elke nieuwe AI-toepassing (tool + use-case combinatie) vereist een assessment."
+            }
+          ]
+        }
+      ],
+      "version": 2
+    },
+    "estimated_duration": 15,
+    "passing_score": 80,
+    "is_published": true,
+    "created_by": null,
+    "created_at": "2026-03-27T08:44:45.989407+00:00",
+    "updated_at": "2026-03-27T08:44:45.989407+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "a1000000-0000-0000-0000-000000000001",
+    "title": "ML-O01: Verification Gatekeeper",
+    "description": "CL-1 gedragspatroon — controleer AI-oord…[truncated]",
+    "lesson_type": "standalone",
+    "blocks": [
+      {
+        "type": "hero",
+        "title": "ML-O01: Verification Gatekeeper",
+        "topic": "Verification Gatekeeper",
+        "version": 2,
+        "subtitle": "CL-1 gedragspatroon — controleer AI-oordelen vóór je handelt"
+      },
+      {
+        "html": "<p>Deze module geldt voor alle toepassingen waarbij AI mensen beoordeelt, rankt of van een score voorziet. Denk aan CV-screening, prestatiebeoordeling, studentbeoordeling of kredietwaardigheidsanalyse. Gemeenschappelijk kenmerk: een AI-uitkomst vormt de basis voor een beslissing die iemands kansen of positie beïnvloedt.</p><p>Het CL-1 gedragspatroon vereist één kernhandeling: <strong>verifieer elk AI-oordeel voordat het gevolgen heeft</strong>. Dit is geen aanbeveling — het is een wettelijke vereiste onder EU AI Act Art. 14 (Human Oversight).</p>",
+        "type": "paragraph",
+        "topic": "Verification Gatekeeper",
+        "version": 2
+      },
+      {
+        "text": "AI-modellen reproduceren patronen uit trainingsdata. Als die data historische bias bevat — bv. over geslacht, afkomst of leeftijd — produceert het model systematisch bevooroordeelde uitkomsten. Menselijke controle is het enige mechanisme dat dit kan corrigeren.",
+        "type": "callout",
+        "title": "Waarom is verificatie verplicht?",
+        "topic": "Verification Gatekeeper",
+        "variant": "yellow",
+        "version": 2
+      },
+      {
+        "html": "<p><strong>Scenario:</strong> Een AI-tool screent 80 sollicitanten en geeft elk een score van 1–10. De top 20 worden uitgenodigd voor een gesprek.</p><p><strong>Wat de Verification Gatekeeper doet:</strong> De scores worden niet klakkeloos overgenomen. Per kandidaat controleert de beoordelaar (1) of de score aansluit bij de daadwerkelijke kwalificaties, (2) of de afwijzing van een lager gescoorde kandidaat verdedigbaar is bij navraag, en (3) of er demografische patronen zichtbaar zijn in de afwijzingen.</p>",
+        "type": "paragraph",
+        "topic": "Verification Gatekeeper",
+        "version": 2
+      },
+      {
+        "type": "key_takeaways",
+        "items": [
+          "Controleer elk AI-oordeel individueel vóór het een beslissing beïnvloedt",
+          "Documenteer je verificatie: noteer afwijkingen van de AI-score én je reden",
+          "Signaleer herhalende afwijkingen — dit kan een systeem-bias indicatie zijn",
+          "Bij twijfel: de mens beslist, niet het systeem"
+        ],
+        "topic": "Verification Gatekeeper",
+        "version": 2
+      },
+      {
+        "type": "quiz_mc",
+        "topic": "Verification Gatekeeper",
+        "options": [
+          {
+            "id": "a",
+            "text": "Nodig B uit en wijs A af op basis van de scores",
+            "isCorrect": false
+          },
+          {
+            "id": "b",
+            "text": "Controleer voor beide kandidaten of de score aansluit bij hun kwalificaties vóór je besluit",
+            "isCorrect": true
+          },
+          {
+            "id": "c",
+            "text": "Gebruik de AI-score als startpunt maar corrigeer alleen bij evidente fouten",
+            "isCorrect": false
+          }
+        ],
+        "version": 2,
+        "question": "Een AI-screeningstool geeft kandidaat A een score van 3/10 en kandidaat B een 8/10. Wat doe je als Verification Gatekeeper?",
+        "explanation": "Elk AI-oordeel vereist individuele verificatie. 'Evidente fouten' is een te hoge drempel — subtiele bias is per definitie niet meteen evident."
+      },
+      {
+        "text": "Het feit dat jij dit controlemoment serieus neemt, is wat Art. 14 vereist. Documenteer je verificatie in het systeem — dit is de audit-trail die bij een toezichtsonderzoek het verschil maakt.",
+        "type": "callout",
+        "title": "Jouw verificatie is de governance-actie",
+        "topic": "Verification Gatekeeper",
+        "variant": "blue",
+        "version": 2
+      }
+    ],
+    "estimated_duration": 8,
+    "passing_score": null,
+    "is_published": true,
+    "created_by": null,
+    "created_at": "2026-03-28T01:40:13.056355+00:00",
+    "updated_at": "2026-03-28T01:40:13.056355+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "a1000000-0000-0000-0000-000000000002",
+    "title": "ML-O02: Decision Preparation Gatekeeper",
+    "description": "CL-1 gedragspatroon voor beslissingsonde…[truncated]",
+    "lesson_type": "standalone",
+    "blocks": [
+      {
+        "type": "hero",
+        "title": "ML-O02: Decision Preparation Gatekeeper",
+        "topic": "Decision Preparation Gatekeeper",
+        "version": 2,
+        "subtitle": "CL-1 gedragspatroon voor beslissingsondersteuning — jij beslist, AI bereidt voor"
+      },
+      {
+        "html": "<p>Deze module geldt voor toepassingen waarbij AI een analyse, aanbeveling of risicobeoordeling levert als voorbereiding op een beslissing die mensen direct beïnvloedt. Denk aan kredietbeoordeling, juridisch advies, medische risicoanalyse of HR-beslissingen over functiewijzigingen en beloningen.</p><p>Het onderscheid met ML-O01 (Verification Gatekeeper) is subtiel maar essentieel: bij ML-O02 neemt AI niet zelf een oordeel over een persoon, maar bereidt het een menselijke beslissing voor. De menselijke beslisser draagt volledige verantwoordelijkheid — ook voor de kwaliteit van de AI-invoer die die beslissing voedde.</p>",
+        "type": "paragraph",
+        "topic": "Decision Preparation Gatekeeper",
+        "version": 2
+      },
+      {
+        "text": "Als een kredietbeslissing wordt aangevochten, telt alleen jouw beslissing en jouw onderbouwing mee voor de rechter. De AI-analyse die je gebruikte is relevant als context — maar ontslaat je niet van de verantwoordelijkheid om die analyse kritisch te toetsen.",
+        "type": "callout",
+        "title": "De AI is de voorbereiding — jij bent de beslissing",
+        "topic": "Decision Preparation Gatekeeper",
+        "variant": "yellow",
+        "version": 2
+      },
+      {
+        "html": "<p><strong>Scenario:</strong> Een AI-systeem analyseert financiële data van een klant en geeft een aanbeveling: 'hoog risico — krediet niet toekennen'. De kredietbeoordelaar gebruikt dit als input voor de beslissing.</p><p><strong>Wat de Decision Preparation Gatekeeper doet:</strong> (1) Vraagt welke factoren het zwaarst wogen in de AI-aanbeveling. (2) Controleert of die factoren fair en relevant zijn voor déze klant in déze context. (3) Beoordeelt of er informatie beschikbaar is die de AI niet had (recente inkomenswijziging, persoonlijke context). (4) Neemt de definitieve beslissing met eigen redenering — niet als bevestiging van de AI maar als zelfstandige beoordeling.</p>",
+        "type": "paragraph",
+        "topic": "Decision Preparation Gatekeeper",
+        "version": 2
+      },
+      {
+        "type": "key_takeaways",
+        "items": [
+          "Vraag jezelf bij elke AI-aanbeveling: welke factoren wogen zwaar — zijn die fair en relevant?",
+          "Voeg informatie toe die de AI niet had: context, recente wijzigingen, persoonlijke omstandigheden",
+          "De definitieve beslissing is altijd van jou — niet een bekrachtiging van de AI",
+          "Documenteer je eigen redenering, niet alleen de AI-output"
+        ],
+        "topic": "Decision Preparation Gatekeeper",
+        "version": 2
+      },
+      {
+        "type": "quiz_mc",
+        "topic": "Decision Preparation Gatekeeper",
+        "options": [
+          {
+            "id": "a",
+            "text": "Volg de AI-aanbeveling — die is gebaseerd op meer data dan jij hebt",
+            "isCorrect": false
+          },
+          {
+            "id": "b",
+            "text": "Weeg de nieuwe informatie mee in je eigen beoordeling en neem een gemotiveerde beslissing",
+            "isCorrect": true
+          },
+          {
+            "id": "c",
+            "text": "Vraag een second opinion aan een collega zonder de AI-analyse te noemen",
+            "isCorrect": false
+          }
+        ],
+        "version": 2,
+        "question": "Een AI-analyse adviseert 'krediet niet toekennen'. De klant meldt echter een recente salarisverhoging die de AI niet meewoog. Wat doe je?",
+        "explanation": "De AI-aanbeveling is een startpunt. Als relevante nieuwe informatie beschikbaar is die de AI niet had, is het jouw verantwoordelijkheid die mee te wegen. De beslissing — inclusief motivatie — is altijd van jou."
+      }
+    ],
+    "estimated_duration": 8,
+    "passing_score": null,
+    "is_published": true,
+    "created_by": null,
+    "created_at": "2026-03-28T01:40:13.056355+00:00",
+    "updated_at": "2026-03-28T01:40:13.056355+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "a1000000-0000-0000-0000-000000000003",
+    "title": "ML-O03: Risk Monitor & Escalator",
+    "description": "CL-2 gedragspatroon — detecteer afwijkin…[truncated]",
+    "lesson_type": "standalone",
+    "blocks": [
+      {
+        "type": "hero",
+        "title": "ML-O03: Risk Monitor & Escalator",
+        "topic": "Risk Monitor & Escalator",
+        "version": 2,
+        "subtitle": "CL-2 gedragspatroon — detecteer afwijkingen en escaleer vóór schade zich verspreidt"
+      },
+      {
+        "html": "<p>Deze module geldt voor autonome AI-systemen die zelfstandig acties uitvoeren: agents die e-mails versturen, systemen die processen triggeren, of werkstromen die zonder menselijke tussenkomst doorgaan. Het onderscheid met evaluatieve toepassingen is cruciaal: bij autonome systemen is de schade vaak al aangericht vóór iemand het opmerkt.</p><p>Het CL-2 gedragspatroon vereist actieve monitoring, niet passief toezicht. Wacht niet tot een klacht binnenkomt — stel drempelwaarden in, observeer actief, en escaleer bij twijfel eerder dan later.</p>",
+        "type": "paragraph",
+        "topic": "Risk Monitor & Escalator",
+        "version": 2
+      },
+      {
+        "text": "Een autonome agent die per minuut tien klantberichten verstuurt, kan in één uur honderd foutieve berichten hebben verstuurd. Monitoring-drempelwaarden zijn geen luxe — ze zijn het enige mechanisme dat schaalbaarschade voorkomt.",
+        "type": "callout",
+        "title": "Autonome systemen handelen sneller dan je kan bijsturen",
+        "topic": "Risk Monitor & Escalator",
+        "variant": "red",
+        "version": 2
+      },
+      {
+        "html": "<p><strong>Scenario:</strong> Een AI-agent is geconfigureerd om automatisch antwoorden te sturen op klantvragen. Normaal verwerkt het systeem 50 berichten per dag. Op dag 3 piekt het naar 400 berichten.</p><p><strong>Wat de Risk Monitor & Escalator doet:</strong> (1) De piek triggert een alert — dit valt buiten de ingestelde drempelwaarde. (2) De monitor controleert een steekproef van 10 berichten: zijn ze correct, relevant, en niet schadelijk? (3) Bij twijfel: systeem pauzeren, niet wachten op meer data. (4) Incident melden via het incidentformulier — ook als het vals alarm blijkt. Niet melden is nooit de juiste keuze.</p>",
+        "type": "paragraph",
+        "topic": "Risk Monitor & Escalator",
+        "version": 2
+      },
+      {
+        "type": "key_takeaways",
+        "items": [
+          "Stel expliciete drempelwaarden in: volume, frequentie, type acties — alles buiten drempel triggert verificatie",
+          "Monitor actief: wacht niet op klachten maar observeer het systeem proactief",
+          "Escaleer vroeg: bij twijfel pauzeer het systeem — de kosten van een vals alarm zijn lager dan de kosten van gemiste schade",
+          "Meld incidenten altijd — ook als het vals alarm was. Niet melden schaadt het leerproces van de organisatie"
+        ],
+        "topic": "Risk Monitor & Escalator",
+        "version": 2
+      },
+      {
+        "type": "quiz_mc",
+        "topic": "Risk Monitor & Escalator",
+        "options": [
+          {
+            "id": "a",
+            "text": "Wacht af of er klachten binnenkomen — meer berichten is mogelijk gewoon drukte",
+            "isCorrect": false
+          },
+          {
+            "id": "b",
+            "text": "Pauzeer het systeem, controleer een steekproef en meld het incident",
+            "isCorrect": true
+          },
+          {
+            "id": "c",
+            "text": "Vraag de beheerder of hij de instelling heeft gewijzigd voordat je actie onderneemt",
+            "isCorrect": false
+          }
+        ],
+        "version": 2,
+        "question": "Een autonome e-mail-agent verwerkt normaal 30 berichten per uur. Vandaag verwerkt het er 200 in het eerste uur. Wat doe je?",
+        "explanation": "Een afwijking van 570% is een signaal dat onmiddellijke verificatie vereist. Pauzeer eerst, analyseer dan. Wachten op klachten is CL-2 gedragsfout — dan is de schade al verspreid."
+      }
+    ],
+    "estimated_duration": 8,
+    "passing_score": null,
+    "is_published": true,
+    "created_by": null,
+    "created_at": "2026-03-28T01:40:13.056355+00:00",
+    "updated_at": "2026-03-28T01:40:13.056355+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "ee735f9c-95f2-4ca1-9b41-5d5ce4cfc0bf",
+    "title": "Hoe werkt generatieve AI?",
+    "description": null,
+    "lesson_type": "standalone",
+    "blocks": {
+      "topics": [
+        {
+          "id": "migrated-d0df6318-b074-408f-ae4d-07a6a751bfdc",
+          "order": 0,
+          "title": "AI-basisprincipes (basisgeletterdheid)",
+          "blocks": [
+            {
+              "id": "d0df6318-b074-408f-ae4d-07a6a751bfdc",
+              "type": "hero",
+              "order": 0,
+              "title": "AI-basisprincipes (basisgeletterdheid)",
+              "subtitle": "Deze les legt uit wat AI is — en wat het niet is — en maakt het verschil duidelijk tussen regelgebaseerde systemen, machine learning en generatieve AI. Deelnemers leren conceptueel hoe generatieve AI werkt (trainingsdata, prompts en outputs) en waarom AI fouten kan maken, zoals hallucinaties en bias. Zo voorkomen we magisch denken en wordt duidelijk dat mensen altijd juridisch en praktisch verantwoordelijk blijven voor het gebruik van AI."
+            }
+          ]
+        },
+        {
+          "id": "migrated-132ae31f-b12a-4964-aade-c5f8907b6cd7",
+          "order": 1,
+          "title": "Onderwerp 2",
+          "blocks": [
+            {
+              "id": "132ae31f-b12a-4964-aade-c5f8907b6cd7",
+              "type": "paragraph",
+              "order": 1,
+              "content": "Doel: Het voorkomen van 'magisch denken' en misbruik.\n•\tWat AI is en wat het niet is (automatisering vs. leren vs. generatief).\n•\tHet verschil tussen: regelgebaseerde systemen, machine learning en generatieve AI (GPAI).\n•\tHoe generatieve AI werkt (conceptueel)\n•\tTrainingsdata vs. prompts vs. outputs.\n•\tInzien dat AI fouten maakt: hallucinaties, bias (vooroordelen) en foutmarges.\n•\tJuridische en menselijke verantwoordelijkheid: begrijpen dat mensen altijd verantwoordelijk blijven\n"
+            }
+          ]
+        },
+        {
+          "id": "migrated-fa8601c0-d795-4e7e-b299-8a55836d8501",
+          "order": 2,
+          "title": "Oefenvraag",
+          "blocks": [
+            {
+              "id": "fa8601c0-d795-4e7e-b299-8a55836d8501",
+              "type": "quiz_tf",
+              "order": 2,
+              "points": 10,
+              "question": "Wat is het verschil tussen: regelgebaseerde systemen, machine learning en generatieve AI (GPAI)?",
+              "explanation": "Ze zijn anders",
+              "max_attempts": 1,
+              "correct_answer": true
+            }
+          ]
+        },
+        {
+          "id": "migrated-566eecc9-ba81-4dd8-9e80-87aec811f6cb",
+          "order": 3,
+          "title": "Onderwerp 4",
+          "blocks": [
+            {
+              "id": "566eecc9-ba81-4dd8-9e80-87aec811f6cb",
+              "type": "key_takeaways",
+              "items": [
+                "Machine Learning is echt",
+                "AI groeit exponentieel"
+              ],
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "version": 2
+    },
+    "estimated_duration": 2,
+    "passing_score": 80,
+    "is_published": true,
+    "created_by": "3b9e5d6c-56a2-4d6f-92b1-f4d494fd72cb",
+    "created_at": "2026-01-28T14:28:19.420876+00:00",
+    "updated_at": "2026-03-14T09:53:53.169061+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "52b3c300-fa99-49b1-8b8a-7682b4c3d97c",
+    "title": "Grenzen en verantwoordelijkheid",
+    "description": "Test les voor verificatie",
+    "lesson_type": "standalone",
+    "blocks": {
+      "topics": [
+        {
+          "id": "migrated-75931e74-2267-4d55-8846-6f0d178da550",
+          "order": 0,
+          "title": "Onderwerp 1",
+          "blocks": [
+            {
+              "id": "4f7f75e0-48cf-474e-bcb0-0d9feaee07f3",
+              "type": "section_header",
+              "order": 0,
+              "title": "Hoe werken die chatbots nu echt?",
+              "subtitle": ""
+            },
+            {
+              "id": "07baa86c-1c42-405c-8202-d6381036fafa",
+              "type": "paragraph",
+              "order": 1,
+              "content": "Stel je eens voor: je hebt een auto en die kun jij wel besturen. Maar je weet eigenlijk niet precies hoe het onder de motorkap werkt... Dat is precies hetzelfde met Large-Language-Models (LLM's). Daarom nemen we nu een kijkje onder die motorkap. "
+            },
+            {
+              "id": "75931e74-2267-4d55-8846-6f0d178da550",
+              "type": "paragraph",
+              "order": 2,
+              "content": "Welkom bij de test\nDit is een **test paragraph** met markdown.\n   \n   - Punt 1\n   - Punt 2\n   - Punt 3\n\n**Gewijzigd!**"
+            },
+            {
+              "id": "5c2fd8d9-4ead-44bf-b355-2c91b6786ffa",
+              "body": "Language modellen hebben veel verschillende issues: drift, hallucineren etc. ",
+              "type": "callout",
+              "order": 3,
+              "title": "Let op! ",
+              "variant": "yellow"
+            },
+            {
+              "id": "3b0c22ee-df3d-4804-8f5d-103783180b49",
+              "type": "quiz_essay",
+              "order": 4,
+              "points": 2,
+              "question": "Chatbots die maar wat verzinnen...?! Wat vind jij daarvan? Hoe moet je daarmee omgaan? ",
+              "placeholder": "Dubbelcheck je info!"
+            }
+          ]
+        },
+        {
+          "id": "migrated-bb031859-dff7-4844-a896-32dc0ce9e21e",
+          "order": 1,
+          "title": "Kenmerken LLM",
+          "blocks": [
+            {
+              "id": "bb031859-dff7-4844-a896-32dc0ce9e21e",
+              "url": "https://vimeo.com/1157418153?share=copy&fl=sv&fe=ci",
+              "type": "video",
+              "order": 0,
+              "caption": "LLM uitgelegd",
+              "must_watch_full": false
+            },
+            {
+              "id": "775912f5-e7c8-4fb8-9aba-e6eb7834b619",
+              "type": "quiz_ms",
+              "order": 1,
+              "points": 10,
+              "options": [
+                "Machine leren",
+                "Linguistic learning",
+                "Linguistic probabilities ",
+                "Neurologisch netwerkleren"
+              ],
+              "question": "Wat is een kenmerk van een LLM? ",
+              "explanation": "Een grote woordscrambler op basis van complexe kansrekening",
+              "max_attempts": 3,
+              "correct_answers": [
+                2
+              ]
+            }
+          ]
+        },
+        {
+          "id": "migrated-1cc108f7-71bf-465f-8a47-994e55a62158",
+          "order": 2,
+          "title": "Tellen",
+          "blocks": [
+            {
+              "id": "1cc108f7-71bf-465f-8a47-994e55a62158",
+              "type": "quiz_mc",
+              "order": 0,
+              "points": 10,
+              "options": [
+                "3",
+                "4",
+                "5",
+                "22"
+              ],
+              "question": "**Hoeveel is 2 + 2?**",
+              "explanation": " Explanation: 2 + 2 = 4. Dit is basis rekenen.",
+              "max_attempts": 1,
+              "correct_answer": 1
+            }
+          ]
+        },
+        {
+          "id": "migrated-d08b4b71-f2c4-4418-b19b-07c3a3158e67",
+          "order": 3,
+          "title": "Hoofdstad",
+          "blocks": [
+            {
+              "id": "d08b4b71-f2c4-4418-b19b-07c3a3158e67",
+              "type": "quiz_mc",
+              "order": 0,
+              "points": 10,
+              "options": [
+                "   A: Rotterdam",
+                "   B: Utrecht  ",
+                "   C: Amsterdam",
+                "   D: Den Haag"
+              ],
+              "question": "**Question: Wat is de hoofdstad van Nederland?**",
+              "explanation": "Explanation: Amsterdam is de hoofdstad, hoewel de regering in Den Haag zit.",
+              "max_attempts": 1,
+              "correct_answer": 2
+            }
+          ]
+        }
+      ],
+      "version": 2
+    },
+    "estimated_duration": 12,
+    "passing_score": 100,
+    "is_published": true,
+    "created_by": "b9760186-050a-47e7-a480-197ba0dc5c5a",
+    "created_at": "2026-01-20T05:06:40.284852+00:00",
+    "updated_at": "2026-03-14T13:45:43.764501+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "b40e2e63-8fb2-4868-9dcd-19a36a2e0f69",
+    "title": "Strategic AI Use",
+    "description": null,
+    "lesson_type": "standalone",
+    "blocks": {
+      "topics": [
+        {
+          "id": "218989e2-ce9b-458a-be14-f3ba69cd7861",
+          "order": 0,
+          "title": "AI in strategische besluitvorming",
+          "blocks": [
+            {
+              "id": "87e183ca-3799-4833-94be-7a364d96da07",
+              "type": "hero",
+              "order": 0,
+              "title": "AI als hulpmiddel voor strategische besluitvorming",
+              "subtitle": "Dit is een Hero block"
+            },
+            {
+              "id": "9592394e-8a5f-4e8c-9d43-e1da5c6dd76b",
+              "type": "paragraph",
+              "order": 1,
+              "content": "Dit is een concept tekst over AI en strategie. Het zou handig zijn als ik hier een WYSIWYG voor heb. "
+            },
+            {
+              "id": "87ce699e-dd0f-4053-9c82-90247154b7f6",
+              "type": "key_takeaways",
+              "items": [
+                "Stragegie is goed",
+                "Stragegie is nodig",
+                "Stragegie is belangrijk"
+              ],
+              "order": 2
+            },
+            {
+              "id": "89530014-a599-4230-b9d7-faeb0a45a45b",
+              "type": "quiz_fill",
+              "order": 3,
+              "points": 10,
+              "question": "",
+              "explanation": "",
+              "placeholder": "Vul hier je antwoord in...",
+              "max_attempts": 3,
+              "case_sensitive": false,
+              "correct_answer": "",
+              "accept_variations": []
+            },
+            {
+              "id": "40393a2a-8de4-4288-a824-9f34cf23efe0",
+              "type": "quiz_tf",
+              "order": 4,
+              "points": 10,
+              "question": "",
+              "explanation": "",
+              "max_attempts": 3,
+              "correct_answer": true
+            }
+          ]
+        },
+        {
+          "id": "c31437d3-7d6f-460d-9dcd-2026ce45481b",
+          "order": 1,
+          "title": "Procesverbetering en innovatie",
+          "blocks": [
+            {
+              "id": "1cd4e29f-b432-49af-8db9-7401a05e3d59",
+              "type": "section_header",
+              "order": 0,
+              "title": "AI in Procesverbetering & innovatie",
+              "subtitle": "dit is een sectietitel block"
+            },
+            {
+              "id": "1c7fcd15-69c3-44b8-b0d2-e393124036a0",
+              "type": "paragraph",
+              "order": 1,
+              "content": "Gain internationally recognized certifications or certificate programs through structured programs that can include training, examinations, and globally recognized credentials. Choose between flexible self-paced learning or interactive sessions led by experts, all designed to support your professional growth. "
+            },
+            {
+              "id": "739f2a7c-74f8-483b-b40f-803d1b65345e",
+              "url": "https://www.youtube.com/watch?v=A-rEb0KuopI&pp=ygUPc2hvcnQgYW5pbWF0aW9u",
+              "type": "video",
+              "order": 2,
+              "caption": "Test video",
+              "must_watch_full": false
+            },
+            {
+              "id": "0ea2bfb2-394e-4c48-b37f-3dba33a4d2ed",
+              "body": "Deployers moeten wel bijhouden welke modellen ze gebruiken. Hiervoor kun je een model Nutrition label benutten. ",
+              "type": "callout",
+              "order": 3,
+              "title": "Dit is heel belangrijk voor de EU AI Act! ",
+              "variant": "blue"
+            }
+          ]
+        }
+      ],
+      "version": 2
+    },
+    "estimated_duration": null,
+    "passing_score": 80,
+    "is_published": true,
+    "created_by": "3b9e5d6c-56a2-4d6f-92b1-f4d494fd72cb",
+    "created_at": "2026-03-14T08:54:27.841072+00:00",
+    "updated_at": "2026-03-14T11:42:00.097438+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "id": "2d5c558b-6376-40b9-8bb6-bbfc6b9de058",
+    "title": "De EU AI Act: wat je moet weten",
+    "description": null,
+    "lesson_type": "standalone",
+    "blocks": {
+      "topics": [
+        {
+          "id": "f89e0a93-c532-4c09-83fc-9217cd4a5966",
+          "order": 0,
+          "title": "Waarom reguleren?",
+          "blocks": [
+            {
+              "id": "1f49d430-45f4-474f-a8f4-9619e5790bae",
+              "type": "section_header",
+              "order": 0,
+              "title": "Waarom de EU AI reguleert - en waarom dat ook jou aangaat",
+              "subtitle": ""
+            },
+            {
+              "id": "6feeef2c-c54b-4b5e-8d20-470bee1bb438",
+              "type": "paragraph",
+              "order": 1,
+              "content": "In summary, precision and accuracy, the ROC/AUC curve, and the confusion matrix each provide unique insights into a model's performance, highlighting its reliability, strengths, and areas for improvement. Using multiple metrics together allows for a more comprehensive evaluation, as no single metric can fully capture a model’s behaviour in diverse situations. By combining these robustness metrics, practitioners can better ensure the effectiveness and reliability of their AI systems, improving the model's overall quality and suitability for real-world deployment.",
+              "image_url": "https://pxbypfzxlvufvqqwcupt.supabase.co/storage/v1/object/public/lesson-images/0e5c01dc-af27-4e15-a09e-c811b9e42976.png",
+              "image_frame": "polaroid",
+              "image_width": "full"
+            },
+            {
+              "id": "9ba946f8-3926-4f63-81ef-058f7c009611",
+              "type": "hero",
+              "order": 2,
+              "title": "De AI vending machine: je gooit er een kwartje in en dan komt er wat moois uit",
+              "subtitle": ""
+            },
+            {
+              "id": "df170486-f711-4b60-8cfe-b0ad15be6299",
+              "type": "paragraph",
+              "order": 3,
+              "content": "{\"type\":\"doc\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"marks\":[{\"type\":\"bold\"}],\"text\":\"Key takeaways: \"}]},{\"type\":\"paragraph\"},{\"type\":\"orderedList\",\"attrs\":{\"start\":1,\"type\":null},\"content\":[{\"type\":\"listItem\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"Accuracy alone is not enough to evaluate a machine learning model's performance, especially in cases with imbalanced data.\"}]}]},{\"type\":\"listItem\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"In binary classification, a model predicting the majority outcome could achieve high accuracy but be ineffective. \"}]}]},{\"type\":\"listItem\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"It’s essential to use a portfolio of metrics to assess the model's true positives, true negatives, and overall robustness. \"}]}]},{\"type\":\"listItem\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"Evaluating a model with multiple metrics ensures a more accurate understanding of its real-world performance.\"}]}]}]},{\"type\":\"paragraph\"}]}",
+              "image_url": "https://pxbypfzxlvufvqqwcupt.supabase.co/storage/v1/object/public/lesson-images/72b375be-da16-4cd2-be93-fd3df3196369.png",
+              "image_align": "left",
+              "image_frame": "circle",
+              "image_width": "full"
+            },
+            {
+              "id": "d71f3172-f756-4766-a3fa-b1e07661a92d",
+              "type": "download",
+              "label": "Download",
+              "order": 4,
+              "file_url": "",
+              "file_name": ""
+            },
+            {
+              "id": "c6226c74-98dd-4c27-a7b5-fcd473660a80",
+              "type": "download",
+              "label": "Download",
+              "order": 5,
+              "file_url": "https://pxbypfzxlvufvqqwcupt.supabase.co/storage/v1/object/public/lesson-files/a64a6133-f70b-4254-8ecf-c236b798fbbc.pdf",
+              "file_name": "Human-in-the-Loop (HITL) voor innovatie.pdf",
+              "file_size": 700666,
+              "file_type": "application/pdf"
+            },
+            {
+              "id": "e6d448d7-9e02-436b-9ef0-dbf626b787e1",
+              "type": "hero",
+              "order": 6,
+              "title": "Dit is een test hero",
+              "subtitle": "Met een ondertitel"
+            },
+            {
+              "id": "85d9bde7-5040-4160-aad5-cc5d39366077",
+              "type": "paragraph",
+              "order": 7,
+              "content": "{\"type\":\"doc\",\"content\":[{\"type\":\"heading\",\"attrs\":{\"level\":2},\"content\":[{\"type\":\"text\",\"text\":\"Unequal treatment (H2)\"}]},{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"While demographic parity helps prevent unequal treatment, it may sometimes overlook other fairness concerns, such as false positive or false negative rates.\"}]},{\"type\":\"paragraph\"},{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"marks\":[{\"type\":\"bold\"}],\"text\":\"Demographic parity\"},{\"type\":\"text\",\"text\":\" (bold) ensures that the selection rates for an AI model are the same across different demographic groups. The proportion of individuals who receive a positive outcome from the AI system, such as being approved for a loan or selected for a job, should be equal for all groups, regardless of characteristics like race, gender, or ethnicity. \"}]},{\"type\":\"paragraph\"},{\"type\":\"image\",\"attrs\":{\"src\":\"https://pxbypfzxlvufvqqwcupt.supabase.co/storage/v1/object/public/lesson-images/1f9d4732-5a77-49d2-b376-5994d117168b.png\",\"alt\":null,\"title\":null,\"width\":null,\"height\":null}},{\"type\":\"paragraph\"},{\"type\":\"heading\",\"attrs\":{\"level\":3},\"content\":[{\"type\":\"text\",\"text\":\"Demographic parity (H3) \"}]},{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"Ensures that the selection rates for an AI model are the same across different demographic groups. The proportion of individuals who receive a positive outcome from the AI system, such as being approved for a loan or selected for a job, should be equal for all groups, regardless of characteristics like race, gender, or ethnicity. \"}]},{\"type\":\"paragraph\"},{\"type\":\"bulletList\",\"content\":[{\"type\":\"listItem\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"groups\"}]}]},{\"type\":\"listItem\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"regardless\"}]}]},{\"type\":\"listItem\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"characteristics \"}]}]},{\"type\":\"listItem\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"race/gender\"}]}]},{\"type\":\"listItem\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"ethnicity\"}]}]}]},{\"type\":\"paragraph\"},{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"marks\":[{\"type\":\"link\",\"attrs\":{\"href\":\"https://www.youtube.com/watch?v=5hPtU8Jbpg0\",\"target\":\"_blank\",\"rel\":\"noopener noreferrer\",\"class\":null,\"title\":null}}],\"text\":\"https://www.youtube.com/watch?v=5hPtU8Jbpg0\"}]}]}"
+            },
+            {
+              "id": "864ad070-4eee-4316-b282-f95cabebdfa7",
+              "type": "hero",
+              "order": 8,
+              "title": "Testhero zonder ondertitel",
+              "subtitle": ""
+            },
+            {
+              "id": "c3cfb524-363a-4ebd-937f-cfe2da9fdd2e",
+              "type": "quiz_ms",
+              "order": 9,
+              "points": 10,
+              "options": [
+                "Efficient",
+                "Productiviteitsverhogend",
+                "Beangstigend",
+                "Enorm leuk"
+              ],
+              "question": "Artificial Intelligence is (multiple select):",
+              "explanation": "Omdat het op meerdere vlakken doorwerkt",
+              "max_attempts": 1,
+              "correct_answers": [
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": "0404e0b5-92bb-4b2a-b8e0-fe57912f3331",
+          "order": 1,
+          "title": "AI-systemen?",
+          "blocks": [
+            {
+              "id": "0d80356f-ea58-4110-b5bb-ccb12e0846c7",
+              "type": "section_header",
+              "order": 0,
+              "title": "Wat een \"AI-systeem\" is volgens de wet...",
+              "subtitle": ""
+            },
+            {
+              "id": "192968cf-70e7-4040-8243-06a0e5ddd0ac",
+              "url": "https://www.youtube.com/watch?v=5hPtU8Jbpg0",
+              "type": "video",
+              "order": 1,
+              "must_watch_full": false
+            },
+            {
+              "id": "02d76980-fe48-4e62-a2ea-60abeef4fd83",
+              "type": "paragraph",
+              "order": 2,
+              "content": ""
+            }
+          ]
+        }
+      ],
+      "version": 2
+    },
+    "estimated_duration": null,
+    "passing_score": 80,
+    "is_published": true,
+    "created_by": "3b9e5d6c-56a2-4d6f-92b1-f4d494fd72cb",
+    "created_at": "2026-03-14T08:27:58.793259+00:00",
+    "updated_at": "2026-03-15T00:06:01.98277+00:00",
+    "org_id": "00000000-0000-0000-0000-000000000001"
+  }
+]

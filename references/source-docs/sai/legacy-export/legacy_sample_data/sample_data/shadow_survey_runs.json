@@ -1,0 +1,48 @@
+[
+  {
+    "id": "e5ea2544-0a5e-417e-9324-a51400ee7b99",
+    "org_id": "34f89abf-ba18-4e7c-83aa-d4bc7e845c00",
+    "user_id": "91e483b7-05bb-497e-bbe2-3dd4518bfa57",
+    "survey_version": "1.0",
+    "submitted_at": "2026-04-01T12:34:49.963288+00:00",
+    "ai_maturity_score": null,
+    "department": null,
+    "role_description": null,
+    "amnesty_acknowledged": true,
+    "assigned_tier": "advanced",
+    "data_classification": "sensitive",
+    "primary_use_case": "data_analysis",
+    "primary_concern": "accuracy",
+    "risk_score": 62,
+    "dpo_review_required": true,
+    "review_notes": "",
+    "survey_completed_at": "2026-04-01T12:55:18.683+00:00",
+    "extra_data": {
+      "context": {
+        "tasks": [
+          "writing",
+          "research",
+          "design"
+        ],
+        "data_awareness": "aware",
+        "primary_reason": "colleagues",
+        "data_types_entered": [
+          "internal_email",
+          "meeting_notes",
+          "strategy"
+        ]
+      },
+      "governance": {
+        "automation_wish": null,
+        "guidelines_readiness": "already_following",
+        "tool_support_preference": "prefer_guidance"
+      },
+      "orientation": {
+        "uses_ai": "niet_dat_ik_weet",
+        "frequency": "af_en_toe",
+        "account_type": "weet_ik_niet"
+      }
+    },
+    "scoreboard_name_visible": false
+  }
+]

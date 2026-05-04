@@ -1,0 +1,29 @@
+[
+  {
+    "id": "74870050-7f1e-4ed7-a0fb-35be6285e75f",
+    "user_id": "3b9e5d6c-56a2-4d6f-92b1-f4d494fd72cb",
+    "lesson_id": "52b3c300-fa99-49b1-8b8a-7682b4c3d97c",
+    "score": 50,
+    "time_spent": 2138,
+    "completed_at": "2026-01-28T13:39:45.595+00:00",
+    "org_id": null
+  },
+  {
+    "id": "26dce5e8-9f7b-4865-8f81-9332d1ce206d",
+    "user_id": "3b9e5d6c-56a2-4d6f-92b1-f4d494fd72cb",
+    "lesson_id": "2a89ae21-5c9e-4943-9f0f-bf0f1397e8e2",
+    "score": 100,
+    "time_spent": 3853240,
+    "completed_at": "2026-03-14T04:50:27.904+00:00",
+    "org_id": null
+  },
+  {
+    "id": "c2474981-8274-41e9-b207-159e7f7de024",
+    "user_id": "3b9e5d6c-56a2-4d6f-92b1-f4d494fd72cb",
+    "lesson_id": "ee735f9c-95f2-4ca1-9b41-5d5ce4cfc0bf",
+    "score": 100,
+    "time_spent": 5148599,
+    "completed_at": "2026-03-29T04:39:01.595+00:00",
+    "org_id": null
+  }
+]

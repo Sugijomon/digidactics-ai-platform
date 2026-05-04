@@ -1,0 +1,78 @@
+[
+  {
+    "survey_tool_id": "049b6d72-1cc9-4751-8fa3-300c061e1b8a",
+    "account_type_code": "prive_betaald"
+  },
+  {
+    "survey_tool_id": "360469b6-75bc-4b17-bbf4-b6c4de93b64e",
+    "account_type_code": "prive_betaald"
+  },
+  {
+    "survey_tool_id": "5454da18-adf1-40ba-a229-8652bacfe410",
+    "account_type_code": "zakelijke_licentie"
+  },
+  {
+    "survey_tool_id": "2caca5b2-c963-4df3-bf71-019cd595e33d",
+    "account_type_code": "prive_gratis"
+  },
+  {
+    "survey_tool_id": "d9c46840-bd6d-4a28-8578-fdbae024f560",
+    "account_type_code": "prive_betaald"
+  },
+  {
+    "survey_tool_id": "47fcb8a1-2f1e-404e-864c-67d7c9c043de",
+    "account_type_code": "beide"
+  },
+  {
+    "survey_tool_id": "7537e528-0eab-43ff-b44c-1b52143e910d",
+    "account_type_code": "prive_betaald"
+  },
+  {
+    "survey_tool_id": "6d966f29-7773-49da-a1ac-c3b78cd1c56a",
+    "account_type_code": "prive_gratis"
+  },
+  {
+    "survey_tool_id": "f87789ab-a03b-4a4f-b1d1-7888ac9ea2fb",
+    "account_type_code": "beide"
+  },
+  {
+    "survey_tool_id": "f3deeddd-9e75-4151-b664-509e746417ca",
+    "account_type_code": "zakelijke_licentie"
+  },
+  {
+    "survey_tool_id": "15c5f7fa-5d37-402a-8eaa-af314b1ae34d",
+    "account_type_code": "prive_gratis"
+  },
+  {
+    "survey_tool_id": "b2bb88e5-5011-4582-b0d1-c4e8e521986a",
+    "account_type_code": "prive_betaald"
+  },
+  {
+    "survey_tool_id": "b03115dd-156d-4852-9e67-c6ef178eb963",
+    "account_type_code": "prive_betaald"
+  },
+  {
+    "survey_tool_id": "f0428d0a-e333-452a-9fcf-9f7cca659c61",
+    "account_type_code": "prive_betaald"
+  },
+  {
+    "survey_tool_id": "f0638bf6-6b08-4a3f-9d02-b63164448367",
+    "account_type_code": "prive_gratis"
+  },
+  {
+    "survey_tool_id": "e7874c0d-5929-41b6-bc72-83e00ed04fad",
+    "account_type_code": "prive_gratis"
+  },
+  {
+    "survey_tool_id": "31c58cd0-583d-4ad7-9c6e-faf0070ec68c",
+    "account_type_code": "zakelijke_licentie"
+  },
+  {
+    "survey_tool_id": "44054311-8898-48cf-be02-70a4e3f03cb9",
+    "account_type_code": "prive_gratis"
+  },
+  {
+    "survey_tool_id": "f895432f-6aaf-4266-81ea-7cd19e24e995",
+    "account_type_code": "zakelijke_licentie"
+  }
+]

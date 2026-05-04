@@ -1,0 +1,1422 @@
+{
+  "_meta": {
+    "run_count": 5,
+    "run_ids": [
+      "fc97c28f-711a-4e6d-a4b6-d8e4800c439b",
+      "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+      "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+      "f7cdde50-5501-4dfd-a5cf-1a67a8e00e39",
+      "5f4d87b9-761e-41af-92b3-ea557e708586"
+    ]
+  },
+  "survey_run": [
+    {
+      "id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+      "wave_id": null,
+      "org_id": "34f89abf-ba18-4e7c-83aa-d4bc7e845c00",
+      "started_at": "2026-04-29T01:41:33.02976+00:00",
+      "completed_at": "2026-04-29T01:50:01.055+00:00",
+      "locale": "nl",
+      "source": "web",
+      "consent_ambassador": true,
+      "ambassador_email": "rinkweijs@hotmail.com"
+    },
+    {
+      "id": "f7cdde50-5501-4dfd-a5cf-1a67a8e00e39",
+      "wave_id": null,
+      "org_id": "34f89abf-ba18-4e7c-83aa-d4bc7e845c00",
+      "started_at": "2026-04-29T02:47:49.781604+00:00",
+      "completed_at": "2026-04-29T02:48:17.966+00:00",
+      "locale": "nl",
+      "source": "web",
+      "consent_ambassador": null,
+      "ambassador_email": null
+    },
+    {
+      "id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+      "wave_id": null,
+      "org_id": "34f89abf-ba18-4e7c-83aa-d4bc7e845c00",
+      "started_at": "2026-04-29T04:43:43.521698+00:00",
+      "completed_at": "2026-04-29T04:50:50.756+00:00",
+      "locale": "nl",
+      "source": "web",
+      "consent_ambassador": true,
+      "ambassador_email": "rink@digidactics.nl"
+    },
+    {
+      "id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+      "wave_id": null,
+      "org_id": "34f89abf-ba18-4e7c-83aa-d4bc7e845c00",
+      "started_at": "2026-04-29T06:50:54.02194+00:00",
+      "completed_at": "2026-04-29T06:58:03.262+00:00",
+      "locale": "nl",
+      "source": "web",
+      "consent_ambassador": true,
+      "ambassador_email": "rink@email.com"
+    },
+    {
+      "id": "fc97c28f-711a-4e6d-a4b6-d8e4800c439b",
+      "wave_id": null,
+      "org_id": "34f89abf-ba18-4e7c-83aa-d4bc7e845c00",
+      "started_at": "2026-04-29T13:54:14.143831+00:00",
+      "completed_at": "2026-04-29T13:54:49.947+00:00",
+      "locale": "nl",
+      "source": "web",
+      "consent_ambassador": true,
+      "ambassador_email": "ted@ed.com"
+    }
+  ],
+  "survey_profile": [
+    {
+      "survey_run_id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+      "department_code": "it_data_development",
+      "department_other_text": null,
+      "ai_frequency_code": "wekelijks",
+      "no_ai_reason_code": null,
+      "processing_output_code": "controle_handmatig",
+      "ai_policy_awareness_code": "ja_goed",
+      "ai_skill_level_code": "gemiddeld",
+      "top_concern_other_text": null,
+      "future_usecases_text": "Wat gebeurd er met mijn antwoord hier??",
+      "browser_extension_usage_code": "ja_bewust",
+      "extension_awareness_code": null,
+      "automation_usage_code": "agents_reeks_taken",
+      "automation_awareness_code": null,
+      "data_awareness_code": "gedeeltelijk",
+      "anonymization_behavior_code": "soms"
+    },
+    {
+      "survey_run_id": "f7cdde50-5501-4dfd-a5cf-1a67a8e00e39",
+      "department_code": "anders",
+      "department_other_text": "Supply Chain",
+      "ai_frequency_code": "nooit",
+      "no_ai_reason_code": "geen_behoefte",
+      "processing_output_code": null,
+      "ai_policy_awareness_code": null,
+      "ai_skill_level_code": null,
+      "top_concern_other_text": null,
+      "future_usecases_text": null,
+      "browser_extension_usage_code": null,
+      "extension_awareness_code": null,
+      "automation_usage_code": null,
+      "automation_awareness_code": null,
+      "data_awareness_code": null,
+      "anonymization_behavior_code": null
+    },
+    {
+      "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+      "department_code": "finance_legal",
+      "department_other_text": null,
+      "ai_frequency_code": "dagelijks",
+      "no_ai_reason_code": null,
+      "processing_output_code": "direct_overnemen",
+      "ai_policy_awareness_code": "vaag",
+      "ai_skill_level_code": "gevorderd",
+      "top_concern_other_text": null,
+      "future_usecases_text": "Wat gaat heirmee gebeuren?",
+      "browser_extension_usage_code": "ja_bewust",
+      "extension_awareness_code": null,
+      "automation_usage_code": "alleen_chatbot",
+      "automation_awareness_code": null,
+      "data_awareness_code": "nee_niet_verdiept",
+      "anonymization_behavior_code": "soms"
+    },
+    {
+      "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+      "department_code": "sales_accountmanagement",
+      "department_other_text": null,
+      "ai_frequency_code": "dagelijks",
+      "no_ai_reason_code": null,
+      "processing_output_code": "direct_overnemen",
+      "ai_policy_awareness_code": "ja_goed",
+      "ai_skill_level_code": "expert",
+      "top_concern_other_text": null,
+      "future_usecases_text": "Ik weet het niet",
+      "browser_extension_usage_code": "ja_onzeker",
+      "extension_awareness_code": null,
+      "automation_usage_code": "agents_reeks_taken",
+      "automation_awareness_code": null,
+      "data_awareness_code": "gedeeltelijk",
+      "anonymization_behavior_code": "soms"
+    },
+    {
+      "survey_run_id": "fc97c28f-711a-4e6d-a4b6-d8e4800c439b",
+      "department_code": "directie_management",
+      "department_other_text": null,
+      "ai_frequency_code": "nooit",
+      "no_ai_reason_code": "weet_niet_hoe",
+      "processing_output_code": null,
+      "ai_policy_awareness_code": null,
+      "ai_skill_level_code": null,
+      "top_concern_other_text": null,
+      "future_usecases_text": "geen idee",
+      "browser_extension_usage_code": null,
+      "extension_awareness_code": null,
+      "automation_usage_code": null,
+      "automation_awareness_code": null,
+      "data_awareness_code": null,
+      "anonymization_behavior_code": null
+    }
+  ],
+  "survey_tool": [
+    {
+      "id": "049b6d72-1cc9-4751-8fa3-300c061e1b8a",
+      "survey_run_id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+      "tool_code": "99d83f5f-d80f-4a7e-9f77-86297dafaf1e",
+      "tool_name": "ChatGPT",
+      "is_custom": false,
+      "catalog_beheerstatus_code": null,
+      "org_policy_status_code_snapshot": "newly_discovered",
+      "eu_ai_act_flag_code_snapshot": "none"
+    },
+    {
+      "id": "360469b6-75bc-4b17-bbf4-b6c4de93b64e",
+      "survey_run_id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+      "tool_code": "4a0d75a4-c13f-460c-a276-4e1de5794f22",
+      "tool_name": "Perplexity AI",
+      "is_custom": false,
+      "catalog_beheerstatus_code": null,
+      "org_policy_status_code_snapshot": "newly_discovered",
+      "eu_ai_act_flag_code_snapshot": "none"
+    },
+    {
+      "id": "5454da18-adf1-40ba-a229-8652bacfe410",
+      "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+      "tool_code": "cfa8504c-934a-48bd-ab3b-a2c6767ac35b",
+      "tool_name": "HubSpot AI",
+      "is_custom": false,
+      "catalog_beheerstatus_code": null,
+      "org_policy_status_code_snapshot": "newly_discovered",
+      "eu_ai_act_flag_code_snapshot": "none"
+    },
+    {
+      "id": "2caca5b2-c963-4df3-bf71-019cd595e33d",
+      "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+      "tool_code": "669107dd-b385-47f5-92d6-74503f0c501a",
+      "tool_name": "DALL-E 3",
+      "is_custom": false,
+      "catalog_beheerstatus_code": null,
+      "org_policy_status_code_snapshot": "newly_discovered",
+      "eu_ai_act_flag_code_snapshot": "none"
+    },
+    {
+      "id": "d9c46840-bd6d-4a28-8578-fdbae024f560",
+      "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+      "tool_code": "edfa0d4a-f2b1-415d-a3bf-30f72d946f15",
+      "tool_name": "Microsoft Copilot for Excel",
+      "is_custom": false,
+      "catalog_beheerstatus_code": null,
+      "org_policy_status_code_snapshot": "newly_discovered",
+      "eu_ai_act_flag_code_snapshot": "none"
+    },
+    {
+      "id": "47fcb8a1-2f1e-404e-864c-67d7c9c043de",
+      "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+      "tool_code": "5411a2b0-ee9d-4d75-a09f-5ed25b79e05f",
+      "tool_name": "M365 Copilot",
+      "is_custom": false,
+      "catalog_beheerstatus_code": null,
+      "org_policy_status_code_snapshot": "newly_discovered",
+      "eu_ai_act_flag_code_snapshot": "none"
+    },
+    {
+      "id": "7537e528-0eab-43ff-b44c-1b52143e910d",
+      "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+      "tool_code": "28f52eb6-3393-4d71-bf35-6b1e6003c07e",
+      "tool_name": "Gamma",
+      "is_custom": false,
+      "catalog_beheerstatus_code": null,
+      "org_policy_status_code_snapshot": "newly_discovered",
+      "eu_ai_act_flag_code_snapshot": "none"
+    },
+    {
+      "id": "6d966f29-7773-49da-a1ac-c3b78cd1c56a",
+      "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+      "tool_code": "921b393c-92e0-4d58-8686-db8cb6cc4989",
+      "tool_name": "Claude Cowork",
+      "is_custom": false,
+      "catalog_beheerstatus_code": null,
+      "org_policy_status_code_snapshot": "newly_discovered",
+      "eu_ai_act_flag_code_snapshot": "none"
+    },
+    {
+      "id": "f87789ab-a03b-4a4f-b1d1-7888ac9ea2fb",
+      "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+      "tool_code": null,
+      "tool_name": "Claude Code",
+      "is_custom": true,
+      "catalog_beheerstatus_code": null,
+      "org_policy_status_code_snapshot": "newly_discovered",
+      "eu_ai_act_flag_code_snapshot": "none"
+    },
+    {
+      "id": "f3deeddd-9e75-4151-b664-509e746417ca",
+      "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+      "tool_code": "4a0d75a4-c13f-460c-a276-4e1de5794f22",
+      "tool_name": "Perplexity",
+      "is_custom": false,
+      "catalog_beheerstatus_code": null,
+      "org_policy_status_code_snapshot": "newly_discovered",
+      "eu_ai_act_flag_code_snapshot": "none"
+    },
+    {
+      "id": "15c5f7fa-5d37-402a-8eaa-af314b1ae34d",
+      "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+      "tool_code": "3000685b-676d-4edc-82c8-45a91ff14273",
+      "tool_name": "Microsoft Copilot",
+      "is_custom": false,
+      "catalog_beheerstatus_code": null,
+      "org_policy_status_code_snapshot": "newly_discovered",
+      "eu_ai_act_flag_code_snapshot": "none"
+    },
+    {
+      "id": "b2bb88e5-5011-4582-b0d1-c4e8e521986a",
+      "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+      "tool_code": "b467e53f-b7dc-4219-938c-54440307de8d",
+      "tool_name": "Claude",
+      "is_custom": false,
+      "catalog_beheerstatus_code": null,
+      "org_policy_status_code_snapshot": "newly_discovered",
+      "eu_ai_act_flag_code_snapshot": "none"
+    },
+    {
+      "id": "b03115dd-156d-4852-9e67-c6ef178eb963",
+      "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+      "tool_code": "096f3079-a71a-4a29-acf5-0dadfbc940cf",
+      "tool_name": "Grammarly",
+      "is_custom": false,
+      "catalog_beheerstatus_code": null,
+      "org_policy_status_code_snapshot": "newly_discovered",
+      "eu_ai_act_flag_code_snapshot": "none"
+    },
+    {
+      "id": "f0428d0a-e333-452a-9fcf-9f7cca659c61",
+      "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+      "tool_code": "28f52eb6-3393-4d71-bf35-6b1e6003c07e",
+      "tool_name": "Gamma",
+      "is_custom": false,
+      "catalog_beheerstatus_code": null,
+      "org_policy_status_code_snapshot": "newly_discovered",
+      "eu_ai_act_flag_code_snapshot": "none"
+    },
+    {
+      "id": "f0638bf6-6b08-4a3f-9d02-b63164448367",
+      "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+      "tool_code": "669107dd-b385-47f5-92d6-74503f0c501a",
+      "tool_name": "DALL\u00b7E",
+      "is_custom": false,
+      "catalog_beheerstatus_code": null,
+      "org_policy_status_code_snapshot": "newly_discovered",
+      "eu_ai_act_flag_code_snapshot": "none"
+    },
+    {
+      "id": "e7874c0d-5929-41b6-bc72-83e00ed04fad",
+      "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+      "tool_code": "6dc3a5e6-53f0-4006-8bf4-9f43691aa1d8",
+      "tool_name": "Claude Code",
+      "is_custom": false,
+      "catalog_beheerstatus_code": null,
+      "org_policy_status_code_snapshot": "newly_discovered",
+      "eu_ai_act_flag_code_snapshot": "none"
+    }
+  ],
+  "survey_tool_use_case": [
+    {
+      "id": "16b1d4e2-d51c-4b0a-bd27-cf450f68b79d",
+      "survey_tool_id": "049b6d72-1cc9-4751-8fa3-300c061e1b8a",
+      "use_case_code": "brainstormen"
+    },
+    {
+      "id": "818fce1b-0139-4516-960f-d91520411267",
+      "survey_tool_id": "049b6d72-1cc9-4751-8fa3-300c061e1b8a",
+      "use_case_code": "informatie_opzoeken"
+    },
+    {
+      "id": "655762b5-c505-4f03-947e-4829603132d0",
+      "survey_tool_id": "049b6d72-1cc9-4751-8fa3-300c061e1b8a",
+      "use_case_code": "klantenservice"
+    },
+    {
+      "id": "6d9cf8c1-f4ba-4cc3-97a5-8898d8084dde",
+      "survey_tool_id": "360469b6-75bc-4b17-bbf4-b6c4de93b64e",
+      "use_case_code": "brainstormen"
+    },
+    {
+      "id": "f6c1adf8-4215-4761-ba5a-71f027876db2",
+      "survey_tool_id": "360469b6-75bc-4b17-bbf4-b6c4de93b64e",
+      "use_case_code": "informatie_opzoeken"
+    },
+    {
+      "id": "4ba0c50f-4c8a-4d75-9612-cbcfc47bc7de",
+      "survey_tool_id": "5454da18-adf1-40ba-a229-8652bacfe410",
+      "use_case_code": "data_analyseren"
+    },
+    {
+      "id": "cafab00f-4c7e-4def-85af-3363d07ac50a",
+      "survey_tool_id": "2caca5b2-c963-4df3-bf71-019cd595e33d",
+      "use_case_code": "presentaties_design"
+    },
+    {
+      "id": "3d22810f-2da8-484d-b125-769e6ce83e8c",
+      "survey_tool_id": "2caca5b2-c963-4df3-bf71-019cd595e33d",
+      "use_case_code": "video_genereren"
+    },
+    {
+      "id": "d7ec65db-dcf0-4b2c-b646-1561eecb6479",
+      "survey_tool_id": "d9c46840-bd6d-4a28-8578-fdbae024f560",
+      "use_case_code": "code_schrijven"
+    },
+    {
+      "id": "763e4bf8-57f2-4a87-ab11-87b1980ea4a7",
+      "survey_tool_id": "47fcb8a1-2f1e-404e-864c-67d7c9c043de",
+      "use_case_code": "presentaties_design"
+    },
+    {
+      "id": "37265814-48d0-40b7-941c-545c03eae66f",
+      "survey_tool_id": "47fcb8a1-2f1e-404e-864c-67d7c9c043de",
+      "use_case_code": "vergaderingen_notuleren"
+    },
+    {
+      "id": "35e51f2a-2624-49e5-b3fb-05ae6daacc86",
+      "survey_tool_id": "7537e528-0eab-43ff-b44c-1b52143e910d",
+      "use_case_code": "afbeeldingen_genereren"
+    },
+    {
+      "id": "51462f6d-d21a-4a61-a0d5-b1e12c1fd53a",
+      "survey_tool_id": "7537e528-0eab-43ff-b44c-1b52143e910d",
+      "use_case_code": "presentaties_design"
+    },
+    {
+      "id": "cdc285f5-d039-4569-8ad1-42e61f9fedbd",
+      "survey_tool_id": "6d966f29-7773-49da-a1ac-c3b78cd1c56a",
+      "use_case_code": "informatie_opzoeken"
+    },
+    {
+      "id": "ac6f8d6d-ef4c-4e68-9211-f5146cb9c9b7",
+      "survey_tool_id": "6d966f29-7773-49da-a1ac-c3b78cd1c56a",
+      "use_case_code": "samenvatten_redigeren"
+    },
+    {
+      "id": "61b5c4af-ba9c-452b-a1a5-3e2e3ba197e4",
+      "survey_tool_id": "f87789ab-a03b-4a4f-b1d1-7888ac9ea2fb",
+      "use_case_code": "data_analyseren"
+    },
+    {
+      "id": "60a416ea-fe23-4d28-bc70-13ee47356d3e",
+      "survey_tool_id": "f3deeddd-9e75-4151-b664-509e746417ca",
+      "use_case_code": "brainstormen"
+    },
+    {
+      "id": "c82a4d26-5ff1-4569-a0bd-41c5a2836526",
+      "survey_tool_id": "f3deeddd-9e75-4151-b664-509e746417ca",
+      "use_case_code": "klantenservice"
+    },
+    {
+      "id": "b586acce-bd36-40ac-a366-3492e05e2735",
+      "survey_tool_id": "15c5f7fa-5d37-402a-8eaa-af314b1ae34d",
+      "use_case_code": "teksten_schrijven"
+    },
+    {
+      "id": "962ee090-a9aa-4fd7-9c34-5facacbb5f6f",
+      "survey_tool_id": "b2bb88e5-5011-4582-b0d1-c4e8e521986a",
+      "use_case_code": "data_analyseren"
+    },
+    {
+      "id": "41ee674d-b33b-44a1-914e-267922d32114",
+      "survey_tool_id": "b03115dd-156d-4852-9e67-c6ef178eb963",
+      "use_case_code": "samenvatten_redigeren"
+    },
+    {
+      "id": "8e1b6646-cd08-423e-9b0b-9befdff3ed2d",
+      "survey_tool_id": "f0428d0a-e333-452a-9fcf-9f7cca659c61",
+      "use_case_code": "presentaties_design"
+    },
+    {
+      "id": "30114d80-2b11-4a8d-b228-f5cf8229e3bd",
+      "survey_tool_id": "f0638bf6-6b08-4a3f-9d02-b63164448367",
+      "use_case_code": "video_genereren"
+    },
+    {
+      "id": "6b6b9328-f135-4a94-b89e-5381c6889669",
+      "survey_tool_id": "e7874c0d-5929-41b6-bc72-83e00ed04fad",
+      "use_case_code": "code_schrijven"
+    }
+  ],
+  "survey_tool_use_case_context": [
+    {
+      "survey_tool_use_case_id": "6b6b9328-f135-4a94-b89e-5381c6889669",
+      "context_code": "beslisondersteuning"
+    }
+  ],
+  "survey_tool_account": [
+    {
+      "survey_tool_id": "049b6d72-1cc9-4751-8fa3-300c061e1b8a",
+      "account_type_code": "prive_betaald"
+    },
+    {
+      "survey_tool_id": "360469b6-75bc-4b17-bbf4-b6c4de93b64e",
+      "account_type_code": "prive_betaald"
+    },
+    {
+      "survey_tool_id": "5454da18-adf1-40ba-a229-8652bacfe410",
+      "account_type_code": "zakelijke_licentie"
+    },
+    {
+      "survey_tool_id": "2caca5b2-c963-4df3-bf71-019cd595e33d",
+      "account_type_code": "prive_gratis"
+    },
+    {
+      "survey_tool_id": "d9c46840-bd6d-4a28-8578-fdbae024f560",
+      "account_type_code": "prive_betaald"
+    },
+    {
+      "survey_tool_id": "47fcb8a1-2f1e-404e-864c-67d7c9c043de",
+      "account_type_code": "beide"
+    },
+    {
+      "survey_tool_id": "7537e528-0eab-43ff-b44c-1b52143e910d",
+      "account_type_code": "prive_betaald"
+    },
+    {
+      "survey_tool_id": "6d966f29-7773-49da-a1ac-c3b78cd1c56a",
+      "account_type_code": "prive_gratis"
+    },
+    {
+      "survey_tool_id": "f87789ab-a03b-4a4f-b1d1-7888ac9ea2fb",
+      "account_type_code": "beide"
+    },
+    {
+      "survey_tool_id": "f3deeddd-9e75-4151-b664-509e746417ca",
+      "account_type_code": "zakelijke_licentie"
+    },
+    {
+      "survey_tool_id": "15c5f7fa-5d37-402a-8eaa-af314b1ae34d",
+      "account_type_code": "prive_gratis"
+    },
+    {
+      "survey_tool_id": "b2bb88e5-5011-4582-b0d1-c4e8e521986a",
+      "account_type_code": "prive_betaald"
+    },
+    {
+      "survey_tool_id": "b03115dd-156d-4852-9e67-c6ef178eb963",
+      "account_type_code": "prive_betaald"
+    },
+    {
+      "survey_tool_id": "f0428d0a-e333-452a-9fcf-9f7cca659c61",
+      "account_type_code": "prive_betaald"
+    },
+    {
+      "survey_tool_id": "f0638bf6-6b08-4a3f-9d02-b63164448367",
+      "account_type_code": "prive_gratis"
+    },
+    {
+      "survey_tool_id": "e7874c0d-5929-41b6-bc72-83e00ed04fad",
+      "account_type_code": "prive_gratis"
+    }
+  ],
+  "survey_data_type": [
+    {
+      "survey_run_id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+      "data_type_code": "publiek"
+    },
+    {
+      "survey_run_id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+      "data_type_code": "interne_email"
+    },
+    {
+      "survey_run_id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+      "data_type_code": "interne_documenten"
+    },
+    {
+      "survey_run_id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+      "data_type_code": "broncode_logica"
+    },
+    {
+      "survey_run_id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+      "data_type_code": "financiele_data"
+    },
+    {
+      "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+      "data_type_code": "excel_sheets"
+    },
+    {
+      "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+      "data_type_code": "financiele_data"
+    },
+    {
+      "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+      "data_type_code": "gevoelig_persoonsgegeven"
+    },
+    {
+      "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+      "data_type_code": "klantdata"
+    },
+    {
+      "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+      "data_type_code": "klantdata"
+    },
+    {
+      "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+      "data_type_code": "gevoelig_persoonsgegeven"
+    }
+  ],
+  "risk_result": [
+    {
+      "survey_run_id": "fc97c28f-711a-4e6d-a4b6-d8e4800c439b",
+      "person_score_raw": 0.0,
+      "person_score": 0.0,
+      "assigned_tier": "standard",
+      "dpo_review_required": false,
+      "toxic_combination": false,
+      "shadow_tool_count": 0,
+      "review_trigger_codes": [],
+      "highest_risk_tool": null,
+      "highest_risk_use_case": null,
+      "highest_risk_context": null,
+      "highest_priority_score": 0.0,
+      "hard_override": false,
+      "override_reason": null,
+      "created_at": "2026-04-30T01:04:01.144082+00:00"
+    },
+    {
+      "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+      "person_score_raw": 54.0,
+      "person_score": 54.0,
+      "assigned_tier": "priority_review",
+      "dpo_review_required": true,
+      "toxic_combination": false,
+      "shadow_tool_count": 7,
+      "review_trigger_codes": [
+        "automation_unmanaged",
+        "extension_unmanaged",
+        "priority_threshold"
+      ],
+      "highest_risk_tool": "6dc3a5e6-53f0-4006-8bf4-9f43691aa1d8",
+      "highest_risk_use_case": null,
+      "highest_risk_context": null,
+      "highest_priority_score": 54.0,
+      "hard_override": false,
+      "override_reason": null,
+      "created_at": "2026-04-30T01:04:16.369745+00:00"
+    },
+    {
+      "survey_run_id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+      "person_score_raw": 49.05,
+      "person_score": 49.05,
+      "assigned_tier": "priority_review",
+      "dpo_review_required": true,
+      "toxic_combination": false,
+      "shadow_tool_count": 2,
+      "review_trigger_codes": [
+        "automation_unmanaged",
+        "extension_unmanaged",
+        "priority_threshold"
+      ],
+      "highest_risk_tool": "99d83f5f-d80f-4a7e-9f77-86297dafaf1e",
+      "highest_risk_use_case": null,
+      "highest_risk_context": null,
+      "highest_priority_score": 49.05,
+      "hard_override": false,
+      "override_reason": null,
+      "created_at": "2026-04-30T01:04:42.196045+00:00"
+    },
+    {
+      "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+      "person_score_raw": 49.95,
+      "person_score": 49.95,
+      "assigned_tier": "priority_review",
+      "dpo_review_required": true,
+      "toxic_combination": false,
+      "shadow_tool_count": 7,
+      "review_trigger_codes": [
+        "extension_unmanaged",
+        "priority_threshold"
+      ],
+      "highest_risk_tool": "5411a2b0-ee9d-4d75-a09f-5ed25b79e05f",
+      "highest_risk_use_case": null,
+      "highest_risk_context": null,
+      "highest_priority_score": 49.95,
+      "hard_override": false,
+      "override_reason": null,
+      "created_at": "2026-04-30T01:05:47.127453+00:00"
+    },
+    {
+      "survey_run_id": "f7cdde50-5501-4dfd-a5cf-1a67a8e00e39",
+      "person_score_raw": 0.0,
+      "person_score": 0.0,
+      "assigned_tier": "standard",
+      "dpo_review_required": false,
+      "toxic_combination": false,
+      "shadow_tool_count": 0,
+      "review_trigger_codes": [],
+      "highest_risk_tool": null,
+      "highest_risk_use_case": null,
+      "highest_risk_context": null,
+      "highest_priority_score": 0.0,
+      "hard_override": false,
+      "override_reason": null,
+      "created_at": "2026-04-30T01:05:47.768808+00:00"
+    }
+  ],
+  "risk_result_tool": [
+    {
+      "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+      "survey_tool_id": "5454da18-adf1-40ba-a229-8652bacfe410",
+      "shadow_base": 20.0,
+      "shadow_score": 20.0,
+      "use_case_base": 20.0,
+      "context_multiplier": 1.0,
+      "account_multiplier": 1.0,
+      "data_boost": 30.0,
+      "frequency_boost": 15.0,
+      "automation_boost": 0.0,
+      "extension_boost": 10.0,
+      "agentic_boost": 0.0,
+      "raw_exposure_score": 75.0,
+      "exposure_score": 75.0,
+      "toxic_boost": 0.0,
+      "review_boost": 0.0,
+      "priority_score_raw": 42.75,
+      "priority_score": 42.75,
+      "dpo_review_required": true,
+      "review_trigger_codes": [
+        "extension_unmanaged",
+        "priority_threshold"
+      ],
+      "scoring_config_id": null,
+      "priority_review_threshold_used": 40.0,
+      "toxic_shadow_threshold_used": 50.0,
+      "toxic_exposure_threshold_used": 50.0,
+      "hard_override": false,
+      "override_reason": null
+    },
+    {
+      "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+      "survey_tool_id": "2caca5b2-c963-4df3-bf71-019cd595e33d",
+      "shadow_base": 20.0,
+      "shadow_score": 20.0,
+      "use_case_base": 20.0,
+      "context_multiplier": 1.0,
+      "account_multiplier": 1.4,
+      "data_boost": 30.0,
+      "frequency_boost": 15.0,
+      "automation_boost": 0.0,
+      "extension_boost": 10.0,
+      "agentic_boost": 0.0,
+      "raw_exposure_score": 83.0,
+      "exposure_score": 83.0,
+      "toxic_boost": 0.0,
+      "review_boost": 0.0,
+      "priority_score_raw": 46.35,
+      "priority_score": 46.35,
+      "dpo_review_required": true,
+      "review_trigger_codes": [
+        "extension_unmanaged",
+        "priority_threshold"
+      ],
+      "scoring_config_id": null,
+      "priority_review_threshold_used": 40.0,
+      "toxic_shadow_threshold_used": 50.0,
+      "toxic_exposure_threshold_used": 50.0,
+      "hard_override": false,
+      "override_reason": null
+    },
+    {
+      "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+      "survey_tool_id": "d9c46840-bd6d-4a28-8578-fdbae024f560",
+      "shadow_base": 20.0,
+      "shadow_score": 20.0,
+      "use_case_base": 20.0,
+      "context_multiplier": 1.0,
+      "account_multiplier": 1.3,
+      "data_boost": 30.0,
+      "frequency_boost": 15.0,
+      "automation_boost": 0.0,
+      "extension_boost": 10.0,
+      "agentic_boost": 0.0,
+      "raw_exposure_score": 81.0,
+      "exposure_score": 81.0,
+      "toxic_boost": 0.0,
+      "review_boost": 0.0,
+      "priority_score_raw": 45.45,
+      "priority_score": 45.45,
+      "dpo_review_required": true,
+      "review_trigger_codes": [
+        "extension_unmanaged",
+        "priority_threshold"
+      ],
+      "scoring_config_id": null,
+      "priority_review_threshold_used": 40.0,
+      "toxic_shadow_threshold_used": 50.0,
+      "toxic_exposure_threshold_used": 50.0,
+      "hard_override": false,
+      "override_reason": null
+    },
+    {
+      "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+      "survey_tool_id": "47fcb8a1-2f1e-404e-864c-67d7c9c043de",
+      "shadow_base": 20.0,
+      "shadow_score": 20.0,
+      "use_case_base": 20.0,
+      "context_multiplier": 1.0,
+      "account_multiplier": 1.8,
+      "data_boost": 30.0,
+      "frequency_boost": 15.0,
+      "automation_boost": 0.0,
+      "extension_boost": 10.0,
+      "agentic_boost": 0.0,
+      "raw_exposure_score": 91.0,
+      "exposure_score": 91.0,
+      "toxic_boost": 0.0,
+      "review_boost": 0.0,
+      "priority_score_raw": 49.95,
+      "priority_score": 49.95,
+      "dpo_review_required": true,
+      "review_trigger_codes": [
+        "extension_unmanaged",
+        "priority_threshold"
+      ],
+      "scoring_config_id": null,
+      "priority_review_threshold_used": 40.0,
+      "toxic_shadow_threshold_used": 50.0,
+      "toxic_exposure_threshold_used": 50.0,
+      "hard_override": false,
+      "override_reason": null
+    },
+    {
+      "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+      "survey_tool_id": "7537e528-0eab-43ff-b44c-1b52143e910d",
+      "shadow_base": 20.0,
+      "shadow_score": 20.0,
+      "use_case_base": 20.0,
+      "context_multiplier": 1.0,
+      "account_multiplier": 1.3,
+      "data_boost": 30.0,
+      "frequency_boost": 15.0,
+      "automation_boost": 0.0,
+      "extension_boost": 10.0,
+      "agentic_boost": 0.0,
+      "raw_exposure_score": 81.0,
+      "exposure_score": 81.0,
+      "toxic_boost": 0.0,
+      "review_boost": 0.0,
+      "priority_score_raw": 45.45,
+      "priority_score": 45.45,
+      "dpo_review_required": true,
+      "review_trigger_codes": [
+        "extension_unmanaged",
+        "priority_threshold"
+      ],
+      "scoring_config_id": null,
+      "priority_review_threshold_used": 40.0,
+      "toxic_shadow_threshold_used": 50.0,
+      "toxic_exposure_threshold_used": 50.0,
+      "hard_override": false,
+      "override_reason": null
+    },
+    {
+      "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+      "survey_tool_id": "6d966f29-7773-49da-a1ac-c3b78cd1c56a",
+      "shadow_base": 20.0,
+      "shadow_score": 20.0,
+      "use_case_base": 10.0,
+      "context_multiplier": 1.0,
+      "account_multiplier": 1.4,
+      "data_boost": 30.0,
+      "frequency_boost": 15.0,
+      "automation_boost": 0.0,
+      "extension_boost": 10.0,
+      "agentic_boost": 0.0,
+      "raw_exposure_score": 69.0,
+      "exposure_score": 69.0,
+      "toxic_boost": 0.0,
+      "review_boost": 0.0,
+      "priority_score_raw": 40.05,
+      "priority_score": 40.05,
+      "dpo_review_required": true,
+      "review_trigger_codes": [
+        "extension_unmanaged",
+        "priority_threshold"
+      ],
+      "scoring_config_id": null,
+      "priority_review_threshold_used": 40.0,
+      "toxic_shadow_threshold_used": 50.0,
+      "toxic_exposure_threshold_used": 50.0,
+      "hard_override": false,
+      "override_reason": null
+    },
+    {
+      "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+      "survey_tool_id": "f87789ab-a03b-4a4f-b1d1-7888ac9ea2fb",
+      "shadow_base": 20.0,
+      "shadow_score": 20.0,
+      "use_case_base": 20.0,
+      "context_multiplier": 1.0,
+      "account_multiplier": 1.8,
+      "data_boost": 30.0,
+      "frequency_boost": 15.0,
+      "automation_boost": 0.0,
+      "extension_boost": 10.0,
+      "agentic_boost": 0.0,
+      "raw_exposure_score": 91.0,
+      "exposure_score": 91.0,
+      "toxic_boost": 0.0,
+      "review_boost": 0.0,
+      "priority_score_raw": 49.95,
+      "priority_score": 49.95,
+      "dpo_review_required": true,
+      "review_trigger_codes": [
+        "extension_unmanaged",
+        "priority_threshold"
+      ],
+      "scoring_config_id": null,
+      "priority_review_threshold_used": 40.0,
+      "toxic_shadow_threshold_used": 50.0,
+      "toxic_exposure_threshold_used": 50.0,
+      "hard_override": false,
+      "override_reason": null
+    },
+    {
+      "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+      "survey_tool_id": "f3deeddd-9e75-4151-b664-509e746417ca",
+      "shadow_base": 20.0,
+      "shadow_score": 20.0,
+      "use_case_base": 20.0,
+      "context_multiplier": 1.0,
+      "account_multiplier": 1.0,
+      "data_boost": 30.0,
+      "frequency_boost": 15.0,
+      "automation_boost": 15.0,
+      "extension_boost": 10.0,
+      "agentic_boost": 0.0,
+      "raw_exposure_score": 90.0,
+      "exposure_score": 90.0,
+      "toxic_boost": 0.0,
+      "review_boost": 0.0,
+      "priority_score_raw": 49.5,
+      "priority_score": 49.5,
+      "dpo_review_required": true,
+      "review_trigger_codes": [
+        "automation_unmanaged",
+        "extension_unmanaged",
+        "priority_threshold"
+      ],
+      "scoring_config_id": null,
+      "priority_review_threshold_used": 40.0,
+      "toxic_shadow_threshold_used": 50.0,
+      "toxic_exposure_threshold_used": 50.0,
+      "hard_override": false,
+      "override_reason": null
+    },
+    {
+      "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+      "survey_tool_id": "15c5f7fa-5d37-402a-8eaa-af314b1ae34d",
+      "shadow_base": 20.0,
+      "shadow_score": 20.0,
+      "use_case_base": 10.0,
+      "context_multiplier": 1.0,
+      "account_multiplier": 1.4,
+      "data_boost": 30.0,
+      "frequency_boost": 15.0,
+      "automation_boost": 15.0,
+      "extension_boost": 10.0,
+      "agentic_boost": 0.0,
+      "raw_exposure_score": 84.0,
+      "exposure_score": 84.0,
+      "toxic_boost": 0.0,
+      "review_boost": 0.0,
+      "priority_score_raw": 46.8,
+      "priority_score": 46.8,
+      "dpo_review_required": true,
+      "review_trigger_codes": [
+        "automation_unmanaged",
+        "extension_unmanaged",
+        "priority_threshold"
+      ],
+      "scoring_config_id": null,
+      "priority_review_threshold_used": 40.0,
+      "toxic_shadow_threshold_used": 50.0,
+      "toxic_exposure_threshold_used": 50.0,
+      "hard_override": false,
+      "override_reason": null
+    },
+    {
+      "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+      "survey_tool_id": "b2bb88e5-5011-4582-b0d1-c4e8e521986a",
+      "shadow_base": 20.0,
+      "shadow_score": 20.0,
+      "use_case_base": 20.0,
+      "context_multiplier": 1.0,
+      "account_multiplier": 1.3,
+      "data_boost": 30.0,
+      "frequency_boost": 15.0,
+      "automation_boost": 15.0,
+      "extension_boost": 10.0,
+      "agentic_boost": 0.0,
+      "raw_exposure_score": 96.0,
+      "exposure_score": 96.0,
+      "toxic_boost": 0.0,
+      "review_boost": 0.0,
+      "priority_score_raw": 52.2,
+      "priority_score": 52.2,
+      "dpo_review_required": true,
+      "review_trigger_codes": [
+        "automation_unmanaged",
+        "extension_unmanaged",
+        "priority_threshold"
+      ],
+      "scoring_config_id": null,
+      "priority_review_threshold_used": 40.0,
+      "toxic_shadow_threshold_used": 50.0,
+      "toxic_exposure_threshold_used": 50.0,
+      "hard_override": false,
+      "override_reason": null
+    },
+    {
+      "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+      "survey_tool_id": "b03115dd-156d-4852-9e67-c6ef178eb963",
+      "shadow_base": 20.0,
+      "shadow_score": 20.0,
+      "use_case_base": 10.0,
+      "context_multiplier": 1.0,
+      "account_multiplier": 1.3,
+      "data_boost": 30.0,
+      "frequency_boost": 15.0,
+      "automation_boost": 15.0,
+      "extension_boost": 10.0,
+      "agentic_boost": 0.0,
+      "raw_exposure_score": 83.0,
+      "exposure_score": 83.0,
+      "toxic_boost": 0.0,
+      "review_boost": 0.0,
+      "priority_score_raw": 46.35,
+      "priority_score": 46.35,
+      "dpo_review_required": true,
+      "review_trigger_codes": [
+        "automation_unmanaged",
+        "extension_unmanaged",
+        "priority_threshold"
+      ],
+      "scoring_config_id": null,
+      "priority_review_threshold_used": 40.0,
+      "toxic_shadow_threshold_used": 50.0,
+      "toxic_exposure_threshold_used": 50.0,
+      "hard_override": false,
+      "override_reason": null
+    },
+    {
+      "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+      "survey_tool_id": "f0428d0a-e333-452a-9fcf-9f7cca659c61",
+      "shadow_base": 20.0,
+      "shadow_score": 20.0,
+      "use_case_base": 10.0,
+      "context_multiplier": 1.0,
+      "account_multiplier": 1.3,
+      "data_boost": 30.0,
+      "frequency_boost": 15.0,
+      "automation_boost": 15.0,
+      "extension_boost": 10.0,
+      "agentic_boost": 0.0,
+      "raw_exposure_score": 83.0,
+      "exposure_score": 83.0,
+      "toxic_boost": 0.0,
+      "review_boost": 0.0,
+      "priority_score_raw": 46.35,
+      "priority_score": 46.35,
+      "dpo_review_required": true,
+      "review_trigger_codes": [
+        "automation_unmanaged",
+        "extension_unmanaged",
+        "priority_threshold"
+      ],
+      "scoring_config_id": null,
+      "priority_review_threshold_used": 40.0,
+      "toxic_shadow_threshold_used": 50.0,
+      "toxic_exposure_threshold_used": 50.0,
+      "hard_override": false,
+      "override_reason": null
+    },
+    {
+      "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+      "survey_tool_id": "f0638bf6-6b08-4a3f-9d02-b63164448367",
+      "shadow_base": 20.0,
+      "shadow_score": 20.0,
+      "use_case_base": 20.0,
+      "context_multiplier": 1.0,
+      "account_multiplier": 1.4,
+      "data_boost": 30.0,
+      "frequency_boost": 15.0,
+      "automation_boost": 15.0,
+      "extension_boost": 10.0,
+      "agentic_boost": 0.0,
+      "raw_exposure_score": 98.0,
+      "exposure_score": 98.0,
+      "toxic_boost": 0.0,
+      "review_boost": 0.0,
+      "priority_score_raw": 53.1,
+      "priority_score": 53.1,
+      "dpo_review_required": true,
+      "review_trigger_codes": [
+        "automation_unmanaged",
+        "extension_unmanaged",
+        "priority_threshold"
+      ],
+      "scoring_config_id": null,
+      "priority_review_threshold_used": 40.0,
+      "toxic_shadow_threshold_used": 50.0,
+      "toxic_exposure_threshold_used": 50.0,
+      "hard_override": false,
+      "override_reason": null
+    },
+    {
+      "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+      "survey_tool_id": "e7874c0d-5929-41b6-bc72-83e00ed04fad",
+      "shadow_base": 20.0,
+      "shadow_score": 20.0,
+      "use_case_base": 20.0,
+      "context_multiplier": 1.4,
+      "account_multiplier": 1.4,
+      "data_boost": 30.0,
+      "frequency_boost": 15.0,
+      "automation_boost": 15.0,
+      "extension_boost": 10.0,
+      "agentic_boost": 0.0,
+      "raw_exposure_score": 109.2,
+      "exposure_score": 100.0,
+      "toxic_boost": 0.0,
+      "review_boost": 0.0,
+      "priority_score_raw": 54.0,
+      "priority_score": 54.0,
+      "dpo_review_required": true,
+      "review_trigger_codes": [
+        "automation_unmanaged",
+        "extension_unmanaged",
+        "priority_threshold"
+      ],
+      "scoring_config_id": null,
+      "priority_review_threshold_used": 40.0,
+      "toxic_shadow_threshold_used": 50.0,
+      "toxic_exposure_threshold_used": 50.0,
+      "hard_override": false,
+      "override_reason": null
+    },
+    {
+      "survey_run_id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+      "survey_tool_id": "049b6d72-1cc9-4751-8fa3-300c061e1b8a",
+      "shadow_base": 20.0,
+      "shadow_score": 20.0,
+      "use_case_base": 20.0,
+      "context_multiplier": 1.0,
+      "account_multiplier": 1.3,
+      "data_boost": 30.0,
+      "frequency_boost": 8.0,
+      "automation_boost": 15.0,
+      "extension_boost": 10.0,
+      "agentic_boost": 0.0,
+      "raw_exposure_score": 89.0,
+      "exposure_score": 89.0,
+      "toxic_boost": 0.0,
+      "review_boost": 0.0,
+      "priority_score_raw": 49.05,
+      "priority_score": 49.05,
+      "dpo_review_required": true,
+      "review_trigger_codes": [
+        "automation_unmanaged",
+        "extension_unmanaged",
+        "priority_threshold"
+      ],
+      "scoring_config_id": null,
+      "priority_review_threshold_used": 40.0,
+      "toxic_shadow_threshold_used": 50.0,
+      "toxic_exposure_threshold_used": 50.0,
+      "hard_override": false,
+      "override_reason": null
+    },
+    {
+      "survey_run_id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+      "survey_tool_id": "360469b6-75bc-4b17-bbf4-b6c4de93b64e",
+      "shadow_base": 20.0,
+      "shadow_score": 20.0,
+      "use_case_base": 10.0,
+      "context_multiplier": 1.0,
+      "account_multiplier": 1.3,
+      "data_boost": 30.0,
+      "frequency_boost": 8.0,
+      "automation_boost": 15.0,
+      "extension_boost": 10.0,
+      "agentic_boost": 0.0,
+      "raw_exposure_score": 76.0,
+      "exposure_score": 76.0,
+      "toxic_boost": 0.0,
+      "review_boost": 0.0,
+      "priority_score_raw": 43.2,
+      "priority_score": 43.2,
+      "dpo_review_required": true,
+      "review_trigger_codes": [
+        "automation_unmanaged",
+        "extension_unmanaged",
+        "priority_threshold"
+      ],
+      "scoring_config_id": null,
+      "priority_review_threshold_used": 40.0,
+      "toxic_shadow_threshold_used": 50.0,
+      "toxic_exposure_threshold_used": 50.0,
+      "hard_override": false,
+      "override_reason": null
+    }
+  ],
+  "scan_scoring_config": [],
+  "ref_context": [
+    {
+      "code": "intern_gebruik",
+      "label": "Intern gebruik",
+      "context_multiplier": 1.0
+    },
+    {
+      "code": "klantgerichte_toepassing",
+      "label": "Klantgerichte toepassing",
+      "context_multiplier": 1.3
+    },
+    {
+      "code": "beslisondersteuning",
+      "label": "Beslisondersteuning",
+      "context_multiplier": 1.4
+    },
+    {
+      "code": "besluiten_over_personen",
+      "label": "Besluiten over personen",
+      "context_multiplier": 1.8
+    },
+    {
+      "code": "hr_evaluatie",
+      "label": "HR & evaluatie",
+      "context_multiplier": 1.8
+    },
+    {
+      "code": "financieel_juridisch",
+      "label": "Financieel & juridisch",
+      "context_multiplier": 1.6
+    },
+    {
+      "code": "kritieke_systemen",
+      "label": "Kritieke systemen",
+      "context_multiplier": 2.0
+    },
+    {
+      "code": "nog_niet_duidelijk",
+      "label": "Nog niet duidelijk",
+      "context_multiplier": 1.1
+    },
+    {
+      "code": "autonome_uitvoering",
+      "label": "Autonome uitvoering",
+      "context_multiplier": 1.9
+    },
+    {
+      "code": "menselijke_review_verplicht",
+      "label": "Menselijke review verplicht",
+      "context_multiplier": 1.0
+    },
+    {
+      "code": "externe_systemen",
+      "label": "Externe systemen",
+      "context_multiplier": 1.3
+    }
+  ],
+  "ref_use_case": [
+    {
+      "code": "teksten_schrijven",
+      "label": "Teksten schrijven of bewerken",
+      "use_case_base": 10.0
+    },
+    {
+      "code": "samenvatten_redigeren",
+      "label": "Samenvatten of redigeren",
+      "use_case_base": 10.0
+    },
+    {
+      "code": "brainstormen",
+      "label": "Brainstormen of idee\u00ebn genereren",
+      "use_case_base": 10.0
+    },
+    {
+      "code": "informatie_opzoeken",
+      "label": "Informatie opzoeken",
+      "use_case_base": 10.0
+    },
+    {
+      "code": "vertalen",
+      "label": "Vertalen",
+      "use_case_base": 10.0
+    },
+    {
+      "code": "klantenservice",
+      "label": "Klantenservice of communicatie",
+      "use_case_base": 20.0
+    },
+    {
+      "code": "data_analyseren",
+      "label": "Data analyseren of visualiseren",
+      "use_case_base": 20.0
+    },
+    {
+      "code": "code_schrijven",
+      "label": "Code schrijven of debuggen",
+      "use_case_base": 20.0
+    },
+    {
+      "code": "afbeeldingen_genereren",
+      "label": "Afbeeldingen of media genereren",
+      "use_case_base": 20.0
+    },
+    {
+      "code": "presentaties_design",
+      "label": "Presentaties of design maken",
+      "use_case_base": 10.0
+    },
+    {
+      "code": "automatisering",
+      "label": "Processen automatiseren",
+      "use_case_base": 35.0
+    },
+    {
+      "code": "audio_genereren",
+      "label": "Audio genereren",
+      "use_case_base": 20.0
+    },
+    {
+      "code": "video_genereren",
+      "label": "Video genereren",
+      "use_case_base": 20.0
+    },
+    {
+      "code": "vergaderingen_notuleren",
+      "label": "Vergaderingen notuleren of transcriberen",
+      "use_case_base": 20.0
+    },
+    {
+      "code": "workflow_uitvoeren",
+      "label": "Workflows uitvoeren (agentic)",
+      "use_case_base": 35.0
+    },
+    {
+      "code": "systemen_aansturen",
+      "label": "Systemen aansturen (agentic)",
+      "use_case_base": 35.0
+    },
+    {
+      "code": "taken_automatisch_afhandelen",
+      "label": "Taken automatisch afhandelen (agentic)",
+      "use_case_base": 35.0
+    }
+  ],
+  "ref_data_type": [
+    {
+      "code": "publiek",
+      "label": "Publieke informatie",
+      "risk_level": "low"
+    },
+    {
+      "code": "namen",
+      "label": "Namen van personen",
+      "risk_level": "medium"
+    },
+    {
+      "code": "interne_email",
+      "label": "Interne e-mails",
+      "risk_level": "medium"
+    },
+    {
+      "code": "interne_documenten",
+      "label": "Interne documenten",
+      "risk_level": "medium"
+    },
+    {
+      "code": "notulen",
+      "label": "Notulen of verslagen",
+      "risk_level": "medium"
+    },
+    {
+      "code": "broncode_logica",
+      "label": "Broncode of bedrijfslogica",
+      "risk_level": "medium"
+    },
+    {
+      "code": "excel_sheets",
+      "label": "Spreadsheets of rapportages",
+      "risk_level": "medium"
+    },
+    {
+      "code": "klantdata",
+      "label": "Klantgegevens",
+      "risk_level": "high"
+    },
+    {
+      "code": "financiele_data",
+      "label": "Financi\u00eble gegevens",
+      "risk_level": "high"
+    },
+    {
+      "code": "juridische_documenten",
+      "label": "Juridische documenten",
+      "risk_level": "high"
+    },
+    {
+      "code": "gevoelig_persoonsgegeven",
+      "label": "Bijzondere persoonsgegevens",
+      "risk_level": "high"
+    },
+    {
+      "code": "niets",
+      "label": "Geen persoonsgegevens of vertrouwelijke data",
+      "risk_level": "low"
+    },
+    {
+      "code": "onzeker",
+      "label": "Weet ik niet zeker",
+      "risk_level": "medium"
+    }
+  ],
+  "ref_review_trigger": [
+    {
+      "code": "prohibited_tool",
+      "label": "Tool niet toegestaan",
+      "description": "shadow_base = 80"
+    },
+    {
+      "code": "agentic_usage",
+      "label": "Agentisch gebruik",
+      "description": "Altijd trigger, ook bij goedgekeurde tools"
+    },
+    {
+      "code": "automation_unmanaged",
+      "label": "Onbeheerde automatisering",
+      "description": "automation aanwezig en shadow_base > 0"
+    },
+    {
+      "code": "extension_unmanaged",
+      "label": "Onbeheerde browserextensie",
+      "description": "extensie aanwezig en shadow_base > 0"
+    },
+    {
+      "code": "special_category_data",
+      "label": "Bijzondere persoonsgegevens",
+      "description": "shadow_base = 0 en data_boost = +30"
+    },
+    {
+      "code": "hr_evaluation_context",
+      "label": "HR-evaluatiecontext",
+      "description": "context hr_evaluatie"
+    },
+    {
+      "code": "priority_threshold",
+      "label": "Prioriteitsdrempel overschreden",
+      "description": "priority_score >= configureerbare drempel"
+    },
+    {
+      "code": "manual_override",
+      "label": "Handmatige DPO-override",
+      "description": "Expliciet ingesteld door DPO"
+    }
+  ]
+}

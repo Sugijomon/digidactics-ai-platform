@@ -1,0 +1,52 @@
+[
+  {
+    "survey_run_id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+    "motivation_code": "tijdswinst",
+    "motivation_other_text": null
+  },
+  {
+    "survey_run_id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+    "motivation_code": "complexe_taken",
+    "motivation_other_text": null
+  },
+  {
+    "survey_run_id": "5f4d87b9-761e-41af-92b3-ea557e708586",
+    "motivation_code": "experimenteren",
+    "motivation_other_text": null
+  },
+  {
+    "survey_run_id": "83547878-8777-4b39-87ff-7e8322fc9cb9",
+    "motivation_code": "tijdswinst",
+    "motivation_other_text": null
+  },
+  {
+    "survey_run_id": "83547878-8777-4b39-87ff-7e8322fc9cb9",
+    "motivation_code": "anders_mot",
+    "motivation_other_text": "Bijblijven met de tijd"
+  },
+  {
+    "survey_run_id": "5d1a23e7-2f84-4bc3-ac0b-5d8512eb8f10",
+    "motivation_code": "anders_mot",
+    "motivation_other_text": "Bijblijven"
+  },
+  {
+    "survey_run_id": "b470cc44-1a0e-4b71-9515-6715944fe33b",
+    "motivation_code": "tijdswinst",
+    "motivation_other_text": null
+  },
+  {
+    "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+    "motivation_code": "complexe_taken",
+    "motivation_other_text": null
+  },
+  {
+    "survey_run_id": "f76f9a51-77f1-4ce0-baf6-18bae490d20f",
+    "motivation_code": "anders_mot",
+    "motivation_other_text": "Vakgebied bijhouden"
+  },
+  {
+    "survey_run_id": "a1ebc16d-eea8-40c3-9c17-a6c516041762",
+    "motivation_code": "complexe_taken",
+    "motivation_other_text": null
+  }
+]

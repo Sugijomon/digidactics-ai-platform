@@ -1,0 +1,22 @@
+[
+  {
+    "code": "dagelijks",
+    "label": "Dagelijks",
+    "sort_order": 1
+  },
+  {
+    "code": "wekelijks",
+    "label": "Wekelijks",
+    "sort_order": 2
+  },
+  {
+    "code": "maandelijks",
+    "label": "Maandelijks",
+    "sort_order": 3
+  },
+  {
+    "code": "nooit",
+    "label": "Nooit",
+    "sort_order": 4
+  }
+]

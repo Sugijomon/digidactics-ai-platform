@@ -1,0 +1,610 @@
+_legacy_tools_catalog	id	uuid	uuid	NO	gen_random_uuid()	
+_legacy_tools_catalog	org_id	uuid	uuid	NO		
+_legacy_tools_catalog	tool_id	uuid	uuid	NO		
+_legacy_tools_catalog	is_enabled	boolean	bool	YES	false	
+_legacy_tools_catalog	custom_guidelines	text	text	YES		
+_legacy_tools_catalog	custom_risk_notes	text	text	YES		
+_legacy_tools_catalog	custom_display_name	text	text	YES		
+_legacy_tools_catalog	contract_reference	text	text	YES		
+_legacy_tools_catalog	procurement_date	date	date	YES		
+_legacy_tools_catalog	contract_expiry_date	date	date	YES		
+_legacy_tools_catalog	procurement_contact	text	text	YES		
+_legacy_tools_catalog	cost_center	text	text	YES		
+_legacy_tools_catalog	usage_limits	text	text	YES		
+_legacy_tools_catalog	monthly_cost	numeric	numeric	YES		
+_legacy_tools_catalog	allowed_roles	ARRAY	_text	YES	'{user,manager,org_admin}'::text[]	
+_legacy_tools_catalog	requires_approval	boolean	bool	YES	false	
+_legacy_tools_catalog	custom_icon_url	text	text	YES		
+_legacy_tools_catalog	display_priority	integer	int4	YES	0	
+_legacy_tools_catalog	notes	text	text	YES		
+_legacy_tools_catalog	created_at	timestamp with time zone	timestamptz	YES	now()	
+_legacy_tools_catalog	updated_at	timestamp with time zone	timestamptz	YES	now()	
+admin_audit_log	id	uuid	uuid	NO	gen_random_uuid()	
+admin_audit_log	actor_id	uuid	uuid	NO		
+admin_audit_log	action	text	text	NO		
+admin_audit_log	target_table	text	text	NO		
+admin_audit_log	target_id	uuid	uuid	NO		
+admin_audit_log	target_user_id	uuid	uuid	YES		
+admin_audit_log	org_id	uuid	uuid	YES		
+admin_audit_log	old_value	jsonb	jsonb	YES		
+admin_audit_log	new_value	jsonb	jsonb	YES		
+admin_audit_log	reason	text	text	YES		
+admin_audit_log	created_at	timestamp with time zone	timestamptz	NO	now()	
+archetype_ml_map	id	uuid	uuid	NO	gen_random_uuid()	
+archetype_ml_map	archetype_code	text	text	NO		
+archetype_ml_map	library_item_id	uuid	uuid	NO		
+archetype_ml_map	context_card_text	text	text	YES		
+archetype_ml_map	is_active	boolean	bool	YES	true	
+archetype_ml_map	created_at	timestamp with time zone	timestamptz	YES	now()	
+archetype_ml_map	updated_at	timestamp with time zone	timestamptz	YES	now()	
+assessment_ml_assignments	id	uuid	uuid	NO	gen_random_uuid()	
+assessment_ml_assignments	assessment_id	uuid	uuid	NO		
+assessment_ml_assignments	user_id	uuid	uuid	NO		
+assessment_ml_assignments	library_item_id	uuid	uuid	NO		
+assessment_ml_assignments	is_required	boolean	bool	NO	true	
+assessment_ml_assignments	context_card_text	text	text	YES		
+assessment_ml_assignments	assigned_at	timestamp with time zone	timestamptz	NO	now()	
+assessment_ml_completions	id	uuid	uuid	NO	gen_random_uuid()	
+assessment_ml_completions	assessment_id	uuid	uuid	NO		
+assessment_ml_completions	user_id	uuid	uuid	NO		
+assessment_ml_completions	library_item_id	uuid	uuid	NO		
+assessment_ml_completions	completed_at	timestamp with time zone	timestamptz	NO	now()	
+assessment_ml_completions	module_version	text	text	YES		
+assessments	id	uuid	uuid	NO	gen_random_uuid()	
+assessments	org_id	uuid	uuid	NO		
+assessments	created_by	uuid	uuid	NO		
+assessments	created_at	timestamp with time zone	timestamptz	NO	now()	
+assessments	updated_at	timestamp with time zone	timestamptz	NO	now()	
+assessments	tool_id	uuid	uuid	YES		
+assessments	tool_name_raw	text	text	NO		
+assessments	survey_answers	jsonb	jsonb	NO		
+assessments	route	USER-DEFINED	assessment_route	NO		
+assessments	primary_archetype	text	text	NO		
+assessments	secondary_archetypes	ARRAY	_text	YES	'{}'::text[]	
+assessments	archetype_refs	ARRAY	_text	NO		
+assessments	escalation_refs	ARRAY	_text	YES	'{}'::text[]	
+assessments	plain_language	text	text	NO		
+assessments	routing_method	USER-DEFINED	routing_method	NO	'deterministic'::routing_method	
+assessments	decision_version	text	text	NO		
+assessments	claude_input_hash	text	text	YES		
+assessments	reason_filtered	text	text	YES		
+assessments	dpia_required	boolean	bool	NO	false	
+assessments	fria_required	boolean	bool	NO	false	
+assessments	transparency_required	boolean	bool	NO	false	
+assessments	transparency_template	text	text	YES		
+assessments	dpo_oversight_required	boolean	bool	NO	false	
+assessments	user_instructions	ARRAY	_text	YES	'{}'::text[]	
+assessments	dpo_instructions	ARRAY	_text	YES	'{}'::text[]	
+assessments	status	USER-DEFINED	assessment_status	NO	'active'::assessment_status	
+assessments	reviewer_admin_id	uuid	uuid	YES		
+assessments	reviewed_at	timestamp with time zone	timestamptz	YES		
+assessments	eu_act_category	text	text	YES		
+course_lessons	id	uuid	uuid	NO	gen_random_uuid()	
+course_lessons	course_id	uuid	uuid	YES		
+course_lessons	lesson_id	uuid	uuid	YES		
+course_lessons	sequence_order	integer	int4	NO		
+course_lessons	is_required	boolean	bool	YES	true	
+courses	id	uuid	uuid	NO	gen_random_uuid()	
+courses	title	text	text	NO		
+courses	description	text	text	YES		
+courses	required_for_onboarding	boolean	bool	YES	false	
+courses	passing_threshold	integer	int4	YES	80	
+courses	unlocks_capability	text	text	YES		
+courses	is_published	boolean	bool	YES	false	
+courses	created_at	timestamp with time zone	timestamptz	YES	now()	
+courses	updated_at	timestamp with time zone	timestamptz	YES	now()	
+courses	org_id	uuid	uuid	NO		
+dpo_notifications	id	uuid	uuid	NO	gen_random_uuid()	
+dpo_notifications	org_id	uuid	uuid	NO		
+dpo_notifications	assessment_id	uuid	uuid	YES		
+dpo_notifications	type	USER-DEFINED	dpo_notification_type	NO		
+dpo_notifications	status	USER-DEFINED	dpo_notification_status	NO	'pending'::dpo_notification_status	
+dpo_notifications	created_at	timestamp with time zone	timestamptz	NO	now()	
+dpo_notifications	seen_at	timestamp with time zone	timestamptz	YES		
+dpo_notifications	actioned_at	timestamp with time zone	timestamptz	YES		
+dpo_notifications	actioned_by	uuid	uuid	YES		
+dpo_notifications	notes	text	text	YES		
+incidents	id	uuid	uuid	NO	gen_random_uuid()	
+incidents	org_id	uuid	uuid	NO		
+incidents	assessment_id	uuid	uuid	YES		
+incidents	reported_by	uuid	uuid	NO		
+incidents	created_at	timestamp with time zone	timestamptz	NO	now()	
+incidents	description	text	text	NO		
+incidents	severity	USER-DEFINED	incident_severity	NO		
+incidents	output_used	text	text	YES		
+incidents	dpo_notified	boolean	bool	NO	false	
+incidents	dpo_reviewed_at	timestamp with time zone	timestamptz	YES		
+incidents	dpo_notes	text	text	YES		
+incidents	dpo_action	USER-DEFINED	incident_dpo_action	YES		
+incidents	dpo_reviewed_by	uuid	uuid	YES		
+learning_answers	id	uuid	uuid	NO	gen_random_uuid()	
+learning_answers	user_id	uuid	uuid	NO		
+learning_answers	question_id	uuid	uuid	NO		
+learning_answers	lesson_id	uuid	uuid	NO		
+learning_answers	user_answer	jsonb	jsonb	NO		
+learning_answers	is_correct	boolean	bool	YES		
+learning_answers	points_earned	integer	int4	YES	0	
+learning_answers	time_spent_seconds	integer	int4	YES		
+learning_answers	attempt_number	integer	int4	YES	1	
+learning_answers	org_id	uuid	uuid	YES	'00000000-0000-0000-0000-000000000001'::uuid	
+learning_answers	answered_at	timestamp with time zone	timestamptz	YES	now()	
+learning_catalog	id	uuid	uuid	NO	gen_random_uuid()	
+learning_catalog	org_id	uuid	uuid	NO		
+learning_catalog	library_item_id	uuid	uuid	NO		
+learning_catalog	is_enabled	boolean	bool	YES	false	
+learning_catalog	is_mandatory	boolean	bool	YES	false	
+learning_catalog	custom_title	text	text	YES		
+learning_catalog	custom_intro	text	text	YES		
+learning_catalog	custom_notes	text	text	YES		
+learning_catalog	assigned_to_roles	ARRAY	_text	YES		
+learning_catalog	priority	integer	int4	YES	0	
+learning_catalog	custom_deadline	date	date	YES		
+learning_catalog	created_at	timestamp with time zone	timestamptz	YES	now()	
+learning_catalog	updated_at	timestamp with time zone	timestamptz	YES	now()	
+learning_catalog	custom_completion_message	text	text	YES		
+learning_catalog	completion_reward_points	integer	int4	YES	0	
+learning_library	id	uuid	uuid	NO	gen_random_uuid()	
+learning_library	title	text	text	NO		
+learning_library	description	text	text	YES		
+learning_library	content	jsonb	jsonb	YES	'{}'::jsonb	
+learning_library	version	text	text	YES	'1.0'::text	
+learning_library	created_by	uuid	uuid	YES		
+learning_library	created_at	timestamp with time zone	timestamptz	YES	now()	
+learning_library	updated_at	timestamp with time zone	timestamptz	YES	now()	
+learning_library	org_id	uuid	uuid	YES		
+learning_library	content_type	USER-DEFINED	learning_content_type	NO		
+learning_library	difficulty_level	USER-DEFINED	learning_difficulty_level	YES	'basic'::learning_difficulty_level	
+learning_library	estimated_duration_minutes	integer	int4	YES		
+learning_library	learning_objectives	ARRAY	_text	YES	'{}'::text[]	
+learning_library	required_for_license	ARRAY	_text	YES	'{}'::text[]	
+learning_library	status	USER-DEFINED	learning_status	NO	'draft'::learning_status	
+learning_library	cluster_id	text	text	YES		
+learning_library	archetype_codes	ARRAY	_text	YES	'{}'::text[]	
+learning_library	is_activation_req	boolean	bool	YES	false	
+learning_library	context_card	text	text	YES		
+learning_library	lesson_id	uuid	uuid	YES		
+learning_questions	id	uuid	uuid	NO	gen_random_uuid()	
+learning_questions	lesson_id	uuid	uuid	YES		
+learning_questions	question_type	USER-DEFINED	question_type	NO		
+learning_questions	question_text	text	text	NO		
+learning_questions	question_config	jsonb	jsonb	NO	'{}'::jsonb	
+learning_questions	correct_answer	jsonb	jsonb	NO	'{}'::jsonb	
+learning_questions	points	integer	int4	YES	1	
+learning_questions	explanation	text	text	YES		
+learning_questions	order_index	integer	int4	NO	0	
+learning_questions	is_required	boolean	bool	YES	true	
+learning_questions	org_id	uuid	uuid	YES	'00000000-0000-0000-0000-000000000001'::uuid	
+learning_questions	created_at	timestamp with time zone	timestamptz	YES	now()	
+learning_questions	updated_at	timestamp with time zone	timestamptz	YES	now()	
+learning_questions	created_by	uuid	uuid	YES		
+legacy_survey_participation_view	id	uuid	uuid	YES		
+legacy_survey_participation_view	org_id	uuid	uuid	YES		
+legacy_survey_participation_view	user_id	uuid	uuid	YES		
+legacy_survey_participation_view	amnesty_acknowledged	boolean	bool	YES		
+legacy_survey_participation_view	submitted_at	timestamp with time zone	timestamptz	YES		
+legacy_survey_participation_view	assigned_tier	text	text	YES		
+lesson_attempts	id	uuid	uuid	NO	gen_random_uuid()	
+lesson_attempts	user_id	uuid	uuid	NO		
+lesson_attempts	lesson_id	uuid	uuid	NO		
+lesson_attempts	attempt_number	integer	int4	NO	1	
+lesson_attempts	score	integer	int4	YES		
+lesson_attempts	max_score	integer	int4	YES		
+lesson_attempts	percentage	integer	int4	YES		
+lesson_attempts	passed	boolean	bool	YES	false	
+lesson_attempts	time_spent	integer	int4	YES		
+lesson_attempts	started_at	timestamp with time zone	timestamptz	NO	now()	
+lesson_attempts	completed_at	timestamp with time zone	timestamptz	YES		
+lesson_attempts	created_at	timestamp with time zone	timestamptz	NO	now()	
+lesson_attempts	org_id	uuid	uuid	YES		
+lessons	id	uuid	uuid	NO	gen_random_uuid()	
+lessons	title	text	text	NO		
+lessons	description	text	text	YES		
+lessons	lesson_type	text	text	NO	'standalone'::text	
+lessons	blocks	jsonb	jsonb	NO	'[]'::jsonb	
+lessons	estimated_duration	integer	int4	YES		
+lessons	passing_score	integer	int4	YES		
+lessons	is_published	boolean	bool	YES	false	
+lessons	created_by	uuid	uuid	YES		
+lessons	created_at	timestamp with time zone	timestamptz	YES	now()	
+lessons	updated_at	timestamp with time zone	timestamptz	YES	now()	
+lessons	org_id	uuid	uuid	NO		
+model_typekaart_updates	id	uuid	uuid	NO	gen_random_uuid()	
+model_typekaart_updates	typekaart_id	uuid	uuid	NO		
+model_typekaart_updates	field_name	text	text	NO		
+model_typekaart_updates	old_value	text	text	YES		
+model_typekaart_updates	new_value	text	text	YES		
+model_typekaart_updates	change_type	text	text	YES		
+model_typekaart_updates	source	text	text	YES		
+model_typekaart_updates	confidence	text	text	YES		
+model_typekaart_updates	approved_by	uuid	uuid	YES		
+model_typekaart_updates	approved_at	timestamp with time zone	timestamptz	YES		
+model_typekaart_updates	status	text	text	YES	'pending'::text	
+model_typekaart_updates	created_at	timestamp with time zone	timestamptz	YES	now()	
+model_typekaarten	id	uuid	uuid	NO	gen_random_uuid()	
+model_typekaarten	canonical_id	text	text	NO		
+model_typekaarten	display_name	text	text	NO		
+model_typekaarten	provider	text	text	NO		
+model_typekaarten	model_type	text	text	NO		
+model_typekaarten	gpai_designated	boolean	bool	YES	false	
+model_typekaarten	systemic_risk	boolean	bool	YES	false	
+model_typekaarten	eu_license_status	text	text	YES	'unknown'::text	
+model_typekaarten	hosting_region	text	text	YES		
+model_typekaarten	data_storage_region	text	text	YES		
+model_typekaarten	trains_on_input	boolean	bool	YES	false	
+model_typekaarten	dpa_available	boolean	bool	YES	false	
+model_typekaarten	statutory_prohibitions	jsonb	jsonb	YES	'[]'::jsonb	
+model_typekaarten	contractual_restrictions	jsonb	jsonb	YES	'[]'::jsonb	
+model_typekaarten	typekaart_version	text	text	YES	'1.0'::text	
+model_typekaarten	last_verified_at	timestamp with time zone	timestamptz	YES		
+model_typekaarten	status	text	text	YES	'draft'::text	
+model_typekaarten	created_by	uuid	uuid	YES		
+model_typekaarten	created_at	timestamp with time zone	timestamptz	YES	now()	
+model_typekaarten	updated_at	timestamp with time zone	timestamptz	YES	now()	
+org_notifications	id	uuid	uuid	NO	gen_random_uuid()	
+org_notifications	org_id	uuid	uuid	NO		
+org_notifications	source	USER-DEFINED	org_notification_source	NO		
+org_notifications	severity	USER-DEFINED	org_notification_severity	NO	'info'::org_notification_severity	
+org_notifications	title	text	text	NO		
+org_notifications	body	text	text	YES		
+org_notifications	action_url	text	text	YES		
+org_notifications	is_read	boolean	bool	NO	false	
+org_notifications	read_at	timestamp with time zone	timestamptz	YES		
+org_notifications	read_by	uuid	uuid	YES		
+org_notifications	created_at	timestamp with time zone	timestamptz	NO	now()	
+org_notifications	expires_at	timestamp with time zone	timestamptz	YES		
+org_tool_policy	org_id	uuid	uuid	NO		
+org_tool_policy	tool_code	character varying	varchar	NO		64
+org_tool_policy	org_policy_status_code	character varying	varchar	NO	'newly_discovered'::character varying	32
+org_tool_policy	eu_ai_act_flag_code	character varying	varchar	NO	'none'::character varying	64
+org_tool_policy	first_seen_at	timestamp with time zone	timestamptz	YES	now()	
+org_tool_policy	decided_by	character varying	varchar	YES		128
+org_tool_policy	decided_at	timestamp with time zone	timestamptz	YES		
+org_tool_policy	notes	text	text	YES		
+org_tools_catalog	id	uuid	uuid	NO	gen_random_uuid()	
+org_tools_catalog	org_id	uuid	uuid	NO		
+org_tools_catalog	tool_name	text	text	NO		
+org_tools_catalog	status	text	text	NO	'known_unconfigured'::text	
+org_tools_catalog	typekaart_id	uuid	uuid	YES		
+org_tools_catalog	added_by	uuid	uuid	YES		
+org_tools_catalog	added_at	timestamp with time zone	timestamptz	YES	now()	
+org_tools_catalog	notes	text	text	YES		
+org_tools_catalog	override_data_storage	text	text	YES		
+org_tools_catalog	override_trains_on_input	boolean	bool	YES		
+org_tools_catalog	override_acknowledged_by	uuid	uuid	YES		
+org_tools_catalog	override_acknowledged_at	timestamp with time zone	timestamptz	YES		
+org_tools_catalog	first_seen_at	timestamp with time zone	timestamptz	YES	now()	
+organizations	id	uuid	uuid	NO	gen_random_uuid()	
+organizations	name	text	text	NO		
+organizations	slug	text	text	YES		
+organizations	sector	text	text	YES		
+organizations	country	text	text	YES	'NL'::text	
+organizations	settings	jsonb	jsonb	YES	'{}'::jsonb	
+organizations	created_at	timestamp with time zone	timestamptz	YES	now()	
+organizations	updated_at	timestamp with time zone	timestamptz	YES	now()	
+organizations	status	text	text	YES	'active'::text	
+organizations	subscription_type	text	text	YES	'basic'::text	
+organizations	subscription_start_date	date	date	YES	CURRENT_DATE	
+organizations	subscription_end_date	date	date	YES		
+organizations	contact_person	text	text	YES		
+organizations	contact_email	text	text	YES		
+organizations	street_address	text	text	YES		
+organizations	postal_code	text	text	YES		
+organizations	city	text	text	YES		
+organizations	contact_phone	text	text	YES		
+organizations	bank_account	text	text	YES		
+organizations	bank_name	text	text	YES		
+organizations	plan_type	text	text	NO	'routeai'::text	
+organizations	scoreboard_slug	text	text	YES		
+organizations	scoreboard_enabled	boolean	bool	NO	false	
+organizations	scoreboard_config	jsonb	jsonb	NO	'{}'::jsonb	
+passport_identity	id	uuid	uuid	NO	gen_random_uuid()	
+passport_identity	org_id	uuid	uuid	NO		
+passport_identity	org_description	text	text	YES		
+passport_identity	dpo_name	text	text	YES		
+passport_identity	dpo_email	text	text	YES		
+passport_identity	ai_policy_url	text	text	YES		
+passport_identity	governance_scope	text	text	YES		
+passport_identity	review_cycle	text	text	YES	'Jaarlijks'::text	
+passport_identity	last_reviewed_at	date	date	YES		
+passport_identity	created_at	timestamp with time zone	timestamptz	YES	now()	
+passport_identity	updated_at	timestamp with time zone	timestamptz	YES	now()	
+profiles	id	uuid	uuid	NO		
+profiles	email	text	text	YES		
+profiles	full_name	text	text	YES		
+profiles	department	text	text	YES		
+profiles	has_ai_rijbewijs	boolean	bool	YES	false	
+profiles	ai_rijbewijs_obtained_at	timestamp with time zone	timestamptz	YES		
+profiles	created_at	timestamp with time zone	timestamptz	YES	now()	
+profiles	updated_at	timestamp with time zone	timestamptz	YES	now()	
+profiles	org_id	uuid	uuid	NO	'00000000-0000-0000-0000-000000000001'::uuid	
+profiles	import_batch_id	text	text	YES		
+profiles	routeai_invited_at	timestamp with time zone	timestamptz	YES		
+profiles	is_active	boolean	bool	NO	true	
+profiles	has_set_password	boolean	bool	NO	false	
+profiles	banner_password_dismissed	boolean	bool	NO	false	
+ref_account_type	code	character varying	varchar	NO		32
+ref_account_type	label	character varying	varchar	NO		128
+ref_ai_frequency	code	character varying	varchar	NO		32
+ref_ai_frequency	label	character varying	varchar	NO		128
+ref_ai_frequency	sort_order	integer	int4	NO		
+ref_catalog_beheerstatus	code	character varying	varchar	NO		32
+ref_catalog_beheerstatus	label	character varying	varchar	NO		128
+ref_context	code	character varying	varchar	NO		64
+ref_context	label	character varying	varchar	NO		128
+ref_context	context_multiplier	numeric	numeric	NO	1.0	
+ref_data_type	code	character varying	varchar	NO		64
+ref_data_type	label	character varying	varchar	NO		128
+ref_data_type	risk_level	character varying	varchar	NO	'low'::character varying	16
+ref_department	code	character varying	varchar	NO		64
+ref_department	label	character varying	varchar	NO		128
+ref_department	sort_order	integer	int4	NO		
+ref_eu_ai_act_flag	code	character varying	varchar	NO		64
+ref_eu_ai_act_flag	label	character varying	varchar	NO		128
+ref_governance_flag	code	character varying	varchar	NO		64
+ref_governance_flag	label	character varying	varchar	NO		128
+ref_no_ai_reason	code	character varying	varchar	NO		32
+ref_no_ai_reason	label	character varying	varchar	NO		128
+ref_org_policy_status	code	character varying	varchar	NO		32
+ref_org_policy_status	label	character varying	varchar	NO		128
+ref_org_policy_status	shadow_base	numeric	numeric	NO		
+ref_review_trigger	code	character varying	varchar	NO		64
+ref_review_trigger	label	character varying	varchar	NO		128
+ref_review_trigger	description	text	text	YES		
+ref_use_case	code	character varying	varchar	NO		64
+ref_use_case	label	character varying	varchar	NO		128
+ref_use_case	use_case_base	numeric	numeric	NO	20	
+rijbewijs_records	id	uuid	uuid	NO	gen_random_uuid()	
+rijbewijs_records	user_id	uuid	uuid	NO		
+rijbewijs_records	org_id	uuid	uuid	YES		
+rijbewijs_records	lesson_attempt_id	uuid	uuid	YES		
+rijbewijs_records	exam_version	text	text	NO	'1.0'::text	
+rijbewijs_records	earned_at	timestamp with time zone	timestamptz	YES	now()	
+rijbewijs_records	status	text	text	NO	'active'::text	
+risk_result	survey_run_id	uuid	uuid	NO		
+risk_result	person_score_raw	numeric	numeric	YES		
+risk_result	person_score	numeric	numeric	NO	0	
+risk_result	assigned_tier	character varying	varchar	NO	'green'::character varying	16
+risk_result	dpo_review_required	boolean	bool	NO	false	
+risk_result	toxic_combination	boolean	bool	NO	false	
+risk_result	shadow_tool_count	integer	int4	NO	0	
+risk_result	review_trigger_codes	ARRAY	_text	YES		
+risk_result	highest_risk_tool	character varying	varchar	YES		128
+risk_result	highest_risk_use_case	character varying	varchar	YES		128
+risk_result	highest_risk_context	character varying	varchar	YES		128
+risk_result	highest_priority_score	numeric	numeric	YES		
+risk_result	hard_override	boolean	bool	NO	false	
+risk_result	override_reason	character varying	varchar	YES		255
+risk_result	created_at	timestamp with time zone	timestamptz	NO	now()	
+risk_result_tool	survey_run_id	uuid	uuid	NO		
+risk_result_tool	survey_tool_id	uuid	uuid	NO		
+risk_result_tool	shadow_base	numeric	numeric	NO	0	
+risk_result_tool	shadow_score	numeric	numeric	NO	0	
+risk_result_tool	use_case_base	numeric	numeric	NO	0	
+risk_result_tool	context_multiplier	numeric	numeric	NO	1.0	
+risk_result_tool	account_multiplier	numeric	numeric	NO	1.0	
+risk_result_tool	data_boost	numeric	numeric	NO	0	
+risk_result_tool	frequency_boost	numeric	numeric	NO	0	
+risk_result_tool	automation_boost	numeric	numeric	NO	0	
+risk_result_tool	extension_boost	numeric	numeric	NO	0	
+risk_result_tool	agentic_boost	numeric	numeric	NO	0	
+risk_result_tool	raw_exposure_score	numeric	numeric	NO	0	
+risk_result_tool	exposure_score	numeric	numeric	NO	0	
+risk_result_tool	toxic_boost	numeric	numeric	NO	0	
+risk_result_tool	review_boost	numeric	numeric	NO	0	
+risk_result_tool	priority_score_raw	numeric	numeric	NO	0	
+risk_result_tool	priority_score	numeric	numeric	NO	0	
+risk_result_tool	dpo_review_required	boolean	bool	NO	false	
+risk_result_tool	review_trigger_codes	ARRAY	_text	YES		
+risk_result_tool	scoring_config_id	uuid	uuid	YES		
+risk_result_tool	priority_review_threshold_used	numeric	numeric	YES		
+risk_result_tool	toxic_shadow_threshold_used	numeric	numeric	YES		
+risk_result_tool	toxic_exposure_threshold_used	numeric	numeric	YES		
+risk_result_tool	hard_override	boolean	bool	NO	false	
+risk_result_tool	override_reason	character varying	varchar	YES		255
+scan_scoring_config	id	uuid	uuid	NO	gen_random_uuid()	
+scan_scoring_config	org_id	uuid	uuid	NO		
+scan_scoring_config	wave_id	uuid	uuid	YES		
+scan_scoring_config	scoring_version	character varying	varchar	NO	'V8.1'::character varying	32
+scan_scoring_config	priority_review_threshold	numeric	numeric	NO	40	
+scan_scoring_config	toxic_shadow_threshold	numeric	numeric	NO	50	
+scan_scoring_config	toxic_exposure_threshold	numeric	numeric	NO	50	
+scan_scoring_config	dashboard_min_cell_size	integer	int4	NO	5	
+scan_scoring_config	public_scoreboard_enabled	boolean	bool	NO	false	
+scan_scoring_config	notes	text	text	YES		
+scan_scoring_config	created_by	character varying	varchar	YES		128
+scan_scoring_config	created_at	timestamp with time zone	timestamptz	NO	now()	
+scan_scoring_config	active_from	timestamp with time zone	timestamptz	NO	now()	
+scan_scoring_config	active_until	timestamp with time zone	timestamptz	YES		
+shadow_survey_runs	id	uuid	uuid	NO	gen_random_uuid()	
+shadow_survey_runs	org_id	uuid	uuid	NO		
+shadow_survey_runs	user_id	uuid	uuid	YES		
+shadow_survey_runs	survey_version	text	text	NO	'1.0'::text	
+shadow_survey_runs	submitted_at	timestamp with time zone	timestamptz	YES	now()	
+shadow_survey_runs	ai_maturity_score	integer	int4	YES		
+shadow_survey_runs	department	text	text	YES		
+shadow_survey_runs	role_description	text	text	YES		
+shadow_survey_runs	amnesty_acknowledged	boolean	bool	YES	false	
+shadow_survey_runs	assigned_tier	text	text	YES		
+shadow_survey_runs	data_classification	text	text	YES		
+shadow_survey_runs	primary_use_case	text	text	YES		
+shadow_survey_runs	primary_concern	text	text	YES		
+shadow_survey_runs	risk_score	integer	int4	YES		
+shadow_survey_runs	dpo_review_required	boolean	bool	YES	false	
+shadow_survey_runs	review_notes	text	text	YES		
+shadow_survey_runs	survey_completed_at	timestamp with time zone	timestamptz	YES		
+shadow_survey_runs	extra_data	jsonb	jsonb	YES	'{}'::jsonb	
+shadow_survey_runs	scoreboard_name_visible	boolean	bool	YES	false	
+survey_data_type	survey_run_id	uuid	uuid	NO		
+survey_data_type	data_type_code	character varying	varchar	NO		64
+survey_invite	id	uuid	uuid	NO	gen_random_uuid()	
+survey_invite	wave_id	uuid	uuid	YES		
+survey_invite	org_id	uuid	uuid	NO		
+survey_invite	email	character varying	varchar	NO		320
+survey_invite	display_name	character varying	varchar	YES		255
+survey_invite	department_label	character varying	varchar	YES		128
+survey_invite	invited_at	timestamp with time zone	timestamptz	NO	now()	
+survey_invite	reminder_sent_at	timestamp with time zone	timestamptz	YES		
+survey_invite	participation_status	character varying	varchar	NO	'invited'::character varying	32
+survey_motivation	survey_run_id	uuid	uuid	NO		
+survey_motivation	motivation_code	character varying	varchar	NO		64
+survey_motivation	motivation_other_text	character varying	varchar	YES		255
+survey_participation	invite_id	uuid	uuid	NO		
+survey_participation	survey_run_id	uuid	uuid	YES		
+survey_participation	opened_at	timestamp with time zone	timestamptz	YES		
+survey_participation	completed_at	timestamp with time zone	timestamptz	YES		
+survey_participation	last_reminder_at	timestamp with time zone	timestamptz	YES		
+survey_profile	survey_run_id	uuid	uuid	NO		
+survey_profile	department_code	character varying	varchar	YES		64
+survey_profile	department_other_text	character varying	varchar	YES		255
+survey_profile	ai_frequency_code	character varying	varchar	YES		32
+survey_profile	no_ai_reason_code	character varying	varchar	YES		32
+survey_profile	processing_output_code	character varying	varchar	YES		64
+survey_profile	ai_policy_awareness_code	character varying	varchar	YES		64
+survey_profile	ai_skill_level_code	character varying	varchar	YES		32
+survey_profile	top_concern_other_text	character varying	varchar	YES		255
+survey_profile	future_usecases_text	text	text	YES		
+survey_profile	browser_extension_usage_code	character varying	varchar	YES		64
+survey_profile	extension_awareness_code	character varying	varchar	YES		64
+survey_profile	automation_usage_code	character varying	varchar	YES		64
+survey_profile	automation_awareness_code	character varying	varchar	YES		64
+survey_profile	data_awareness_code	character varying	varchar	YES		64
+survey_profile	anonymization_behavior_code	character varying	varchar	YES		64
+survey_run	id	uuid	uuid	NO	gen_random_uuid()	
+survey_run	wave_id	uuid	uuid	YES		
+survey_run	org_id	uuid	uuid	NO		
+survey_run	started_at	timestamp with time zone	timestamptz	NO	now()	
+survey_run	completed_at	timestamp with time zone	timestamptz	YES		
+survey_run	locale	character varying	varchar	YES	'nl'::character varying	16
+survey_run	source	character varying	varchar	YES	'web'::character varying	32
+survey_run	consent_ambassador	boolean	bool	YES		
+survey_run	ambassador_email	character varying	varchar	YES		320
+survey_support_need	survey_run_id	uuid	uuid	NO		
+survey_support_need	support_need_code	character varying	varchar	NO		64
+survey_tool	id	uuid	uuid	NO	gen_random_uuid()	
+survey_tool	survey_run_id	uuid	uuid	NO		
+survey_tool	tool_code	character varying	varchar	YES		64
+survey_tool	tool_name	character varying	varchar	NO		128
+survey_tool	is_custom	boolean	bool	NO	false	
+survey_tool	catalog_beheerstatus_code	character varying	varchar	YES		32
+survey_tool	org_policy_status_code_snapshot	character varying	varchar	YES		32
+survey_tool	eu_ai_act_flag_code_snapshot	character varying	varchar	YES		64
+survey_tool_account	survey_tool_id	uuid	uuid	NO		
+survey_tool_account	account_type_code	character varying	varchar	NO		32
+survey_tool_preference_reason	survey_run_id	uuid	uuid	NO		
+survey_tool_preference_reason	preference_reason_code	character varying	varchar	NO		64
+survey_tool_use_case	id	uuid	uuid	NO	gen_random_uuid()	
+survey_tool_use_case	survey_tool_id	uuid	uuid	NO		
+survey_tool_use_case	use_case_code	character varying	varchar	NO		64
+survey_tool_use_case_context	survey_tool_use_case_id	uuid	uuid	NO		
+survey_tool_use_case_context	context_code	character varying	varchar	NO		64
+survey_tool_use_case_flag	survey_tool_use_case_id	uuid	uuid	NO		
+survey_tool_use_case_flag	governance_flag_code	character varying	varchar	NO		64
+survey_top_concern	survey_run_id	uuid	uuid	NO		
+survey_top_concern	top_concern_code	character varying	varchar	NO		64
+survey_wave	id	uuid	uuid	NO	gen_random_uuid()	
+survey_wave	org_id	uuid	uuid	NO		
+survey_wave	wave_name	character varying	varchar	NO		128
+survey_wave	wave_type	character varying	varchar	NO	'baseline'::character varying	32
+survey_wave	survey_version	character varying	varchar	YES		32
+survey_wave	scoring_version	character varying	varchar	YES	'V8.1'::character varying	32
+survey_wave	policy_snapshot_date	date	date	YES		
+survey_wave	opens_at	timestamp with time zone	timestamptz	YES		
+survey_wave	closes_at	timestamp with time zone	timestamptz	YES		
+survey_wave	status	character varying	varchar	NO	'draft'::character varying	32
+survey_wave	notes	text	text	YES		
+survey_wave	created_at	timestamp with time zone	timestamptz	NO	now()	
+tool_catalog_discovery	id	uuid	uuid	NO	gen_random_uuid()	
+tool_catalog_discovery	org_id	uuid	uuid	NO		
+tool_catalog_discovery	survey_run_id	uuid	uuid	YES		
+tool_catalog_discovery	survey_tool_id	uuid	uuid	YES		
+tool_catalog_discovery	raw_tool_name	character varying	varchar	NO		128
+tool_catalog_discovery	normalized_tool_name	character varying	varchar	YES		128
+tool_catalog_discovery	discovery_source	character varying	varchar	NO	'survey'::character varying	32
+tool_catalog_discovery	review_status	character varying	varchar	NO	'pending'::character varying	32
+tool_catalog_discovery	promoted_tool_code	character varying	varchar	YES		64
+tool_catalog_discovery	created_at	timestamp with time zone	timestamptz	NO	now()	
+tool_catalog_discovery	reviewed_at	timestamp with time zone	timestamptz	YES		
+tool_catalog_discovery	reviewed_by	character varying	varchar	YES		128
+tool_catalog_discovery	notes	text	text	YES		
+tool_discoveries	id	uuid	uuid	NO	gen_random_uuid()	
+tool_discoveries	org_id	uuid	uuid	NO		
+tool_discoveries	survey_run_id	uuid	uuid	YES		
+tool_discoveries	submitted_by	uuid	uuid	YES		
+tool_discoveries	tool_name	text	text	NO		
+tool_discoveries	vendor	text	text	YES		
+tool_discoveries	use_case	text	text	YES		
+tool_discoveries	use_frequency	text	text	YES		
+tool_discoveries	data_types_used	ARRAY	_text	YES		
+tool_discoveries	department	text	text	YES		
+tool_discoveries	submitted_at	timestamp with time zone	timestamptz	YES	now()	
+tool_discoveries	review_status	text	text	NO	'pending'::text	
+tool_discoveries	reviewed_by	uuid	uuid	YES		
+tool_discoveries	reviewed_at	timestamp with time zone	timestamptz	YES		
+tool_discoveries	review_notes	text	text	YES		
+tool_discoveries	resulting_tool_id	uuid	uuid	YES		
+tool_discoveries	application_risk_class	text	text	YES		
+tool_discoveries	eu_ai_act_context	text	text	YES		
+tools_library	id	uuid	uuid	NO	gen_random_uuid()	
+tools_library	name	text	text	NO		
+tools_library	vendor	text	text	NO		
+tools_library	description	text	text	YES		
+tools_library	hosting_location	text	text	YES		
+tools_library	data_residency	text	text	YES		
+tools_library	gpai_status	boolean	bool	YES	false	
+tools_library	model_type	text	text	YES		
+tools_library	capabilities	ARRAY	_text	YES	'{}'::text[]	
+tools_library	vendor_privacy_policy_url	text	text	YES		
+tools_library	vendor_terms_url	text	text	YES		
+tools_library	vendor_website_url	text	text	YES		
+tools_library	api_available	boolean	bool	YES	false	
+tools_library	contract_required	boolean	bool	YES	false	
+tools_library	category	text	text	YES		
+tools_library	version	text	text	YES	'1.0'::text	
+tools_library	status	text	text	YES	'draft'::text	
+tools_library	org_id	uuid	uuid	YES		
+tools_library	created_by	uuid	uuid	YES		
+tools_library	created_at	timestamp with time zone	timestamptz	YES	now()	
+tools_library	updated_at	timestamp with time zone	timestamptz	YES	now()	
+user_badges	id	uuid	uuid	NO	gen_random_uuid()	
+user_badges	user_id	uuid	uuid	NO		
+user_badges	org_id	uuid	uuid	NO		
+user_badges	badge_type	text	text	NO		
+user_badges	earned_at	timestamp with time zone	timestamptz	NO	now()	
+user_course_completions	id	uuid	uuid	NO	gen_random_uuid()	
+user_course_completions	user_id	uuid	uuid	NO		
+user_course_completions	course_id	uuid	uuid	NO		
+user_course_completions	final_score	integer	int4	YES		
+user_course_completions	capability_unlocked	text	text	YES		
+user_course_completions	completed_at	timestamp with time zone	timestamptz	YES	now()	
+user_course_completions	org_id	uuid	uuid	YES		
+user_course_progress	id	uuid	uuid	NO	gen_random_uuid()	
+user_course_progress	user_id	uuid	uuid	NO		
+user_course_progress	course_id	uuid	uuid	NO		
+user_course_progress	lessons_completed	integer	int4	YES	0	
+user_course_progress	lessons_required	integer	int4	NO		
+user_course_progress	progress_percentage	integer	int4	YES	0	
+user_course_progress	started_at	timestamp with time zone	timestamptz	YES	now()	
+user_course_progress	updated_at	timestamp with time zone	timestamptz	YES	now()	
+user_course_progress	org_id	uuid	uuid	YES		
+user_lesson_completions	id	uuid	uuid	NO	gen_random_uuid()	
+user_lesson_completions	user_id	uuid	uuid	NO		
+user_lesson_completions	lesson_id	uuid	uuid	NO		
+user_lesson_completions	score	integer	int4	YES		
+user_lesson_completions	time_spent	integer	int4	YES		
+user_lesson_completions	completed_at	timestamp with time zone	timestamptz	YES	now()	
+user_lesson_completions	org_id	uuid	uuid	YES		
+user_lesson_progress	id	uuid	uuid	NO	gen_random_uuid()	
+user_lesson_progress	user_id	uuid	uuid	NO		
+user_lesson_progress	lesson_id	uuid	uuid	NO		
+user_lesson_progress	current_block_index	integer	int4	YES	0	
+user_lesson_progress	blocks_completed	jsonb	jsonb	YES	'[]'::jsonb	
+user_lesson_progress	progress_percentage	integer	int4	YES	0	
+user_lesson_progress	quiz_attempts	jsonb	jsonb	YES	'{}'::jsonb	
+user_lesson_progress	started_at	timestamp with time zone	timestamptz	YES	now()	
+user_lesson_progress	updated_at	timestamp with time zone	timestamptz	YES	now()	
+user_lesson_progress	org_id	uuid	uuid	YES		
+user_roles	id	uuid	uuid	NO	gen_random_uuid()	
+user_roles	user_id	uuid	uuid	NO		
+user_roles	role	USER-DEFINED	app_role	NO		
+user_roles	created_at	timestamp with time zone	timestamptz	YES	now()	
+user_roles	org_id	uuid	uuid	NO	'00000000-0000-0000-0000-000000000001'::uuid	

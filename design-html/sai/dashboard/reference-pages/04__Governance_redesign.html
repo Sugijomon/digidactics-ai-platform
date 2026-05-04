@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html class="light" lang="nl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Governance | Shadow AI Governance</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        surface: "#f7f9fb",
+        "surface-panel": "#ffffff",
+        "surface-soft": "#f0f4f7",
+        ink: "#1a2028",
+        muted: "#566166",
+        primary: "#0E5A75",
+        green: "#3e6a00",
+        amber: "#C06000",
+        red: "#b4292d",
+        blue: "#0369a1",
+        violet: "#6d28d9",
+        cyan: "#0e7490"
+      },
+      fontFamily: {
+        headline: ["Manrope", "sans-serif"],
+        body: ["Inter", "sans-serif"],
+        mono: ["DM Mono", "monospace"]
+      }
+    }
+  }
+};
+</script>
+<style>
+* { box-sizing: border-box; }
+body { font-family: "Inter", sans-serif; background: #f7f9fb; color: #1a2028; }
+h1,h2,h3,h4 { font-family: "Manrope", sans-serif; }
+.ms { font-family: "Material Symbols Outlined"; font-variation-settings: "FILL" 0,"wght" 400,"GRAD" 0,"opsz" 24; vertical-align: middle; line-height: 1; }
+
+/* ── PROFILE MENU ── */
+.profile-menu { position: absolute; top: calc(100% + 8px); right: 0; width: 256px; background: #fff; border: 1px solid #dbe3ec; border-radius: 12px; box-shadow: 0 12px 24px rgba(15,23,42,.10); overflow: hidden; display: none; z-index: 30; }
+.profile-menu.is-open { display: block; }
+
+/* ── CORE CARD SYSTEM (matching benchmarks) ── */
+.card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 1px 3px rgba(26,32,44,.04), 0 4px 16px rgba(26,32,44,.05); }
+.section { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; box-shadow: inset 0 1px 0 rgba(255,255,255,.8); }
+
+/* ── KPI CARDS ── */
+.kpi-card { background: #fff; border: 1px solid rgba(193,201,207,.3); border-radius: 14px; padding: 18px 16px; box-shadow: 0 1px 3px rgba(26,32,44,.04), 0 4px 16px rgba(26,32,44,.05); }
+.score-track { height: 4px; border-radius: 999px; overflow: hidden; background: #e2e8f0; }
+.score-fill { height: 100%; border-radius: 999px; transition: width .7s cubic-bezier(.4,0,.2,1); }
+
+/* ── FILTER CHIPS ── */
+.chip { display: inline-flex; align-items: center; gap: 5px; border: 1px solid #e2e8f0; background: #fff; color: #475569; border-radius: 999px; padding: 5px 11px; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all .15s; }
+.chip:hover { border-color: #94a3b8; background: #f8fafc; }
+.chip.is-active { background: #1e293b; color: #fff; border-color: #1e293b; }
+
+/* ── TRIGGER TAGS (monospace, matching Risicoprofiel) ── */
+.ttag { display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 5px; font-size: 9px; font-weight: 800; letter-spacing: .03em; font-family: "DM Mono", monospace; white-space: nowrap; }
+.ttag.hard   { background: #fdecea; color: #b4292d; }
+.ttag.warn   { background: #fff7ed; color: #b45309; }
+.ttag.info   { background: #eff6ff; color: #1d4ed8; }
+.ttag.green  { background: #f0fdf4; color: #166534; }
+.ttag.violet { background: #f5f3ff; color: #6d28d9; }
+.ttag.slate  { background: #f1f5f9; color: #475569; }
+.ttag.cyan   { background: #ecfeff; color: #0e7490; }
+
+/* ── SIGNAL ROWS (identical to Risicoprofiel .queue-row) ── */
+.signal-row { background: #fff; border: 1px solid #e8edf2; border-radius: 12px; padding: 13px 15px; cursor: pointer; transition: border-color .15s, box-shadow .15s, transform .15s; position: relative; overflow: hidden; }
+.signal-row:hover { border-color: #c7d5e0; box-shadow: 0 4px 20px rgba(26,32,44,.08); transform: translateY(-1px); }
+.signal-row.accent-red::before   { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: #b4292d; }
+.signal-row.accent-amber::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: #C06000; }
+.signal-row.accent-green::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: #3e6a00; }
+.signal-row.accent-blue::before  { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: #0369a1; }
+.signal-row.accent-violet::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: #6d28d9; }
+.signal-row.accent-cyan::before  { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: #0e7490; }
+
+/* ── BAR TRACK ── */
+.bar-track { height: 5px; border-radius: 999px; overflow: hidden; background: #e2e8f0; }
+.bar-fill   { height: 100%; border-radius: 999px; transition: width .7s cubic-bezier(.4,0,.2,1); }
+
+/* ── LITERACY / POLICY BARS ── */
+.literacy-bar { display: flex; height: 28px; border-radius: 10px; overflow: hidden; gap: 2px; }
+.lit-seg { display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: #fff; transition: width .7s cubic-bezier(.4,0,.2,1); border-radius: 8px; white-space: nowrap; overflow: hidden; min-width: 0; }
+
+/* ── HEATMAP CELLS (same system as Risicoprofiel) ── */
+.hm-cell { border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; font-family: "DM Mono", monospace; height: 36px; cursor: pointer; transition: transform .1s, box-shadow .1s; }
+.hm-cell:hover { transform: scale(1.06); box-shadow: 0 2px 8px rgba(0,0,0,.12); }
+
+/* ── TRIGGER TABLE ── */
+.tbl-scroll { max-height: 380px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+.tbl-scroll::-webkit-scrollbar { width: 4px; }
+.tbl-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+
+/* ── DRAWER ── */
+.drawer-bg { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.22); backdrop-filter: blur(2px); z-index: 190; }
+.drawer-bg.is-open { display: block; }
+.drawer { position: fixed; top: 0; right: -540px; width: min(520px, 94vw); height: 100vh; background: #fff; border-left: 1px solid #e2e8f0; box-shadow: -8px 0 48px rgba(15,23,42,.14); z-index: 200; transition: right .28s cubic-bezier(.4,0,.2,1); display: flex; flex-direction: column; overflow: hidden; }
+.drawer.is-open { right: 0; }
+.drawer-scroll { overflow-y: auto; flex: 1; scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+
+/* ── SECTION LABEL ── */
+.section-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: #94a3b8; margin-bottom: 12px; }
+
+/* ── COMBO ROW ── */
+.combo-row { background: #fff; border: 1px solid #e8edf2; border-radius: 12px; padding: 12px 14px; cursor: pointer; transition: border-color .15s, box-shadow .15s, transform .15s; }
+.combo-row:hover { border-color: #c7d5e0; box-shadow: 0 3px 16px rgba(26,32,44,.08); transform: translateY(-1px); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+.fu  { animation: fadeUp .4s ease both; }
+.fu1 { animation-delay: .05s; }
+.fu2 { animation-delay: .10s; }
+.fu3 { animation-delay: .15s; }
+.fu4 { animation-delay: .20s; }
+.fu5 { animation-delay: .25s; }
+
+@media (max-width: 980px) {
+  aside { display: none; }
+  main { margin-left: 0 !important; width: 100vw !important; max-width: 100vw !important; }
+}
+</style>
+</head>
+<body class="flex min-h-screen overflow-x-hidden bg-surface text-ink">
+
+<!-- ═══════════════════ SIDENAV ═══════════════════ -->
+<aside class="fixed left-0 top-0 z-[90] h-full w-64 bg-slate-50 flex flex-col gap-2 p-4 border-r border-slate-200">
+  <div class="mb-8 px-4">
+    <h1 class="font-bold text-slate-800 text-[17px]">DPO Governance</h1>
+    <p class="text-[12px] font-medium text-slate-500 mt-0.5">Beheerdersdashboard</p>
+  </div>
+  <nav class="flex flex-col gap-1 text-sm">
+    <a class="text-slate-500 hover:bg-slate-100 rounded-lg px-4 py-2.5 flex items-center gap-3 transition-all" href="#"><span class="ms text-[17px]">play_circle</span><span class="font-semibold">Activatie</span></a>
+    <a class="text-slate-500 hover:bg-slate-100 rounded-lg px-4 py-2.5 flex items-center gap-3 transition-all" href="#"><span class="ms text-[17px]">grid_view</span><span class="font-semibold">Tool Inventaris</span></a>
+    <a class="text-slate-500 hover:bg-slate-100 rounded-lg px-4 py-2.5 flex items-center gap-3 transition-all" href="#"><span class="ms text-[17px]">assessment</span><span class="font-semibold">Risicoprofiel</span></a>
+    <a class="bg-slate-200 text-slate-900 font-bold rounded-lg px-4 py-2.5 flex items-center gap-3" href="#"><span class="ms text-[17px]">gavel</span>Governance</a>
+    <a class="text-slate-500 hover:bg-slate-100 rounded-lg px-4 py-2.5 flex items-center gap-3 transition-all" href="#"><span class="ms text-[17px]">description</span><span class="font-semibold">Rapportage</span></a>
+  </nav>
+  <div class="mt-auto px-2 pb-2 space-y-0.5">
+    <a class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-slate-500 hover:bg-slate-100 text-[12px] font-medium" href="#"><span class="ms text-[14px]">lightbulb</span>Kennisbank</a>
+    <a class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-slate-500 hover:bg-slate-100 text-[12px] font-medium" href="#"><span class="ms text-[14px]">notifications_none</span>Support</a>
+  </div>
+</aside>
+
+<!-- ═══════════════════ MAIN ═══════════════════ -->
+<main class="ml-64 w-[calc(100vw-16rem)] max-w-[calc(100vw-16rem)] flex flex-col min-h-screen overflow-x-hidden">
+
+  <!-- TOPBAR -->
+  <header class="bg-slate-50/95 sticky top-0 z-[80] border-b border-slate-200/70 backdrop-blur-sm">
+    <div class="w-full px-7 py-2.5 grid grid-cols-[minmax(320px,1fr)_minmax(280px,1fr)_minmax(210px,1fr)] items-center gap-4">
+      <div class="min-w-0 flex items-center gap-4">
+        <span class="text-[22px] font-bold tracking-tight text-slate-800">Shadow AI Scan</span>
+        <span class="px-3 py-1.5 rounded-full bg-[#CFEA7B] text-[#4D7800] font-bold text-[12px] flex items-center gap-1.5 leading-none shrink-0"><span class="w-2 h-2 rounded-full bg-[#4D7800]"></span>Open</span>
+      </div>
+      <div class="flex items-center justify-center gap-2">
+        <span class="ms text-slate-400 text-[17px]">calendar_today</span>
+        <span class="text-[14px] font-bold text-slate-700 whitespace-nowrap">Sluit op 23 april</span>
+        <span class="text-[11px] text-slate-500 bg-slate-100 px-2.5 py-1 rounded-xl whitespace-nowrap">(nog 8 dagen)</span>
+      </div>
+      <div class="relative flex justify-end">
+        <button id="profile-menu-button" class="flex items-center gap-2.5 rounded-full px-2.5 py-1 hover:bg-slate-100 transition-colors" type="button" aria-expanded="false">
+          <div class="w-9 h-9 rounded-full border border-slate-200 text-slate-500 flex items-center justify-center bg-white"><span class="ms text-[17px]">person</span></div>
+          <div class="text-left leading-tight"><p class="text-[13px] font-bold text-slate-800">Marjan Jansen</p><p class="text-[9px] font-semibold text-slate-500 mt-0.5">DPO</p></div>
+          <span class="ms text-[17px] text-slate-400">expand_more</span>
+        </button>
+        <div id="profile-menu" class="profile-menu">
+          <div class="px-4 py-3.5 border-b border-slate-100"><p class="text-[14px] font-bold text-slate-800">Marjan Jansen</p><p class="text-[11px] text-slate-500 mt-1">marjan@digidactics.nl</p></div>
+          <button class="w-full flex items-center gap-3 px-4 py-3 text-slate-800 hover:bg-slate-50 text-[14px]"><span class="ms text-[17px]">person</span>Mijn profiel</button>
+          <button class="w-full flex items-center gap-3 px-4 py-3 text-[#ff4b3e] hover:bg-red-50 border-t border-slate-100 text-[14px]"><span class="ms text-[17px]">logout</span>Uitloggen</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="p-7 space-y-6">
+
+    <!-- ── PAGE HEADER ── -->
+    <div class="flex flex-wrap items-start justify-between gap-4 fu">
+      <div>
+        <h2 class="text-[28px] font-black text-slate-900 tracking-tight leading-none">Governance</h2>
+        <p class="text-[13px] text-muted mt-1.5 max-w-2xl">Gedragsinzichten, AI Literacy en Policy Awareness — sociale indicatoren voor interventie, training en bestuurlijke opvolging. Niet voor risicoscore.</p>
+      </div>
+      <div class="flex items-center gap-2 pt-1">
+        <span class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-bold text-slate-500 shadow-sm">
+          <span class="ms text-[13px] text-slate-400">info</span>Geen scorecomponent — puur interventielaag
+        </span>
+      </div>
+    </div>
+
+    <!-- ── STAP 1: KPI ROW ── -->
+    <section class="section fu fu1">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="ms text-primary text-[16px]">query_stats</span>
+        <p class="section-label mb-0">Governance-signalen op een rij</p>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-3" id="kpi-row"></div>
+    </section>
+
+    <!-- ── STAP 2: LITERACY + POLICY SIDE BY SIDE ── -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 fu fu2">
+
+      <!-- AI Literacy -->
+      <div class="card overflow-hidden">
+        <div class="px-6 pt-5 pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-violet/10 flex items-center justify-center shrink-0"><span class="ms text-[17px] text-violet">school</span></div>
+            <div>
+              <h3 class="text-[14px] font-bold text-slate-800">AI Literacy & vaardigheid</h3>
+              <p class="text-[11px] text-muted mt-0.5">Stuurvariabele voor trainingsplanning — niet voor risicoscore</p>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-5 space-y-4" id="literacy-section"></div>
+      </div>
+
+      <!-- Policy Awareness -->
+      <div class="card overflow-hidden">
+        <div class="px-6 pt-5 pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-cyan/10 flex items-center justify-center shrink-0"><span class="ms text-[17px] text-cyan">policy</span></div>
+            <div>
+              <h3 class="text-[14px] font-bold text-slate-800">Policy Awareness</h3>
+              <p class="text-[11px] text-muted mt-0.5">Laag = communicatiebehoefte, niet per se kwade wil</p>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-5 space-y-3" id="policy-section"></div>
+      </div>
+    </div>
+
+    <!-- ── STAP 3: AWARENESS HEATMAP + GAPS ── -->
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5 fu fu3">
+
+      <!-- Awareness heatmap: afdeling × gap type -->
+      <div class="card overflow-hidden">
+        <div class="px-6 pt-5 pb-3 border-b border-slate-100">
+          <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-amber/10 flex items-center justify-center shrink-0"><span class="ms text-[17px] text-amber">visibility_off</span></div>
+              <div>
+                <h3 class="text-[14px] font-bold text-slate-800">Awareness-gaps per afdeling</h3>
+                <p class="text-[11px] text-muted mt-0.5">Onbewust risicovol gedrag — input voor trainingsagenda</p>
+              </div>
+            </div>
+            <span class="text-[10px] text-slate-400 italic shrink-0">n respondenten per cel</span>
+          </div>
+        </div>
+        <div class="px-6 py-5 overflow-x-auto" id="awareness-heatmap"></div>
+      </div>
+
+      <!-- Combinatiesignalen -->
+      <div class="card overflow-hidden">
+        <div class="px-6 pt-5 pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-blue/10 flex items-center justify-center shrink-0"><span class="ms text-[17px] text-blue">join_inner</span></div>
+            <div>
+              <h3 class="text-[14px] font-bold text-slate-800">Combinatiesignalen</h3>
+              <p class="text-[11px] text-muted mt-0.5">Patroon bepaalt de juiste interventie</p>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-4 space-y-2" id="combo-section"></div>
+      </div>
+    </div>
+
+    <!-- ── STAP 4: HARD REVIEW TRIGGERS ── -->
+    <section class="card overflow-hidden fu fu4">
+      <div class="px-6 pt-5 pb-4 border-b border-slate-100 flex flex-wrap items-start justify-between gap-4">
+        <div class="flex items-start gap-3">
+          <div class="w-9 h-9 rounded-lg bg-red/10 flex items-center justify-center shrink-0 mt-0.5"><span class="ms text-[20px] text-red">crisis_alert</span></div>
+          <div>
+            <h3 class="text-[16px] font-extrabold tracking-tight text-slate-900">Hard review-triggers</h3>
+            <p class="text-[11px] text-muted mt-0.5">Activeren <code class="font-mono text-[10px] bg-slate-100 px-1.5 py-0.5 rounded">dpo_review_required = true</code> ongeacht scoringsformule — altijd bestuurlijke opvolging vereist</p>
+          </div>
+        </div>
+        <span id="trigger-count" class="inline-flex items-center gap-1.5 rounded-full border border-red/25 bg-red/5 px-3 py-1.5 text-[11px] font-bold text-red shrink-0">— actief</span>
+      </div>
+
+      <!-- Top trigger spotlight -->
+      <div id="trigger-spotlight" class="px-6 pt-4"></div>
+
+      <!-- Trigger table -->
+      <div class="tbl-scroll">
+        <table class="w-full text-left" style="min-width:700px">
+          <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-100">
+            <tr>
+              <th class="px-6 py-2.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Trigger</th>
+              <th class="px-4 py-2.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Type</th>
+              <th class="px-4 py-2.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Toelichting</th>
+              <th class="px-4 py-2.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 text-right">n</th>
+            </tr>
+          </thead>
+          <tbody id="trigger-table" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── STAP 5: INNOVATIE + NIET-GEBRUIK ── -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 fu fu5">
+
+      <!-- Innovatiesignalen -->
+      <div class="card overflow-hidden">
+        <div class="px-6 pt-5 pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-green/10 flex items-center justify-center shrink-0"><span class="ms text-[17px] text-green">rocket_launch</span></div>
+            <div>
+              <h3 class="text-[14px] font-bold text-slate-800">Innovatiesignalen & ambassadeurs</h3>
+              <p class="text-[11px] text-muted mt-0.5">Input voor pilotprogramma's en governance co-creatie</p>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-4 space-y-2.5" id="innovation-section"></div>
+      </div>
+
+      <!-- Niet-gebruik -->
+      <div class="card overflow-hidden">
+        <div class="px-6 pt-5 pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0"><span class="ms text-[17px] text-muted">block</span></div>
+            <div>
+              <h3 class="text-[14px] font-bold text-slate-800">Niet-gebruik als signaal</h3>
+              <p class="text-[11px] text-muted mt-0.5">De reden achter niet-gebruik bepaalt de interventie</p>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-4 space-y-2.5" id="nonuse-section"></div>
+      </div>
+    </div>
+
+    <!-- ── STAP 6: DPO-AANDACHTSSIGNALEN ── -->
+    <section class="card overflow-hidden fu">
+      <div class="px-6 pt-5 pb-3 border-b border-slate-100 flex flex-wrap items-start justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-violet/10 flex items-center justify-center shrink-0"><span class="ms text-[17px] text-violet">edit_note</span></div>
+          <div>
+            <h3 class="text-[14px] font-bold text-slate-800">DPO-aandachtssignalen</h3>
+            <p class="text-[11px] text-muted mt-0.5">Geaggregeerde signalen — geen individuele medewerkers getoond</p>
+          </div>
+        </div>
+        <button class="chip"><span class="ms text-[14px]">add</span>Signaal toevoegen</button>
+      </div>
+      <div class="tbl-scroll">
+        <table class="w-full text-left" style="min-width:720px">
+          <thead class="bg-slate-50 sticky top-0 border-b border-slate-100">
+            <tr>
+              <th class="px-6 py-2.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Cluster-ID</th>
+              <th class="px-4 py-2.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Type</th>
+              <th class="px-4 py-2.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Reden</th>
+              <th class="px-4 py-2.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Door</th>
+              <th class="px-4 py-2.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Datum</th>
+              <th class="px-4 py-2.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Status</th>
+              <th class="px-4 py-2.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400"></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr class="hover:bg-slate-50/60 transition-colors">
+              <td class="px-6 py-3 font-mono text-[11px] font-bold text-slate-500">SAI-1042</td>
+              <td class="px-4 py-3"><span class="ttag hard">Aandacht gevraagd</span></td>
+              <td class="px-4 py-3 text-[12px] text-slate-600">Gevoelig HR-project buiten standaardvraag zichtbaar geworden</td>
+              <td class="px-4 py-3 text-[12px] font-semibold text-slate-700">MJ</td>
+              <td class="px-4 py-3 text-[12px] text-slate-500">29 apr 2026</td>
+              <td class="px-4 py-3"><span class="ttag green">Actief</span></td>
+              <td class="px-4 py-3"><button class="chip text-[10px] py-1 px-2.5">Afhandelen</button></td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition-colors">
+              <td class="px-6 py-3 font-mono text-[11px] font-bold text-slate-500">SAI-0988</td>
+              <td class="px-4 py-3"><span class="ttag info">Review vereist</span></td>
+              <td class="px-4 py-3 text-[12px] text-slate-600">Leveranciersmelding over opslaglocatie vereist nadere beoordeling</td>
+              <td class="px-4 py-3 text-[12px] font-semibold text-slate-700">MJ</td>
+              <td class="px-4 py-3 text-[12px] text-slate-500">26 apr 2026</td>
+              <td class="px-4 py-3"><span class="ttag green">Actief</span></td>
+              <td class="px-4 py-3"><button class="chip text-[10px] py-1 px-2.5">Afhandelen</button></td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition-colors">
+              <td class="px-6 py-3 font-mono text-[11px] font-bold text-slate-500">SAI-0871</td>
+              <td class="px-4 py-3"><span class="ttag warn">Prioriteit verlaagd</span></td>
+              <td class="px-4 py-3 text-[12px] text-slate-600">Datakwaliteitscorrectie: tool foutief gekoppeld aan klantcontext</td>
+              <td class="px-4 py-3 text-[12px] font-semibold text-slate-700">DPO-team</td>
+              <td class="px-4 py-3 text-[12px] text-slate-500">24 apr 2026</td>
+              <td class="px-4 py-3"><span class="ttag green">Actief</span></td>
+              <td class="px-4 py-3"><button class="chip text-[10px] py-1 px-2.5">Afhandelen</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── STAP 7: STAKEHOLDER GRID ── -->
+    <section class="section fu">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="ms text-primary text-[16px]">groups</span>
+        <p class="section-label mb-0">Inzichten per stakeholder</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3" id="stakeholder-grid"></div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="pb-4">
+      <div class="border-t border-slate-200/60 pt-4 flex items-start gap-2">
+        <span class="ms text-[14px] text-slate-400 mt-0.5 shrink-0">info</span>
+        <p class="text-[11px] text-slate-400 leading-relaxed">Sociale indicatoren beïnvloeden de risicoscore niet. Zij sturen interventie, training en bestuurlijke opvolging. Hard triggers activeren <code class="font-mono text-[10px]">dpo_review_required = true</code> ongeacht score — altijd menselijk oordeel vereist.</p>
+      </div>
+    </footer>
+
+  </div>
+</main>
+
+<!-- DRAWER BACKDROP -->
+<div class="drawer-bg" id="drawer-bg" onclick="closeDrawer()"></div>
+
+<!-- DRAWER -->
+<aside id="drawer" class="drawer" aria-label="Detail">
+  <div class="flex items-start justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+    <div><p class="text-[15px] font-extrabold text-slate-800" id="drawer-title">—</p><p class="text-[11px] text-muted mt-0.5" id="drawer-sub">—</p></div>
+    <button onclick="closeDrawer()" class="w-9 h-9 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors shrink-0"><span class="ms text-[20px]">close</span></button>
+  </div>
+  <div class="drawer-scroll px-6 py-5 space-y-5" id="drawer-body"></div>
+</aside>
+
+<!-- ═══════════════════ SCRIPTS ═══════════════════ -->
+<script>
+/* ── DATA ── */
+const totalN = 147;
+const n = pct => Math.round((pct / 100) * totalN);
+
+const DATA = {
+  literacy: [
+    { label:"Beginner",  pct:28, color:"#b45309", bg:"#fffbeb", governance:"Trainingsbehoefte hoog — prompting en basisregels prioriteit" },
+    { label:"Gemiddeld", pct:41, color:"#0369a1", bg:"#eff6ff", governance:"Verdieping op datahygiëne en organisatiebeleid" },
+    { label:"Gevorderd", pct:22, color:"#6d28d9", bg:"#f5f3ff", governance:"Ambassadeurskandidate — governance-check complexere werkstromen" },
+    { label:"Expert",    pct: 9, color:"#3e6a00", bg:"#f0fdf4", governance:"Sterk ambassadeurskandidate — DPO-gesprek over infrastructuurrisico" }
+  ],
+  policy: [
+    { label:"Hoog — weet goed wat er mag",            pct:31, color:"#3e6a00" },
+    { label:"Partieel — heb er iets over gehoord",    pct:38, color:"#b45309" },
+    { label:"Laag — weet niet of er afspraken zijn",  pct:21, color:"#b4292d" },
+    { label:"Geen beleid bekend (signaal)",            pct:10, color:"#6d28d9" }
+  ],
+  heatmap: {
+    depts: ["HR","Finance","Marketing","IT","Operations","Sales"],
+    gaps: ["Data-onzekerheid","Extensie","Automatisering","Output overnemen"],
+    cells: [
+      [11,4,6,9], [8,2,3,7], [6,5,4,10], [5,8,9,5], [4,3,5,6], [3,2,4,4]
+    ]
+  },
+  combos: [
+    { pattern:"Hoge shadow + hoge policy awareness", type:"Bewust risico",    color:"#b4292d", icon:"warning",         action:"DPO-duiding en opvolging" },
+    { pattern:"Hoge shadow + lage policy awareness", type:"Onbewust risico",  color:"#b45309", icon:"school",          action:"Training en communicatie eerst" },
+    { pattern:"Lage exposure + data-onzekerheid",    type:"Latent risico",    color:"#0369a1", icon:"visibility_off",  action:"Awareness-check; score kan context missen" },
+    { pattern:"Expert + privéaccount + gevoelige data", type:"Complex risico",color:"#6d28d9", icon:"manage_accounts", action:"DPO-duiding en licentie-optie" },
+    { pattern:"Geen intern alternatief + diverse use-cases", type:"Business case", color:"#3e6a00", icon:"lightbulb",  action:"Bruikbaar voor IT-roadmap" },
+    { pattern:"Experimenteren + ambassadeursbereid",  type:"Ambassadeur",     color:"#0e7490", icon:"star",            action:"Kandidaat AI-kopgroep" }
+  ],
+  triggers: [
+    { trigger:"Toolstatus: niet toegestaan",                    type:"hard",    n:12, note:"Altijd reviewwaardig; score is niet leidend" },
+    { trigger:"Privéaccount + klantdata of persoonsgegevens",   type:"hard",    n:16, note:"Geen organisatiecontrole + hoge datagevoeligheid" },
+    { trigger:"Goedgekeurde tool + bijzondere persoonsgegevens",type:"hard",    n: 9, note:"shadow_base=0 en data_boost=+30" },
+    { trigger:"Agentic AI gebruik",                             type:"hard",    n: 8, note:"Autonoom handelen buiten organisatieregie" },
+    { trigger:"HR-evaluatie gebruik",                           type:"hard",    n: 5, note:"Potentieel juridisch aandachtspunt" },
+    { trigger:"Juridisch aandachtspunt aanwezig",               type:"pattern", n: 7, note:"Patroonherkenning afdeling + use-case" },
+    { trigger:"Creditwaardigheid / verzekeringsrisico",         type:"pattern", n: 3, note:"Wettelijk gevoelige context" },
+    { trigger:"Priority score boven drempel (40)",              type:"score",   n:29, note:"Configureerbare drempel; default 40" }
+  ],
+  innovation: [
+    { signal:"Experimenteren — ontdekken wat AI doet",   n:34, icon:"science",                 dest:"AI-kopgroep; pilot-kandidaat" },
+    { signal:"Agents die zelfstandig taken uitvoeren",   n:11, icon:"smart_toy",               dest:"Innovatie-roadmap + governance check" },
+    { signal:"AI gekoppeld aan e-mail / agenda / sheets",n:19, icon:"integration_instructions", dest:"IT & innovatie: integratierisico en use-case cluster" },
+    { signal:"Ambassadeursbereidheid (opt-in)",          n:22, icon:"volunteer_activism",       dest:"Kandidaten beschikbaar via scherm 09" },
+    { signal:"AI-café / klankbordgroepbehoefte",         n:28, icon:"groups",                  dest:"Community-building; peer-learning" }
+  ],
+  nonuse: [
+    { reason:"Zie de toegevoegde waarde niet",      n:18, color:"#b45309", action:"Awareness + use-case demonstraties",          icon:"visibility" },
+    { reason:"Expliciet verboden op mijn afdeling", n: 9, color:"#3e6a00", action:"Positief signaal — gebruik als normreferentie",icon:"check_circle" },
+    { reason:"Weet niet hoe te beginnen",           n:14, color:"#0369a1", action:"Directe L&D-behoefte — literacy-gap",         icon:"school" }
+  ],
+  stakeholders: [
+    { title:"DPO & Security", icon:"shield", color:"#b4292d",
+      items:["Awareness-gaps + hoge exposure-score","Extensie-onwetendheid als onbewust risico","Output direct overnemen in juridische context","Policy awareness per afdeling"] },
+    { title:"HR & L&D", icon:"people", color:"#0369a1",
+      items:["Skill-verdeling per afdeling — trainingsplanning","Awareness-gaps als trainingsagenda","Niet-gebruik als L&D-behoefte","Welke trainingsvormen?"] },
+    { title:"IT & Innovatie", icon:"developer_board", color:"#6d28d9",
+      items:["\"Geen intern alternatief\" — sterkste business case","Use-case clusters per afdeling","Agents en app-integraties","Gevraagde veilige AI use-cases"] },
+    { title:"Management", icon:"leaderboard", color:"#3e6a00",
+      items:["Adoptie-ratio: omvang AI-gebruikersgroep","Shadow AI Index als executive summary","Ambassador candidates als AI-kopgroep input","Business pressure-signalen"] }
+  ]
+};
+
+/* ── KPI ROW ── */
+function buildKpis() {
+  const hardTotal = DATA.triggers.filter(t => t.type === "hard").reduce((s,t) => s + t.n, 0);
+  const gapsTotal = DATA.heatmap.cells.flat().reduce((a,b) => a+b, 0);
+  const lowPolicy = n(DATA.policy[2].pct + DATA.policy[3].pct);
+  const lowLit    = n(DATA.literacy[0].pct);
+  const ambassadors = DATA.innovation.find(i => i.signal.includes("Ambassadeurs")).n;
+
+  const kpis = [
+    { label:"Hard triggers",       val:hardTotal, sub:"dpo_review_required",  color:"#b4292d", icon:"crisis_alert",    pct:Math.round(hardTotal/totalN*100) },
+    { label:"Awareness gaps",      val:gapsTotal, sub:"geregistreerde gaps",   color:"#b45309", icon:"visibility_off",  pct:Math.min(Math.round(gapsTotal/totalN*100),100) },
+    { label:"Lage policy awareness",val:lowPolicy, sub:"laag + geen beleid",  color:"#0369a1", icon:"policy",          pct:Math.round(lowPolicy/totalN*100) },
+    { label:"Literacy: Beginner",  val:lowLit,    sub:"trainingsbehoefte hoog",color:"#6d28d9", icon:"school",         pct:DATA.literacy[0].pct },
+    { label:"Ambassadeurs",        val:ambassadors,sub:"opt-in beschikbaar",  color:"#3e6a00", icon:"star",            pct:Math.round(ambassadors/totalN*100) }
+  ];
+
+  document.getElementById("kpi-row").innerHTML = kpis.map(k => `
+    <div class="kpi-card">
+      <div class="flex items-center justify-between mb-2">
+        <p class="text-[10px] font-extrabold uppercase tracking-tight text-muted leading-tight">${k.label}</p>
+        <span class="ms text-[16px]" style="color:${k.color}">${k.icon}</span>
+      </div>
+      <h3 class="text-[34px] font-black font-mono leading-none" style="color:${k.color}">${k.val}</h3>
+      <div class="score-track mt-2.5"><div class="score-fill" style="width:${Math.min(k.pct,100)}%;background:${k.color}"></div></div>
+      <p class="text-[10px] text-muted mt-1.5">${k.sub}</p>
+    </div>`).join("");
+}
+
+/* ── LITERACY ── */
+function buildLiteracy() {
+  const total = DATA.literacy.reduce((s,l) => s+l.pct, 0);
+  const el = document.getElementById("literacy-section");
+
+  // Stacked bar
+  el.innerHTML = `
+    <div>
+      <div class="literacy-bar mb-1.5">
+        ${DATA.literacy.map(l => `<div class="lit-seg" style="width:${l.pct}%;background:${l.color}">${l.pct >= 12 ? l.pct+'%' : ''}</div>`).join("")}
+      </div>
+      <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+        ${DATA.literacy.map(l => `<div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-sm inline-block flex-shrink-0" style="background:${l.color}"></span><span class="text-[10px] font-semibold text-slate-600">${l.label}</span><span class="text-[10px] font-mono text-slate-400">${l.pct}%</span></div>`).join("")}
+      </div>
+    </div>
+    <div class="space-y-2 mt-1">
+      ${DATA.literacy.map(l => `
+        <div class="flex items-start gap-3 p-3 rounded-10 border border-slate-100" style="background:${l.bg}">
+          <div class="w-6 h-6 rounded-md flex items-center justify-center shrink-0 mt-0.5" style="background:${l.color}22">
+            <span class="text-[10px] font-black font-mono" style="color:${l.color}">${l.pct}%</span>
+          </div>
+          <div>
+            <p class="text-[11px] font-bold" style="color:${l.color}">${l.label}</p>
+            <p class="text-[10px] text-slate-500 mt-0.5 leading-snug">${l.governance}</p>
+          </div>
+        </div>`).join("")}
+    </div>
+    <p class="text-[10px] text-slate-400 italic">Stuurvariabele voor trainingsplanning — niet voor risicoscore.</p>`;
+}
+
+/* ── POLICY AWARENESS ── */
+function buildPolicy() {
+  const el = document.getElementById("policy-section");
+  el.innerHTML = DATA.policy.map(p => `
+    <div>
+      <div class="flex items-center justify-between mb-1">
+        <span class="text-[11px] font-semibold text-slate-700">${p.label}</span>
+        <span class="text-[11px] font-black font-mono" style="color:${p.color}">${p.pct}%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:${p.pct}%;background:${p.color}"></div></div>
+    </div>`).join("") +
+    `<p class="text-[10px] text-slate-400 italic mt-2">Policy awareness = communicatie- en adoptie-informatie. Laag is geen bewijs van overtreding.</p>`;
+}
+
+/* ── AWARENESS HEATMAP ── */
+function buildAwarenessHeatmap() {
+  const { depts, gaps, cells } = DATA.heatmap;
+  const maxVal = Math.max(...cells.flat());
+  function cellColor(v) {
+    if (v >= 9)  return { bg:"#fdecea", color:"#b4292d" };
+    if (v >= 6)  return { bg:"#fff7ed", color:"#b45309" };
+    if (v >= 3)  return { bg:"#fefce8", color:"#854d0e" };
+    return { bg:"#f0fdf4", color:"#3e6a00" };
+  }
+
+  let html = `<div style="min-width:500px">
+    <div class="grid gap-1 mb-1" style="grid-template-columns: 80px repeat(${gaps.length}, 1fr)">
+      <div></div>
+      ${gaps.map(g => `<div class="text-[9px] font-bold text-slate-400 uppercase text-center leading-tight pb-1">${g}</div>`).join("")}
+    </div>
+    ${depts.map((dept, di) => `
+      <div class="grid gap-1 mb-1 items-center" style="grid-template-columns: 80px repeat(${gaps.length}, 1fr)">
+        <div class="text-[11px] font-semibold text-slate-600 text-right pr-2 truncate">${dept}</div>
+        ${cells[di].map((v, gi) => {
+          const c = cellColor(v);
+          return `<div class="hm-cell" style="background:${c.bg};color:${c.color}">${v}</div>`;
+        }).join("")}
+      </div>`).join("")}
+    <div class="grid gap-1 mt-3" style="grid-template-columns: 80px repeat(${gaps.length}, 1fr)">
+      <div></div>
+      ${gaps.map((_,i) => {
+        const colTotal = depts.map((_,di) => cells[di][i]).reduce((a,b)=>a+b,0);
+        return `<div class="text-[10px] font-black font-mono text-center" style="color:${cellColor(colTotal/depts.length).color}">${colTotal}</div>`;
+      }).join("")}
+    </div>
+    <div class="flex items-center gap-4 mt-3 flex-wrap">
+      <span class="text-[10px] font-bold text-slate-400">Schaal:</span>
+      ${[["≥9 hoog",{bg:"#fdecea",color:"#b4292d"}],["6–8 midden",{bg:"#fff7ed",color:"#b45309"}],["3–5 laag",{bg:"#fefce8",color:"#854d0e"}],["0–2 minimaal",{bg:"#f0fdf4",color:"#3e6a00"}]].map(([l,c]) =>
+        `<span class="inline-flex items-center gap-1.5 text-[10px] font-semibold" style="color:${c.color}"><span class="w-3 h-3 rounded" style="background:${c.bg};border:1px solid ${c.color}44"></span>${l}</span>`
+      ).join("")}
+    </div>
+  </div>`;
+  document.getElementById("awareness-heatmap").innerHTML = html;
+}
+
+/* ── COMBO SIGNALS ── */
+function buildCombos() {
+  document.getElementById("combo-section").innerHTML = DATA.combos.map(c => `
+    <div class="combo-row" onclick="openDrawer('${c.pattern}', '${c.type}', '<p class=\\"text-sm text-slate-600 leading-relaxed\\">Aanbevolen interventie: <strong>${c.action}</strong></p><p class=\\"text-xs text-slate-400 mt-2\\">Type: ${c.type}</p>')">
+      <div class="flex items-center gap-2.5">
+        <div class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style="background:${c.color}12">
+          <span class="ms text-[14px]" style="color:${c.color}">${c.icon}</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-[11px] font-bold text-slate-800 leading-tight">${c.pattern}</p>
+          <p class="text-[10px] text-muted mt-0.5">${c.action}</p>
+        </div>
+        <span class="ttag slate shrink-0">${c.type}</span>
+      </div>
+    </div>`).join("");
+}
+
+/* ── HARD TRIGGERS ── */
+function buildTriggers() {
+  const hardTotal = DATA.triggers.filter(t => t.type === "hard").reduce((s,t) => s+t.n, 0);
+  const total = DATA.triggers.reduce((s,t) => s+t.n, 0);
+  document.getElementById("trigger-count").textContent = `${total} actief`;
+
+  // Spotlight: highest-n hard trigger
+  const top = [...DATA.triggers].filter(t => t.type === "hard").sort((a,b) => b.n - a.n)[0];
+  document.getElementById("trigger-spotlight").innerHTML = `
+    <div class="flex items-center gap-4 bg-red/5 border border-red/15 rounded-14 px-5 py-4 mb-4">
+      <div class="w-10 h-10 rounded-full bg-red/10 flex items-center justify-center shrink-0">
+        <span class="ms text-[20px] text-red">gavel</span>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-[10px] font-black uppercase tracking-wider text-red mb-0.5">Hoogste prioriteit</p>
+        <h4 class="text-[14px] font-extrabold text-slate-900">${top.trigger}</h4>
+        <p class="text-[11px] text-red mt-0.5"><strong>${top.n} clusters</strong> — DPO-aandachtssignaal, geen juridische eindconclusie.</p>
+      </div>
+      <button class="inline-flex items-center gap-2 bg-red text-white text-[11px] font-bold px-4 py-2 rounded-xl hover:bg-[#991b1b] transition-colors shrink-0">
+        <span class="ms text-[14px]">open_in_new</span>Bekijk clusters
+      </button>
+    </div>`;
+
+  // Trigger type tag
+  function typeTag(t) {
+    if (t === "hard")    return `<span class="ttag hard">hard floor</span>`;
+    if (t === "pattern") return `<span class="ttag warn">patroon</span>`;
+    return `<span class="ttag info">score</span>`;
+  }
+
+  document.getElementById("trigger-table").innerHTML = [...DATA.triggers]
+    .sort((a,b) => b.n - a.n)
+    .map(t => `
+      <tr class="hover:bg-slate-50/60 transition-colors">
+        <td class="px-6 py-3.5"><p class="text-[12px] font-bold text-slate-800">${t.trigger}</p></td>
+        <td class="px-4 py-3.5">${typeTag(t.type)}</td>
+        <td class="px-4 py-3.5 text-[11px] text-slate-500">${t.note}</td>
+        <td class="px-4 py-3.5 text-right">
+          <span class="text-[13px] font-black font-mono ${t.type==='hard'?'text-red':t.type==='pattern'?'text-amber':'text-blue'}">${t.n}</span>
+        </td>
+      </tr>`).join("");
+}
+
+/* ── INNOVATION ── */
+function buildInnovation() {
+  document.getElementById("innovation-section").innerHTML = DATA.innovation.map(i => `
+    <div class="signal-row accent-green">
+      <div class="flex items-center gap-3 pl-2">
+        <div class="w-7 h-7 rounded-lg bg-green/10 flex items-center justify-center shrink-0">
+          <span class="ms text-[15px] text-green">${i.icon}</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between gap-2">
+            <p class="text-[11px] font-bold text-slate-700">${i.signal}</p>
+            <span class="text-[12px] font-black font-mono text-green shrink-0">${i.n}</span>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-0.5">${i.dest}</p>
+          <div class="bar-track mt-1.5"><div class="bar-fill" style="width:${Math.min((i.n/totalN)*100,100)}%;background:#3e6a00"></div></div>
+        </div>
+      </div>
+    </div>`).join("");
+}
+
+/* ── NON-USE ── */
+function buildNonUse() {
+  const accentMap = { "#b45309":"accent-amber", "#3e6a00":"accent-green", "#0369a1":"accent-blue" };
+  document.getElementById("nonuse-section").innerHTML = DATA.nonuse.map(nu => `
+    <div class="signal-row ${accentMap[nu.color]||''}">
+      <div class="flex items-center gap-3 pl-2">
+        <div class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style="background:${nu.color}12">
+          <span class="ms text-[15px]" style="color:${nu.color}">${nu.icon}</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between gap-2">
+            <p class="text-[11px] font-bold text-slate-700">"${nu.reason}"</p>
+            <span class="text-[12px] font-black font-mono shrink-0" style="color:${nu.color}">${nu.n}</span>
+          </div>
+          <p class="text-[10px] text-slate-500 mt-0.5">${nu.action}</p>
+        </div>
+      </div>
+    </div>`).join("");
+}
+
+/* ── STAKEHOLDERS ── */
+function buildStakeholders() {
+  document.getElementById("stakeholder-grid").innerHTML = DATA.stakeholders.map(s => `
+    <div class="bg-white rounded-12 border border-slate-100 p-4">
+      <div class="flex items-center gap-2.5 mb-3">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:${s.color}12">
+          <span class="ms text-[17px]" style="color:${s.color}">${s.icon}</span>
+        </div>
+        <p class="text-[12px] font-bold text-slate-800">${s.title}</p>
+      </div>
+      <ul class="space-y-1.5">
+        ${s.items.map(item => `
+          <li class="flex items-start gap-2">
+            <span class="ms text-[12px] mt-0.5 shrink-0" style="color:${s.color}">chevron_right</span>
+            <span class="text-[10px] text-slate-600 leading-snug">${item}</span>
+          </li>`).join("")}
+      </ul>
+    </div>`).join("");
+}
+
+/* ── DRAWER ── */
+function openDrawer(title, sub, html) {
+  document.getElementById("drawer-title").textContent = title;
+  document.getElementById("drawer-sub").textContent   = sub;
+  document.getElementById("drawer-body").innerHTML    = html;
+  document.getElementById("drawer").classList.add("is-open");
+  document.getElementById("drawer-bg").classList.add("is-open");
+  document.body.style.overflow = "hidden";
+}
+function closeDrawer() {
+  document.getElementById("drawer").classList.remove("is-open");
+  document.getElementById("drawer-bg").classList.remove("is-open");
+  document.body.style.overflow = "";
+}
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
+
+/* ── PROFILE MENU ── */
+const pmb  = document.getElementById("profile-menu-button");
+const pmenu = document.getElementById("profile-menu");
+pmb?.addEventListener("click", () => {
+  const open = pmenu?.classList.toggle("is-open");
+  pmb.setAttribute("aria-expanded", open ? "true" : "false");
+});
+document.addEventListener("click", e => {
+  if (!pmenu||!pmb) return;
+  if (pmenu.contains(e.target)||pmb.contains(e.target)) return;
+  pmenu.classList.remove("is-open");
+  pmb.setAttribute("aria-expanded","false");
+});
+
+/* ── INIT ── */
+buildKpis();
+buildLiteracy();
+buildPolicy();
+buildAwarenessHeatmap();
+buildCombos();
+buildTriggers();
+buildInnovation();
+buildNonUse();
+buildStakeholders();
+</script>
+</body>
+</html>

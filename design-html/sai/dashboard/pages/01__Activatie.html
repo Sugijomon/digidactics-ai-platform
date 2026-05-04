@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+
+<html class="light" lang="nl"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Activatie auditcontext voorbeeld | Shadow AI Governance</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-low": "#f0f4f7",
+                      "surface-container-lowest": "#ffffff",
+                      "on-secondary": "#eeffd5",
+                      "on-tertiary-fixed": "#000000",
+                      "surface-bright": "#f7f9fb",
+                      "on-background": "#2a3439",
+                      "background": "#f7f9fb",
+                      "inverse-primary": "#e8eeff",
+                      "error-dim": "#4e0309",
+                      "primary-dim": "#4c5260",
+                      "tertiary-fixed-dim": "#ed5351",
+                      "outline": "#717c82",
+                      "on-primary-container": "#4c525f",
+                      "inverse-surface": "#0b0f10",
+                      "tertiary-container": "#ff605d",
+                      "surface": "#f7f9fb",
+                      "surface-container-highest": "#d9e4ea",
+                      "primary-fixed-dim": "#cfd4e5",
+                      "on-secondary-fixed": "#284700",
+                      "secondary-fixed-dim": "#aae667",
+                      "on-tertiary": "#fff7f6",
+                      "primary-container": "#dde2f3",
+                      "tertiary": "#b4292d",
+                      "on-tertiary-fixed-variant": "#4d0006",
+                      "inverse-on-surface": "#9a9d9f",
+                      "outline-variant": "#a9b4b9",
+                      "error": "#9f403d",
+                      "surface-container": "#e8eff3",
+                      "surface-dim": "#cfdce3",
+                      "tertiary-fixed": "#ff605d",
+                      "primary-fixed": "#dde2f3",
+                      "surface-container-high": "#e1e9ee",
+                      "on-tertiary-container": "#380003",
+                      "surface-variant": "#d9e4ea",
+                      "on-secondary-fixed-variant": "#3c6600",
+                      "on-primary": "#f7f7ff",
+                      "on-surface-variant": "#566166",
+                      "on-primary-fixed-variant": "#565b69",
+                      "on-error-container": "#752121",
+                      "tertiary-dim": "#a21b22",
+                      "primary": "#585e6c",
+                      "error-container": "#fe8983",
+                      "on-secondary-container": "#355c00",
+                      "secondary-fixed": "#b7f473",
+                      "secondary-dim": "#365d00",
+                      "on-primary-fixed": "#393f4c",
+                      "on-error": "#fff7f6",
+                      "secondary-container": "#b7f473",
+                      "on-surface": "#2a3439",
+                      "surface-tint": "#585e6c",
+                      "secondary": "#3e6a00"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "fontFamily": {
+                      "headline": ["Manrope"],
+                      "body": ["Inter"],
+                      "label": ["Inter"]
+              }
+            },
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4 { font-family: 'Manrope', sans-serif; }
+        .accordion-content { display: none; }
+        .accordion-item.is-open .accordion-content { display: block; }
+        .accordion-icon { transition: transform .2s ease; }
+        .accordion-item.is-open .accordion-icon { transform: rotate(180deg); }
+        .participant-scroll { width: 100%; max-width: 100%; overflow: hidden; }
+        .participant-scroll-head { width: 100%; max-width: 100%; overflow: hidden; background: #f8fafc; border-bottom: 1px solid rgba(203,213,225,.7); box-shadow: 0 12px 18px -18px rgba(15,23,42,.22); position: relative; z-index: 2; }
+        .participant-scroll-body { width: 100%; max-width: 100%; max-height: 420px; overflow-y: auto; overflow-x: hidden; padding-right: 10px; scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: #b8c3cf transparent; }
+        .participant-scroll-body::-webkit-scrollbar { width: 8px; }
+        .participant-scroll-body::-webkit-scrollbar-track { background: transparent; }
+        .participant-scroll-body::-webkit-scrollbar-thumb { background: #c5d0da; border-radius: 999px; border: 2px solid transparent; background-clip: padding-box; }
+        .participant-scroll-body::-webkit-scrollbar-thumb:hover { background: #acb8c5; border: 2px solid transparent; background-clip: padding-box; }
+        .participant-table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; min-width: 0; }
+        .participant-table thead th { background: #f8fafc; box-shadow: inset 0 -1px 0 rgba(203,213,225,.7); }
+        .participant-table tbody tr { border-bottom: 1px solid rgba(169,180,185,.16); }
+        .participant-table td { padding-top: 14px; padding-bottom: 14px; vertical-align: middle; }
+        .org-shell.is-editing .org-display { display: none; }
+        .org-shell:not(.is-editing) .org-edit { display: none; }
+        .org-card { border: 1px solid #cbd5e1; border-radius: 14px; background: #ffffff; padding: 18px; min-height: 100%; display: flex; flex-direction: column; }
+        .org-label { font-size: 11px; font-weight: 800; text-transform: uppercase; color: #64748b; margin-bottom: 8px; }
+        .org-value { display: block; width: 100%; padding: 10px 16px; border: 1px solid #dbe3ec; border-radius: 8px; background: #f8fbff; font-size: 14px; font-weight: 500; color: #1e293b; }
+        .org-edit { width: 100%; padding: 10px 16px; border: 1px solid #dbe3ec; border-radius: 8px; background: #f8fbff; font-size: 14px; font-weight: 500; color: #1e293b; outline: none; }
+        .org-edit:focus { border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14,165,233,.12); }
+        .profile-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            width: 256px;
+            background: #ffffff;
+            border: 1px solid #dbe3ec;
+            border-radius: 12px;
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.10);
+            overflow: hidden;
+            display: none;
+            z-index: 30;
+        }
+        .profile-menu.is-open { display: block; }
+        @media (max-width: 980px) {
+            .participant-scroll { overflow: visible; }
+            .participant-scroll-head { display: none; }
+            .participant-scroll-body { max-height: none; overflow: visible; padding-right: 0; scrollbar-gutter: auto; }
+            .participant-table { min-width: 0 !important; }
+            .participant-table, .participant-table thead, .participant-table tbody, .participant-table tr, .participant-table td { display: block; width: 100%; }
+            .participant-table thead { display: none; }
+            .participant-table tbody tr { padding: 12px 0; }
+            .participant-table td { padding: 6px 0 !important; text-align: left !important; }
+            .participant-table td[data-label]::before { content: attr(data-label); display: block; margin-bottom: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #566166; }
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface flex min-h-screen overflow-x-hidden">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 z-[90] h-full w-64 bg-slate-50 dark:bg-slate-900 flex flex-col gap-2 p-4 border-r border-slate-200 dark:border-slate-800">
+  <div class="mb-8 px-4">
+    <h1 class="font-bold text-slate-800 dark:text-slate-100 text-lg">DPO Governance</h1>
+    <p class="text-sm font-medium text-slate-500">Beheerdersdashboard</p>
+  </div>
+  <nav class="flex flex-col gap-2">
+    <a class="bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white font-bold rounded-lg px-4 py-3 flex items-center gap-3 transition-all duration-200 ease-in-out" href="#">
+      <span class="material-symbols-outlined" data-icon="play_circle">play_circle</span>
+      <span class="font-manrope text-sm">Activatie</span>
+    </a>
+    <a class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg px-4 py-3 flex items-center gap-3 transition-all duration-200 ease-in-out" href="#">
+      <span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+      <span class="font-manrope text-sm">Tool Inventaris</span>
+    </a>
+    <a class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg px-4 py-3 flex items-center gap-3 transition-all duration-200 ease-in-out" href="#">
+      <span class="material-symbols-outlined" data-icon="assessment">assessment</span>
+      <span class="font-manrope text-sm">Risicoprofiel</span>
+    </a>
+    <a class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg px-4 py-3 flex items-center gap-3 transition-all duration-200 ease-in-out" href="#">
+      <span class="material-symbols-outlined" data-icon="gavel">gavel</span>
+      <span class="font-manrope text-sm">Governance</span>
+    </a>
+    <a class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg px-4 py-3 flex items-center gap-3 transition-all duration-200 ease-in-out" href="#">
+      <span class="material-symbols-outlined" data-icon="description">description</span>
+      <span class="font-manrope text-sm">Rapportage</span>
+    </a>
+  </nav>
+  <div class="mt-auto px-2 pb-2">
+    <div class="space-y-0.5">
+      <a class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-slate-500 hover:bg-slate-100 transition-colors" href="#">
+        <span class="material-symbols-outlined text-[15px]">lightbulb</span>
+        <span class="text-[12px] font-medium">Kennisbank</span>
+      </a>
+      <a class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-slate-500 hover:bg-slate-100 transition-colors" href="#">
+        <span class="material-symbols-outlined text-[15px]">notifications_none</span>
+        <span class="text-[12px] font-medium">Support</span>
+      </a>
+    </div>
+  </div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 w-[calc(100vw-16rem)] max-w-[calc(100vw-16rem)] flex flex-col min-h-screen overflow-x-hidden">
+<!-- TopNavBar -->
+<header class="bg-slate-50/95 dark:bg-slate-900/95 sticky top-0 z-[80] border-b border-slate-200/70 shadow-[0_1px_0_rgba(148,163,184,0.10)] backdrop-blur-sm">
+<div class="w-full px-7 py-2.5 grid grid-cols-[minmax(320px,1fr)_minmax(320px,1fr)_minmax(210px,1fr)] items-center gap-4">
+<div class="min-w-0 flex items-center gap-4">
+<span class="text-[24px] font-bold tracking-tight text-slate-800 dark:text-slate-100">Shadow AI Scan</span>
+<span class="px-3.5 py-1.5 rounded-full bg-[#CFEA7B] text-[#4D7800] font-bold text-[13px] flex items-center gap-2 shadow-sm leading-none shrink-0">
+<span class="w-2.5 h-2.5 rounded-full bg-[#4D7800]"></span>
+Open
+</span>
+</div>
+<div class="flex items-center justify-center gap-2 min-w-0">
+<span class="material-symbols-outlined text-slate-500 text-[19px] leading-none shrink-0">calendar_today</span>
+<span class="text-[15px] font-bold text-slate-800 whitespace-nowrap leading-none">Sluit op 23 april</span>
+<span class="text-[12px] text-slate-600 bg-slate-100 px-3 py-1.5 rounded-xl whitespace-nowrap">(nog 8 dagen)</span>
+</div>
+<div class="relative flex justify-end min-w-0">
+<button id="profile-menu-button" class="flex items-center gap-2.5 rounded-full px-2.5 py-1 hover:bg-slate-100 transition-colors" type="button" aria-expanded="false">
+<div class="w-10 h-10 rounded-full border border-slate-200 text-slate-500 flex items-center justify-center bg-white">
+<span class="material-symbols-outlined text-[18px]">person</span>
+</div>
+<div class="text-left leading-tight">
+<p class="text-[13px] font-bold text-slate-800">Marjan Jansen</p>
+<p class="text-[9px] font-semibold text-slate-500 mt-0.5">DPO</p>
+</div>
+<span class="material-symbols-outlined text-[18px] text-slate-500">expand_more</span>
+</button>
+<div id="profile-menu" class="profile-menu">
+<div class="px-4 py-3.5 border-b border-slate-100">
+<p class="text-[15px] font-bold text-slate-800">Marjan Jansen</p>
+<p class="text-[12px] text-slate-500 mt-1">marjan@digidactics.nl</p>
+</div>
+<button class="w-full flex items-center gap-3 px-4 py-3.5 text-left text-slate-800 hover:bg-slate-50 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">person</span>
+<span class="text-[15px]">Mijn Profiel</span>
+</button>
+<button class="w-full flex items-center gap-3 px-4 py-3.5 text-left text-[#ff4b3e] hover:bg-red-50 transition-colors border-t border-slate-100" type="button">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+<span class="text-[15px]">Uitloggen</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<div class="p-8 space-y-8">
+<div>
+  <h2 class="text-3xl font-extrabold text-on-surface tracking-tight mb-1">Activatie</h2>
+  <p class="text-sm font-medium text-on-surface-variant">Beheer de uitnodigingslijst, volg de responsgraad en bekijk de verdeling van deelname per vakgebied. Individuele deelnemers worden niet getoond in de rapportage.</p>
+</div>
+
+<!-- 2. Participation KPIs -->
+<section class="rounded-2xl border border-slate-200 bg-slate-50/80 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
+<div class="space-y-4">
+<div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+<!-- KPI Card 1 -->
+<div class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/10 shadow-[0_8px_24px_rgba(26,32,44,0.06)] text-center">
+<p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-tight mb-1">Uitgenodigd</p>
+<h3 class="text-4xl font-bold font-headline tabular-nums text-on-surface">248</h3>
+<p class="text-[10px] text-secondary mt-1 font-medium flex items-center justify-center gap-1" style="min-height:2.5em;">
+<span class="material-symbols-outlined text-[12px]" data-icon="check_circle">check_circle</span>
+                            Doel bereikt
+                        </p>
+</div>
+<!-- KPI Card 2 -->
+<div class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/10 shadow-[0_8px_24px_rgba(26,32,44,0.06)] text-center">
+<p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-tight mb-1">Afgerond</p>
+<h3 class="text-4xl font-bold font-headline tabular-nums text-on-surface">163</h3>
+<p class="text-[10px] text-on-surface-variant mt-1" style="min-height:2.5em;">Totaal ontvangen reacties</p>
+</div>
+<!-- KPI Card 3 -->
+<div class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/10 shadow-[0_8px_24px_rgba(26,32,44,0.06)] text-center">
+<p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-tight mb-1">Responsgraad</p>
+<h3 class="text-4xl font-bold font-headline tabular-nums" style="color:#5C9E1A;">66%</h3>
+<div class="w-full bg-surface-container-low h-1.5 rounded-full overflow-hidden mt-1">
+<div class="h-full rounded-full" style="width: 66%; background:#5C9E1A;"></div>
+</div>
+<p class="text-[10px] text-on-surface-variant mt-1" style="min-height:2.5em;"></p>
+</div>
+<!-- KPI Card 4 -->
+<div class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/10 shadow-[0_8px_24px_rgba(26,32,44,0.06)] text-center">
+<p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-tight mb-1">Niet gereageerd</p>
+<h3 class="text-4xl font-bold font-headline tabular-nums text-on-surface">85</h3>
+<a class="text-[10px] text-primary font-bold mt-1 inline-block hover:underline" href="#" style="min-height:2.5em;display:block;">Herinnering sturen</a>
+</div>
+<!-- KPI Card 5 -->
+<div class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/10 shadow-[0_8px_24px_rgba(26,32,44,0.06)] text-center">
+<p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-tight mb-1">Herinneringen</p>
+<h3 class="text-4xl font-bold font-headline tabular-nums" style="color:#D08212;">52</h3>
+<p class="text-[10px] text-on-surface-variant mt-1" style="min-height:2.5em;">Laatst verstuurd: 2 uur geleden</p>
+</div>
+</div>
+</section>
+<!-- 3. Organisatie -->
+<section id="organization-shell" class="org-shell bg-white rounded-xl border border-slate-300 shadow-sm overflow-hidden">
+<div class="p-8">
+<div class="mb-8">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-sky-500 text-[28px] flex-shrink-0 mt-1">business</span>
+<div class="min-w-0 flex-1">
+<h2 class="text-xl font-bold text-slate-800">Organisatie</h2>
+<p class="text-sm text-slate-500 mt-1">Deze gegevens zijn bekend bij RouteAI en worden gebruikt voor uw organisatieprofiel. U kunt deze hier wijzigen indien de bedrijfsgegevens of de hoofdverantwoordelijke veranderen.</p>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
+<div class="org-card">
+<h3 class="text-xl leading-tight font-bold text-slate-800">Organisatiecontext</h3>
+<p class="text-[13px] text-slate-500 mt-1.5 mb-5">Organisatienaam, sector en omvang</p>
+<div class="space-y-4 flex-1">
+<div>
+<label class="org-label">Organisatie</label>
+<div class="org-display org-value" data-display="org_name">Mandala</div>
+<input class="org-edit" data-field="org_name" type="text" value="Mandala"/>
+</div>
+<div>
+<label class="org-label">Sector</label>
+<div class="org-display org-value" data-display="org_sector">Financial Services</div>
+<select class="org-edit" data-field="org_sector">
+<option selected="">Financial Services</option>
+<option>Healthcare</option>
+<option>Technology</option>
+<option>Manufacturing</option>
+<option>Publieke sector</option>
+</select>
+</div>
+<div>
+<label class="org-label">Aantal medewerkers</label>
+<div class="org-display org-value" data-display="org_count">1250</div>
+<input class="org-edit" data-field="org_count" type="number" value="1250"/>
+</div>
+</div>
+</div>
+<div class="org-card">
+<h3 class="text-xl leading-tight font-bold text-slate-800">AI-verantwoordelijke</h3>
+<p class="text-[13px] text-slate-500 mt-1.5 mb-5">Contactpersoon binnen uw organisatie</p>
+<div class="space-y-4 flex-1">
+<div>
+<label class="org-label">Naam</label>
+<div class="org-display org-value" data-display="dpo_name">Marianne de Vries</div>
+<input class="org-edit" data-field="dpo_name" type="text" value="Marianne de Vries"/>
+</div>
+<div>
+<label class="org-label">Emailadres</label>
+<div class="org-display org-value" data-display="dpo_email">dpo@testorg.nl</div>
+<input class="org-edit" data-field="dpo_email" type="email" value="dpo@testorg.nl"/>
+</div>
+<div>
+<label class="org-label">Telefoonnummer (optioneel)</label>
+<div class="org-display org-value" data-display="dpo_phone">+31 6 12345678</div>
+<input class="org-edit" data-field="dpo_phone" type="text" value="+31 6 12345678"/>
+</div>
+</div>
+</div>
+<div class="org-card">
+<h3 class="text-xl leading-tight font-bold text-slate-800">Activatieperiode</h3>
+<p class="text-[13px] text-slate-500 mt-1.5 mb-5">Periode instellen en versie-informatie.</p>
+<div class="flex items-center justify-between gap-3 mt-4 mb-5 pb-4 border-b border-slate-100">
+  <div>
+    <p class="text-[10px] text-slate-400 mb-0.5">Scanronde</p>
+    <p class="text-[12px] font-semibold text-slate-700">April 2026</p>
+  </div>
+  <div class="flex flex-col items-center min-w-[76px]">
+    <p class="text-[10px] text-slate-400 mb-0.5">Status</p>
+    <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-100 rounded-full px-2 py-0.5">
+      <span class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block flex-shrink-0"></span>Concept
+    </span>
+  </div>
+</div>
+<div class="space-y-4 flex-1">
+<div>
+<label class="org-label">Start activatieperiode</label>
+<div class="org-display org-value" data-display="disclosure_start">12 april 2026</div>
+<input class="org-edit" data-field="disclosure_start" type="date" value="2026-04-12"/>
+</div>
+<div>
+<label class="org-label">Einde activatieperiode</label>
+<div class="org-display org-value" data-display="disclosure_end">20 april 2026</div>
+<input class="org-edit" data-field="disclosure_end" type="date" value="2026-04-20" min="2026-04-12"/>
+</div>
+</div>
+</div>
+
+<div class="lg:col-start-3 flex justify-end gap-3 mt-4">
+<button id="organization-edit-btn" class="flex-1 lg:flex-none min-w-[120px] bg-sky-50 border border-sky-200 text-slate-700 px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-sky-100 transition-colors" type="button">Aanpassen</button>
+<button id="organization-save-btn" class="flex-1 lg:flex-none min-w-[120px] bg-[#0E5A75] text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-[#0A4B61] shadow-sm transition-colors" type="button">Opslaan</button>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. Medewerkers -->
+<section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+<div class="p-6 border-b border-slate-100">
+<div class="min-w-0 flex-1">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-sky-500 text-[26px] flex-shrink-0 mt-1">group</span>
+<div class="min-w-0 flex-1">
+<h2 class="text-xl font-bold text-slate-800">Medewerkers</h2>
+<p class="text-sm text-slate-500 mt-1">Beheer hier de uitnodigingslijst. Deelname-status is alleen voor reminders en responsopvolging, niet voor naamgerichte rapportage van scaninhoud.</p>
+</div>
+</div>
+</div>
+<div class="mt-4 flex flex-wrap gap-2">
+<button class="inline-flex items-center justify-center gap-2 whitespace-nowrap px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-50 transition-all">
+<span class="material-symbols-outlined text-sm">add</span>
+        Medewerker toevoegen
+      </button>
+<button class="inline-flex items-center justify-center gap-2 whitespace-nowrap px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-50 transition-all">
+<span class="material-symbols-outlined text-sm">upload_file</span>
+        Bulk uploaden
+      </button>
+</div>
+</div>
+
+<div class="participant-scroll">
+<div class="participant-scroll-head">
+<table class="participant-table w-full text-left border-collapse min-w-[600px]">
+<colgroup>
+<col class="w-[56px]"/>
+<col class="w-[170px]"/>
+<col class="w-[250px]"/>
+<col class="w-[150px]"/>
+<col class="w-[160px]"/>
+<col class="w-[150px]"/>
+</colgroup>
+<thead>
+<tr class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+<th class="pl-4 pr-2 py-3 border-b border-slate-100">
+<input class="h-5 w-5 rounded-md border-2 border-sky-500 text-sky-500 focus:ring-sky-500" type="checkbox"/>
+</th>
+<th class="pl-2 pr-2 py-3 border-b border-slate-100">
+<input id="participant-search" type="text" placeholder="Naam" class="w-full bg-white border border-slate-200 rounded-md px-3 py-2 text-xs font-semibold text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"/>
+</th>
+<th class="px-2 py-3 border-b border-slate-100">
+<input id="email-filter" type="text" placeholder="E-mail" class="w-full bg-white border border-slate-200 rounded-md px-3 py-2 text-xs font-semibold text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"/>
+</th>
+<th class="px-2 py-3 border-b border-slate-100">
+<select id="dept-filter" class="w-full bg-white border border-slate-200 rounded-md px-3 py-2 text-xs font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+<option value="Research">Research</option>
+<option value="Macro Data">Macro Data</option>
+<option value="Operations">Operations</option>
+<option value="Finance">Finance</option>
+<option value="Marketing">Marketing</option>
+<option value="Design">Design</option>
+<option value="Wellness">Wellness</option>
+<option value="HR">HR</option>
+</select>
+</th>
+<th class="px-2 py-3 border-b border-slate-100">
+<select id="status-filter" class="w-full bg-white border border-slate-200 rounded-md px-3 py-2 text-xs font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+<option value="Afgerond">Afgerond</option>
+<option value="Verzonden">Verzonden</option>
+<option value="Herinnering">Herinnering</option>
+</select>
+</th>
+<th class="pl-2 pr-4 py-3 border-b border-slate-100">
+<input id="invited-filter" type="text" placeholder="Uitgenodigd op" class="w-full bg-white border border-slate-200 rounded-md px-3 py-2 text-xs font-semibold text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"/>
+</th>
+</tr>
+</thead>
+</table>
+</div>
+<div class="participant-scroll-body">
+<table class="participant-table w-full text-left border-collapse min-w-[600px]">
+<colgroup>
+<col class="w-[56px]"/>
+<col class="w-[170px]"/>
+<col class="w-[250px]"/>
+<col class="w-[150px]"/>
+<col class="w-[160px]"/>
+<col class="w-[150px]"/>
+</colgroup>
+<tbody id="participant-body" class="divide-y divide-slate-50">
+<tr class="participant-row hover:bg-indigo-50/30 transition-colors group" data-dept="Research" data-status="Afgerond">
+<td class="px-4 py-3" data-label="Selectie"><input class="h-5 w-5 rounded-md border border-sky-500 text-sky-500 focus:ring-sky-500" type="checkbox"/></td>
+<td class="pl-2 pr-4 py-3" data-label="Naam"><p class="text-xs font-bold text-slate-800">Elena Vance</p></td>
+<td class="px-4 py-3 text-xs text-slate-500" data-label="E-mail">e.vance@company.com</td>
+<td class="px-4 py-3 text-xs text-slate-600 font-medium" data-label="Afdeling">Research</td>
+<td class="px-4 py-3" data-label="Status">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E6F4CF] text-[#4D7800] text-[10px] font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-[#4D7800]"></span>
+              Afgerond
+            </span>
+</td>
+<td class="px-4 py-3 text-xs text-slate-500 whitespace-nowrap" data-label="Uitgenodigd op">12 apr 2024</td>
+</tr>
+<tr class="participant-row hover:bg-indigo-50/30 transition-colors group" data-dept="Macro Data" data-status="Verzonden">
+<td class="px-4 py-3" data-label="Selectie"><input class="h-5 w-5 rounded-md border border-sky-500 text-sky-500 focus:ring-sky-500" type="checkbox"/></td>
+<td class="pl-2 pr-4 py-3" data-label="Naam"><p class="text-xs font-bold text-slate-800">Mark Scout</p></td>
+<td class="px-4 py-3 text-xs text-slate-500" data-label="E-mail">m.scout@company.com</td>
+<td class="px-4 py-3 text-xs text-slate-600 font-medium" data-label="Afdeling">Macro Data</td>
+<td class="px-4 py-3" data-label="Status">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FFF1CC] text-[#C77700] text-[10px] font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></span>
+              Verzonden
+            </span>
+</td>
+<td class="px-4 py-3 text-xs text-slate-500 whitespace-nowrap" data-label="Uitgenodigd op">12 apr 2024</td>
+</tr>
+<tr class="participant-row hover:bg-indigo-50/30 transition-colors group" data-dept="Operations" data-status="Afgerond">
+<td class="px-4 py-3" data-label="Selectie"><input class="h-5 w-5 rounded-md border border-sky-500 text-sky-500 focus:ring-sky-500" type="checkbox"/></td>
+<td class="pl-2 pr-4 py-3" data-label="Naam"><p class="text-xs font-bold text-slate-800">Irving B.</p></td>
+<td class="px-4 py-3 text-xs text-slate-500" data-label="E-mail">i.bailiff@company.com</td>
+<td class="px-4 py-3 text-xs text-slate-600 font-medium" data-label="Afdeling">Operations</td>
+<td class="px-4 py-3" data-label="Status"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E6F4CF] text-[#4D7800] text-[10px] font-bold"><span class="w-1.5 h-1.5 rounded-full bg-[#4D7800]"></span>Afgerond</span></td>
+<td class="px-4 py-3 text-xs text-slate-500 whitespace-nowrap" data-label="Uitgenodigd op">13 apr 2024</td>
+</tr>
+<tr class="participant-row hover:bg-indigo-50/30 transition-colors group" data-dept="Finance" data-status="Herinnering">
+<td class="px-4 py-3" data-label="Selectie"><input class="h-5 w-5 rounded-md border border-sky-500 text-sky-500 focus:ring-sky-500" type="checkbox"/></td>
+<td class="pl-2 pr-4 py-3" data-label="Naam"><p class="text-xs font-bold text-slate-800">Helly R.</p></td>
+<td class="px-4 py-3 text-xs text-slate-500" data-label="E-mail">h.riggs@company.com</td>
+<td class="px-4 py-3 text-xs text-slate-600 font-medium" data-label="Afdeling">Finance</td>
+<td class="px-4 py-3" data-label="Status"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#EEF4FA] text-[#6B7C93] text-[10px] font-bold"><span class="w-1.5 h-1.5 rounded-full bg-[#94A3B8]"></span>Herinnering</span></td>
+<td class="px-4 py-3 text-xs text-slate-500 whitespace-nowrap" data-label="Uitgenodigd op">13 apr 2024</td>
+</tr>
+<tr class="participant-row hover:bg-indigo-50/30 transition-colors group" data-dept="Marketing" data-status="Verzonden">
+<td class="px-4 py-3" data-label="Selectie"><input class="h-5 w-5 rounded-md border border-sky-500 text-sky-500 focus:ring-sky-500" type="checkbox"/></td>
+<td class="pl-2 pr-4 py-3" data-label="Naam"><p class="text-xs font-bold text-slate-800">Dylan G.</p></td>
+<td class="px-4 py-3 text-xs text-slate-500" data-label="E-mail">d.george@company.com</td>
+<td class="px-4 py-3 text-xs text-slate-600 font-medium" data-label="Afdeling">Marketing</td>
+<td class="px-4 py-3" data-label="Status"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FFF1CC] text-[#C77700] text-[10px] font-bold"><span class="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></span>Verzonden</span></td>
+<td class="px-4 py-3 text-xs text-slate-500 whitespace-nowrap" data-label="Uitgenodigd op">14 apr 2024</td>
+</tr>
+<tr class="participant-row hover:bg-indigo-50/30 transition-colors group" data-dept="Design" data-status="Afgerond">
+<td class="px-4 py-3" data-label="Selectie"><input class="h-5 w-5 rounded-md border border-sky-500 text-sky-500 focus:ring-sky-500" type="checkbox"/></td>
+<td class="pl-2 pr-4 py-3" data-label="Naam"><p class="text-xs font-bold text-slate-800">Burt G.</p></td>
+<td class="px-4 py-3 text-xs text-slate-500" data-label="E-mail">b.goodman@company.com</td>
+<td class="px-4 py-3 text-xs text-slate-600 font-medium" data-label="Afdeling">Design</td>
+<td class="px-4 py-3" data-label="Status"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E6F4CF] text-[#4D7800] text-[10px] font-bold"><span class="w-1.5 h-1.5 rounded-full bg-[#4D7800]"></span>Afgerond</span></td>
+<td class="px-4 py-3 text-xs text-slate-500 whitespace-nowrap" data-label="Uitgenodigd op">14 apr 2024</td>
+</tr>
+<tr class="participant-row hover:bg-indigo-50/30 transition-colors group" data-dept="Wellness" data-status="Verzonden">
+<td class="px-4 py-3" data-label="Selectie"><input class="h-5 w-5 rounded-md border border-sky-500 text-sky-500 focus:ring-sky-500" type="checkbox"/></td>
+<td class="pl-2 pr-4 py-3" data-label="Naam"><p class="text-xs font-bold text-slate-800">Casey P.</p></td>
+<td class="px-4 py-3 text-xs text-slate-500" data-label="E-mail">c.p@company.com</td>
+<td class="px-4 py-3 text-xs text-slate-600 font-medium" data-label="Afdeling">Wellness</td>
+<td class="px-4 py-3" data-label="Status"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FFF1CC] text-[#C77700] text-[10px] font-bold"><span class="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></span>Verzonden</span></td>
+<td class="px-4 py-3 text-xs text-slate-500 whitespace-nowrap" data-label="Uitgenodigd op">15 apr 2024</td>
+</tr>
+<tr class="participant-row hover:bg-indigo-50/30 transition-colors group" data-dept="HR" data-status="Afgerond">
+<td class="px-4 py-3" data-label="Selectie"><input class="h-5 w-5 rounded-md border border-sky-500 text-sky-500 focus:ring-sky-500" type="checkbox"/></td>
+<td class="pl-2 pr-4 py-3" data-label="Naam"><p class="text-xs font-bold text-slate-800">Milchick S.</p></td>
+<td class="px-4 py-3 text-xs text-slate-500" data-label="E-mail">m.s@company.com</td>
+<td class="px-4 py-3 text-xs text-slate-600 font-medium" data-label="Afdeling">HR</td>
+<td class="px-4 py-3" data-label="Status"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E6F4CF] text-[#4D7800] text-[10px] font-bold"><span class="w-1.5 h-1.5 rounded-full bg-[#4D7800]"></span>Afgerond</span></td>
+<td class="px-4 py-3 text-xs text-slate-500 whitespace-nowrap" data-label="Uitgenodigd op">15 apr 2024</td>
+</tr>
+<tr class="participant-row hover:bg-indigo-50/30 transition-colors group" data-dept="Legal" data-status="Afgerond">
+<td class="px-4 py-3" data-label="Selectie"><input class="h-5 w-5 rounded-md border border-sky-500 text-sky-500 focus:ring-sky-500" type="checkbox"/></td>
+<td class="pl-2 pr-4 py-3" data-label="Naam"><p class="text-xs font-bold text-slate-800">Natalie C.</p></td>
+<td class="px-4 py-3 text-xs text-slate-500" data-label="E-mail">n.carter@company.com</td>
+<td class="px-4 py-3 text-xs text-slate-600 font-medium" data-label="Afdeling">Legal</td>
+<td class="px-4 py-3" data-label="Status"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E6F4CF] text-[#4D7800] text-[10px] font-bold"><span class="w-1.5 h-1.5 rounded-full bg-[#4D7800]"></span>Afgerond</span></td>
+<td class="px-4 py-3 text-xs text-slate-500 whitespace-nowrap" data-label="Uitgenodigd op">16 apr 2024</td>
+</tr>
+<tr class="participant-row hover:bg-indigo-50/30 transition-colors group" data-dept="IT" data-status="Verzonden">
+<td class="px-4 py-3" data-label="Selectie"><input class="h-5 w-5 rounded-md border border-sky-500 text-sky-500 focus:ring-sky-500" type="checkbox"/></td>
+<td class="pl-2 pr-4 py-3" data-label="Naam"><p class="text-xs font-bold text-slate-800">Devon P.</p></td>
+<td class="px-4 py-3 text-xs text-slate-500" data-label="E-mail">d.parks@company.com</td>
+<td class="px-4 py-3 text-xs text-slate-600 font-medium" data-label="Afdeling">IT</td>
+<td class="px-4 py-3" data-label="Status"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FFF1CC] text-[#C77700] text-[10px] font-bold"><span class="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></span>Verzonden</span></td>
+<td class="px-4 py-3 text-xs text-slate-500 whitespace-nowrap" data-label="Uitgenodigd op">16 apr 2024</td>
+</tr>
+<tr class="participant-row hover:bg-indigo-50/30 transition-colors group" data-dept="Finance" data-status="Herinnering">
+<td class="px-4 py-3" data-label="Selectie"><input class="h-5 w-5 rounded-md border border-sky-500 text-sky-500 focus:ring-sky-500" type="checkbox"/></td>
+<td class="pl-2 pr-4 py-3" data-label="Naam"><p class="text-xs font-bold text-slate-800">Jordan L.</p></td>
+<td class="px-4 py-3 text-xs text-slate-500" data-label="E-mail">j.lane@company.com</td>
+<td class="px-4 py-3 text-xs text-slate-600 font-medium" data-label="Afdeling">Finance</td>
+<td class="px-4 py-3" data-label="Status"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#EEF4FA] text-[#6B7C93] text-[10px] font-bold"><span class="w-1.5 h-1.5 rounded-full bg-[#94A3B8]"></span>Herinnering</span></td>
+<td class="px-4 py-3 text-xs text-slate-500 whitespace-nowrap" data-label="Uitgenodigd op">17 apr 2024</td>
+</tr>
+<tr class="participant-row hover:bg-indigo-50/30 transition-colors group" data-dept="Operations" data-status="Afgerond">
+<td class="px-4 py-3" data-label="Selectie"><input class="h-5 w-5 rounded-md border border-sky-500 text-sky-500 focus:ring-sky-500" type="checkbox"/></td>
+<td class="pl-2 pr-4 py-3" data-label="Naam"><p class="text-xs font-bold text-slate-800">Priya N.</p></td>
+<td class="px-4 py-3 text-xs text-slate-500" data-label="E-mail">p.nair@company.com</td>
+<td class="px-4 py-3 text-xs text-slate-600 font-medium" data-label="Afdeling">Operations</td>
+<td class="px-4 py-3" data-label="Status"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E6F4CF] text-[#4D7800] text-[10px] font-bold"><span class="w-1.5 h-1.5 rounded-full bg-[#4D7800]"></span>Afgerond</span></td>
+<td class="px-4 py-3 text-xs text-slate-500 whitespace-nowrap" data-label="Uitgenodigd op">17 apr 2024</td>
+</tr>
+<tr class="participant-row hover:bg-indigo-50/30 transition-colors group" data-dept="Marketing" data-status="Verzonden">
+<td class="px-4 py-3" data-label="Selectie"><input class="h-5 w-5 rounded-md border border-sky-500 text-sky-500 focus:ring-sky-500" type="checkbox"/></td>
+<td class="pl-2 pr-4 py-3" data-label="Naam"><p class="text-xs font-bold text-slate-800">Sofia M.</p></td>
+<td class="px-4 py-3 text-xs text-slate-500" data-label="E-mail">s.meyer@company.com</td>
+<td class="px-4 py-3 text-xs text-slate-600 font-medium" data-label="Afdeling">Marketing</td>
+<td class="px-4 py-3" data-label="Status"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FFF1CC] text-[#C77700] text-[10px] font-bold"><span class="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></span>Verzonden</span></td>
+<td class="px-4 py-3 text-xs text-slate-500 whitespace-nowrap" data-label="Uitgenodigd op">18 apr 2024</td>
+</tr>
+<tr class="participant-row hover:bg-indigo-50/30 transition-colors group" data-dept="Research" data-status="Afgerond">
+<td class="px-4 py-3" data-label="Selectie"><input class="h-5 w-5 rounded-md border border-sky-500 text-sky-500 focus:ring-sky-500" type="checkbox"/></td>
+<td class="pl-2 pr-4 py-3" data-label="Naam"><p class="text-xs font-bold text-slate-800">Liam T.</p></td>
+<td class="px-4 py-3 text-xs text-slate-500" data-label="E-mail">l.turner@company.com</td>
+<td class="px-4 py-3 text-xs text-slate-600 font-medium" data-label="Afdeling">Research</td>
+<td class="px-4 py-3" data-label="Status"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E6F4CF] text-[#4D7800] text-[10px] font-bold"><span class="w-1.5 h-1.5 rounded-full bg-[#4D7800]"></span>Afgerond</span></td>
+<td class="px-4 py-3 text-xs text-slate-500 whitespace-nowrap" data-label="Uitgenodigd op">18 apr 2024</td>
+</tr>
+<tr class="participant-row hover:bg-indigo-50/30 transition-colors group" data-dept="HR" data-status="Herinnering">
+<td class="px-4 py-3" data-label="Selectie"><input class="h-5 w-5 rounded-md border border-sky-500 text-sky-500 focus:ring-sky-500" type="checkbox"/></td>
+<td class="pl-2 pr-4 py-3" data-label="Naam"><p class="text-xs font-bold text-slate-800">Emma R.</p></td>
+<td class="px-4 py-3 text-xs text-slate-500" data-label="E-mail">e.ross@company.com</td>
+<td class="px-4 py-3 text-xs text-slate-600 font-medium" data-label="Afdeling">HR</td>
+<td class="px-4 py-3" data-label="Status"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#EEF4FA] text-[#6B7C93] text-[10px] font-bold"><span class="w-1.5 h-1.5 rounded-full bg-[#94A3B8]"></span>Herinnering</span></td>
+<td class="px-4 py-3 text-xs text-slate-500 whitespace-nowrap" data-label="Uitgenodigd op">19 apr 2024</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="px-6 py-3 bg-white border-t border-slate-100"></div>
+</section>
+<!-- 5. Uitnodigingsmail Editor -->
+<section class="relative overflow-hidden bg-surface-container-lowest rounded-xl border border-outline-variant/10 p-6 shadow-sm">
+<img alt="" class="pointer-events-none absolute right-0 top-0 w-[390px] max-w-none opacity-80" src="./verfijnd%20patroon%20V2.png"/>
+<div class="relative z-10 mb-6">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-sky-500 text-[28px] flex-shrink-0 mt-1">mail</span>
+<div class="min-w-0 flex-1">
+<h2 class="text-xl font-bold text-slate-800">Uitnodigingen maken &amp; versturen</h2>
+<p class="text-sm text-slate-500 mt-1">Pas de uitnodiging aan die naar medewerkers wordt verstuurd. Ambassadeurs melden zich alleen vrijwillig aan in de survey; inhoudelijke antwoorden blijven anoniem.</p>
+</div>
+</div>
+</div>
+<div class="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-4 items-start lg:items-end">
+<div class="lg:col-span-2 border border-outline-variant/10 rounded-xl p-6 bg-white flex flex-col">
+<div class="space-y-5 flex-grow">
+<div>
+<label class="block text-[11px] font-bold text-on-surface-variant uppercase mb-2">Onderwerpregel</label>
+<input class="w-full p-3 bg-white border border-sky-400 rounded-lg text-sm font-medium focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none" type="text" value="Korte AI-inventarisatie voor [org_name] — 20 minuten"/>
+</div>
+<div>
+<div class="flex items-center justify-between gap-4 mb-2">
+<label class="block text-[11px] font-bold text-on-surface-variant uppercase">Berichttekst</label>
+<button class="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors"><span class="material-symbols-outlined text-[18px]">refresh</span>Herstel standaard</button>
+</div>
+<textarea class="w-full p-4 bg-white border border-outline-variant/20 rounded-lg text-sm leading-relaxed focus:ring-1 focus:ring-primary min-h-[220px]" spellcheck="false">Hoi [voornaam],
+
+[manager_naam] heeft je uitgenodigd voor een korte inventarisatie van de AI-tools die jij gebruikt in je werk.
+
+Welkom! Bouw mee aan onze AI-toekomst.</textarea>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">[voornaam]</span>
+<span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">[manager_naam]</span>
+<span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">[org_name]</span>
+<span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">[deadline]</span>
+<span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">[dpo_email]</span>
+</div>
+</div>
+<div class="pt-6 mt-6 border-t border-slate-50">
+<label class="block text-[11px] font-bold text-on-surface-variant uppercase mb-2">Ondertekening</label>
+<div class="flex flex-col sm:flex-row gap-3 items-end">
+<input class="sm:flex-1 p-3 bg-slate-50 border border-outline-variant/20 rounded-lg text-sm font-medium focus:ring-1 focus:ring-primary" type="text" value="Het Data Protection Office"/>
+<div class="flex gap-3">
+<button class="inline-flex items-center gap-2 px-4 py-3 bg-white border border-slate-200 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-colors"><span class="material-symbols-outlined text-[18px]">visibility</span>Preview</button>
+<button class="px-4 py-3 bg-[#0E5A75] text-white rounded-lg text-sm font-semibold hover:bg-[#0A4B61] shadow-sm transition-colors">Template opslaan</button>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:col-span-1 lg:self-end h-fit border border-slate-200 rounded-xl p-6 bg-slate-50 flex flex-col">
+<div class="text-center mb-4">
+<label class="block text-[13px] font-bold text-slate-800 uppercase mb-2">Uitnodigingen versturen</label>
+<p class="text-[14px] font-bold text-slate-700 leading-tight">De magic link en startknop worden automatisch toegevoegd. Naamniveau blijft beperkt tot uitnodigingsbeheer.</p>
+</div>
+<div class="space-y-3">
+<button class="invite-option is-selected w-full border py-3 rounded-lg text-sm font-semibold transition-colors bg-[#BFE7FF] border-[#0E5A75] text-[#0E5A75] shadow-sm" data-invite-option type="button" aria-pressed="true">Iedereen</button>
+<button class="invite-option w-full border py-3 rounded-lg text-sm font-semibold transition-colors bg-white border-slate-200 text-slate-400 hover:bg-slate-100" data-invite-option type="button" aria-pressed="false">Selectie</button>
+<button class="invite-option w-full border py-3 rounded-lg text-sm font-semibold transition-colors bg-white border-slate-200 text-slate-400 hover:bg-slate-100" data-invite-option type="button" aria-pressed="false">Herinnering</button>
+</div>
+<div class="pt-5">
+<button class="w-full bg-[#0E5A75] hover:bg-[#0A4B61] text-white py-3 rounded-lg text-sm font-bold shadow-md transition-colors">Verstuur uitnodigingen</button>
+</div>
+</div>
+</div>
+</section>
+<!-- 5. Invitation & Response Status -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Tijdlijn van communicatie -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant/10 p-6 shadow-sm">
+<h2 class="text-lg font-bold mb-6">Tijdlijn</h2>
+<div class="space-y-6 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-px before:bg-outline-variant/30">
+<div class="relative pl-8">
+<div class="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[14px]" data-icon="check">check</span>
+</div>
+<p class="text-xs font-bold">Eerste uitnodiging verstuurd</p>
+<p class="text-[10px] text-on-surface-variant">12 Apr 2024 · 09:00 AM</p>
+</div>
+<div class="relative pl-8">
+<div class="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[14px]" data-icon="check">check</span>
+</div>
+<p class="text-xs font-bold">Eerste herinnering (automatisch)</p>
+<p class="text-[10px] text-on-surface-variant">15 Apr 2024 · 10:30 AM</p>
+</div>
+<div class="relative pl-8">
+<div class="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white ring-4 ring-primary-container/20">
+<span class="material-symbols-outlined text-[14px]" data-icon="mail">mail</span>
+</div>
+<p class="text-xs font-bold text-primary">Laatste herinnering gepland</p>
+<p class="text-[10px] text-on-surface-variant font-medium">21 Apr 2024 · 09:00 AM</p>
+</div>
+<div class="relative pl-8 opacity-40">
+<div class="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-slate-300 flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[14px]" data-icon="lock_clock">lock_clock</span>
+</div>
+<p class="text-xs font-bold">Scan sluit en wordt vergrendeld</p>
+<p class="text-[10px] text-on-surface-variant">23 Apr 2024 · 11:59 PM</p>
+</div>
+</div>
+</div>
+<!-- Vakgebied response table -->
+<div class="lg:col-span-2 bg-surface-container-lowest rounded-xl border border-outline-variant/10 p-6 shadow-sm">
+<div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between mb-6">
+<div>
+<h2 class="text-xl font-bold text-slate-800">Respons per vakgebied</h2>
+<p class="text-xs text-slate-500 mt-1">Zelfgerapporteerd vakgebied door respondenten · n=163</p>
+</div>
+<span class="inline-flex w-fit items-center rounded-full bg-[#BFE7FF] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.04em] text-[#0E5A75]">Verdeling</span>
+</div>
+<div class="space-y-3">
+<!-- IT, Data & Development -->
+<div class="grid grid-cols-[190px_minmax(0,1fr)_112px] items-center gap-4 rounded-2xl bg-slate-50 px-4 py-3">
+<span class="text-sm font-bold text-slate-800">IT, Data &amp; Development</span>
+<div class="flex-1 bg-slate-200 h-4 rounded-full overflow-hidden">
+<div class="h-full rounded-full bg-[#0E5A75]" style="width: 100%"></div>
+</div>
+<span class="text-right text-sm font-bold text-slate-800">34 <span class="text-xs font-semibold text-slate-500">· 21%</span></span>
+</div>
+<!-- Operations & Support -->
+<div class="grid grid-cols-[190px_minmax(0,1fr)_112px] items-center gap-4 rounded-2xl bg-slate-50 px-4 py-3">
+<span class="text-sm font-bold text-slate-800">Operations &amp; Support</span>
+<div class="flex-1 bg-slate-200 h-4 rounded-full overflow-hidden">
+<div class="h-full rounded-full bg-[#0E5A75]" style="width: 85%"></div>
+</div>
+<span class="text-right text-sm font-bold text-slate-800">29 <span class="text-xs font-semibold text-slate-500">· 18%</span></span>
+</div>
+<!-- Marketing & Communicatie -->
+<div class="grid grid-cols-[190px_minmax(0,1fr)_112px] items-center gap-4 rounded-2xl bg-slate-50 px-4 py-3">
+<span class="text-sm font-bold text-slate-800">Marketing &amp; Communicatie</span>
+<div class="flex-1 bg-slate-200 h-4 rounded-full overflow-hidden">
+<div class="h-full rounded-full bg-[#5C9E1A]" style="width: 74%"></div>
+</div>
+<span class="text-right text-sm font-bold text-slate-800">25 <span class="text-xs font-semibold text-slate-500">· 15%</span></span>
+</div>
+<!-- HR & Recruitment -->
+<div class="grid grid-cols-[190px_minmax(0,1fr)_112px] items-center gap-4 rounded-2xl bg-slate-50 px-4 py-3">
+<span class="text-sm font-bold text-slate-800">HR &amp; Recruitment</span>
+<div class="flex-1 bg-slate-200 h-4 rounded-full overflow-hidden">
+<div class="h-full rounded-full bg-[#5C9E1A]" style="width: 65%"></div>
+</div>
+<span class="text-right text-sm font-bold text-slate-800">22 <span class="text-xs font-semibold text-slate-500">· 13%</span></span>
+</div>
+<!-- Finance & Legal -->
+<div class="grid grid-cols-[190px_minmax(0,1fr)_112px] items-center gap-4 rounded-2xl bg-slate-50 px-4 py-3">
+<span class="text-sm font-bold text-slate-800">Finance &amp; Legal</span>
+<div class="flex-1 bg-slate-200 h-4 rounded-full overflow-hidden">
+<div class="h-full rounded-full bg-[#F59E0B]" style="width: 56%"></div>
+</div>
+<span class="text-right text-sm font-bold text-slate-800">19 <span class="text-xs font-semibold text-slate-500">· 12%</span></span>
+</div>
+<!-- Sales & Accountmanagement -->
+<div class="grid grid-cols-[190px_minmax(0,1fr)_112px] items-center gap-4 rounded-2xl bg-slate-50 px-4 py-3">
+<span class="text-sm font-bold text-slate-800">Sales &amp; Accountmanagement</span>
+<div class="flex-1 bg-slate-200 h-4 rounded-full overflow-hidden">
+<div class="h-full rounded-full bg-[#F59E0B]" style="width: 50%"></div>
+</div>
+<span class="text-right text-sm font-bold text-slate-800">17 <span class="text-xs font-semibold text-slate-500">· 10%</span></span>
+</div>
+<!-- Directie & Management -->
+<div class="grid grid-cols-[190px_minmax(0,1fr)_112px] items-center gap-4 rounded-2xl bg-slate-50 px-4 py-3">
+<span class="text-sm font-bold text-slate-800">Directie &amp; Management</span>
+<div class="flex-1 bg-slate-200 h-4 rounded-full overflow-hidden">
+<div class="h-full rounded-full bg-[#94A3B8]" style="width: 32%"></div>
+</div>
+<span class="text-right text-sm font-bold text-slate-800">11 <span class="text-xs font-semibold text-slate-500">· 7%</span></span>
+</div>
+<!-- Anders -->
+<div class="grid grid-cols-[190px_minmax(0,1fr)_112px] items-center gap-4 rounded-2xl bg-slate-50 px-4 py-3">
+<span class="text-sm font-bold text-slate-800">Anders</span>
+<div class="flex-1 bg-slate-200 h-4 rounded-full overflow-hidden">
+<div class="h-full rounded-full bg-[#94A3B8]" style="width: 18%"></div>
+</div>
+<span class="text-right text-sm font-bold text-slate-800">6 <span class="text-xs font-semibold text-slate-500">· 4%</span></span>
+</div>
+</div>
+</div>
+</section>
+
+
+<footer class="mt-auto pt-8 pb-4">
+  <div class="border-t border-slate-200/60 pt-4">
+    <p class="text-[11px] text-slate-400 flex items-center gap-1.5 leading-relaxed">
+      <span class="material-symbols-outlined text-[14px] opacity-70">error</span>
+      Review- en juridische signalen zijn indicatief en gebaseerd op zelfrapportage. Menselijk oordeel blijft leidend.
+    </p>
+  </div>
+</footer>
+</div>
+
+</main>
+<script>
+        document.querySelectorAll('[data-accordion-trigger]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const item = button.closest('.accordion-item');
+                item.classList.toggle('is-open');
+            });
+        });
+
+        const searchInput = document.getElementById('participant-search');
+        const emailFilter = document.getElementById('email-filter');
+        const deptFilter = document.getElementById('dept-filter');
+        const statusFilter = document.getElementById('status-filter');
+        const invitedFilter = document.getElementById('invited-filter');
+        const rows = document.querySelectorAll('#participant-body tr');
+
+        function filterTable() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const emailTerm = emailFilter.value.toLowerCase();
+            const selectedDept = deptFilter.value;
+            const selectedStatus = statusFilter.value;
+            const invitedTerm = invitedFilter.value.toLowerCase();
+
+            rows.forEach((row) => {
+                const name = row.children[1]?.innerText.toLowerCase() || '';
+                const email = row.children[2]?.innerText.toLowerCase() || '';
+                const dept = row.getAttribute('data-dept');
+                const status = row.getAttribute('data-status');
+                const invited = row.children[5]?.innerText.toLowerCase() || '';
+
+                const matchesSearch = name.includes(searchTerm);
+                const matchesEmail = !emailTerm || email.includes(emailTerm);
+                const matchesDept = !selectedDept || dept === selectedDept;
+                const matchesStatus = !selectedStatus || status === selectedStatus;
+                const matchesInvited = !invitedTerm || invited.includes(invitedTerm);
+
+                row.style.display = matchesSearch && matchesEmail && matchesDept && matchesStatus && matchesInvited ? '' : 'none';
+            });
+        }
+
+        function resetFilters() {
+            searchInput.value = '';
+            emailFilter.value = '';
+            deptFilter.value = '';
+            statusFilter.value = '';
+            invitedFilter.value = '';
+            filterTable();
+        }
+
+        [searchInput, emailFilter, deptFilter, statusFilter, invitedFilter].forEach((el) => {
+            el.addEventListener('input', filterTable);
+        });
+        const organizationShell = document.getElementById('organization-shell');
+        const organizationEditBtn = document.getElementById('organization-edit-btn');
+        const organizationSaveBtn = document.getElementById('organization-save-btn');
+        const disclosureStartInput = organizationShell?.querySelector('[data-field="disclosure_start"]');
+        const disclosureEndInput = organizationShell?.querySelector('[data-field="disclosure_end"]');
+        const inviteOptions = document.querySelectorAll('[data-invite-option]');
+        const profileMenuButton = document.getElementById('profile-menu-button');
+        const profileMenu = document.getElementById('profile-menu');
+
+        function formatDutchDate(value) {
+            if (!value) return '';
+
+            const [year, month, day] = value.split('-').map(Number);
+            const date = new Date(year, month - 1, day);
+            return new Intl.DateTimeFormat('nl-NL', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            }).format(date);
+        }
+
+        function syncDisclosureMinDate() {
+            if (!disclosureStartInput || !disclosureEndInput) return;
+            disclosureEndInput.min = disclosureStartInput.value;
+            if (disclosureEndInput.value && disclosureEndInput.value < disclosureStartInput.value) {
+                disclosureEndInput.value = disclosureStartInput.value;
+            }
+        }
+
+        organizationEditBtn?.addEventListener('click', () => {
+            syncDisclosureMinDate();
+            organizationShell?.classList.add('is-editing');
+        });
+
+        disclosureStartInput?.addEventListener('input', syncDisclosureMinDate);
+
+        inviteOptions.forEach((button) => {
+            button.addEventListener('click', () => {
+                inviteOptions.forEach((option) => {
+                    option.classList.remove('is-selected', 'bg-[#C4E7FF]', 'border-[#7DD0FF]', 'text-[#00658b]', 'shadow-sm');
+                    option.classList.add('bg-white', 'border-slate-200', 'text-slate-400');
+                    option.setAttribute('aria-pressed', 'false');
+                });
+
+                button.classList.add('is-selected', 'bg-[#C4E7FF]', 'border-[#7DD0FF]', 'text-[#00658b]', 'shadow-sm');
+                button.classList.remove('bg-white', 'border-slate-200', 'text-slate-400');
+                button.setAttribute('aria-pressed', 'true');
+            });
+        });
+
+        profileMenuButton?.addEventListener('click', () => {
+            const isOpen = profileMenu?.classList.toggle('is-open');
+            profileMenuButton.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!profileMenu || !profileMenuButton) return;
+            if (profileMenu.contains(event.target) || profileMenuButton.contains(event.target)) return;
+            profileMenu.classList.remove('is-open');
+            profileMenuButton.setAttribute('aria-expanded', 'false');
+        });
+
+        organizationSaveBtn?.addEventListener('click', () => {
+            if (!organizationShell) return;
+
+            organizationShell.querySelectorAll('[data-field]').forEach((field) => {
+                const key = field.dataset.field;
+                const display = organizationShell.querySelector(`[data-display="${key}"]`);
+                if (display) {
+                    display.textContent = field.type === 'date' ? formatDutchDate(field.value) : field.value;
+                }
+            });
+
+            organizationShell.classList.remove('is-editing');
+        });
+    </script>
+</body></html>
+
+
+
+
+
+
+
+
+
+
+
+
+

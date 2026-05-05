@@ -177,6 +177,11 @@ export default function SurveyProfilePage() {
               Deze vragen horen bij het `save_profile` contract. Je antwoorden
               worden als codes opgeslagen, niet als directe persoonsgegevens.
             </p>
+            <p className="mt-3 rounded-xl border border-[#f0d38a] bg-[#fff8df] px-3 py-2 text-xs font-medium leading-5 text-[#6f5600]">
+              Dev-notitie: zolang de volledige V8.1 referentiedata nog niet in
+              Supabase staat, zijn alleen de smoke-safe profielopties
+              selecteerbaar.
+            </p>
           </div>
 
           <form

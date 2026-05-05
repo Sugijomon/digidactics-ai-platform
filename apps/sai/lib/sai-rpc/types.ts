@@ -33,7 +33,17 @@ export type SurveySession = {
 
 export type SaveProfilePayload = {
   department_code: string;
+  department_other_text?: string;
   ai_frequency_code: string;
+  no_ai_reason_code?: string;
+  data_awareness_code?: string;
+  anonymization_behavior_code?: string;
+  browser_extension_usage_code?: string;
+  automation_usage_code?: string;
+  ai_policy_awareness_code?: string;
+  ai_skill_level_code?: string;
+  processing_output_code?: string;
+  top_concern_other_text?: string;
   future_usecases_text: string;
 };
 

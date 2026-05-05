@@ -22,6 +22,12 @@ type StartSurveyRunRow = {
   submission_token: string;
 };
 
+type MultiChoiceRpcName =
+  | "save_data_types"
+  | "save_concerns"
+  | "save_support_needs"
+  | "save_tool_preference_reasons";
+
 function createRpcClient(): RpcResult<SupabaseClient> {
   if (!hasSupabaseBrowserEnv()) {
     return {
@@ -127,6 +133,34 @@ export async function saveProfile(
   });
 
   return error ? { ok: false, error: mapSupabaseError(error) } : successNull();
+}
+
+export async function saveDataTypes(
+  session: SurveySession,
+  codes: string[],
+): Promise<RpcResult<null>> {
+  return saveMultiChoiceCodes("save_data_types", session, codes);
+}
+
+export async function saveConcerns(
+  session: SurveySession,
+  codes: string[],
+): Promise<RpcResult<null>> {
+  return saveMultiChoiceCodes("save_concerns", session, codes);
+}
+
+export async function saveSupportNeeds(
+  session: SurveySession,
+  codes: string[],
+): Promise<RpcResult<null>> {
+  return saveMultiChoiceCodes("save_support_needs", session, codes);
+}
+
+export async function saveToolPreferenceReasons(
+  session: SurveySession,
+  codes: string[],
+): Promise<RpcResult<null>> {
+  return saveMultiChoiceCodes("save_tool_preference_reasons", session, codes);
 }
 
 export async function saveTool(
@@ -235,6 +269,26 @@ export async function completeSurveyRun(
   const { error } = await client.data.rpc("complete_survey_run", {
     p_run_id: session.runId,
     p_token: session.submissionToken,
+  });
+
+  return error ? { ok: false, error: mapSupabaseError(error) } : successNull();
+}
+
+async function saveMultiChoiceCodes(
+  rpcName: MultiChoiceRpcName,
+  session: SurveySession,
+  codes: string[],
+): Promise<RpcResult<null>> {
+  const client = createRpcClient();
+
+  if (!client.ok) {
+    return client;
+  }
+
+  const { error } = await client.data.rpc(rpcName, {
+    p_run_id: session.runId,
+    p_token: session.submissionToken,
+    p_codes: toJsonValue(codes),
   });
 
   return error ? { ok: false, error: mapSupabaseError(error) } : successNull();

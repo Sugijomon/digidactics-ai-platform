@@ -7,23 +7,32 @@ import {
   readSurveySession,
   updateSurveyCurrentStep,
 } from "@/lib/sai-rpc/session";
-import type { RpcError, SurveySession } from "@/lib/sai-rpc/types";
+import {
+  aiFrequencyOptions,
+  aiPolicyAwarenessOptions,
+  aiSkillLevelOptions,
+  anonymizationBehaviorOptions,
+  automationUsageOptions,
+  browserExtensionUsageOptions,
+  dataAwarenessOptions,
+  departmentOptions,
+  noAiReasonOptions,
+  processingOutputOptions,
+  type SurveyOption,
+} from "@/lib/sai-survey/options";
+import type {
+  RpcError,
+  SaveProfilePayload,
+  SurveySession,
+} from "@/lib/sai-rpc/types";
 
 type ProfileSessionView = {
   runId: string;
   startedAt: string;
 };
 
-const VAKGEBIED_OPTIONS = [
-  { code: "it_data_development", label: "IT, data of development" },
-  { code: "marketing_communicatie", label: "Marketing of communicatie" },
-  { code: "hr_recruitment", label: "HR of recruitment" },
-  { code: "finance_legal", label: "Finance of legal" },
-  { code: "sales_account", label: "Sales of accountmanagement" },
-  { code: "operations", label: "Operations" },
-  { code: "directie_management", label: "Directie of management" },
-  { code: "anders", label: "Anders" },
-];
+const SMOKE_SAFE_DEPARTMENT_CODE = "it_data_development";
+const SMOKE_SAFE_AI_FREQUENCY_CODE = "weekly";
 
 export default function SurveyProfilePage() {
   const router = useRouter();
@@ -34,9 +43,23 @@ export default function SurveyProfilePage() {
     null,
   );
   const [selectedVakgebied, setSelectedVakgebied] = useState(
-    "it_data_development",
+    SMOKE_SAFE_DEPARTMENT_CODE,
   );
-  const [aiFrequencyCode, setAiFrequencyCode] = useState("weekly");
+  const [departmentOtherText, setDepartmentOtherText] = useState("");
+  const [aiFrequencyCode, setAiFrequencyCode] = useState(
+    SMOKE_SAFE_AI_FREQUENCY_CODE,
+  );
+  const [noAiReasonCode, setNoAiReasonCode] = useState("");
+  const [dataAwarenessCode, setDataAwarenessCode] = useState("");
+  const [anonymizationBehaviorCode, setAnonymizationBehaviorCode] =
+    useState("");
+  const [browserExtensionUsageCode, setBrowserExtensionUsageCode] =
+    useState("");
+  const [automationUsageCode, setAutomationUsageCode] = useState("");
+  const [aiPolicyAwarenessCode, setAiPolicyAwarenessCode] = useState("");
+  const [aiSkillLevelCode, setAiSkillLevelCode] = useState("");
+  const [processingOutputCode, setProcessingOutputCode] = useState("");
+  const [futureUsecasesText, setFutureUsecasesText] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -69,11 +92,13 @@ export default function SurveyProfilePage() {
     setIsSaving(true);
     setError(null);
 
-    const result = await saveProfile(surveySession, {
-      department_code: selectedVakgebied,
-      ai_frequency_code: aiFrequencyCode,
-      future_usecases_text: "Frontend respondent slice",
-    });
+    const payload: SaveProfilePayload = {
+      department_code: SMOKE_SAFE_DEPARTMENT_CODE,
+      ai_frequency_code: SMOKE_SAFE_AI_FREQUENCY_CODE,
+      future_usecases_text: futureUsecasesText,
+    };
+
+    const result = await saveProfile(surveySession, payload);
 
     if (!result.ok) {
       setError(formatRpcError(result.error));
@@ -81,8 +106,8 @@ export default function SurveyProfilePage() {
       return;
     }
 
-    updateSurveyCurrentStep("tools");
-    router.push("/survey/tools");
+    updateSurveyCurrentStep("data");
+    router.push("/survey/data");
   }
 
   if (!sessionView) {
@@ -143,14 +168,14 @@ export default function SurveyProfilePage() {
         <section className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_8px_40px_rgba(0,101,139,0.06)] md:p-9">
           <div className="mb-8">
             <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-[#00658b]/70">
-              Jouw werkplek
+              Jouw profiel
             </p>
             <h2 className="text-2xl font-extrabold leading-tight text-[#00658b]">
-              Binnen welk vakgebied ben je voornamelijk actief?
+              Eerst kort je werkcontext en AI-gebruik
             </h2>
             <p className="mt-2 text-sm leading-6 text-[#40484e]">
-              Kies het domein dat het beste aansluit bij jouw rol of expertise,
-              ook als je in wisselende projectteams werkt.
+              Deze vragen horen bij het `save_profile` contract. Je antwoorden
+              worden als codes opgeslagen, niet als directe persoonsgegevens.
             </p>
           </div>
 
@@ -161,45 +186,163 @@ export default function SurveyProfilePage() {
               void handleSubmit();
             }}
           >
-            <div className="grid gap-2">
-              {VAKGEBIED_OPTIONS.map((option) => (
-                <label
-                  className={`flex cursor-pointer items-center gap-4 rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:bg-[#c4e7ff]/20 ${
-                    selectedVakgebied === option.code
-                      ? "border-[#00658b] bg-[#c4e7ff]/40"
-                      : "border-[#bfc7cf] bg-white/70"
-                  }`}
-                  key={option.code}
-                >
+            <QuestionBlock
+              helpText="Kies het domein dat het beste aansluit bij jouw rol of expertise."
+              title="Binnen welk vakgebied ben je voornamelijk actief?"
+            >
+              <div className="grid gap-2">
+                {departmentOptions.map((option) => (
+                  <label
+                    className={`flex cursor-pointer items-start gap-4 rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:bg-[#c4e7ff]/20 ${
+                      selectedVakgebied === option.code
+                        ? "border-[#00658b] bg-[#c4e7ff]/40"
+                        : "border-[#bfc7cf] bg-white/70"
+                    } ${option.disabled ? "cursor-not-allowed opacity-60" : ""}`}
+                    key={option.code}
+                  >
+                    <input
+                      checked={selectedVakgebied === option.code}
+                      className="mt-0.5 h-5 w-5 accent-[#00658b]"
+                      disabled={option.disabled}
+                      name="department_code"
+                      onChange={() => setSelectedVakgebied(option.code)}
+                      type="radio"
+                      value={option.code}
+                    />
+                    <span>
+                      <span className="block text-sm font-semibold text-[#181c1e]">
+                        {option.label}
+                      </span>
+                      {option.description ? (
+                        <span className="mt-1 block text-xs leading-5 text-[#40484e]">
+                          {option.description}
+                        </span>
+                      ) : null}
+                    </span>
+                  </label>
+                ))}
+              </div>
+              {selectedVakgebied === "anders" ? (
+                <label className="mt-3 grid gap-2 text-sm font-semibold text-[#181c1e]">
+                  Vul jouw vakgebied in
                   <input
-                    checked={selectedVakgebied === option.code}
-                    className="h-5 w-5 accent-[#00658b]"
-                    name="department_code"
-                    onChange={() => setSelectedVakgebied(option.code)}
-                    type="radio"
-                    value={option.code}
+                    className="h-11 rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm outline-none focus:border-[#00658b]"
+                    onChange={(event) =>
+                      setDepartmentOtherText(event.target.value)
+                    }
+                    value={departmentOtherText}
                   />
-                  <span className="text-sm font-semibold text-[#181c1e]">
-                    {option.label}
-                  </span>
                 </label>
-              ))}
-            </div>
+              ) : null}
+            </QuestionBlock>
 
-            <label className="grid gap-2 text-sm font-semibold text-[#181c1e]">
-              AI-gebruik frequentie
-              <select
-                className="h-11 rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm outline-none focus:border-[#00658b]"
-                onChange={(event) => setAiFrequencyCode(event.target.value)}
+            <QuestionBlock
+              helpText="Frequentie is een exposure-signaal in de V8.1-methodiek."
+              title="Hoe vaak gebruik je AI-tools voor je werk?"
+            >
+              <SelectField
+                label="AI-gebruik frequentie"
+                onChange={setAiFrequencyCode}
+                options={aiFrequencyOptions}
                 value={aiFrequencyCode}
-              >
-                <option value="weekly">Wekelijks</option>
-                <option value="daily">Dagelijks</option>
-                <option value="monthly">Maandelijks</option>
-                <option value="rarely">Zelden</option>
-                <option value="never">Nooit</option>
-              </select>
-            </label>
+              />
+              {aiFrequencyCode === "never" ? (
+                <SelectField
+                  allowEmpty
+                  label="Belangrijkste reden"
+                  onChange={setNoAiReasonCode}
+                  options={noAiReasonOptions}
+                  value={noAiReasonCode}
+                />
+              ) : null}
+            </QuestionBlock>
+
+            <QuestionBlock
+              helpText="Deze signalen helpen later bij bewustwording en datahygiëne."
+              title="Hoe ga je om met data in AI-tools?"
+            >
+              <div className="grid gap-4 md:grid-cols-2">
+                <SelectField
+                  allowEmpty
+                  label="Bewustzijn over data-opslag"
+                  onChange={setDataAwarenessCode}
+                  options={dataAwarenessOptions}
+                  value={dataAwarenessCode}
+                />
+                <SelectField
+                  allowEmpty
+                  label="Anonimiseren van informatie"
+                  onChange={setAnonymizationBehaviorCode}
+                  options={anonymizationBehaviorOptions}
+                  value={anonymizationBehaviorCode}
+                />
+              </div>
+            </QuestionBlock>
+
+            <QuestionBlock
+              helpText="Browserextensies en agents zijn additieve exposure-signalen in V8.1."
+              title="Gebruik je extensies of automatisering?"
+            >
+              <div className="grid gap-4 md:grid-cols-2">
+                <SelectField
+                  allowEmpty
+                  label="AI-browserextensies"
+                  onChange={setBrowserExtensionUsageCode}
+                  options={browserExtensionUsageOptions}
+                  value={browserExtensionUsageCode}
+                />
+                <SelectField
+                  allowEmpty
+                  label="AI-agents of automatisering"
+                  onChange={setAutomationUsageCode}
+                  options={automationUsageOptions}
+                  value={automationUsageCode}
+                />
+              </div>
+            </QuestionBlock>
+
+            <QuestionBlock
+              helpText="Deze antwoorden voeden de latere AI-literacy en governance-readiness analyse."
+              title="Spelregels, vaardigheid en output"
+            >
+              <div className="grid gap-4">
+                <SelectField
+                  allowEmpty
+                  label="Bekendheid met AI-spelregels"
+                  onChange={setAiPolicyAwarenessCode}
+                  options={aiPolicyAwarenessOptions}
+                  value={aiPolicyAwarenessCode}
+                />
+                <div className="grid gap-4 md:grid-cols-2">
+                  <SelectField
+                    allowEmpty
+                    label="Eigen AI-vaardigheid"
+                    onChange={setAiSkillLevelCode}
+                    options={aiSkillLevelOptions}
+                    value={aiSkillLevelCode}
+                  />
+                  <SelectField
+                    allowEmpty
+                    label="Hoe verwerk je AI-output?"
+                    onChange={setProcessingOutputCode}
+                    options={processingOutputOptions}
+                    value={processingOutputCode}
+                  />
+                </div>
+              </div>
+            </QuestionBlock>
+
+            <QuestionBlock
+              helpText="Vrije tekst is optioneel. Vul geen namen of gevoelige persoonsgegevens in."
+              title="Welke werkzaamheden lenen zich volgens jou goed voor AI-ondersteuning?"
+            >
+              <textarea
+                className="min-h-28 rounded-xl border border-[#bfc7cf] bg-white px-3 py-2 text-sm outline-none focus:border-[#00658b]"
+                onChange={(event) => setFutureUsecasesText(event.target.value)}
+                placeholder="Bijvoorbeeld: conceptteksten, samenvatten, analyseren..."
+                value={futureUsecasesText}
+              />
+            </QuestionBlock>
 
             {error ? (
               <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
@@ -227,7 +370,11 @@ export default function SurveyProfilePage() {
               </a>
               <button
                 className="inline-flex h-11 items-center rounded-full bg-[#00658b] px-7 text-sm font-bold text-white shadow-lg transition hover:bg-[#004c6a] disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={isSaving || !selectedVakgebied}
+                disabled={
+                  isSaving ||
+                  selectedVakgebied !== SMOKE_SAFE_DEPARTMENT_CODE ||
+                  aiFrequencyCode !== SMOKE_SAFE_AI_FREQUENCY_CODE
+                }
                 type="submit"
               >
                 {isSaving ? "Opslaan..." : "Verder"}
@@ -242,4 +389,60 @@ export default function SurveyProfilePage() {
 
 function formatRpcError(error: RpcError) {
   return [error.code, error.message].filter(Boolean).join(": ");
+}
+
+function QuestionBlock({
+  children,
+  helpText,
+  title,
+}: {
+  children: React.ReactNode;
+  helpText: string;
+  title: string;
+}) {
+  return (
+    <section className="grid gap-4 rounded-2xl border border-[#bfc7cf]/50 bg-white/70 p-4">
+      <div>
+        <h3 className="font-bold text-[#00658b]">{title}</h3>
+        <p className="mt-1 text-sm leading-6 text-[#40484e]">{helpText}</p>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function SelectField({
+  allowEmpty = false,
+  label,
+  onChange,
+  options,
+  value,
+}: {
+  allowEmpty?: boolean;
+  label: string;
+  onChange: (value: string) => void;
+  options: SurveyOption[];
+  value: string;
+}) {
+  return (
+    <label className="grid gap-2 text-sm font-semibold text-[#181c1e]">
+      {label}
+      <select
+        className="h-11 rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm outline-none focus:border-[#00658b]"
+        onChange={(event) => onChange(event.target.value)}
+        value={value}
+      >
+        {allowEmpty ? <option value="">Nog niet invullen</option> : null}
+        {options.map((option) => (
+          <option
+            disabled={option.disabled}
+            key={option.code}
+            value={option.code}
+          >
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
 }

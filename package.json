@@ -1,0 +1,10 @@
+{
+  "name": "digidactics-ai-platform",
+  "private": true,
+  "packageManager": "pnpm@10.33.3",
+  "scripts": {
+    "dev:sai": "pnpm --dir apps/sai dev",
+    "build:sai": "pnpm --dir apps/sai build",
+    "lint:sai": "pnpm --dir apps/sai lint"
+  }
+}

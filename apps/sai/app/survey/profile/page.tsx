@@ -31,9 +31,6 @@ type ProfileSessionView = {
   startedAt: string;
 };
 
-const SMOKE_SAFE_DEPARTMENT_CODE = "it_data_development";
-const SMOKE_SAFE_AI_FREQUENCY_CODE = "weekly";
-
 export default function SurveyProfilePage() {
   const router = useRouter();
   const [surveySession, setSurveySession] = useState<SurveySession | null>(
@@ -42,13 +39,10 @@ export default function SurveyProfilePage() {
   const [sessionView, setSessionView] = useState<ProfileSessionView | null>(
     null,
   );
-  const [selectedVakgebied, setSelectedVakgebied] = useState(
-    SMOKE_SAFE_DEPARTMENT_CODE,
-  );
+  const [selectedVakgebied, setSelectedVakgebied] =
+    useState("it_data_development");
   const [departmentOtherText, setDepartmentOtherText] = useState("");
-  const [aiFrequencyCode, setAiFrequencyCode] = useState(
-    SMOKE_SAFE_AI_FREQUENCY_CODE,
-  );
+  const [aiFrequencyCode, setAiFrequencyCode] = useState("weekly");
   const [noAiReasonCode, setNoAiReasonCode] = useState("");
   const [dataAwarenessCode, setDataAwarenessCode] = useState("");
   const [anonymizationBehaviorCode, setAnonymizationBehaviorCode] =
@@ -93,10 +87,52 @@ export default function SurveyProfilePage() {
     setError(null);
 
     const payload: SaveProfilePayload = {
-      department_code: SMOKE_SAFE_DEPARTMENT_CODE,
-      ai_frequency_code: SMOKE_SAFE_AI_FREQUENCY_CODE,
+      department_code: selectedVakgebied,
+      ai_frequency_code: aiFrequencyCode,
       future_usecases_text: futureUsecasesText,
     };
+
+    addOptionalProfileField(
+      payload,
+      "department_other_text",
+      selectedVakgebied === "anders" ? departmentOtherText : "",
+    );
+    addOptionalProfileField(
+      payload,
+      "no_ai_reason_code",
+      aiFrequencyCode === "never" ? noAiReasonCode : "",
+    );
+    addOptionalProfileField(
+      payload,
+      "data_awareness_code",
+      dataAwarenessCode,
+    );
+    addOptionalProfileField(
+      payload,
+      "anonymization_behavior_code",
+      anonymizationBehaviorCode,
+    );
+    addOptionalProfileField(
+      payload,
+      "browser_extension_usage_code",
+      browserExtensionUsageCode,
+    );
+    addOptionalProfileField(
+      payload,
+      "automation_usage_code",
+      automationUsageCode,
+    );
+    addOptionalProfileField(
+      payload,
+      "ai_policy_awareness_code",
+      aiPolicyAwarenessCode,
+    );
+    addOptionalProfileField(payload, "ai_skill_level_code", aiSkillLevelCode);
+    addOptionalProfileField(
+      payload,
+      "processing_output_code",
+      processingOutputCode,
+    );
 
     const result = await saveProfile(surveySession, payload);
 
@@ -177,11 +213,6 @@ export default function SurveyProfilePage() {
               Deze vragen horen bij het `save_profile` contract. Je antwoorden
               worden als codes opgeslagen, niet als directe persoonsgegevens.
             </p>
-            <p className="mt-3 rounded-xl border border-[#f0d38a] bg-[#fff8df] px-3 py-2 text-xs font-medium leading-5 text-[#6f5600]">
-              Dev-notitie: zolang de volledige V8.1 referentiedata nog niet in
-              Supabase staat, zijn alleen de smoke-safe profielopties
-              selecteerbaar.
-            </p>
           </div>
 
           <form
@@ -196,7 +227,7 @@ export default function SurveyProfilePage() {
               title="Binnen welk vakgebied ben je voornamelijk actief?"
             >
               <div className="grid gap-2">
-                {departmentOptions.map((option) => (
+                {departmentOptions.map((option: SurveyOption) => (
                   <label
                     className={`flex cursor-pointer items-start gap-4 rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:bg-[#c4e7ff]/20 ${
                       selectedVakgebied === option.code
@@ -375,11 +406,7 @@ export default function SurveyProfilePage() {
               </a>
               <button
                 className="inline-flex h-11 items-center rounded-full bg-[#00658b] px-7 text-sm font-bold text-white shadow-lg transition hover:bg-[#004c6a] disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={
-                  isSaving ||
-                  selectedVakgebied !== SMOKE_SAFE_DEPARTMENT_CODE ||
-                  aiFrequencyCode !== SMOKE_SAFE_AI_FREQUENCY_CODE
-                }
+                disabled={isSaving || !selectedVakgebied || !aiFrequencyCode}
                 type="submit"
               >
                 {isSaving ? "Opslaan..." : "Verder"}
@@ -394,6 +421,23 @@ export default function SurveyProfilePage() {
 
 function formatRpcError(error: RpcError) {
   return [error.code, error.message].filter(Boolean).join(": ");
+}
+
+type OptionalProfileKey = Exclude<
+  keyof SaveProfilePayload,
+  "department_code" | "ai_frequency_code" | "future_usecases_text"
+>;
+
+function addOptionalProfileField(
+  payload: SaveProfilePayload,
+  key: OptionalProfileKey,
+  value: string,
+) {
+  const normalizedValue = value.trim();
+
+  if (normalizedValue) {
+    payload[key] = normalizedValue;
+  }
 }
 
 function QuestionBlock({

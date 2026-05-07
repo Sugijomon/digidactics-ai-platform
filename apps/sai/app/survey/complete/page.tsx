@@ -1,14 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { SurveyProgress } from "@/components/survey-progress";
 import { completeSurveyRun, saveProfile } from "@/lib/sai-rpc/client";
 import {
   clearSurveySession,
+  markSurveyStepCompleted,
   readSurveySession,
   type StoredSurveyTool,
   updateSurveyCurrentStep,
 } from "@/lib/sai-rpc/session";
 import type { RpcError, SurveySession } from "@/lib/sai-rpc/types";
+import {
+  canAccessSurveyStep,
+  getResumeStep,
+  type SurveyStepId,
+} from "@/lib/sai-survey/flow";
 
 type StepState = {
   status: "idle" | "running" | "ok" | "error";
@@ -26,6 +34,7 @@ const INITIAL_TOKEN_CHECK_STEP: StepState = {
 };
 
 export default function SurveyCompletePage() {
+  const router = useRouter();
   const [surveySession, setSurveySession] = useState<SurveySession | null>(
     null,
   );
@@ -36,6 +45,7 @@ export default function SurveyCompletePage() {
   const [tokenCheckStep, setTokenCheckStep] = useState<StepState>(
     INITIAL_TOKEN_CHECK_STEP,
   );
+  const [completedSteps, setCompletedSteps] = useState<SurveyStepId[]>([]);
   const [savedTools, setSavedTools] = useState<StoredSurveyTool[]>([]);
   const [isCompleting, setIsCompleting] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
@@ -49,15 +59,21 @@ export default function SurveyCompletePage() {
         return;
       }
 
+      if (!canAccessSurveyStep(storedSession, "complete")) {
+        router.replace(getResumeStep(storedSession).href);
+        return;
+      }
+
       updateSurveyCurrentStep("complete");
       setSurveySession({
         runId: storedSession.runId,
         submissionToken: storedSession.submissionToken,
       });
       setRunId(storedSession.runId);
+      setCompletedSteps(storedSession.completedSteps ?? []);
       setSavedTools(storedSession.savedTools ?? []);
     });
-  }, []);
+  }, [router]);
 
   async function handleCompleteSurvey() {
     if (!surveySession) {
@@ -111,6 +127,7 @@ export default function SurveyCompletePage() {
           status: "ok",
           message: "Expected failure: invalid_token_or_run_closed",
         });
+        markSurveyStepCompleted("complete");
         clearSurveySession();
         setSurveySession(null);
         setIsFinished(true);
@@ -197,6 +214,11 @@ export default function SurveyCompletePage() {
             token wordt niet getoond.
           </p>
         </header>
+
+        <SurveyProgress
+          completedSteps={completedSteps}
+          currentStep="complete"
+        />
 
         <section className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_8px_40px_rgba(0,101,139,0.06)]">
           <div className="mb-6 rounded-2xl border border-[#bfc7cf]/50 bg-white/80 p-4 text-sm">

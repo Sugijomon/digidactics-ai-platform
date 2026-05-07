@@ -1,6 +1,7 @@
 "use client";
 
 import type { SurveySession } from "@/lib/sai-rpc/types";
+import type { SurveyStepId } from "@/lib/sai-survey/flow";
 
 const SURVEY_SESSION_STORAGE_KEY = "sai.respondent.session";
 
@@ -15,7 +16,8 @@ export type StoredSurveyTool = {
 
 export type StoredSurveySession = SurveySession & {
   startedAt: string;
-  currentStep: string;
+  currentStep: SurveyStepId;
+  completedSteps?: SurveyStepId[];
   surveyToolId?: string;
   surveyToolUseCaseId?: string;
   savedTools?: StoredSurveyTool[];
@@ -34,9 +36,25 @@ function isStoredSurveySession(value: unknown): value is StoredSurveySession {
     typeof candidate.runId === "string" &&
     typeof candidate.submissionToken === "string" &&
     typeof candidate.startedAt === "string" &&
-    typeof candidate.currentStep === "string" &&
+    isSurveyStepId(candidate.currentStep) &&
+    (candidate.completedSteps === undefined ||
+      isSurveyStepIds(candidate.completedSteps)) &&
     (savedTools === undefined || isStoredSurveyTools(savedTools))
   );
+}
+
+function isSurveyStepId(value: unknown): value is SurveyStepId {
+  return (
+    value === "profile" ||
+    value === "motivations" ||
+    value === "data" ||
+    value === "tools" ||
+    value === "complete"
+  );
+}
+
+function isSurveyStepIds(value: unknown): value is SurveyStepId[] {
+  return Array.isArray(value) && value.every(isSurveyStepId);
 }
 
 function isStoredSurveyTools(value: unknown): value is StoredSurveyTool[] {
@@ -65,12 +83,13 @@ function isStoredSurveyTools(value: unknown): value is StoredSurveyTool[] {
 
 export function storeSurveySession(
   session: SurveySession,
-  currentStep: string,
+  currentStep: SurveyStepId,
 ) {
   const storedSession: StoredSurveySession = {
     ...session,
     startedAt: new Date().toISOString(),
     currentStep,
+    completedSteps: [],
   };
 
   window.sessionStorage.setItem(
@@ -95,15 +114,32 @@ export function readSurveySession(): StoredSurveySession | null {
   }
 }
 
-export function updateSurveyCurrentStep(currentStep: string) {
+export function updateSurveyCurrentStep(currentStep: SurveyStepId) {
   updateSurveySession({ currentStep });
+}
+
+export function markSurveyStepCompleted(step: SurveyStepId) {
+  const existingSession = readSurveySession();
+
+  if (!existingSession) {
+    return;
+  }
+
+  const completedSteps = new Set(existingSession.completedSteps ?? []);
+  completedSteps.add(step);
+
+  updateSurveySession({ completedSteps: Array.from(completedSteps) });
 }
 
 export function updateSurveySession(
   updates: Partial<
     Pick<
       StoredSurveySession,
-      "currentStep" | "surveyToolId" | "surveyToolUseCaseId" | "savedTools"
+      | "completedSteps"
+      | "currentStep"
+      | "surveyToolId"
+      | "surveyToolUseCaseId"
+      | "savedTools"
     >
   >,
 ) {

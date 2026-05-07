@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { SurveyProgress } from "@/components/survey-progress";
 import {
   saveConcerns,
   saveDataTypes,
@@ -9,10 +10,16 @@ import {
   saveToolPreferenceReasons,
 } from "@/lib/sai-rpc/client";
 import {
+  markSurveyStepCompleted,
   readSurveySession,
   updateSurveyCurrentStep,
 } from "@/lib/sai-rpc/session";
 import type { RpcError, RpcResult, SurveySession } from "@/lib/sai-rpc/types";
+import {
+  canAccessSurveyStep,
+  getResumeStep,
+  type SurveyStepId,
+} from "@/lib/sai-survey/flow";
 import {
   dataTypeOptions,
   preferenceReasonOptions,
@@ -44,6 +51,7 @@ export default function SurveyDataPage() {
     null,
   );
   const [runId, setRunId] = useState<string | null>(null);
+  const [completedSteps, setCompletedSteps] = useState<SurveyStepId[]>([]);
   const [selectedDataTypes, setSelectedDataTypes] = useState(["customer_data"]);
   const [selectedConcerns, setSelectedConcerns] = useState(["privacy"]);
   const [selectedSupportNeeds, setSelectedSupportNeeds] = useState([
@@ -67,14 +75,20 @@ export default function SurveyDataPage() {
         return;
       }
 
+      if (!canAccessSurveyStep(storedSession, "data")) {
+        router.replace(getResumeStep(storedSession).href);
+        return;
+      }
+
       updateSurveyCurrentStep("data");
       setSurveySession({
         runId: storedSession.runId,
         submissionToken: storedSession.submissionToken,
       });
       setRunId(storedSession.runId);
+      setCompletedSteps(storedSession.completedSteps ?? []);
     });
-  }, []);
+  }, [router]);
 
   async function handleSaveDataFlow() {
     if (!surveySession) {
@@ -132,6 +146,7 @@ export default function SurveyDataPage() {
       return finishWithError(preferenceReasonsResult.error);
     }
 
+    markSurveyStepCompleted("data");
     updateSurveyCurrentStep("tools");
     router.push("/survey/tools");
   }
@@ -203,6 +218,8 @@ export default function SurveyDataPage() {
             Vertrouwelijk
           </span>
         </header>
+
+        <SurveyProgress completedSteps={completedSteps} currentStep="data" />
 
         <section className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_8px_40px_rgba(0,101,139,0.06)] md:p-8">
           <div className="mb-6">

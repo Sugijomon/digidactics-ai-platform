@@ -1,18 +1,30 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { startSurveyRun } from "@/lib/sai-rpc/client";
-import { storeSurveySession } from "@/lib/sai-rpc/session";
+import { readSurveySession, storeSurveySession } from "@/lib/sai-rpc/session";
 import type { RpcError } from "@/lib/sai-rpc/types";
+import { getResumeStep } from "@/lib/sai-survey/flow";
 
 const DEFAULT_WAVE_TOKEN = "sai-smoke-wave-token";
 
 export default function SurveyStartPage() {
   const router = useRouter();
   const [waveToken, setWaveToken] = useState(DEFAULT_WAVE_TOKEN);
+  const [resumeHref, setResumeHref] = useState<string | null>(null);
   const [isStarting, setIsStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      const storedSession = readSurveySession();
+
+      if (storedSession) {
+        setResumeHref(getResumeStep(storedSession).href);
+      }
+    });
+  }, []);
 
   async function handleStartSurvey() {
     setIsStarting(true);
@@ -130,6 +142,14 @@ export default function SurveyStartPage() {
             >
               {isStarting ? "Scan starten..." : "Start de scan"}
             </button>
+            {resumeHref ? (
+              <a
+                className="inline-flex h-11 items-center justify-center rounded-full border border-[#00658b] bg-white px-6 text-sm font-bold text-[#00658b] transition hover:bg-[#c4e7ff]/30"
+                href={resumeHref}
+              >
+                Hervat actieve scan
+              </a>
+            ) : null}
             <p className="text-center text-xs font-medium text-[#40484e]">
               Duurt ca. 8-10 minuten · Anoniem · Geen verplichte velden
             </p>

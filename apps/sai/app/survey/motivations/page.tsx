@@ -2,12 +2,19 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { SurveyProgress } from "@/components/survey-progress";
 import { saveMotivations } from "@/lib/sai-rpc/client";
 import {
+  markSurveyStepCompleted,
   readSurveySession,
   updateSurveyCurrentStep,
 } from "@/lib/sai-rpc/session";
 import type { RpcError, SurveySession } from "@/lib/sai-rpc/types";
+import {
+  canAccessSurveyStep,
+  getResumeStep,
+  type SurveyStepId,
+} from "@/lib/sai-survey/flow";
 import {
   motivationOptions,
   type SurveyOption,
@@ -19,6 +26,7 @@ export default function SurveyMotivationsPage() {
     null,
   );
   const [runId, setRunId] = useState<string | null>(null);
+  const [completedSteps, setCompletedSteps] = useState<SurveyStepId[]>([]);
   const [selectedMotivations, setSelectedMotivations] = useState([
     "tijdswinst",
     "kwaliteitsverbetering",
@@ -35,14 +43,20 @@ export default function SurveyMotivationsPage() {
         return;
       }
 
+      if (!canAccessSurveyStep(storedSession, "motivations")) {
+        router.replace(getResumeStep(storedSession).href);
+        return;
+      }
+
       updateSurveyCurrentStep("motivations");
       setSurveySession({
         runId: storedSession.runId,
         submissionToken: storedSession.submissionToken,
       });
       setRunId(storedSession.runId);
+      setCompletedSteps(storedSession.completedSteps ?? []);
     });
-  }, []);
+  }, [router]);
 
   async function handleSaveMotivations() {
     if (!surveySession) {
@@ -77,6 +91,7 @@ export default function SurveyMotivationsPage() {
       return;
     }
 
+    markSurveyStepCompleted("motivations");
     updateSurveyCurrentStep("data");
     router.push("/survey/data");
   }
@@ -115,6 +130,11 @@ export default function SurveyMotivationsPage() {
             Vertrouwelijk
           </span>
         </header>
+
+        <SurveyProgress
+          completedSteps={completedSteps}
+          currentStep="motivations"
+        />
 
         <section className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_8px_40px_rgba(0,101,139,0.06)] md:p-8">
           <div className="mb-6">

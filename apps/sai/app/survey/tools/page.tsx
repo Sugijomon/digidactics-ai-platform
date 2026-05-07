@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { SurveyProgress } from "@/components/survey-progress";
 import {
   saveTool,
   saveToolAccount,
@@ -9,6 +10,7 @@ import {
   saveToolUseCaseContext,
 } from "@/lib/sai-rpc/client";
 import {
+  markSurveyStepCompleted,
   readSurveySession,
   type StoredSurveyTool,
   updateSurveyCurrentStep,
@@ -20,6 +22,11 @@ import type {
   SaveToolPayload,
   SurveySession,
 } from "@/lib/sai-rpc/types";
+import {
+  canAccessSurveyStep,
+  getResumeStep,
+  type SurveyStepId,
+} from "@/lib/sai-survey/flow";
 import {
   accountTypeOptions,
   contextOptions,
@@ -54,6 +61,7 @@ export default function SurveyToolsPage() {
     null,
   );
   const [runId, setRunId] = useState<string | null>(null);
+  const [completedSteps, setCompletedSteps] = useState<SurveyStepId[]>([]);
   const [selectedToolId, setSelectedToolId] = useState("chatgpt");
   const [customToolName, setCustomToolName] = useState("");
   const [selectedUseCases, setSelectedUseCases] = useState([
@@ -84,6 +92,11 @@ export default function SurveyToolsPage() {
         return;
       }
 
+      if (!canAccessSurveyStep(storedSession, "tools")) {
+        router.replace(getResumeStep(storedSession).href);
+        return;
+      }
+
       updateSurveyCurrentStep("tools");
       setSurveySession({
         runId: storedSession.runId,
@@ -91,8 +104,9 @@ export default function SurveyToolsPage() {
       });
       setRunId(storedSession.runId);
       setSavedTools(storedSession.savedTools ?? []);
+      setCompletedSteps(storedSession.completedSteps ?? []);
     });
-  }, []);
+  }, [router]);
 
   async function handleSaveToolFlow() {
     if (!surveySession) {
@@ -207,6 +221,7 @@ export default function SurveyToolsPage() {
     }
 
     setError(null);
+    markSurveyStepCompleted("tools");
     updateSurveyCurrentStep("complete");
     router.push("/survey/complete");
   }
@@ -287,6 +302,8 @@ export default function SurveyToolsPage() {
             Vertrouwelijk
           </span>
         </header>
+
+        <SurveyProgress completedSteps={completedSteps} currentStep="tools" />
 
         <section className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_8px_40px_rgba(0,101,139,0.06)] md:p-8">
           <div className="mb-6">

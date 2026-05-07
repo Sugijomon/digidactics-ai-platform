@@ -2,11 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { SurveyProgress } from "@/components/survey-progress";
 import { saveProfile } from "@/lib/sai-rpc/client";
 import {
+  markSurveyStepCompleted,
   readSurveySession,
   updateSurveyCurrentStep,
 } from "@/lib/sai-rpc/session";
+import type { SurveyStepId } from "@/lib/sai-survey/flow";
 import {
   aiFrequencyOptions,
   aiPolicyAwarenessOptions,
@@ -39,6 +42,7 @@ export default function SurveyProfilePage() {
   const [sessionView, setSessionView] = useState<ProfileSessionView | null>(
     null,
   );
+  const [completedSteps, setCompletedSteps] = useState<SurveyStepId[]>([]);
   const [selectedVakgebied, setSelectedVakgebied] =
     useState("it_data_development");
   const [departmentOtherText, setDepartmentOtherText] = useState("");
@@ -74,6 +78,7 @@ export default function SurveyProfilePage() {
         runId: surveySession.runId,
         startedAt: surveySession.startedAt,
       });
+      setCompletedSteps(surveySession.completedSteps ?? []);
     });
   }, []);
 
@@ -142,6 +147,7 @@ export default function SurveyProfilePage() {
       return;
     }
 
+    markSurveyStepCompleted("profile");
     updateSurveyCurrentStep("motivations");
     router.push("/survey/motivations");
   }
@@ -188,18 +194,10 @@ export default function SurveyProfilePage() {
           </span>
         </header>
 
-        <div className="flex items-center gap-3">
-          <div className="flex flex-1 gap-1.5">
-            <div className="h-1.5 flex-1 rounded-full bg-[#00658b]" />
-            <div className="h-1.5 flex-1 rounded-full bg-[#e5e9eb]" />
-            <div className="h-1.5 flex-1 rounded-full bg-[#e5e9eb]" />
-            <div className="h-1.5 flex-1 rounded-full bg-[#e5e9eb]" />
-            <div className="h-1.5 flex-1 rounded-full bg-[#e5e9eb]" />
-          </div>
-          <span className="whitespace-nowrap text-xs text-[#40484e]">
-            Stap 1 van 5
-          </span>
-        </div>
+        <SurveyProgress
+          completedSteps={completedSteps}
+          currentStep="profile"
+        />
 
         <section className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_8px_40px_rgba(0,101,139,0.06)] md:p-9">
           <div className="mb-8">

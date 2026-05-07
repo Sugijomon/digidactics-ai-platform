@@ -48,7 +48,7 @@ export type SaveProfilePayload = {
 };
 
 export type SaveToolPayload = {
-  tool_code: string;
+  tool_code?: string;
   tool_name: string;
   is_custom: boolean;
   catalog_beheerstatus_code: string;

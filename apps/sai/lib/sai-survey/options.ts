@@ -5,6 +5,14 @@ export type SurveyOption = {
   disabled?: boolean;
 };
 
+export type ToolOption = {
+  id: string;
+  name: string;
+  category: string;
+  description?: string;
+  toolCode?: string;
+};
+
 export const departmentOptions = [
   { code: "it_data_development", label: "IT, data of development" },
   { code: "marketing_communicatie", label: "Marketing of communicatie" },
@@ -329,4 +337,111 @@ export const preferenceReasonOptions = [
     label: "Samenwerking",
     description: "Collega's of partners gebruiken deze tool ook.",
   },
+] satisfies SurveyOption[];
+
+export const toolOptions = [
+  {
+    id: "chatgpt",
+    name: "ChatGPT",
+    category: "Algemene AI",
+    description: "Als library tool beschikbaar in de huidige smoke/V8.1 seed.",
+    toolCode: "chatgpt",
+  },
+  {
+    id: "claude",
+    name: "Claude",
+    category: "Algemene AI",
+    description: "Wordt voorlopig als nieuw ontdekte tool opgeslagen.",
+  },
+  {
+    id: "gemini",
+    name: "Gemini",
+    category: "Algemene AI",
+    description: "Wordt voorlopig als nieuw ontdekte tool opgeslagen.",
+  },
+  {
+    id: "microsoft_copilot",
+    name: "Microsoft Copilot",
+    category: "Werkplek",
+    description: "Wordt voorlopig als nieuw ontdekte tool opgeslagen.",
+  },
+  {
+    id: "notebooklm",
+    name: "NotebookLM",
+    category: "Algemene AI",
+    description: "Wordt voorlopig als nieuw ontdekte tool opgeslagen.",
+  },
+  {
+    id: "perplexity",
+    name: "Perplexity",
+    category: "Algemene AI",
+    description: "Wordt voorlopig als nieuw ontdekte tool opgeslagen.",
+  },
+  {
+    id: "github_copilot",
+    name: "GitHub Copilot",
+    category: "Code",
+    description: "Wordt voorlopig als nieuw ontdekte tool opgeslagen.",
+  },
+  {
+    id: "cursor",
+    name: "Cursor",
+    category: "Code",
+    description: "Wordt voorlopig als nieuw ontdekte tool opgeslagen.",
+  },
+  {
+    id: "n8n",
+    name: "n8n",
+    category: "Data en automatisering",
+    description: "Wordt voorlopig als nieuw ontdekte tool opgeslagen.",
+  },
+  {
+    id: "custom",
+    name: "Andere tool",
+    category: "Zelf invullen",
+    description: "Gebruik dit als jouw tool niet in de lijst staat.",
+  },
+] satisfies ToolOption[];
+
+export const useCaseOptions = [
+  { code: "drafting", label: "Teksten schrijven" },
+  { code: "teksten_schrijven", label: "Teksten schrijven of bewerken" },
+  { code: "samenvatten_redigeren", label: "Samenvatten en redigeren" },
+  { code: "brainstormen", label: "Brainstormen" },
+  { code: "informatie_opzoeken", label: "Informatie opzoeken" },
+  { code: "vertalen", label: "Vertalen" },
+  { code: "klantenservice", label: "Klantenservice" },
+  { code: "data_analyseren", label: "Data analyseren" },
+  { code: "code_schrijven", label: "Code schrijven" },
+  { code: "afbeeldingen_genereren", label: "Afbeeldingen genereren" },
+  { code: "presentaties_design", label: "Presentaties en design" },
+  { code: "automatisering", label: "Automatisering" },
+  { code: "audio_genereren", label: "Audio genereren" },
+  { code: "video_genereren", label: "Video genereren" },
+  { code: "vergaderingen_notuleren", label: "Vergaderingen notuleren" },
+  { code: "workflow_uitvoeren", label: "Workflows uitvoeren" },
+  { code: "systemen_aansturen", label: "Systemen aansturen" },
+  { code: "taken_automatisch_afhandelen", label: "Taken automatisch afhandelen" },
+] satisfies SurveyOption[];
+
+export const contextOptions = [
+  { code: "internal_work", label: "Intern werk" },
+  { code: "intern_gebruik", label: "Intern gebruik" },
+  { code: "klantgerichte_toepassing", label: "Klantgerichte toepassing" },
+  { code: "beslisondersteuning", label: "Beslisondersteuning" },
+  { code: "besluiten_over_personen", label: "Besluiten over personen" },
+  { code: "hr_evaluatie", label: "HR en evaluatie" },
+  { code: "kritieke_systemen", label: "Kritieke systemen" },
+  { code: "nog_niet_duidelijk", label: "Nog niet duidelijk" },
+] satisfies SurveyOption[];
+
+export const accountTypeOptions = [
+  { code: "business_license", label: "Zakelijke licentie" },
+  { code: "zakelijke_licentie", label: "Zakelijke licentie (V8 alias)" },
+  { code: "personal_free", label: "Persoonlijk gratis account" },
+  { code: "prive_gratis", label: "Priveaccount - gratis" },
+  { code: "personal_paid", label: "Persoonlijk betaald account" },
+  { code: "prive_betaald", label: "Priveaccount - betaald" },
+  { code: "both", label: "Beide" },
+  { code: "beide", label: "Beide (V8 alias)" },
 ] satisfies SurveyOption[];

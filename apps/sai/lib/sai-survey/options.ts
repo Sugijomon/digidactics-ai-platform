@@ -106,17 +106,167 @@ export const processingOutputOptions = [
 
 export const dataTypeOptions = [
   {
+    code: "public_information",
+    label: "Publieke informatie",
+    description: "Informatie die al openbaar beschikbaar is.",
+  },
+  {
+    code: "publiek",
+    label: "Publieke informatie (V8 alias)",
+    description: "Alias uit de V8.1 ref-seed.",
+  },
+  {
+    code: "names",
+    label: "Namen van personen",
+    description: "Herleidbare namen zonder verdere bijzondere categorie.",
+  },
+  {
+    code: "namen",
+    label: "Namen van personen (V8 alias)",
+    description: "Alias uit de V8.1 ref-seed.",
+  },
+  {
+    code: "internal_emails",
+    label: "Interne e-mails",
+    description: "E-mailinhoud of conversaties uit de organisatie.",
+  },
+  {
+    code: "interne_email",
+    label: "Interne e-mails (V8 alias)",
+    description: "Alias uit de V8.1 ref-seed.",
+  },
+  {
+    code: "internal_documents",
+    label: "Interne documenten",
+    description: "Beleidsstukken, memo's, werkinstructies of interne concepten.",
+  },
+  {
+    code: "interne_documenten",
+    label: "Interne documenten (V8 alias)",
+    description: "Alias uit de V8.1 ref-seed.",
+  },
+  {
+    code: "meeting_notes",
+    label: "Notulen van vergaderingen",
+    description: "Verslagen, transcripties of actielijsten uit meetings.",
+  },
+  {
+    code: "notulen",
+    label: "Notulen of verslagen (V8 alias)",
+    description: "Alias uit de V8.1 ref-seed.",
+  },
+  {
+    code: "source_code_logic",
+    label: "Broncode en logica",
+    description: "Code, scripts, prompts, beslisregels of bedrijfslogica.",
+  },
+  {
+    code: "broncode_logica",
+    label: "Broncode of bedrijfslogica (V8 alias)",
+    description: "Alias uit de V8.1 ref-seed.",
+  },
+  {
     code: "customer_data",
     label: "Klantgegevens",
-    description: "Smoke-safe optie uit de huidige seed.",
+    description: "Gegevens over klanten, leads, inwoners, clienten of partners.",
+  },
+  {
+    code: "klantdata",
+    label: "Klantgegevens (V8 alias)",
+    description: "Alias uit de V8.1 ref-seed.",
+  },
+  {
+    code: "financial_data",
+    label: "Financiele data",
+    description: "Omzet, budgetten, prijzen, salaris- of betaalinformatie.",
+  },
+  {
+    code: "financiele_data",
+    label: "Financiele gegevens (V8 alias)",
+    description: "Alias uit de V8.1 ref-seed.",
+  },
+  {
+    code: "special_personal_data",
+    label: "Gevoelige persoonsgegevens",
+    description: "Bijzondere categorieen of extra gevoelige persoonsgegevens.",
+  },
+  {
+    code: "gevoelig_persoonsgegeven",
+    label: "Bijzondere persoonsgegevens (V8 alias)",
+    description: "Alias uit de V8.1 ref-seed.",
+  },
+  {
+    code: "excel_sheets",
+    label: "Excel sheets",
+    description: "Spreadsheets met operationele, klant- of organisatiedata.",
+  },
+  {
+    code: "legal_documents",
+    label: "Juridische documenten",
+    description: "Contracten, claims, adviezen of juridische analyses.",
+  },
+  {
+    code: "juridische_documenten",
+    label: "Juridische documenten (V8 alias)",
+    description: "Alias uit de V8.1 ref-seed.",
+  },
+  {
+    code: "none",
+    label: "Ik voer dit niet in",
+    description: "Gebruik dit alleen als je geen werkdata in AI-tools invoert.",
+  },
+  {
+    code: "niets",
+    label: "Geen persoonsgegevens of vertrouwelijke data",
+    description: "Alias uit de V8.1 ref-seed.",
+  },
+  {
+    code: "unsure",
+    label: "Weet ik niet zeker",
+    description: "Kies dit als je niet zeker weet welke data wordt verwerkt.",
+  },
+  {
+    code: "onzeker",
+    label: "Weet ik niet zeker (V8 alias)",
+    description: "Alias uit de V8.1 ref-seed.",
   },
 ] satisfies SurveyOption[];
 
 export const topConcernOptions = [
   {
+    code: "learning_curve",
+    label: "Leercurve",
+    description: "Het kost te veel tijd om het goed te leren.",
+  },
+  {
+    code: "accuracy",
+    label: "Accuratesse",
+    description: "Ik vertrouw de uitkomsten niet altijd.",
+  },
+  {
+    code: "costs",
+    label: "Kosten",
+    description: "Ik wil geen privegeld uitgeven aan zakelijke tools.",
+  },
+  {
     code: "privacy",
     label: "Privacy en persoonsgegevens",
-    description: "Smoke-safe optie uit de huidige seed.",
+    description: "Ik maak me zorgen over persoonsgegevens en privacy.",
+  },
+  {
+    code: "privacy_security",
+    label: "Privacy en security",
+    description: "Ik weet niet of mijn data veilig is.",
+  },
+  {
+    code: "no_major_concerns",
+    label: "Geen bijzondere zorgen",
+    description: "Gebruik dit als er geen duidelijke zorg speelt.",
+  },
+  {
+    code: "other",
+    label: "Anders",
+    description: "Andere zorg; toelichting volgt later in de volledige flow.",
   },
 ] satisfies SurveyOption[];
 
@@ -124,14 +274,59 @@ export const supportNeedOptions = [
   {
     code: "clear_policy",
     label: "Duidelijk beleid",
-    description: "Smoke-safe optie uit de huidige seed.",
+    description: "Heldere richtlijnen over wat wel en niet mag.",
+  },
+  {
+    code: "inspiration_examples",
+    label: "Inspiratie en voorbeelden",
+    description: "Concrete use cases van collega's of andere organisaties.",
+  },
+  {
+    code: "training",
+    label: "Opleiding en training",
+    description: "Praktische workshops om beter te prompten of tools te begrijpen.",
+  },
+  {
+    code: "practice_together",
+    label: "Samen oefenen",
+    description: "Een klankbordgroep of AI-cafe om ervaringen uit te wisselen.",
+  },
+  {
+    code: "official_licenses",
+    label: "Officiele licenties",
+    description: "Toegang tot betaalde of zakelijke versies van tools.",
+  },
+  {
+    code: "technical_advice",
+    label: "Technisch advies",
+    description: "Hulp bij het veilig inrichten van AI-workflows.",
   },
 ] satisfies SurveyOption[];
 
 export const preferenceReasonOptions = [
   {
+    code: "speed",
+    label: "Snelheid",
+    description: "Het werkt sneller dan de huidige officiele alternatieven.",
+  },
+  {
+    code: "functionality",
+    label: "Functionaliteit",
+    description: "De tool kan dingen die andere software niet kan.",
+  },
+  {
+    code: "quality",
+    label: "Kwaliteit",
+    description: "Ik vind de resultaten beter.",
+  },
+  {
     code: "ease_of_use",
     label: "Gebruiksgemak",
-    description: "Smoke-safe optie uit de huidige seed.",
+    description: "De tool is laagdrempelig of ik ben eraan gewend.",
+  },
+  {
+    code: "collaboration",
+    label: "Samenwerking",
+    description: "Collega's of partners gebruiken deze tool ook.",
   },
 ] satisfies SurveyOption[];

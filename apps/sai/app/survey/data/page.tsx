@@ -29,6 +29,7 @@ type StepState = {
 };
 
 type StepStates = Record<StepKey, StepState>;
+type ValidationErrors = Partial<Record<StepKey, string>>;
 
 const INITIAL_STEPS: StepStates = {
   dataTypes: { status: "idle", message: "Wacht op opslaan" },
@@ -52,6 +53,9 @@ export default function SurveyDataPage() {
     "ease_of_use",
   ]);
   const [steps, setSteps] = useState<StepStates>(INITIAL_STEPS);
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
+    {},
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -81,6 +85,21 @@ export default function SurveyDataPage() {
     setIsSaving(true);
     setError(null);
     setSteps(INITIAL_STEPS);
+    setValidationErrors({});
+
+    const nextValidationErrors = validateSelections({
+      dataTypes: selectedDataTypes,
+      concerns: selectedConcerns,
+      supportNeeds: selectedSupportNeeds,
+      preferenceReasons: selectedPreferenceReasons,
+    });
+
+    if (Object.keys(nextValidationErrors).length > 0) {
+      setValidationErrors(nextValidationErrors);
+      setError("Controleer de gemarkeerde vragen voordat je doorgaat.");
+      setIsSaving(false);
+      return;
+    }
 
     const dataTypesResult = await runStep(
       "dataTypes",
@@ -194,8 +213,9 @@ export default function SurveyDataPage() {
               Welke data, zorgen en behoeften spelen mee?
             </h2>
             <p className="mt-2 text-sm leading-6 text-[#40484e]">
-              Deze minimale stap gebruikt alleen smoke-safe codes en schrijft
-              via de respondent RPC-laag.
+              Kies de soorten informatie, zorgen en behoeften die bij jouw
+              AI-gebruik passen. Deze stap schrijft uitsluitend via de
+              respondent RPC-laag.
             </p>
           </div>
 
@@ -212,7 +232,9 @@ export default function SurveyDataPage() {
               name="data_type"
               onChange={setSelectedDataTypes}
               options={dataTypeOptions}
+              required
               selectedCodes={selectedDataTypes}
+              validationError={validationErrors.dataTypes}
             />
 
             <CheckboxGroup
@@ -221,7 +243,9 @@ export default function SurveyDataPage() {
               name="top_concern"
               onChange={setSelectedConcerns}
               options={topConcernOptions}
+              required
               selectedCodes={selectedConcerns}
+              validationError={validationErrors.concerns}
             />
 
             <CheckboxGroup
@@ -230,7 +254,9 @@ export default function SurveyDataPage() {
               name="support_need"
               onChange={setSelectedSupportNeeds}
               options={supportNeedOptions}
+              required
               selectedCodes={selectedSupportNeeds}
+              validationError={validationErrors.supportNeeds}
             />
 
             <CheckboxGroup
@@ -239,7 +265,9 @@ export default function SurveyDataPage() {
               name="preference_reason"
               onChange={setSelectedPreferenceReasons}
               options={preferenceReasonOptions}
+              required
               selectedCodes={selectedPreferenceReasons}
+              validationError={validationErrors.preferenceReasons}
             />
 
             {error ? (
@@ -296,28 +324,45 @@ function CheckboxGroup({
   name,
   onChange,
   options,
+  required = false,
   selectedCodes,
+  validationError,
 }: {
   helpText: string;
   label: string;
   name: string;
   onChange: (codes: string[]) => void;
   options: SurveyOption[];
+  required?: boolean;
   selectedCodes: string[];
+  validationError?: string;
 }) {
   function toggleCode(code: string) {
-    onChange(
-      selectedCodes.includes(code)
-        ? selectedCodes.filter((selectedCode) => selectedCode !== code)
-        : [...selectedCodes, code],
-    );
+    const isSelected = selectedCodes.includes(code);
+    const nextSelection = isSelected
+      ? selectedCodes.filter((selectedCode) => selectedCode !== code)
+      : [...selectedCodes.filter((selectedCode) => !isExclusiveCode(code, selectedCode)), code];
+
+    onChange(normalizeExclusiveSelection(nextSelection, code));
   }
 
   return (
-    <section className="grid gap-4 rounded-2xl border border-[#bfc7cf]/50 bg-white/70 p-4">
+    <section
+      className={`grid gap-4 rounded-2xl border bg-white/70 p-4 ${
+        validationError ? "border-red-300" : "border-[#bfc7cf]/50"
+      }`}
+    >
       <div>
-        <h3 className="font-bold text-[#00658b]">{label}</h3>
+        <h3 className="font-bold text-[#00658b]">
+          {label}
+          {required ? <span className="text-red-600"> *</span> : null}
+        </h3>
         <p className="mt-1 text-sm leading-6 text-[#40484e]">{helpText}</p>
+        {validationError ? (
+          <p className="mt-2 text-sm font-semibold text-red-700">
+            {validationError}
+          </p>
+        ) : null}
       </div>
       <div className="grid gap-2">
         {options.map((option) => (
@@ -353,6 +398,48 @@ function CheckboxGroup({
       </div>
     </section>
   );
+}
+
+function validateSelections(selections: Record<StepKey, string[]>) {
+  const errors: ValidationErrors = {};
+
+  if (selections.dataTypes.length === 0) {
+    errors.dataTypes = "Kies minimaal een datatype, of kies 'Ik voer dit niet in'.";
+  }
+
+  if (selections.concerns.length === 0) {
+    errors.concerns = "Kies minimaal een zorg, of kies 'Geen bijzondere zorgen'.";
+  }
+
+  if (selections.supportNeeds.length === 0) {
+    errors.supportNeeds = "Kies minimaal een vorm van ondersteuning.";
+  }
+
+  if (selections.preferenceReasons.length === 0) {
+    errors.preferenceReasons = "Kies minimaal een reden voor je toolvoorkeur.";
+  }
+
+  return errors;
+}
+
+const EXCLUSIVE_CODES = new Set([
+  "none",
+  "niets",
+  "unsure",
+  "onzeker",
+  "no_major_concerns",
+]);
+
+function isExclusiveCode(newCode: string, selectedCode: string) {
+  return EXCLUSIVE_CODES.has(newCode) || EXCLUSIVE_CODES.has(selectedCode);
+}
+
+function normalizeExclusiveSelection(codes: string[], latestCode: string) {
+  if (!EXCLUSIVE_CODES.has(latestCode)) {
+    return codes.filter((code) => !EXCLUSIVE_CODES.has(code));
+  }
+
+  return [latestCode];
 }
 
 function StepRow({ label, state }: { label: string; state: StepState }) {

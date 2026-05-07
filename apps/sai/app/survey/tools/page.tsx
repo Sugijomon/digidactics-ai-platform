@@ -10,6 +10,7 @@ import {
 } from "@/lib/sai-rpc/client";
 import {
   readSurveySession,
+  type StoredSurveyTool,
   updateSurveyCurrentStep,
   updateSurveySession,
 } from "@/lib/sai-rpc/session";
@@ -66,6 +67,7 @@ export default function SurveyToolsPage() {
     {},
   );
   const [steps, setSteps] = useState<StepStates>(INITIAL_STEPS);
+  const [savedTools, setSavedTools] = useState<StoredSurveyTool[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -88,6 +90,7 @@ export default function SurveyToolsPage() {
         submissionToken: storedSession.submissionToken,
       });
       setRunId(storedSession.runId);
+      setSavedTools(storedSession.savedTools ?? []);
     });
   }, []);
 
@@ -175,8 +178,46 @@ export default function SurveyToolsPage() {
     );
     if (!accountResult.ok) return finishWithError(accountResult.error);
 
+    const savedTool: StoredSurveyTool = {
+      surveyToolId: toolResult.data,
+      toolName,
+      useCaseCodes: selectedUseCases,
+      contextCodes: selectedContexts,
+      accountTypeCode: selectedAccountType,
+      savedAt: new Date().toISOString(),
+    };
+    const nextSavedTools = [...savedTools, savedTool];
+
+    setSavedTools(nextSavedTools);
+    updateSurveySession({
+      currentStep: "tools",
+      savedTools: nextSavedTools,
+      surveyToolId: toolResult.data,
+      surveyToolUseCaseId: useCaseIds[0],
+    });
+    resetToolForm();
+    setStep("tool", "ok", `${toolName} opgeslagen. Je kunt nog een tool toevoegen.`);
+    setIsSaving(false);
+  }
+
+  function handleContinueToComplete() {
+    if (savedTools.length === 0) {
+      setError("Sla minimaal een tool op voordat je de scan afrondt.");
+      return;
+    }
+
+    setError(null);
     updateSurveyCurrentStep("complete");
     router.push("/survey/complete");
+  }
+
+  function resetToolForm() {
+    setSelectedToolId("chatgpt");
+    setCustomToolName("");
+    setSelectedUseCases(["drafting", "data_analyseren"]);
+    setSelectedContexts(["internal_work"]);
+    setSelectedAccountType("personal_free");
+    setValidationErrors({});
   }
 
   async function runStep<T>(
@@ -257,9 +298,8 @@ export default function SurveyToolsPage() {
             </h2>
             <p className="mt-2 text-sm leading-6 text-[#40484e]">
               Kies een tool, selecteer een of meer toepassingen, geef de context
-              aan en kies het accounttype. Alleen ChatGPT heeft nu een vaste
-              library code; andere tools worden veilig als nieuw ontdekt
-              opgeslagen.
+              aan en kies het accounttype. Je kunt meerdere tools toevoegen
+              voordat je doorgaat naar afronden.
             </p>
           </div>
 
@@ -269,7 +309,9 @@ export default function SurveyToolsPage() {
               event.preventDefault();
               void handleSaveToolFlow();
             }}
-          >
+            >
+            <SavedToolsSummary savedTools={savedTools} />
+
             <ToolPicker
               customToolName={customToolName}
               onCustomToolNameChange={setCustomToolName}
@@ -343,13 +385,67 @@ export default function SurveyToolsPage() {
                 disabled={isSaving}
                 type="submit"
               >
-                {isSaving ? "Opslaan..." : "Tool opslaan en verder"}
+                {isSaving ? "Opslaan..." : "Tool opslaan"}
+              </button>
+              <button
+                className="inline-flex h-11 items-center rounded-full border border-[#00658b] bg-white px-7 text-sm font-bold text-[#00658b] transition hover:bg-[#c4e7ff]/30 disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={isSaving || savedTools.length === 0}
+                onClick={handleContinueToComplete}
+                type="button"
+              >
+                Verder naar afronden
               </button>
             </div>
           </form>
         </section>
       </section>
     </main>
+  );
+}
+
+function SavedToolsSummary({
+  savedTools,
+}: {
+  savedTools: StoredSurveyTool[];
+}) {
+  return (
+    <section className="grid gap-3 rounded-2xl border border-[#bfc7cf]/50 bg-white/70 p-4">
+      <div>
+        <h3 className="font-bold text-[#00658b]">Opgeslagen tools</h3>
+        <p className="mt-1 text-sm leading-6 text-[#40484e]">
+          Voeg minimaal een tool toe. Daarna kun je afronden of nog een tool
+          registreren.
+        </p>
+      </div>
+      {savedTools.length === 0 ? (
+        <p className="rounded-xl border border-dashed border-[#bfc7cf] bg-white px-4 py-3 text-sm text-[#40484e]">
+          Nog geen tools opgeslagen.
+        </p>
+      ) : (
+        <div className="grid gap-2">
+          {savedTools.map((tool, index) => (
+            <article
+              className="rounded-xl border border-[#bfc7cf]/60 bg-white px-4 py-3 text-sm"
+              key={tool.surveyToolId}
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h4 className="font-bold text-[#181c1e]">
+                  {index + 1}. {tool.toolName}
+                </h4>
+                <span className="rounded-full bg-[#c4e7ff]/50 px-2.5 py-1 text-xs font-semibold text-[#00658b]">
+                  {tool.useCaseCodes.length} usecase
+                  {tool.useCaseCodes.length === 1 ? "" : "s"}
+                </span>
+              </div>
+              <p className="mt-2 text-[#40484e]">
+                Context: {tool.contextCodes.join(", ")} · Account:{" "}
+                {tool.accountTypeCode}
+              </p>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 

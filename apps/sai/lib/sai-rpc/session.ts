@@ -4,11 +4,21 @@ import type { SurveySession } from "@/lib/sai-rpc/types";
 
 const SURVEY_SESSION_STORAGE_KEY = "sai.respondent.session";
 
+export type StoredSurveyTool = {
+  surveyToolId: string;
+  toolName: string;
+  useCaseCodes: string[];
+  contextCodes: string[];
+  accountTypeCode: string;
+  savedAt: string;
+};
+
 export type StoredSurveySession = SurveySession & {
   startedAt: string;
   currentStep: string;
   surveyToolId?: string;
   surveyToolUseCaseId?: string;
+  savedTools?: StoredSurveyTool[];
 };
 
 function isStoredSurveySession(value: unknown): value is StoredSurveySession {
@@ -18,11 +28,38 @@ function isStoredSurveySession(value: unknown): value is StoredSurveySession {
 
   const candidate = value as Record<string, unknown>;
 
+  const savedTools = candidate.savedTools;
+
   return (
     typeof candidate.runId === "string" &&
     typeof candidate.submissionToken === "string" &&
     typeof candidate.startedAt === "string" &&
-    typeof candidate.currentStep === "string"
+    typeof candidate.currentStep === "string" &&
+    (savedTools === undefined || isStoredSurveyTools(savedTools))
+  );
+}
+
+function isStoredSurveyTools(value: unknown): value is StoredSurveyTool[] {
+  return (
+    Array.isArray(value) &&
+    value.every((tool) => {
+      if (typeof tool !== "object" || tool === null || Array.isArray(tool)) {
+        return false;
+      }
+
+      const candidate = tool as Record<string, unknown>;
+
+      return (
+        typeof candidate.surveyToolId === "string" &&
+        typeof candidate.toolName === "string" &&
+        Array.isArray(candidate.useCaseCodes) &&
+        candidate.useCaseCodes.every((code) => typeof code === "string") &&
+        Array.isArray(candidate.contextCodes) &&
+        candidate.contextCodes.every((code) => typeof code === "string") &&
+        typeof candidate.accountTypeCode === "string" &&
+        typeof candidate.savedAt === "string"
+      );
+    })
   );
 }
 
@@ -66,7 +103,7 @@ export function updateSurveySession(
   updates: Partial<
     Pick<
       StoredSurveySession,
-      "currentStep" | "surveyToolId" | "surveyToolUseCaseId"
+      "currentStep" | "surveyToolId" | "surveyToolUseCaseId" | "savedTools"
     >
   >,
 ) {

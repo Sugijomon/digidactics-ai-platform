@@ -5,6 +5,7 @@ import { completeSurveyRun, saveProfile } from "@/lib/sai-rpc/client";
 import {
   clearSurveySession,
   readSurveySession,
+  type StoredSurveyTool,
   updateSurveyCurrentStep,
 } from "@/lib/sai-rpc/session";
 import type { RpcError, SurveySession } from "@/lib/sai-rpc/types";
@@ -35,6 +36,7 @@ export default function SurveyCompletePage() {
   const [tokenCheckStep, setTokenCheckStep] = useState<StepState>(
     INITIAL_TOKEN_CHECK_STEP,
   );
+  const [savedTools, setSavedTools] = useState<StoredSurveyTool[]>([]);
   const [isCompleting, setIsCompleting] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,12 +55,18 @@ export default function SurveyCompletePage() {
         submissionToken: storedSession.submissionToken,
       });
       setRunId(storedSession.runId);
+      setSavedTools(storedSession.savedTools ?? []);
     });
   }, []);
 
   async function handleCompleteSurvey() {
     if (!surveySession) {
       setError("Geen actieve respondent session gevonden. Start de scan opnieuw.");
+      return;
+    }
+
+    if (savedTools.length === 0) {
+      setError("Registreer minimaal een AI-tool voordat je de scan afrondt.");
       return;
     }
 
@@ -144,6 +152,14 @@ export default function SurveyCompletePage() {
           <p className="mt-4 rounded-xl bg-[#f1f4f6] px-3 py-2 font-mono text-xs text-[#40484e]">
             Run ID: {runId}
           </p>
+          {savedTools.length > 0 ? (
+            <p className="mt-3 text-sm leading-6 text-[#40484e]">
+              Opgeslagen tools:{" "}
+              <span className="font-semibold">
+                {savedTools.map((tool) => tool.toolName).join(", ")}
+              </span>
+            </p>
+          ) : null}
         </section>
       </main>
     );
@@ -194,6 +210,8 @@ export default function SurveyCompletePage() {
             </p>
           </div>
 
+          <SavedToolsSummary savedTools={savedTools} />
+
           {error ? (
             <p className="mb-6 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
               {error}
@@ -214,7 +232,7 @@ export default function SurveyCompletePage() {
             </a>
             <button
               className="inline-flex h-11 items-center rounded-full bg-[#00658b] px-7 text-sm font-bold text-white shadow-lg transition hover:bg-[#004c6a] disabled:cursor-not-allowed disabled:opacity-60"
-              disabled={isCompleting}
+              disabled={isCompleting || savedTools.length === 0}
               onClick={() => {
                 void handleCompleteSurvey();
               }}
@@ -226,6 +244,49 @@ export default function SurveyCompletePage() {
         </section>
       </section>
     </main>
+  );
+}
+
+function SavedToolsSummary({
+  savedTools,
+}: {
+  savedTools: StoredSurveyTool[];
+}) {
+  return (
+    <section className="mb-6 grid gap-3 rounded-2xl border border-[#bfc7cf]/50 bg-white/80 p-4 text-sm">
+      <div>
+        <h2 className="font-bold text-[#00658b]">Geregistreerde tools</h2>
+        <p className="mt-1 text-[#40484e]">
+          Controleer kort of je minimaal je belangrijkste AI-tools hebt
+          toegevoegd.
+        </p>
+      </div>
+      {savedTools.length === 0 ? (
+        <p className="rounded-xl border border-dashed border-[#bfc7cf] bg-white px-4 py-3 text-[#40484e]">
+          Er staat nog geen opgeslagen tool in deze respondent session.
+        </p>
+      ) : (
+        <div className="grid gap-2">
+          {savedTools.map((tool, index) => (
+            <article
+              className="rounded-xl border border-[#bfc7cf]/60 bg-white px-4 py-3"
+              key={tool.surveyToolId}
+            >
+              <p className="font-bold text-[#181c1e]">
+                {index + 1}. {tool.toolName}
+              </p>
+              <p className="mt-1 text-[#40484e]">
+                Usecases: {tool.useCaseCodes.join(", ")}
+              </p>
+              <p className="mt-1 text-[#40484e]">
+                Context: {tool.contextCodes.join(", ")} · Account:{" "}
+                {tool.accountTypeCode}
+              </p>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 

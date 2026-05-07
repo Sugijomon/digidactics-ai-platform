@@ -47,6 +47,11 @@ export type SaveProfilePayload = {
   future_usecases_text: string;
 };
 
+export type SaveMotivationItem = {
+  code: string;
+  other_text?: string;
+};
+
 export type SaveToolPayload = {
   tool_code?: string;
   tool_name: string;

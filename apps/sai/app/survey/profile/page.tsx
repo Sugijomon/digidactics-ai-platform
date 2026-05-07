@@ -142,8 +142,8 @@ export default function SurveyProfilePage() {
       return;
     }
 
-    updateSurveyCurrentStep("data");
-    router.push("/survey/data");
+    updateSurveyCurrentStep("motivations");
+    router.push("/survey/motivations");
   }
 
   if (!sessionView) {

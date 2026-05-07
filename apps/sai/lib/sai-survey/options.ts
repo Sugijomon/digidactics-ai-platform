@@ -37,6 +37,39 @@ export const noAiReasonOptions = [
   { code: "weet_niet_hoe", label: "Ik weet niet hoe ik moet beginnen" },
 ] satisfies SurveyOption[];
 
+export const motivationOptions = [
+  {
+    code: "tijdswinst",
+    label: "Tijdswinst",
+    description: "Ik krijg mijn taken sneller af.",
+  },
+  {
+    code: "kwaliteitsverbetering",
+    label: "Kwaliteitsverbetering",
+    description: "De output is beter, creatiever of foutlozer.",
+  },
+  {
+    code: "complexe_taken",
+    label: "Complexe taken",
+    description: "Het helpt bij zaken die ik vrijwel niet zelf kan.",
+  },
+  {
+    code: "inspiratie_brainstormen",
+    label: "Inspiratie en brainstormen",
+    description: "Het helpt om over een leeg vel heen te komen.",
+  },
+  {
+    code: "experimenteren",
+    label: "Experimenteren",
+    description: "Ik wil ontdekken wat AI voor mijn rol kan betekenen.",
+  },
+  {
+    code: "anders",
+    label: "Anders",
+    description: "Vul kort in wat jouw belangrijkste motivatie is.",
+  },
+] satisfies SurveyOption[];
+
 export const dataAwarenessOptions = [
   {
     code: "ja_controle",

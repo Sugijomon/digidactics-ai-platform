@@ -194,7 +194,7 @@ export default function SurveyDataPage() {
       <section className="mx-auto grid w-full max-w-4xl gap-6">
         <header className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold text-[#6993aa]">Stap 2 van 5</p>
+            <p className="text-sm font-semibold text-[#6993aa]">Stap 3 van 6</p>
             <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-[#00658b]">
               Data en context
             </h1>
@@ -299,7 +299,7 @@ export default function SurveyDataPage() {
             <div className="flex items-center justify-between gap-3 border-t border-[#bfc7cf]/30 pt-6">
               <a
                 className="inline-flex h-11 items-center rounded-full border border-[#bfc7cf] px-6 text-sm font-bold text-[#40484e]"
-                href="/survey/profile"
+                href="/survey/motivations"
               >
                 Vorige
               </a>

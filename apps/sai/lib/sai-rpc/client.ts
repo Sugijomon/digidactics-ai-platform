@@ -7,6 +7,7 @@ import type {
   RpcError,
   RpcErrorCode,
   RpcResult,
+  SaveMotivationItem,
   SaveProfilePayload,
   SaveToolPayload,
   SurveySession,
@@ -140,6 +141,35 @@ export async function saveDataTypes(
   codes: string[],
 ): Promise<RpcResult<null>> {
   return saveMultiChoiceCodes("save_data_types", session, codes);
+}
+
+export async function saveMotivations(
+  session: SurveySession,
+  items: SaveMotivationItem[],
+): Promise<RpcResult<null>> {
+  const client = createRpcClient();
+
+  if (!client.ok) {
+    return client;
+  }
+
+  const payload = items.map((item) => {
+    const motivationItem: Record<string, string> = { code: item.code };
+
+    if (item.other_text?.trim()) {
+      motivationItem.other_text = item.other_text.trim();
+    }
+
+    return motivationItem;
+  });
+
+  const { error } = await client.data.rpc("save_motivations", {
+    p_run_id: session.runId,
+    p_token: session.submissionToken,
+    p_items: toJsonValue(payload),
+  });
+
+  return error ? { ok: false, error: mapSupabaseError(error) } : successNull();
 }
 
 export async function saveConcerns(

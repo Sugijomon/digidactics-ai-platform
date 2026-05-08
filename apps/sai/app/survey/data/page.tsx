@@ -4,6 +4,15 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { SurveyProgress } from "@/components/survey-progress";
 import {
+  EmptySurveyState,
+  RequiredBadge,
+  RpcStepRow,
+  RunIdCard,
+  SurveySummaryGrid,
+  SurveySummaryItem,
+  ValidationMessage,
+} from "@/components/survey-ui";
+import {
   saveConcerns,
   saveDataTypes,
   saveSupportNeeds,
@@ -231,21 +240,10 @@ export default function SurveyDataPage() {
 
   if (!runId) {
     return (
-      <main className="grid min-h-screen place-items-center bg-[#f7fafc] px-6 text-[#181c1e]">
-        <section className="max-w-md rounded-2xl border border-[#bfc7cf]/50 bg-white p-6 text-center shadow-sm">
-          <h1 className="mb-2 text-2xl font-bold">Geen actieve scan</h1>
-          <p className="mb-5 text-sm leading-6 text-[#40484e]">
-            Start eerst een scan en sla de profielstap op voordat je de
-            data/context stap invult.
-          </p>
-          <a
-            className="inline-flex h-11 items-center rounded-full bg-[#004c6a] px-6 text-sm font-bold text-white"
-            href="/survey"
-          >
-            Terug naar start
-          </a>
-        </section>
-      </main>
+      <EmptySurveyState>
+        Start eerst een scan en sla de profielstap op voordat je de data/context
+        stap invult.
+      </EmptySurveyState>
     );
   }
 
@@ -363,30 +361,20 @@ export default function SurveyDataPage() {
             />
 
             {error ? (
-              <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-                {error}
-              </p>
+              <ValidationMessage>{error}</ValidationMessage>
             ) : null}
 
             <section className="grid gap-3">
-              <StepRow label="save_data_types" state={steps.dataTypes} />
-              <StepRow label="save_concerns" state={steps.concerns} />
-              <StepRow label="save_support_needs" state={steps.supportNeeds} />
-              <StepRow
+              <RpcStepRow label="save_data_types" state={steps.dataTypes} />
+              <RpcStepRow label="save_concerns" state={steps.concerns} />
+              <RpcStepRow label="save_support_needs" state={steps.supportNeeds} />
+              <RpcStepRow
                 label="save_tool_preference_reasons"
                 state={steps.preferenceReasons}
               />
             </section>
 
-            <section className="rounded-2xl border border-[#bfc7cf]/50 bg-white/80 p-4 text-sm">
-              <p>
-                <span className="font-semibold">Run ID:</span>{" "}
-                <span className="font-mono">{runId}</span>
-              </p>
-              <p className="mt-2 text-[#40484e]">
-                Submission token blijft alleen in respondent session state.
-              </p>
-            </section>
+            <RunIdCard runId={runId} />
 
             <div className="flex items-center justify-between gap-3 border-t border-[#bfc7cf]/30 pt-6">
               <a
@@ -453,9 +441,7 @@ function CheckboxGroup({
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="font-bold text-[#00658b]">{label}</h3>
             {required ? (
-              <span className="rounded-full border border-[#bfc7cf]/60 bg-white px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wide text-[#40484e]">
-                Verplicht
-              </span>
+              <RequiredBadge />
             ) : null}
           </div>
           <span className="rounded-full bg-[#c4e7ff]/50 px-2.5 py-1 text-xs font-bold text-[#00658b]">
@@ -550,40 +536,16 @@ function DataAnswerSummary({
   }>;
 }) {
   return (
-    <section className="mb-6 grid gap-3 rounded-2xl border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm md:grid-cols-2">
+    <SurveySummaryGrid className="mb-6" columnsClassName="md:grid-cols-2">
       {items.map((item) => (
-        <SummaryItem
+        <SurveySummaryItem
           key={item.label}
+          detail={getSelectedOptionLabels(item.options, item.selectedCodes) || "Nog niets gekozen"}
           label={item.label}
-          selectedCount={item.selectedCodes.length}
-          selectedLabels={getSelectedOptionLabels(item.options, item.selectedCodes)}
+          value={`${item.selectedCodes.length} geselecteerd`}
         />
       ))}
-    </section>
-  );
-}
-
-function SummaryItem({
-  label,
-  selectedCount,
-  selectedLabels,
-}: {
-  label: string;
-  selectedCount: number;
-  selectedLabels: string;
-}) {
-  return (
-    <div className="min-w-0">
-      <p className="text-xs font-bold uppercase tracking-wide text-[#00658b]/70">
-        {label}
-      </p>
-      <p className="mt-1 font-semibold text-[#181c1e]">
-        {selectedCount} geselecteerd
-      </p>
-      <p className="mt-1 truncate text-xs font-medium text-[#40484e]">
-        {selectedLabels || "Nog niets gekozen"}
-      </p>
-    </div>
+    </SurveySummaryGrid>
   );
 }
 
@@ -633,20 +595,6 @@ function normalizeExclusiveSelection(codes: string[], latestCode: string) {
   }
 
   return [latestCode];
-}
-
-function StepRow({ label, state }: { label: string; state: StepState }) {
-  return (
-    <div className="grid gap-2 rounded-xl border border-[#bfc7cf]/50 bg-white px-4 py-3 sm:grid-cols-[250px_90px_1fr] sm:items-center">
-      <span className="font-mono text-sm font-semibold text-[#181c1e]">
-        {label}
-      </span>
-      <span className="w-max rounded-full border border-[#bfc7cf]/60 px-2.5 py-1 text-xs font-semibold text-[#40484e]">
-        {state.status}
-      </span>
-      <span className="break-words text-sm text-[#40484e]">{state.message}</span>
-    </div>
-  );
 }
 
 function formatRpcError(error: RpcError) {

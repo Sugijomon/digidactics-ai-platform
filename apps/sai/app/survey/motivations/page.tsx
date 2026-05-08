@@ -3,6 +3,14 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { SurveyProgress } from "@/components/survey-progress";
+import {
+  EmptySurveyState,
+  RequiredBadge,
+  RunIdCard,
+  SurveySummaryGrid,
+  SurveySummaryItem,
+  ValidationMessage,
+} from "@/components/survey-ui";
 import { saveMotivations } from "@/lib/sai-rpc/client";
 import {
   markSurveyStepCompleted,
@@ -107,21 +115,10 @@ export default function SurveyMotivationsPage() {
 
   if (!runId) {
     return (
-      <main className="grid min-h-screen place-items-center bg-[#f7fafc] px-6 text-[#181c1e]">
-        <section className="max-w-md rounded-2xl border border-[#bfc7cf]/50 bg-white p-6 text-center shadow-sm">
-          <h1 className="mb-2 text-2xl font-bold">Geen actieve scan</h1>
-          <p className="mb-5 text-sm leading-6 text-[#40484e]">
-            Start eerst een scan en sla de profielstap op voordat je motivaties
-            invult.
-          </p>
-          <a
-            className="inline-flex h-11 items-center rounded-full bg-[#004c6a] px-6 text-sm font-bold text-white"
-            href="/survey"
-          >
-            Terug naar start
-          </a>
-        </section>
-      </main>
+      <EmptySurveyState>
+        Start eerst een scan en sla de profielstap op voordat je motivaties
+        invult.
+      </EmptySurveyState>
     );
   }
 
@@ -197,20 +194,10 @@ export default function SurveyMotivationsPage() {
             ) : null}
 
             {error ? (
-              <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-                {error}
-              </p>
+              <ValidationMessage>{error}</ValidationMessage>
             ) : null}
 
-            <section className="rounded-2xl border border-[#bfc7cf]/50 bg-white/80 p-4 text-sm">
-              <p>
-                <span className="font-semibold">Run ID:</span>{" "}
-                <span className="font-mono">{runId}</span>
-              </p>
-              <p className="mt-2 text-[#40484e]">
-                Submission token blijft alleen in respondent session state.
-              </p>
-            </section>
+            <RunIdCard runId={runId} />
 
             <div className="flex items-center justify-between gap-3 border-t border-[#bfc7cf]/30 pt-6">
               <a
@@ -258,18 +245,14 @@ function MotivationGroup({
       <div>
         <div className="flex flex-wrap items-center gap-2">
           <h3 className="font-bold text-[#00658b]">Motivaties</h3>
-          <span className="rounded-full border border-[#bfc7cf]/60 bg-white px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wide text-[#40484e]">
-            Verplicht
-          </span>
+          <RequiredBadge />
         </div>
         <p className="mt-1 text-sm leading-6 text-[#40484e]">
           Meerdere antwoorden zijn mogelijk.
         </p>
       </div>
       {error ? (
-        <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
-          {error}
-        </p>
+        <ValidationMessage>{error}</ValidationMessage>
       ) : null}
       <div className="grid gap-2 md:grid-cols-2">
         {options.map((option) => (
@@ -343,24 +326,16 @@ function MotivationAnswerSummary({
   selectedLabels: string;
 }) {
   return (
-    <section className="mb-6 grid gap-3 rounded-2xl border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm md:grid-cols-[10rem_1fr]">
-      <div>
-        <p className="text-xs font-bold uppercase tracking-wide text-[#00658b]/70">
-          Selectie
-        </p>
-        <p className="mt-1 font-semibold text-[#181c1e]">
-          {selectedCount} gekozen
-        </p>
-      </div>
-      <div className="min-w-0">
-        <p className="text-xs font-bold uppercase tracking-wide text-[#00658b]/70">
-          Motivaties
-        </p>
-        <p className="mt-1 truncate font-semibold text-[#181c1e]">
-          {selectedLabels || "Nog niets gekozen"}
-        </p>
-      </div>
-    </section>
+    <SurveySummaryGrid
+      className="mb-6"
+      columnsClassName="md:grid-cols-[10rem_1fr]"
+    >
+      <SurveySummaryItem label="Selectie" value={`${selectedCount} gekozen`} />
+      <SurveySummaryItem
+        label="Motivaties"
+        value={selectedLabels || "Nog niets gekozen"}
+      />
+    </SurveySummaryGrid>
   );
 }
 

@@ -3,6 +3,14 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { SurveyProgress } from "@/components/survey-progress";
+import {
+  EmptySurveyState,
+  RunIdCard,
+  SurveyQuestionBlock,
+  SurveySummaryGrid,
+  SurveySummaryItem,
+  ValidationMessage,
+} from "@/components/survey-ui";
 import { saveProfile } from "@/lib/sai-rpc/client";
 import {
   markSurveyStepCompleted,
@@ -181,21 +189,9 @@ export default function SurveyProfilePage() {
 
   if (!sessionView) {
     return (
-      <main className="grid min-h-screen place-items-center bg-[#f7fafc] px-6 text-[#181c1e]">
-        <section className="max-w-md rounded-2xl border border-[#bfc7cf]/50 bg-white p-6 text-center shadow-sm">
-          <h1 className="mb-2 text-2xl font-bold">Geen actieve scan</h1>
-          <p className="mb-5 text-sm leading-6 text-[#40484e]">
-            Start eerst een scan zodat de respondent session state beschikbaar
-            is.
-          </p>
-          <a
-            className="inline-flex h-11 items-center rounded-full bg-[#004c6a] px-6 text-sm font-bold text-white"
-            href="/survey"
-          >
-            Terug naar start
-          </a>
-        </section>
-      </main>
+      <EmptySurveyState>
+        Start eerst een scan zodat de respondent session state beschikbaar is.
+      </EmptySurveyState>
     );
   }
 
@@ -265,13 +261,13 @@ export default function SurveyProfilePage() {
               void handleSubmit();
             }}
           >
-            <QuestionBlock
+            <SurveyQuestionBlock
               error={
                 validationErrors.departmentCode ??
                 validationErrors.departmentOtherText
               }
               helpText="Kies het domein dat het beste aansluit bij jouw rol of expertise."
-              meta="Verplicht"
+              required
               title="Binnen welk vakgebied ben je voornamelijk actief?"
             >
               <div className="grid gap-2 md:grid-cols-2">
@@ -323,15 +319,15 @@ export default function SurveyProfilePage() {
                   ) : null}
                 </label>
               ) : null}
-            </QuestionBlock>
+            </SurveyQuestionBlock>
 
-            <QuestionBlock
+            <SurveyQuestionBlock
               error={
                 validationErrors.aiFrequencyCode ??
                 validationErrors.noAiReasonCode
               }
               helpText="Frequentie is een exposure-signaal in de V8.1-methodiek."
-              meta="Verplicht"
+              required
               title="Hoe vaak gebruik je AI-tools voor je werk?"
             >
               <SelectField
@@ -351,9 +347,9 @@ export default function SurveyProfilePage() {
                   value={noAiReasonCode}
                 />
               ) : null}
-            </QuestionBlock>
+            </SurveyQuestionBlock>
 
-            <QuestionBlock
+            <SurveyQuestionBlock
               helpText="Deze signalen helpen later bij bewustwording en datahygiëne."
               title="Hoe ga je om met data in AI-tools?"
             >
@@ -373,9 +369,9 @@ export default function SurveyProfilePage() {
                   value={anonymizationBehaviorCode}
                 />
               </div>
-            </QuestionBlock>
+            </SurveyQuestionBlock>
 
-            <QuestionBlock
+            <SurveyQuestionBlock
               helpText="Browserextensies en agents zijn additieve exposure-signalen in V8.1."
               title="Gebruik je extensies of automatisering?"
             >
@@ -395,9 +391,9 @@ export default function SurveyProfilePage() {
                   value={automationUsageCode}
                 />
               </div>
-            </QuestionBlock>
+            </SurveyQuestionBlock>
 
-            <QuestionBlock
+            <SurveyQuestionBlock
               helpText="Deze antwoorden voeden de latere AI-literacy en governance-readiness analyse."
               title="Spelregels, vaardigheid en output"
             >
@@ -426,9 +422,9 @@ export default function SurveyProfilePage() {
                   />
                 </div>
               </div>
-            </QuestionBlock>
+            </SurveyQuestionBlock>
 
-            <QuestionBlock
+            <SurveyQuestionBlock
               helpText="Vrije tekst is optioneel. Vul geen namen of gevoelige persoonsgegevens in."
               title="Welke werkzaamheden lenen zich volgens jou goed voor AI-ondersteuning?"
             >
@@ -438,24 +434,13 @@ export default function SurveyProfilePage() {
                 placeholder="Bijvoorbeeld: conceptteksten, samenvatten, analyseren..."
                 value={futureUsecasesText}
               />
-            </QuestionBlock>
+            </SurveyQuestionBlock>
 
             {error ? (
-              <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-                {error}
-              </p>
+              <ValidationMessage>{error}</ValidationMessage>
             ) : null}
 
-            <section className="rounded-2xl border border-[#bfc7cf]/50 bg-white/80 p-4 text-sm">
-              <p>
-                <span className="font-semibold">Run ID:</span>{" "}
-                <span className="font-mono">{sessionView.runId}</span>
-              </p>
-              <p className="mt-2 text-[#40484e]">
-                Submission token is actief in session state en wordt hier niet
-                getoond.
-              </p>
-            </section>
+            <RunIdCard runId={sessionView.runId} />
 
             <div className="flex items-center justify-between gap-3 border-t border-[#bfc7cf]/30 pt-6">
               <a
@@ -550,61 +535,14 @@ function ProfileAnswerSummary({
   optionalAnswersCount: number;
 }) {
   return (
-    <section className="mb-6 grid gap-3 rounded-2xl border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm md:grid-cols-3">
-      <SummaryItem label="Vakgebied" value={departmentLabel} />
-      <SummaryItem label="AI-gebruik" value={frequencyLabel} />
-      <SummaryItem
+    <SurveySummaryGrid className="mb-6">
+      <SurveySummaryItem label="Vakgebied" value={departmentLabel} />
+      <SurveySummaryItem label="AI-gebruik" value={frequencyLabel} />
+      <SurveySummaryItem
         label="Aanvullend"
         value={`${optionalAnswersCount} ingevuld`}
       />
-    </section>
-  );
-}
-
-function SummaryItem({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="min-w-0">
-      <p className="text-xs font-bold uppercase tracking-wide text-[#00658b]/70">
-        {label}
-      </p>
-      <p className="mt-1 truncate font-semibold text-[#181c1e]">{value}</p>
-    </div>
-  );
-}
-
-function QuestionBlock({
-  children,
-  error,
-  helpText,
-  meta,
-  title,
-}: {
-  children: React.ReactNode;
-  error?: string;
-  helpText: string;
-  meta?: string;
-  title: string;
-}) {
-  return (
-    <section className="grid gap-4 rounded-2xl border border-[#bfc7cf]/50 bg-white/70 p-4">
-      <div>
-        <div className="flex flex-wrap items-center gap-2">
-          <h3 className="font-bold text-[#00658b]">{title}</h3>
-          {meta ? (
-            <span className="rounded-full border border-[#bfc7cf]/60 bg-white px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wide text-[#40484e]">
-              {meta}
-            </span>
-          ) : null}
-        </div>
-        <p className="mt-1 text-sm leading-6 text-[#40484e]">{helpText}</p>
-      </div>
-      {error ? (
-        <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
-          {error}
-        </p>
-      ) : null}
-      {children}
-    </section>
+    </SurveySummaryGrid>
   );
 }
 

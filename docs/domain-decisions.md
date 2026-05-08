@@ -168,6 +168,8 @@ A future legal role should not be added until its permissions and product respon
 
 Unknown or future roles should fall back safely, for example to `/dashboard`, without crashing routing logic.
 
+The detailed implementation note for shared auth, role lookup, and entry routing lives in `docs/auth-role-routing.md`.
+
 ## Decision: Keep Legal And Governance Concepts Separate
 
 Unknown tools are not automatically prohibited.

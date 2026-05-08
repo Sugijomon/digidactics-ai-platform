@@ -1,0 +1,8 @@
+{
+  "name": "@digidactics/auth",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts"
+  }
+}

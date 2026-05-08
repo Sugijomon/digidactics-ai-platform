@@ -12,6 +12,7 @@
   "dependencies": {
     "@digidactics/database": "file:../../packages/database",
     "@digidactics/domain": "file:../../packages/domain",
+    "@digidactics/auth": "file:../../packages/auth",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.49.4",
     "next": "^15.3.1",

@@ -6,7 +6,7 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ next?: string; error?: string }>;
 }) {
-  const { next = "/learning", error } = await searchParams;
+  const { next = "/dashboard", error } = await searchParams;
 
   return (
     <main className="shell auth-shell">
@@ -41,4 +41,3 @@ export default async function LoginPage({
     </main>
   );
 }
-

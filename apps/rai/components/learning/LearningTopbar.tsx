@@ -27,7 +27,7 @@ export async function LearningTopbar() {
             </button>
           </form>
         ) : (
-          <Link className="button button-primary" href="/auth/login?next=/learning">
+          <Link className="button button-primary" href="/auth/login?next=/dashboard">
             Inloggen
           </Link>
         )}

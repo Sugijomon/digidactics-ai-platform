@@ -14,6 +14,9 @@ export default function HomePage() {
           <Link className="button button-primary" href="/learning">
             Open Learning System
           </Link>
+          <Link className="button button-secondary" href="/dashboard">
+            Naar mijn dashboard
+          </Link>
         </div>
       </section>
     </main>

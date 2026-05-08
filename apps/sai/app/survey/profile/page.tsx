@@ -34,6 +34,16 @@ type ProfileSessionView = {
   startedAt: string;
 };
 
+type ProfileValidationErrors = Partial<
+  Record<
+    | "departmentCode"
+    | "departmentOtherText"
+    | "aiFrequencyCode"
+    | "noAiReasonCode",
+    string
+  >
+>;
+
 export default function SurveyProfilePage() {
   const router = useRouter();
   const [surveySession, setSurveySession] = useState<SurveySession | null>(
@@ -60,6 +70,8 @@ export default function SurveyProfilePage() {
   const [futureUsecasesText, setFutureUsecasesText] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] =
+    useState<ProfileValidationErrors>({});
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -88,8 +100,23 @@ export default function SurveyProfilePage() {
       return;
     }
 
-    setIsSaving(true);
     setError(null);
+    setValidationErrors({});
+
+    const nextValidationErrors = validateProfileForm({
+      aiFrequencyCode,
+      departmentOtherText,
+      noAiReasonCode,
+      selectedVakgebied,
+    });
+
+    if (Object.keys(nextValidationErrors).length > 0) {
+      setValidationErrors(nextValidationErrors);
+      setError("Controleer de gemarkeerde profielvragen voordat je doorgaat.");
+      return;
+    }
+
+    setIsSaving(true);
 
     const payload: SaveProfilePayload = {
       department_code: selectedVakgebied,
@@ -213,6 +240,24 @@ export default function SurveyProfilePage() {
             </p>
           </div>
 
+          <ProfileAnswerSummary
+            departmentLabel={getOptionLabel(
+              departmentOptions,
+              selectedVakgebied,
+            )}
+            frequencyLabel={getOptionLabel(aiFrequencyOptions, aiFrequencyCode)}
+            optionalAnswersCount={countOptionalProfileAnswers([
+              dataAwarenessCode,
+              anonymizationBehaviorCode,
+              browserExtensionUsageCode,
+              automationUsageCode,
+              aiPolicyAwarenessCode,
+              aiSkillLevelCode,
+              processingOutputCode,
+              futureUsecasesText,
+            ])}
+          />
+
           <form
             className="grid gap-6"
             onSubmit={(event) => {
@@ -221,13 +266,18 @@ export default function SurveyProfilePage() {
             }}
           >
             <QuestionBlock
+              error={
+                validationErrors.departmentCode ??
+                validationErrors.departmentOtherText
+              }
               helpText="Kies het domein dat het beste aansluit bij jouw rol of expertise."
+              meta="Verplicht"
               title="Binnen welk vakgebied ben je voornamelijk actief?"
             >
-              <div className="grid gap-2">
+              <div className="grid gap-2 md:grid-cols-2">
                 {departmentOptions.map((option: SurveyOption) => (
                   <label
-                    className={`flex cursor-pointer items-start gap-4 rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:bg-[#c4e7ff]/20 ${
+                    className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:bg-[#c4e7ff]/20 ${
                       selectedVakgebied === option.code
                         ? "border-[#00658b] bg-[#c4e7ff]/40"
                         : "border-[#bfc7cf] bg-white/70"
@@ -266,18 +316,29 @@ export default function SurveyProfilePage() {
                     }
                     value={departmentOtherText}
                   />
+                  {validationErrors.departmentOtherText ? (
+                    <span className="text-xs font-medium text-red-700">
+                      {validationErrors.departmentOtherText}
+                    </span>
+                  ) : null}
                 </label>
               ) : null}
             </QuestionBlock>
 
             <QuestionBlock
+              error={
+                validationErrors.aiFrequencyCode ??
+                validationErrors.noAiReasonCode
+              }
               helpText="Frequentie is een exposure-signaal in de V8.1-methodiek."
+              meta="Verplicht"
               title="Hoe vaak gebruik je AI-tools voor je werk?"
             >
               <SelectField
                 label="AI-gebruik frequentie"
                 onChange={setAiFrequencyCode}
                 options={aiFrequencyOptions}
+                required
                 value={aiFrequencyCode}
               />
               {aiFrequencyCode === "never" ? (
@@ -286,6 +347,7 @@ export default function SurveyProfilePage() {
                   label="Belangrijkste reden"
                   onChange={setNoAiReasonCode}
                   options={noAiReasonOptions}
+                  required
                   value={noAiReasonCode}
                 />
               ) : null}
@@ -438,21 +500,109 @@ function addOptionalProfileField(
   }
 }
 
+function validateProfileForm({
+  aiFrequencyCode,
+  departmentOtherText,
+  noAiReasonCode,
+  selectedVakgebied,
+}: {
+  aiFrequencyCode: string;
+  departmentOtherText: string;
+  noAiReasonCode: string;
+  selectedVakgebied: string;
+}): ProfileValidationErrors {
+  const errors: ProfileValidationErrors = {};
+
+  if (!selectedVakgebied) {
+    errors.departmentCode = "Kies een vakgebied.";
+  }
+
+  if (selectedVakgebied === "anders" && !departmentOtherText.trim()) {
+    errors.departmentOtherText = "Vul jouw vakgebied in.";
+  }
+
+  if (!aiFrequencyCode) {
+    errors.aiFrequencyCode = "Kies hoe vaak je AI-tools gebruikt.";
+  }
+
+  if (aiFrequencyCode === "never" && !noAiReasonCode) {
+    errors.noAiReasonCode = "Kies waarom je AI nog niet gebruikt.";
+  }
+
+  return errors;
+}
+
+function getOptionLabel(options: SurveyOption[], code: string) {
+  return options.find((option) => option.code === code)?.label ?? "Niet gekozen";
+}
+
+function countOptionalProfileAnswers(values: string[]) {
+  return values.filter((value) => value.trim().length > 0).length;
+}
+
+function ProfileAnswerSummary({
+  departmentLabel,
+  frequencyLabel,
+  optionalAnswersCount,
+}: {
+  departmentLabel: string;
+  frequencyLabel: string;
+  optionalAnswersCount: number;
+}) {
+  return (
+    <section className="mb-6 grid gap-3 rounded-2xl border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm md:grid-cols-3">
+      <SummaryItem label="Vakgebied" value={departmentLabel} />
+      <SummaryItem label="AI-gebruik" value={frequencyLabel} />
+      <SummaryItem
+        label="Aanvullend"
+        value={`${optionalAnswersCount} ingevuld`}
+      />
+    </section>
+  );
+}
+
+function SummaryItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0">
+      <p className="text-xs font-bold uppercase tracking-wide text-[#00658b]/70">
+        {label}
+      </p>
+      <p className="mt-1 truncate font-semibold text-[#181c1e]">{value}</p>
+    </div>
+  );
+}
+
 function QuestionBlock({
   children,
+  error,
   helpText,
+  meta,
   title,
 }: {
   children: React.ReactNode;
+  error?: string;
   helpText: string;
+  meta?: string;
   title: string;
 }) {
   return (
     <section className="grid gap-4 rounded-2xl border border-[#bfc7cf]/50 bg-white/70 p-4">
       <div>
-        <h3 className="font-bold text-[#00658b]">{title}</h3>
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="font-bold text-[#00658b]">{title}</h3>
+          {meta ? (
+            <span className="rounded-full border border-[#bfc7cf]/60 bg-white px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wide text-[#40484e]">
+              {meta}
+            </span>
+          ) : null}
+        </div>
         <p className="mt-1 text-sm leading-6 text-[#40484e]">{helpText}</p>
       </div>
+      {error ? (
+        <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+          {error}
+        </p>
+      ) : null}
       {children}
     </section>
   );
@@ -463,17 +613,22 @@ function SelectField({
   label,
   onChange,
   options,
+  required = false,
   value,
 }: {
   allowEmpty?: boolean;
   label: string;
   onChange: (value: string) => void;
   options: SurveyOption[];
+  required?: boolean;
   value: string;
 }) {
   return (
     <label className="grid gap-2 text-sm font-semibold text-[#181c1e]">
-      {label}
+      <span>
+        {label}
+        {required ? <span className="text-red-700"> *</span> : null}
+      </span>
       <select
         className="h-11 rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm outline-none focus:border-[#00658b]"
         onChange={(event) => onChange(event.target.value)}

@@ -91,6 +91,30 @@ test("complete step cannot be opened before a tool is saved", async ({
   await expect(page.getByRole("heading", { name: "Geen actieve scan" })).toBeVisible();
 });
 
+test("profile step validates dependent required answers before saving", async ({
+  page,
+}) => {
+  await mockSupabaseRpc(page);
+  await page.goto("/survey");
+  await page.evaluate(() => window.sessionStorage.clear());
+  await page.getByRole("button", { name: "Start de scan" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/profile$/, { timeout: 30_000 });
+  await page.locator('input[value="anders"]').check();
+  await page.getByRole("button", { name: "Verder" }).click();
+  await expect(
+    page.getByText("Vul jouw vakgebied in.").first(),
+  ).toBeVisible();
+
+  await page.locator('input[value="marketing_communicatie"]').check();
+  await page.getByLabel("AI-gebruik frequentie").selectOption("never");
+  await page.getByRole("button", { name: "Verder" }).click();
+  await expect(
+    page.getByText("Kies waarom je AI nog niet gebruikt."),
+  ).toBeVisible();
+  await expect(page).toHaveURL(/\/survey\/profile$/);
+});
+
 async function mockSupabaseRpc(page: import("@playwright/test").Page) {
   let sequence = 0;
   let completed = false;

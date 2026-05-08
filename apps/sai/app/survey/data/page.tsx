@@ -141,9 +141,7 @@ export default function SurveyDataPage() {
       return;
     }
 
-    setIsSaving(true);
     setError(null);
-    setSteps(INITIAL_STEPS);
     setValidationErrors({});
 
     const nextValidationErrors = validateSelections({
@@ -156,9 +154,11 @@ export default function SurveyDataPage() {
     if (Object.keys(nextValidationErrors).length > 0) {
       setValidationErrors(nextValidationErrors);
       setError("Controleer de gemarkeerde vragen voordat je doorgaat.");
-      setIsSaving(false);
       return;
     }
+
+    setIsSaving(true);
+    setSteps(INITIAL_STEPS);
 
     const dataTypesResult = await runStep(
       "dataTypes",
@@ -281,6 +281,31 @@ export default function SurveyDataPage() {
             </p>
           </div>
 
+          <DataAnswerSummary
+            items={[
+              {
+                label: "Datatypes",
+                selectedCodes: selectedDataTypes,
+                options: dataTypeOptions,
+              },
+              {
+                label: "Zorgen",
+                selectedCodes: selectedConcerns,
+                options: topConcernOptions,
+              },
+              {
+                label: "Support",
+                selectedCodes: selectedSupportNeeds,
+                options: supportNeedOptions,
+              },
+              {
+                label: "Voorkeuren",
+                selectedCodes: selectedPreferenceReasons,
+                options: preferenceReasonOptions,
+              },
+            ]}
+          />
+
           <form
             className="grid gap-6"
             onSubmit={(event) => {
@@ -290,6 +315,7 @@ export default function SurveyDataPage() {
           >
             <CheckboxGroup
               helpText="Kies welke soort data je in of rond AI-tools tegenkomt."
+              isDisabled={isSaving}
               label="Datatypes"
               name="data_type"
               onChange={setSelectedDataTypes}
@@ -302,6 +328,7 @@ export default function SurveyDataPage() {
 
             <CheckboxGroup
               helpText="Kies welke zorg het sterkst naar voren komt."
+              isDisabled={isSaving}
               label="Belangrijkste zorgen"
               name="top_concern"
               onChange={setSelectedConcerns}
@@ -313,6 +340,7 @@ export default function SurveyDataPage() {
 
             <CheckboxGroup
               helpText="Kies welke ondersteuning zou helpen om veilig met AI te werken."
+              isDisabled={isSaving}
               label="Supportbehoeften"
               name="support_need"
               onChange={setSelectedSupportNeeds}
@@ -324,6 +352,7 @@ export default function SurveyDataPage() {
 
             <CheckboxGroup
               helpText="Kies waarom je eerder voor een bepaalde AI-tool kiest."
+              isDisabled={isSaving}
               label="Toolvoorkeuren"
               name="preference_reason"
               onChange={setSelectedPreferenceReasons}
@@ -383,6 +412,7 @@ export default function SurveyDataPage() {
 
 function CheckboxGroup({
   helpText,
+  isDisabled = false,
   label,
   name,
   onChange,
@@ -393,6 +423,7 @@ function CheckboxGroup({
   validationError,
 }: {
   helpText: string;
+  isDisabled?: boolean;
   label: string;
   name: string;
   onChange: (codes: string[]) => void;
@@ -419,10 +450,14 @@ function CheckboxGroup({
     >
       <div>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="font-bold text-[#00658b]">
-            {label}
-            {required ? <span className="text-red-600"> *</span> : null}
-          </h3>
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="font-bold text-[#00658b]">{label}</h3>
+            {required ? (
+              <span className="rounded-full border border-[#bfc7cf]/60 bg-white px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wide text-[#40484e]">
+                Verplicht
+              </span>
+            ) : null}
+          </div>
           <span className="rounded-full bg-[#c4e7ff]/50 px-2.5 py-1 text-xs font-bold text-[#00658b]">
             {selectedCodes.length} geselecteerd
           </span>
@@ -463,7 +498,7 @@ function CheckboxGroup({
                   <input
                     checked={selectedCodes.includes(option.code)}
                     className="mt-0.5 h-5 w-5 accent-[#00658b]"
-                    disabled={option.disabled}
+                    disabled={isDisabled || option.disabled}
                     name={name}
                     onChange={() => toggleCode(option.code)}
                     type="checkbox"
@@ -503,6 +538,59 @@ function getOptionGroups(
       .map((code) => options.find((option) => option.code === code))
       .filter((option): option is SurveyOption => Boolean(option)),
   }));
+}
+
+function DataAnswerSummary({
+  items,
+}: {
+  items: Array<{
+    label: string;
+    options: SurveyOption[];
+    selectedCodes: string[];
+  }>;
+}) {
+  return (
+    <section className="mb-6 grid gap-3 rounded-2xl border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm md:grid-cols-2">
+      {items.map((item) => (
+        <SummaryItem
+          key={item.label}
+          label={item.label}
+          selectedCount={item.selectedCodes.length}
+          selectedLabels={getSelectedOptionLabels(item.options, item.selectedCodes)}
+        />
+      ))}
+    </section>
+  );
+}
+
+function SummaryItem({
+  label,
+  selectedCount,
+  selectedLabels,
+}: {
+  label: string;
+  selectedCount: number;
+  selectedLabels: string;
+}) {
+  return (
+    <div className="min-w-0">
+      <p className="text-xs font-bold uppercase tracking-wide text-[#00658b]/70">
+        {label}
+      </p>
+      <p className="mt-1 font-semibold text-[#181c1e]">
+        {selectedCount} geselecteerd
+      </p>
+      <p className="mt-1 truncate text-xs font-medium text-[#40484e]">
+        {selectedLabels || "Nog niets gekozen"}
+      </p>
+    </div>
+  );
+}
+
+function getSelectedOptionLabels(options: SurveyOption[], selectedCodes: string[]) {
+  return selectedCodes
+    .map((code) => options.find((option) => option.code === code)?.label ?? code)
+    .join(", ");
 }
 
 function validateSelections(selections: Record<StepKey, string[]>) {

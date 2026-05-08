@@ -36,7 +36,7 @@ test("respondent can complete the SAI survey flow with two tools", async ({
   await expect(page).toHaveURL(/\/survey\/data$/, { timeout: 30_000 });
   await page.locator('input[value="internal_emails"]').check();
   await page.locator('input[value="financial_data"]').check();
-  await expect(page.getByText("3 geselecteerd")).toBeVisible();
+  await expect(page.getByText("3 geselecteerd").first()).toBeVisible();
   await page.locator('input[value="unsure"]').check();
   await expect(page.locator('input[value="customer_data"]')).not.toBeChecked();
   await expect(page.locator('input[value="internal_emails"]')).not.toBeChecked();
@@ -140,6 +140,36 @@ test("motivations step validates required choices before saving", async ({
     page.getByText("Vul kort in wat je andere motivatie is."),
   ).toBeVisible();
   await expect(page).toHaveURL(/\/survey\/motivations$/);
+});
+
+test("data step validates required groups before saving", async ({ page }) => {
+  await mockSupabaseRpc(page);
+  await page.goto("/survey");
+  await page.evaluate(() => window.sessionStorage.clear());
+  await page.getByRole("button", { name: "Start de scan" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/profile$/, { timeout: 30_000 });
+  await page.getByRole("button", { name: "Verder" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/motivations$/, { timeout: 30_000 });
+  await page.getByRole("button", { name: "Verder" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/data$/, { timeout: 30_000 });
+  await page.locator('input[value="customer_data"]').uncheck();
+  await page.locator('input[value="privacy"]').uncheck();
+  await page.locator('input[value="clear_policy"]').uncheck();
+  await page.locator('input[value="ease_of_use"]').uncheck();
+  await page.getByRole("button", { name: "Verder" }).click();
+
+  await expect(page.getByText(/Kies minimaal een datatype/)).toBeVisible();
+  await expect(page.getByText(/Kies minimaal een zorg/)).toBeVisible();
+  await expect(
+    page.getByText(/Kies minimaal een vorm van ondersteuning/),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/Kies minimaal een reden voor je toolvoorkeur/),
+  ).toBeVisible();
+  await expect(page).toHaveURL(/\/survey\/data$/);
 });
 
 async function mockSupabaseRpc(page: import("@playwright/test").Page) {

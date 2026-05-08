@@ -50,6 +50,8 @@ test("respondent can complete the SAI survey flow with two tools", async ({
     timeout: 30_000,
   });
 
+  await page.getByRole("button", { name: "Algemene AI" }).click();
+  await page.getByLabel("Zoek tool").fill("Claude");
   await page.locator('input[value="claude"]').check();
   await page.locator('input[value="code_schrijven"]').check();
   await page.locator('input[value="beslisondersteuning"]').check();

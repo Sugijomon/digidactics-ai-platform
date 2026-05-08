@@ -55,6 +55,12 @@ const INITIAL_STEPS: StepStates = {
   account: { status: "idle", message: "Wacht op toolregistratie" },
 };
 
+const ALL_TOOL_CATEGORIES = "Alle";
+const TOOL_CATEGORIES = [
+  ALL_TOOL_CATEGORIES,
+  ...Array.from(new Set(toolOptions.map((tool) => tool.category))),
+];
+
 export default function SurveyToolsPage() {
   const router = useRouter();
   const [surveySession, setSurveySession] = useState<SurveySession | null>(
@@ -63,6 +69,9 @@ export default function SurveyToolsPage() {
   const [runId, setRunId] = useState<string | null>(null);
   const [completedSteps, setCompletedSteps] = useState<SurveyStepId[]>([]);
   const [selectedToolId, setSelectedToolId] = useState("chatgpt");
+  const [selectedToolCategory, setSelectedToolCategory] =
+    useState(ALL_TOOL_CATEGORIES);
+  const [toolSearchQuery, setToolSearchQuery] = useState("");
   const [customToolName, setCustomToolName] = useState("");
   const [selectedUseCases, setSelectedUseCases] = useState([
     "drafting",
@@ -82,6 +91,22 @@ export default function SurveyToolsPage() {
   const selectedTool = useMemo(
     () => toolOptions.find((tool) => tool.id === selectedToolId) ?? toolOptions[0],
     [selectedToolId],
+  );
+  const filteredToolOptions = useMemo(
+    () =>
+      toolOptions.filter((tool) => {
+        const matchesCategory =
+          selectedToolCategory === ALL_TOOL_CATEGORIES ||
+          tool.category === selectedToolCategory;
+        const normalizedQuery = toolSearchQuery.trim().toLowerCase();
+        const matchesSearch =
+          !normalizedQuery ||
+          tool.name.toLowerCase().includes(normalizedQuery) ||
+          tool.category.toLowerCase().includes(normalizedQuery);
+
+        return matchesCategory && matchesSearch;
+      }),
+    [selectedToolCategory, toolSearchQuery],
   );
 
   useEffect(() => {
@@ -228,6 +253,8 @@ export default function SurveyToolsPage() {
 
   function resetToolForm() {
     setSelectedToolId("chatgpt");
+    setSelectedToolCategory(ALL_TOOL_CATEGORIES);
+    setToolSearchQuery("");
     setCustomToolName("");
     setSelectedUseCases(["drafting", "data_analyseren"]);
     setSelectedContexts(["internal_work"]);
@@ -331,8 +358,13 @@ export default function SurveyToolsPage() {
 
             <ToolPicker
               customToolName={customToolName}
+              filteredToolOptions={filteredToolOptions}
               onCustomToolNameChange={setCustomToolName}
+              onSearchQueryChange={setToolSearchQuery}
+              onSelectCategory={setSelectedToolCategory}
               onSelect={setSelectedToolId}
+              searchQuery={toolSearchQuery}
+              selectedCategory={selectedToolCategory}
               selectedToolId={selectedToolId}
               validationError={validationErrors.tool}
             />
@@ -439,25 +471,34 @@ function SavedToolsSummary({
           Nog geen tools opgeslagen.
         </p>
       ) : (
-        <div className="grid gap-2">
+        <div className="grid gap-3">
           {savedTools.map((tool, index) => (
             <article
-              className="rounded-xl border border-[#bfc7cf]/60 bg-white px-4 py-3 text-sm"
+              className="grid gap-3 rounded-xl border border-[#bfc7cf]/60 bg-white px-4 py-3 text-sm md:grid-cols-[1fr_auto]"
               key={tool.surveyToolId}
             >
-              <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
                 <h4 className="font-bold text-[#181c1e]">
                   {index + 1}. {tool.toolName}
                 </h4>
+                <p className="mt-2 text-[#40484e]">
+                  Usecases: {tool.useCaseCodes.join(", ")}
+                </p>
+                <p className="mt-1 text-[#40484e]">
+                  Context: {tool.contextCodes.join(", ")} · Account:{" "}
+                  {tool.accountTypeCode}
+                </p>
+              </div>
+              <div className="flex flex-wrap items-start gap-2 md:justify-end">
                 <span className="rounded-full bg-[#c4e7ff]/50 px-2.5 py-1 text-xs font-semibold text-[#00658b]">
                   {tool.useCaseCodes.length} usecase
                   {tool.useCaseCodes.length === 1 ? "" : "s"}
                 </span>
+                <span className="rounded-full bg-[#f1f4f6] px-2.5 py-1 text-xs font-semibold text-[#40484e]">
+                  {tool.contextCodes.length} context
+                  {tool.contextCodes.length === 1 ? "" : "en"}
+                </span>
               </div>
-              <p className="mt-2 text-[#40484e]">
-                Context: {tool.contextCodes.join(", ")} · Account:{" "}
-                {tool.accountTypeCode}
-              </p>
             </article>
           ))}
         </div>
@@ -468,14 +509,24 @@ function SavedToolsSummary({
 
 function ToolPicker({
   customToolName,
+  filteredToolOptions,
   onCustomToolNameChange,
+  onSearchQueryChange,
   onSelect,
+  onSelectCategory,
+  searchQuery,
+  selectedCategory,
   selectedToolId,
   validationError,
 }: {
   customToolName: string;
+  filteredToolOptions: ToolOption[];
   onCustomToolNameChange: (value: string) => void;
+  onSearchQueryChange: (value: string) => void;
   onSelect: (toolId: string) => void;
+  onSelectCategory: (category: string) => void;
+  searchQuery: string;
+  selectedCategory: string;
   selectedToolId: string;
   validationError?: string;
 }) {
@@ -499,8 +550,37 @@ function ToolPicker({
         ) : null}
       </div>
 
+      <div className="grid gap-3 rounded-xl border border-[#bfc7cf]/50 bg-white p-3">
+        <label className="grid gap-2 text-sm font-semibold text-[#181c1e]">
+          Zoek tool
+          <input
+            className="h-11 rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm font-normal outline-none transition focus:border-[#00658b] focus:ring-2 focus:ring-[#c4e7ff]"
+            onChange={(event) => onSearchQueryChange(event.target.value)}
+            placeholder="Zoek bijvoorbeeld Claude, Copilot of n8n"
+            type="search"
+            value={searchQuery}
+          />
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {TOOL_CATEGORIES.map((category) => (
+            <button
+              className={`rounded-full border px-3 py-1.5 text-xs font-bold transition ${
+                selectedCategory === category
+                  ? "border-[#00658b] bg-[#00658b] text-white"
+                  : "border-[#bfc7cf] bg-white text-[#40484e] hover:border-[#00658b]"
+              }`}
+              key={category}
+              onClick={() => onSelectCategory(category)}
+              type="button"
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid gap-2 md:grid-cols-2">
-        {toolOptions.map((tool) => (
+        {filteredToolOptions.map((tool) => (
           <label
             className={`flex cursor-pointer items-start gap-4 rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:bg-[#c4e7ff]/20 ${
               selectedToolId === tool.id
@@ -533,6 +613,11 @@ function ToolPicker({
           </label>
         ))}
       </div>
+      {filteredToolOptions.length === 0 ? (
+        <p className="rounded-xl border border-dashed border-[#bfc7cf] bg-white px-4 py-3 text-sm text-[#40484e]">
+          Geen tool gevonden. Kies Andere tool of pas je filter aan.
+        </p>
+      ) : null}
 
       {selectedToolId === "custom" ? (
         <label className="grid gap-2 text-sm font-semibold text-[#181c1e]">

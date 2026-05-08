@@ -4,8 +4,11 @@ import { getLearningCourseWithLessons } from "@digidactics/database/learning";
 import { isLessonContent } from "@digidactics/domain/learning";
 import {
   aiLiteracyPreviewCourse,
+  type LearnerStateView,
   type LearningCourseView,
+  type LearningEnrollmentView,
   type LearningLessonView,
+  type LearningProgressView,
 } from "./learning-preview-data";
 import { getSupabaseServerClient, hasSupabaseConfig } from "./supabase-server";
 
@@ -49,7 +52,7 @@ export async function getAiLiteracyCourse(): Promise<LearningCourseView> {
     return aiLiteracyPreviewCourse;
   }
 
-  const supabase = getSupabaseServerClient();
+  const supabase = await getSupabaseServerClient();
 
   if (!supabase) {
     return aiLiteracyPreviewCourse;
@@ -108,6 +111,57 @@ export async function getAiLiteracyLesson(
   return { course, lesson };
 }
 
+export async function getLearnerState(
+  course: LearningCourseView,
+): Promise<LearnerStateView> {
+  const supabase = await getSupabaseServerClient();
+
+  if (!supabase) {
+    return emptyLearnerState(false);
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return emptyLearnerState(false);
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("org_id")
+    .eq("id", user.id)
+    .single<{ org_id: string | null }>();
+
+  const { data: enrollment } = await supabase
+    .from("learning_course_enrollments")
+    .select("id, status, progress_percentage, started_at, completed_at")
+    .eq("course_id", course.id)
+    .eq("user_id", user.id)
+    .maybeSingle<LearningEnrollmentView>();
+
+  const lessonIds = course.lessons.map((lesson) => lesson.id);
+
+  const { data: progressRows } = lessonIds.length
+    ? await supabase
+        .from("learning_lesson_progress")
+        .select(
+          "lesson_id, status, progress_percentage, completed_block_ids, completed_at",
+        )
+        .eq("course_id", course.id)
+        .eq("user_id", user.id)
+        .in("lesson_id", lessonIds)
+    : { data: [] };
+
+  return {
+    isAuthenticated: true,
+    orgId: profile?.org_id ?? null,
+    enrollment: enrollment ?? null,
+    progressByLessonId: mapProgressRows(progressRows ?? []),
+  };
+}
+
 function mapLessonRows(rows: CourseLessonRow[]): LearningLessonView[] {
   return rows
     .map((row) => {
@@ -133,3 +187,23 @@ function mapLessonRows(rows: CourseLessonRow[]): LearningLessonView[] {
     .sort((left, right) => left.sequence_order - right.sequence_order);
 }
 
+function emptyLearnerState(isAuthenticated: boolean): LearnerStateView {
+  return {
+    isAuthenticated,
+    orgId: null,
+    enrollment: null,
+    progressByLessonId: {},
+  };
+}
+
+function mapProgressRows(rows: LearningProgressView[]) {
+  return rows.reduce<Record<string, LearningProgressView>>((acc, row) => {
+    acc[row.lesson_id] = {
+      ...row,
+      completed_block_ids: Array.isArray(row.completed_block_ids)
+        ? row.completed_block_ids
+        : [],
+    };
+    return acc;
+  }, {});
+}

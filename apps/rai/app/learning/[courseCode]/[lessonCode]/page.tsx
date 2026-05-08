@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { completeAiLiteracyLesson } from "@/app/learning/actions";
 import { LessonBlockRenderer } from "@/components/learning/LessonBlockRenderer";
 import { LearningTopbar } from "@/components/learning/LearningTopbar";
-import { getAiLiteracyLesson } from "@/lib/learning-data";
+import { getAiLiteracyLesson, getLearnerState } from "@/lib/learning-data";
 
 export default async function LessonPage({
   params,
@@ -11,6 +12,7 @@ export default async function LessonPage({
 }) {
   const { courseCode, lessonCode } = await params;
   const { course, lesson } = await getAiLiteracyLesson(lessonCode);
+  const learnerState = await getLearnerState(course);
 
   if (course.course_code !== courseCode || !lesson) {
     notFound();
@@ -21,6 +23,9 @@ export default async function LessonPage({
   );
   const previousLesson = course.lessons[currentIndex - 1];
   const nextLesson = course.lessons[currentIndex + 1];
+  const lessonProgress = lesson
+    ? learnerState.progressByLessonId[lesson.id]
+    : null;
 
   return (
     <main className="shell">
@@ -30,6 +35,28 @@ export default async function LessonPage({
           {lesson.content.blocks.map((block) => (
             <LessonBlockRenderer block={block} key={block.id} />
           ))}
+          <section className="block">
+            <h2>Les afronden</h2>
+            <p>
+              Hiermee sla je deze les op als afgerond. De cursusvoortgang wordt
+              opnieuw berekend, maar er wordt nog geen certificaat uitgegeven.
+            </p>
+            {learnerState.isAuthenticated ? (
+              <form action={completeAiLiteracyLesson}>
+                <input name="courseId" type="hidden" value={course.id} />
+                <input name="courseCode" type="hidden" value={course.course_code} />
+                <input name="lessonId" type="hidden" value={lesson.id} />
+                <input name="lessonCode" type="hidden" value={lesson.lesson_code} />
+                <button className="button button-primary" type="submit">
+                  {lessonProgress?.status === "completed"
+                    ? "Opnieuw opslaan als afgerond"
+                    : "Markeer les afgerond"}
+                </button>
+              </form>
+            ) : (
+              <span className="button button-secondary">Login vereist</span>
+            )}
+          </section>
           <nav className="actions">
             {previousLesson ? (
               <Link
@@ -70,6 +97,10 @@ export default async function LessonPage({
               <span>Blokken</span>
               <strong>{lesson.content.blocks.length}</strong>
             </div>
+            <div className="meta-row">
+              <span>Voortgang</span>
+              <strong>{lessonProgress?.progress_percentage ?? 0}%</strong>
+            </div>
           </div>
           <div className="actions">
             <Link className="button button-secondary" href="/learning">
@@ -81,4 +112,3 @@ export default async function LessonPage({
     </main>
   );
 }
-

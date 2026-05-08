@@ -149,9 +149,38 @@ The seed is deliberately clean and rewritten from the Lovable direction instead 
 
 ## Next Implementation Steps
 
-1. Add a Next.js learning surface for the AI Literacy foundation course in `apps/rai`.
-2. Build a renderer for v1 lesson blocks.
-3. Track reliable course completion.
+1. Add a Next.js learning surface for the AI Literacy foundation course in `apps/rai`. Done.
+2. Build a renderer for v1 lesson blocks. Done.
+3. Track reliable course completion. First server-action layer is in place for enrollments and lesson progress; it requires an authenticated Supabase session.
 4. Wire `learning_check_capability_access` into a server action.
 5. Add a trusted certification issue flow after verified AI Literacy completion.
 6. Model medium/high RouteAI risk classes to required microlearnings once RouteAI usecase results exist.
+
+## Current App Integration
+
+The first RAI app surface lives in `apps/rai`.
+
+Routes:
+
+- `/learning`
+- `/learning/ai-literacy-foundation`
+- `/learning/ai-literacy-foundation/[lessonCode]`
+
+The UI reads the AI Literacy course and lessons from Supabase when a valid
+session/configuration is available. In local development, it falls back to the
+seed-equivalent preview content so the course viewer remains inspectable before
+auth is wired.
+
+Server actions:
+
+- `startAiLiteracyCourse`
+- `completeAiLiteracyLesson`
+
+These actions use the authenticated Supabase session and write to:
+
+- `learning_course_enrollments`
+- `learning_lesson_progress`
+
+Certificate issuance is deliberately not triggered from the lesson UI yet. The
+next step is to add the access-check and certificate issue flow after the RAI
+auth/session surface is in place.

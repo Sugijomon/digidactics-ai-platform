@@ -9,5 +9,8 @@
     "dev:rai": "npm --workspace @digidactics/rai run dev",
     "build:rai": "npm --workspace @digidactics/rai run build",
     "typecheck": "npm --workspaces --if-present run typecheck"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.10.3"
   }
 }

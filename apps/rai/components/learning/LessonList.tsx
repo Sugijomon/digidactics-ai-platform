@@ -1,7 +1,16 @@
 import Link from "next/link";
-import type { LearningCourseView } from "@/lib/learning-preview-data";
+import type {
+  LearnerStateView,
+  LearningCourseView,
+} from "@/lib/learning-preview-data";
 
-export function LessonList({ course }: { course: LearningCourseView }) {
+export function LessonList({
+  course,
+  learnerState,
+}: {
+  course: LearningCourseView;
+  learnerState: LearnerStateView;
+}) {
   return (
     <section>
       <h2>Programma</h2>
@@ -18,6 +27,11 @@ export function LessonList({ course }: { course: LearningCourseView }) {
                 </span>
                 <span className="pill">{lesson.lesson_type}</span>
                 {lesson.is_required ? <span className="pill">verplicht</span> : null}
+                <span className="pill">
+                  {getLessonProgressLabel(
+                    learnerState.progressByLessonId[lesson.id]?.status,
+                  )}
+                </span>
               </div>
             </div>
             <Link
@@ -33,3 +47,13 @@ export function LessonList({ course }: { course: LearningCourseView }) {
   );
 }
 
+function getLessonProgressLabel(status?: string) {
+  switch (status) {
+    case "completed":
+      return "afgerond";
+    case "in_progress":
+      return "bezig";
+    default:
+      return "nog niet gestart";
+  }
+}

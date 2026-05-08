@@ -12,6 +12,29 @@ export interface LearningCourseView {
   lessons: LearningLessonView[];
 }
 
+export interface LearningEnrollmentView {
+  id: string;
+  status: "not_started" | "in_progress" | "completed" | "expired";
+  progress_percentage: number;
+  started_at: string | null;
+  completed_at: string | null;
+}
+
+export interface LearningProgressView {
+  lesson_id: string;
+  status: "not_started" | "in_progress" | "completed";
+  progress_percentage: number;
+  completed_block_ids: string[];
+  completed_at: string | null;
+}
+
+export interface LearnerStateView {
+  isAuthenticated: boolean;
+  orgId: string | null;
+  enrollment: LearningEnrollmentView | null;
+  progressByLessonId: Record<string, LearningProgressView>;
+}
+
 export interface LearningLessonView {
   id: string;
   lesson_code: string;
@@ -185,4 +208,3 @@ export const aiLiteracyPreviewCourse: LearningCourseView = {
     },
   ],
 };
-

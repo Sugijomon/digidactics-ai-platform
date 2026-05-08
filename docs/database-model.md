@@ -476,6 +476,58 @@ dpo_review_opened
 tool_policy_status_changed
 ```
 
+## RouteAI Learning System
+
+The Learning System is added as a RouteAI module on the same database.
+
+Authoritative content:
+
+```txt
+learning_courses
+learning_lessons
+learning_course_lessons
+learning_catalog
+```
+
+Learner state:
+
+```txt
+learning_course_enrollments
+learning_lesson_progress
+learning_lesson_attempts
+learning_certifications
+```
+
+RouteAI learning rule bridge:
+
+```txt
+learning_access_requirements
+learning_recommendation_rules
+```
+
+`learning_lessons.content` is JSONB by design. It stores versioned lesson blocks so regulatory updates, sector cases, and internal policy examples can evolve without schema changes.
+
+Platform content uses `org_id = NULL`. Organization-specific content and catalog enablement use `org_id`.
+
+RouteAI can connect its own usecase classification outcomes to learning through explicit rule signals:
+
+```txt
+trigger_codes
+use_case_codes
+context_codes
+tool_codes
+score_tiers
+review_classes
+```
+
+Risk scoring remains authoritative in the RouteAI risk engine. Learning rules may interpret RouteAI classification signals but do not change scores.
+
+SAI scan signals are intentionally parked outside the current Learning System runtime. See `docs/sai-intervention-intelligence-parking.md`.
+
+The product-level LS access and certification model is specified in `docs/learning-system-product-spec.md`.
+
+The first executable access-gate layer is implemented by `20260508100000_learning_certification_access_gate.sql`.
+
 ## RLS Model Summary
 
 Detailed policies belong in `docs/rls-policy-spec.md`.

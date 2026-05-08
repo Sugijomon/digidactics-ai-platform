@@ -222,3 +222,25 @@ Rationale:
 - supports auditability because runtime scoring inputs remain explicit
 
 The exact technical shape can be decided later. The principle is fixed: production scoring and survey runtime must not depend on informal maintenance notes or unreviewed catalog metadata.
+
+## Decision: Build The Learning System As A RouteAI Module On The Shared Database
+
+The RouteAI Learning System may be built in parallel with the SAI migration.
+
+It shares the same Supabase database, organization model, profile model, role model, and audit principles as SAI. It does not depend on SAI survey tables for its core operation.
+
+Learning content is stored as versioned JSONB on `learning_lessons.content`. This is intentional because regulations, sector cases, policy examples, and training scenarios will change over time. The database validates the outer content shape, while detailed block rendering and validation live in shared TypeScript domain code.
+
+Learning rules are kept separate from risk scoring. The first product role of the Learning System is AI Literacy as a hard access criterion for RouteAI usecase checks. RouteAI may later map its own medium and high risk classifications to additional microlearnings. SAI scan outputs are not part of the current Learning System runtime; any SAI-derived intervention intelligence is parked as a separate analysis flow.
+
+The first implementation uses platform-level content (`org_id = NULL`) plus organization-level enablement/customization through `learning_catalog`. Organization-specific lessons or courses are possible, but should be used deliberately.
+
+The detailed product contract for AI Literacy certification, RouteAI access gating, and RouteAI-driven microlearnings lives in `docs/learning-system-product-spec.md`.
+
+Rationale:
+
+- supports parallel development without blocking SAI
+- preserves a single platform identity and role model
+- keeps JSON content flexible but governed
+- enables future sector-specific and regulatory updates
+- avoids importing Lovable's historical table drift directly into the new production schema

@@ -184,3 +184,25 @@ These actions use the authenticated Supabase session and write to:
 Certificate issuance is deliberately not triggered from the lesson UI yet. The
 next step is to add the access-check and certificate issue flow after the RAI
 auth/session surface is in place.
+
+## RAI Auth Session
+
+The RAI app has a minimal Supabase magic-link login surface:
+
+- `/auth/login`
+- `/auth/check-email`
+- `/auth/callback`
+- `/auth/sign-out`
+
+Middleware refreshes Supabase cookies so Server Components and Server Actions can
+read the authenticated user. Local development currently uses the Supabase dev
+branch in `.env.local`.
+
+Supabase Auth must allow the local callback URL during development:
+
+```txt
+http://localhost:3010/auth/callback
+```
+
+Once login succeeds, the Learning System can write enrollments and lesson
+progress through the existing server actions.

@@ -314,6 +314,56 @@ h3 {
   padding: 22px;
 }
 
+.auth-shell {
+  align-items: center;
+  display: flex;
+  min-height: 100vh;
+}
+
+.auth-panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  max-width: 560px;
+  padding: clamp(26px, 5vw, 46px);
+  width: 100%;
+}
+
+.form-stack {
+  display: grid;
+  gap: 16px;
+  margin: 28px 0 16px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field span {
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.field input {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--text);
+  font: inherit;
+  min-height: 46px;
+  padding: 0 12px;
+  width: 100%;
+}
+
+.form-error {
+  background: #fff3ed;
+  border: 1px solid #efb08a;
+  border-radius: var(--radius);
+  color: #7a2e0c;
+  padding: 12px;
+}
+
 @media (max-width: 820px) {
   .course-grid,
   .lesson-layout {

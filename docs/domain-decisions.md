@@ -25,9 +25,9 @@ SAI will be developed as the first product/module of the broader RAI / RouteAI p
 
 The codebase will use a monorepo structure with separate Next.js apps under `apps/` and shared packages under `packages/`.
 
-In phase 1, only `apps/sai` will be built as a real Next.js application.
+In phase 1, `apps/sai` remains the first scan product surface. `apps/rai` may be built for the Learning System because AI Literacy is a RouteAI access gate.
 
-RAI and marketing will not be scaffolded as full applications yet. They are future platform surfaces and will be added when the SAI foundation is stable.
+Marketing will not be scaffolded as a full application yet. RouteAI should not be built out as the full governance suite prematurely, but the Learning System is a real RouteAI module and belongs in `apps/rai`.
 
 SAI and RAI will share:
 
@@ -236,6 +236,8 @@ Learning rules are kept separate from risk scoring. The first product role of th
 The first implementation uses platform-level content (`org_id = NULL`) plus organization-level enablement/customization through `learning_catalog`. Organization-specific lessons or courses are possible, but should be used deliberately.
 
 The detailed product contract for AI Literacy certification, RouteAI access gating, and RouteAI-driven microlearnings lives in `docs/learning-system-product-spec.md`.
+
+The visible Learning System surface belongs in `apps/rai`, not `apps/sai`. SAI remains focused on the Shadow AI Scan. AI Literacy is the RouteAI access gate, so its course viewer, lesson player, progress flow, certificate issuance, and capability guard should be wired into the RouteAI app surface.
 
 Rationale:
 

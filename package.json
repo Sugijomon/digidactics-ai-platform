@@ -1,0 +1,13 @@
+{
+  "name": "digidactics-ai-platform",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:rai": "npm --workspace @digidactics/rai run dev",
+    "build:rai": "npm --workspace @digidactics/rai run build",
+    "typecheck": "npm --workspaces --if-present run typecheck"
+  }
+}

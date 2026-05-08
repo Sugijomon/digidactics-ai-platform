@@ -245,7 +245,7 @@ If blocked:
 
 ## Implementation Order
 
-1. Build lesson/course UI for AI Literacy.
+1. Build lesson/course UI for AI Literacy in `apps/rai`.
 2. Track completion reliably through `learning_lesson_progress` and `learning_course_enrollments`.
 3. Wire the existing `learning_certifications` and access requirement RPCs into the first server actions.
 4. Add RouteAI gate middleware/server guard once the RouteAI app surface exists.

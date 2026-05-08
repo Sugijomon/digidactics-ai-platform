@@ -1,0 +1,9 @@
+{
+  "name": "@digidactics/domain",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./learning": "./learning.ts"
+  }
+}

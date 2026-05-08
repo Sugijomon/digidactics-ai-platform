@@ -149,7 +149,7 @@ The seed is deliberately clean and rewritten from the Lovable direction instead 
 
 ## Next Implementation Steps
 
-1. Add a Next.js learning surface for the AI Literacy foundation course.
+1. Add a Next.js learning surface for the AI Literacy foundation course in `apps/rai`.
 2. Build a renderer for v1 lesson blocks.
 3. Track reliable course completion.
 4. Wire `learning_check_capability_access` into a server action.

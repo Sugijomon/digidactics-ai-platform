@@ -1,0 +1,139 @@
+import type { LessonBlock } from "@digidactics/domain/learning";
+
+export function LessonBlockRenderer({ block }: { block: LessonBlock }) {
+  switch (block.type) {
+    case "hero":
+      return (
+        <section className="block block-hero">
+          <h1>{block.title}</h1>
+          {block.subtitle ? <p>{block.subtitle}</p> : null}
+        </section>
+      );
+
+    case "paragraph":
+      return (
+        <section className="block">
+          <p>{block.markdown}</p>
+        </section>
+      );
+
+    case "callout":
+      return (
+        <section className={`block callout-${block.tone}`}>
+          <p>{block.markdown}</p>
+        </section>
+      );
+
+    case "key_takeaways":
+      return (
+        <section className="block">
+          <h2>Kernpunten</h2>
+          <ul className="takeaway-list">
+            {block.items.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </section>
+      );
+
+    case "checklist":
+      return (
+        <section className="block">
+          <h2>Controlepunten</h2>
+          <ul className="checklist">
+            {block.items.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </section>
+      );
+
+    case "case_lab":
+      return (
+        <section className="block">
+          <h2>{block.title}</h2>
+          <p>{block.markdown}</p>
+          {block.reflection_prompt ? (
+            <div className="flat-card">
+              <strong>Reflectie</strong>
+              <p>{block.reflection_prompt}</p>
+            </div>
+          ) : null}
+        </section>
+      );
+
+    case "quiz_multiple_choice":
+      return (
+        <section className="block">
+          <h2>Checkvraag</h2>
+          <p>{block.question}</p>
+          <div className="quiz-options">
+            {block.options.map((option) => (
+              <div className="quiz-option" key={option.id}>
+                {option.label}
+              </div>
+            ))}
+          </div>
+          {block.explanation ? <p>{block.explanation}</p> : null}
+        </section>
+      );
+
+    case "quiz_multiple_select":
+      return (
+        <section className="block">
+          <h2>Checkvraag</h2>
+          <p>{block.question}</p>
+          <div className="quiz-options">
+            {block.options.map((option) => (
+              <div className="quiz-option" key={option.id}>
+                {option.label}
+              </div>
+            ))}
+          </div>
+          {block.explanation ? <p>{block.explanation}</p> : null}
+        </section>
+      );
+
+    case "quiz_true_false":
+      return (
+        <section className="block">
+          <h2>Waar of niet waar</h2>
+          <p>{block.question}</p>
+          {block.explanation ? <p>{block.explanation}</p> : null}
+        </section>
+      );
+
+    case "quiz_essay":
+      return (
+        <section className="block">
+          <h2>Reflectievraag</h2>
+          <p>{block.question}</p>
+          <div className="flat-card">
+            <span>
+              {block.min_words ?? 0}-{block.max_words ?? "open"} woorden
+            </span>
+          </div>
+        </section>
+      );
+
+    case "video":
+      return (
+        <section className="block">
+          <h2>{block.title ?? "Video"}</h2>
+          <p>{block.url}</p>
+        </section>
+      );
+
+    case "download":
+      return (
+        <section className="block">
+          <h2>{block.title}</h2>
+          {block.description ? <p>{block.description}</p> : null}
+        </section>
+      );
+
+    default:
+      return null;
+  }
+}
+

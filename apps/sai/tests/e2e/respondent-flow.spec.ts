@@ -115,6 +115,33 @@ test("profile step validates dependent required answers before saving", async ({
   await expect(page).toHaveURL(/\/survey\/profile$/);
 });
 
+test("motivations step validates required choices before saving", async ({
+  page,
+}) => {
+  await mockSupabaseRpc(page);
+  await page.goto("/survey");
+  await page.evaluate(() => window.sessionStorage.clear());
+  await page.getByRole("button", { name: "Start de scan" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/profile$/, { timeout: 30_000 });
+  await page.getByRole("button", { name: "Verder" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/motivations$/, { timeout: 30_000 });
+  await page.locator('input[value="tijdswinst"]').uncheck();
+  await page.locator('input[value="kwaliteitsverbetering"]').uncheck();
+  await page.getByRole("button", { name: "Verder" }).click();
+  await expect(
+    page.getByText("Kies minimaal een motivatie voordat je doorgaat."),
+  ).toBeVisible();
+
+  await page.locator('input[value="anders"]').check();
+  await page.getByRole("button", { name: "Verder" }).click();
+  await expect(
+    page.getByText("Vul kort in wat je andere motivatie is."),
+  ).toBeVisible();
+  await expect(page).toHaveURL(/\/survey\/motivations$/);
+});
+
 async function mockSupabaseRpc(page: import("@playwright/test").Page) {
   let sequence = 0;
   let completed = false;

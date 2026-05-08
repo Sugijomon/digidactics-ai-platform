@@ -20,6 +20,10 @@ import {
   type SurveyOption,
 } from "@/lib/sai-survey/options";
 
+type MotivationValidationErrors = Partial<
+  Record<"selectedMotivations" | "otherText", string>
+>;
+
 export default function SurveyMotivationsPage() {
   const router = useRouter();
   const [surveySession, setSurveySession] = useState<SurveySession | null>(
@@ -34,6 +38,8 @@ export default function SurveyMotivationsPage() {
   const [otherText, setOtherText] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] =
+    useState<MotivationValidationErrors>({});
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -64,18 +70,21 @@ export default function SurveyMotivationsPage() {
       return;
     }
 
-    if (selectedMotivations.length === 0) {
-      setError("Kies minimaal een motivatie voordat je doorgaat.");
-      return;
-    }
+    setError(null);
+    setValidationErrors({});
 
-    if (selectedMotivations.includes("anders") && !otherText.trim()) {
-      setError("Vul kort in wat je andere motivatie is.");
+    const nextValidationErrors = validateMotivationsForm({
+      otherText,
+      selectedMotivations,
+    });
+
+    if (Object.keys(nextValidationErrors).length > 0) {
+      setValidationErrors(nextValidationErrors);
+      setError("Controleer de gemarkeerde motivatievragen voordat je doorgaat.");
       return;
     }
 
     setIsSaving(true);
-    setError(null);
 
     const result = await saveMotivations(
       surveySession,
@@ -150,6 +159,11 @@ export default function SurveyMotivationsPage() {
             </p>
           </div>
 
+          <MotivationAnswerSummary
+            selectedCount={selectedMotivations.length}
+            selectedLabels={getSelectedMotivationLabels(selectedMotivations)}
+          />
+
           <form
             className="grid gap-6"
             onSubmit={(event) => {
@@ -158,6 +172,7 @@ export default function SurveyMotivationsPage() {
             }}
           >
             <MotivationGroup
+              error={validationErrors.selectedMotivations}
               onChange={setSelectedMotivations}
               options={motivationOptions}
               selectedCodes={selectedMotivations}
@@ -173,6 +188,11 @@ export default function SurveyMotivationsPage() {
                   type="text"
                   value={otherText}
                 />
+                {validationErrors.otherText ? (
+                  <span className="text-xs font-medium text-red-700">
+                    {validationErrors.otherText}
+                  </span>
+                ) : null}
               </label>
             ) : null}
 
@@ -215,10 +235,12 @@ export default function SurveyMotivationsPage() {
 }
 
 function MotivationGroup({
+  error,
   onChange,
   options,
   selectedCodes,
 }: {
+  error?: string;
   onChange: (codes: string[]) => void;
   options: SurveyOption[];
   selectedCodes: string[];
@@ -234,13 +256,21 @@ function MotivationGroup({
   return (
     <section className="grid gap-4 rounded-2xl border border-[#bfc7cf]/50 bg-white/70 p-4">
       <div>
-        <h3 className="font-bold text-[#00658b]">
-          Motivaties <span className="text-red-600">*</span>
-        </h3>
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="font-bold text-[#00658b]">Motivaties</h3>
+          <span className="rounded-full border border-[#bfc7cf]/60 bg-white px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wide text-[#40484e]">
+            Verplicht
+          </span>
+        </div>
         <p className="mt-1 text-sm leading-6 text-[#40484e]">
           Meerdere antwoorden zijn mogelijk.
         </p>
       </div>
+      {error ? (
+        <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+          {error}
+        </p>
+      ) : null}
       <div className="grid gap-2 md:grid-cols-2">
         {options.map((option) => (
           <label
@@ -270,6 +300,65 @@ function MotivationGroup({
             </span>
           </label>
         ))}
+      </div>
+    </section>
+  );
+}
+
+function validateMotivationsForm({
+  otherText,
+  selectedMotivations,
+}: {
+  otherText: string;
+  selectedMotivations: string[];
+}): MotivationValidationErrors {
+  const errors: MotivationValidationErrors = {};
+
+  if (selectedMotivations.length === 0) {
+    errors.selectedMotivations =
+      "Kies minimaal een motivatie voordat je doorgaat.";
+  }
+
+  if (selectedMotivations.includes("anders") && !otherText.trim()) {
+    errors.otherText = "Vul kort in wat je andere motivatie is.";
+  }
+
+  return errors;
+}
+
+function getSelectedMotivationLabels(selectedCodes: string[]) {
+  return selectedCodes
+    .map(
+      (code) =>
+        motivationOptions.find((option) => option.code === code)?.label ?? code,
+    )
+    .join(", ");
+}
+
+function MotivationAnswerSummary({
+  selectedCount,
+  selectedLabels,
+}: {
+  selectedCount: number;
+  selectedLabels: string;
+}) {
+  return (
+    <section className="mb-6 grid gap-3 rounded-2xl border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm md:grid-cols-[10rem_1fr]">
+      <div>
+        <p className="text-xs font-bold uppercase tracking-wide text-[#00658b]/70">
+          Selectie
+        </p>
+        <p className="mt-1 font-semibold text-[#181c1e]">
+          {selectedCount} gekozen
+        </p>
+      </div>
+      <div className="min-w-0">
+        <p className="text-xs font-bold uppercase tracking-wide text-[#00658b]/70">
+          Motivaties
+        </p>
+        <p className="mt-1 truncate font-semibold text-[#181c1e]">
+          {selectedLabels || "Nog niets gekozen"}
+        </p>
       </div>
     </section>
   );

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { startAiLiteracyCourse } from "@/app/learning/actions";
 import type {
   LearnerStateView,
@@ -12,6 +13,11 @@ export function CourseStatusPanel({
   learnerState: LearnerStateView;
 }) {
   const enrollment = learnerState.enrollment;
+  const firstIncompleteLesson =
+    course.lessons.find(
+      (lesson) =>
+        learnerState.progressByLessonId[lesson.id]?.status !== "completed",
+    ) ?? course.lessons[0];
 
   return (
     <aside className="card sidebar">
@@ -39,13 +45,31 @@ export function CourseStatusPanel({
       </div>
       <div className="actions">
         {learnerState.isAuthenticated ? (
-          <form action={startAiLiteracyCourse}>
-            <input name="courseId" type="hidden" value={course.id} />
-            <input name="courseCode" type="hidden" value={course.course_code} />
-            <button className="button button-primary" type="submit">
-              {enrollment ? "Cursus hervatten" : "Start cursus"}
-            </button>
-          </form>
+          firstIncompleteLesson ? (
+            enrollment ? (
+              <Link
+                className="button button-primary"
+                href={`/learning/${course.course_code}/${firstIncompleteLesson.lesson_code}`}
+              >
+                Cursus hervatten
+              </Link>
+            ) : (
+              <form action={startAiLiteracyCourse}>
+                <input name="courseId" type="hidden" value={course.id} />
+                <input name="courseCode" type="hidden" value={course.course_code} />
+                <input
+                  name="firstLessonCode"
+                  type="hidden"
+                  value={firstIncompleteLesson.lesson_code}
+                />
+                <button className="button button-primary" type="submit">
+                  Start cursus
+                </button>
+              </form>
+            )
+          ) : (
+            <span className="button button-secondary">Geen lessen gevonden</span>
+          )
         ) : (
           <span className="button button-secondary">Login vereist</span>
         )}
@@ -75,4 +99,3 @@ function getEnrollmentLabel(learnerState: LearnerStateView) {
       return "Nog niet gestart";
   }
 }
-

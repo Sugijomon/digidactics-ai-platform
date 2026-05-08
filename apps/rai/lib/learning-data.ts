@@ -1,6 +1,5 @@
 import "server-only";
 
-import { getLearningCourseWithLessons } from "@digidactics/database/learning";
 import { isLessonContent } from "@digidactics/domain/learning";
 import {
   aiLiteracyPreviewCourse,
@@ -24,27 +23,19 @@ interface CourseRow {
 }
 
 interface CourseLessonRow {
+  lesson_id: string;
   sequence_order: number;
   is_required: boolean;
-  lesson:
-    | {
-        id: string;
-        lesson_code: string;
-        title: string;
-        summary: string | null;
-        lesson_type: string;
-        estimated_duration_minutes: number | null;
-        content: unknown;
-      }
-    | {
-        id: string;
-        lesson_code: string;
-        title: string;
-        summary: string | null;
-        lesson_type: string;
-        estimated_duration_minutes: number | null;
-        content: unknown;
-      }[];
+}
+
+interface LessonRow {
+  id: string;
+  lesson_code: string;
+  title: string;
+  summary: string | null;
+  lesson_type: string;
+  estimated_duration_minutes: number | null;
+  content: unknown;
 }
 
 export async function getAiLiteracyCourse(): Promise<LearningCourseView> {
@@ -84,10 +75,13 @@ export async function getAiLiteracyCourse(): Promise<LearningCourseView> {
     throw new Error("AI Literacy course could not be loaded.");
   }
 
-  const { data: lessonRows, error: lessonError } =
-    await getLearningCourseWithLessons(supabase, course.id);
+  const { data: courseLessonRows, error: courseLessonsError } = await supabase
+    .from("learning_course_lessons")
+    .select("lesson_id, sequence_order, is_required")
+    .eq("course_id", course.id)
+    .order("sequence_order", { ascending: true });
 
-  if (lessonError || !lessonRows) {
+  if (courseLessonsError || !courseLessonRows) {
     if (process.env.NODE_ENV !== "production") {
       return aiLiteracyPreviewCourse;
     }
@@ -95,9 +89,41 @@ export async function getAiLiteracyCourse(): Promise<LearningCourseView> {
     throw new Error("AI Literacy lessons could not be loaded.");
   }
 
+  const lessonIds = (courseLessonRows as CourseLessonRow[]).map(
+    (row) => row.lesson_id,
+  );
+
+  const { data: lessonRows, error: lessonError } = lessonIds.length
+    ? await supabase
+        .from("learning_lessons")
+        .select(
+          [
+            "id",
+            "lesson_code",
+            "title",
+            "summary",
+            "lesson_type",
+            "estimated_duration_minutes",
+            "content",
+          ].join(", "),
+        )
+        .in("id", lessonIds)
+    : { data: [], error: null };
+
+  if (lessonError || !lessonRows) {
+    if (process.env.NODE_ENV !== "production") {
+      return aiLiteracyPreviewCourse;
+    }
+
+    throw new Error("AI Literacy lesson content could not be loaded.");
+  }
+
   return {
     ...course,
-    lessons: mapLessonRows(lessonRows as CourseLessonRow[]),
+    lessons: mapLessonRows(
+      courseLessonRows as CourseLessonRow[],
+      lessonRows as LessonRow[],
+    ),
   };
 }
 
@@ -162,10 +188,15 @@ export async function getLearnerState(
   };
 }
 
-function mapLessonRows(rows: CourseLessonRow[]): LearningLessonView[] {
-  return rows
+function mapLessonRows(
+  courseLessonRows: CourseLessonRow[],
+  lessonRows: LessonRow[],
+): LearningLessonView[] {
+  const lessonsById = new Map(lessonRows.map((lesson) => [lesson.id, lesson]));
+
+  return courseLessonRows
     .map((row) => {
-      const lesson = Array.isArray(row.lesson) ? row.lesson[0] : row.lesson;
+      const lesson = lessonsById.get(row.lesson_id);
 
       if (!lesson || !isLessonContent(lesson.content)) {
         return null;

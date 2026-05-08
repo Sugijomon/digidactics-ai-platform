@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   estimateCompletionPercentage,
@@ -16,6 +17,7 @@ interface LearnerContext {
 export async function startAiLiteracyCourse(formData: FormData) {
   const courseId = String(formData.get("courseId") ?? "");
   const courseCode = String(formData.get("courseCode") ?? "ai-literacy-foundation");
+  const firstLessonCode = String(formData.get("firstLessonCode") ?? "");
 
   if (!courseId) {
     throw new Error("Course id ontbreekt.");
@@ -43,6 +45,10 @@ export async function startAiLiteracyCourse(formData: FormData) {
 
   revalidatePath("/learning");
   revalidatePath(`/learning/${courseCode}`);
+
+  if (firstLessonCode) {
+    redirect(`/learning/${courseCode}/${firstLessonCode}`);
+  }
 }
 
 export async function completeAiLiteracyLesson(formData: FormData) {

@@ -139,9 +139,7 @@ export default function SurveyToolsPage() {
       return;
     }
 
-    setIsSaving(true);
     setError(null);
-    setSteps(INITIAL_STEPS);
     setValidationErrors({});
 
     const toolName = getSelectedToolName(selectedTool, customToolName);
@@ -155,9 +153,11 @@ export default function SurveyToolsPage() {
     if (Object.keys(nextValidationErrors).length > 0) {
       setValidationErrors(nextValidationErrors);
       setError("Controleer de gemarkeerde vragen voordat je doorgaat.");
-      setIsSaving(false);
       return;
     }
+
+    setIsSaving(true);
+    setSteps(INITIAL_STEPS);
 
     const toolPayload: SaveToolPayload = {
       tool_name: toolName,
@@ -353,12 +353,23 @@ export default function SurveyToolsPage() {
               event.preventDefault();
               void handleSaveToolFlow();
             }}
-            >
+          >
             <SavedToolsSummary savedTools={savedTools} />
+
+            <ToolAnswerSummary
+              accountTypeLabel={getSelectedOptionLabels(
+                accountTypeOptions,
+                [selectedAccountType],
+              )}
+              contextCount={selectedContexts.length}
+              toolName={getSelectedToolName(selectedTool, customToolName)}
+              useCaseCount={selectedUseCases.length}
+            />
 
             <ToolPicker
               customToolName={customToolName}
               filteredToolOptions={filteredToolOptions}
+              isDisabled={isSaving}
               onCustomToolNameChange={setCustomToolName}
               onSearchQueryChange={setToolSearchQuery}
               onSelectCategory={setSelectedToolCategory}
@@ -371,6 +382,7 @@ export default function SurveyToolsPage() {
 
             <CheckboxGroup
               helpText="Kies alle toepassingen die voor deze tool gelden."
+              isDisabled={isSaving}
               label="Toepassingen"
               onChange={setSelectedUseCases}
               options={useCaseOptions}
@@ -380,6 +392,7 @@ export default function SurveyToolsPage() {
 
             <CheckboxGroup
               helpText="Kies de context waarin je deze tool inzet."
+              isDisabled={isSaving}
               label="Context"
               onChange={setSelectedContexts}
               options={contextOptions}
@@ -389,6 +402,7 @@ export default function SurveyToolsPage() {
 
             <RadioGroup
               helpText="Kies het accounttype dat het best past bij deze tool."
+              isDisabled={isSaving}
               label="Accounttype"
               onChange={setSelectedAccountType}
               options={accountTypeOptions}
@@ -507,9 +521,42 @@ function SavedToolsSummary({
   );
 }
 
+function ToolAnswerSummary({
+  accountTypeLabel,
+  contextCount,
+  toolName,
+  useCaseCount,
+}: {
+  accountTypeLabel: string;
+  contextCount: number;
+  toolName: string;
+  useCaseCount: number;
+}) {
+  return (
+    <section className="grid gap-3 rounded-2xl border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm md:grid-cols-4">
+      <SummaryItem label="Tool" value={toolName || "Nog niet gekozen"} />
+      <SummaryItem label="Usecases" value={`${useCaseCount} geselecteerd`} />
+      <SummaryItem label="Context" value={`${contextCount} geselecteerd`} />
+      <SummaryItem label="Account" value={accountTypeLabel || "Niet gekozen"} />
+    </section>
+  );
+}
+
+function SummaryItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0">
+      <p className="text-xs font-bold uppercase tracking-wide text-[#00658b]/70">
+        {label}
+      </p>
+      <p className="mt-1 truncate font-semibold text-[#181c1e]">{value}</p>
+    </div>
+  );
+}
+
 function ToolPicker({
   customToolName,
   filteredToolOptions,
+  isDisabled = false,
   onCustomToolNameChange,
   onSearchQueryChange,
   onSelect,
@@ -521,6 +568,7 @@ function ToolPicker({
 }: {
   customToolName: string;
   filteredToolOptions: ToolOption[];
+  isDisabled?: boolean;
   onCustomToolNameChange: (value: string) => void;
   onSearchQueryChange: (value: string) => void;
   onSelect: (toolId: string) => void;
@@ -537,9 +585,12 @@ function ToolPicker({
       }`}
     >
       <div>
-        <h3 className="font-bold text-[#00658b]">
-          Tool <span className="text-red-600">*</span>
-        </h3>
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="font-bold text-[#00658b]">Tool</h3>
+          <span className="rounded-full border border-[#bfc7cf]/60 bg-white px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wide text-[#40484e]">
+            Verplicht
+          </span>
+        </div>
         <p className="mt-1 text-sm leading-6 text-[#40484e]">
           Kies de AI-tool die je in deze stap wilt registreren.
         </p>
@@ -555,6 +606,7 @@ function ToolPicker({
           Zoek tool
           <input
             className="h-11 rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm font-normal outline-none transition focus:border-[#00658b] focus:ring-2 focus:ring-[#c4e7ff]"
+            disabled={isDisabled}
             onChange={(event) => onSearchQueryChange(event.target.value)}
             placeholder="Zoek bijvoorbeeld Claude, Copilot of n8n"
             type="search"
@@ -569,6 +621,7 @@ function ToolPicker({
                   ? "border-[#00658b] bg-[#00658b] text-white"
                   : "border-[#bfc7cf] bg-white text-[#40484e] hover:border-[#00658b]"
               }`}
+              disabled={isDisabled}
               key={category}
               onClick={() => onSelectCategory(category)}
               type="button"
@@ -592,6 +645,7 @@ function ToolPicker({
             <input
               checked={selectedToolId === tool.id}
               className="mt-0.5 h-5 w-5 accent-[#00658b]"
+              disabled={isDisabled}
               name="tool"
               onChange={() => onSelect(tool.id)}
               type="radio"
@@ -624,6 +678,7 @@ function ToolPicker({
           Naam van de tool
           <input
             className="h-11 rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm font-normal outline-none transition focus:border-[#00658b] focus:ring-2 focus:ring-[#c4e7ff]"
+            disabled={isDisabled}
             onChange={(event) => onCustomToolNameChange(event.target.value)}
             placeholder="Bijvoorbeeld: Gamma, Fireflies.ai of eigen tool"
             type="text"
@@ -637,6 +692,7 @@ function ToolPicker({
 
 function CheckboxGroup({
   helpText,
+  isDisabled = false,
   label,
   onChange,
   options,
@@ -644,6 +700,7 @@ function CheckboxGroup({
   validationError,
 }: {
   helpText: string;
+  isDisabled?: boolean;
   label: string;
   onChange: (codes: string[]) => void;
   options: SurveyOption[];
@@ -665,9 +722,17 @@ function CheckboxGroup({
       }`}
     >
       <div>
-        <h3 className="font-bold text-[#00658b]">
-          {label} <span className="text-red-600">*</span>
-        </h3>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="font-bold text-[#00658b]">{label}</h3>
+            <span className="rounded-full border border-[#bfc7cf]/60 bg-white px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wide text-[#40484e]">
+              Verplicht
+            </span>
+          </div>
+          <span className="rounded-full bg-[#c4e7ff]/50 px-2.5 py-1 text-xs font-bold text-[#00658b]">
+            {selectedCodes.length} geselecteerd
+          </span>
+        </div>
         <p className="mt-1 text-sm leading-6 text-[#40484e]">{helpText}</p>
         {validationError ? (
           <p className="mt-2 text-sm font-semibold text-red-700">
@@ -689,6 +754,7 @@ function CheckboxGroup({
             <input
               checked={selectedCodes.includes(option.code)}
               className="mt-0.5 h-5 w-5 accent-[#00658b]"
+              disabled={isDisabled}
               onChange={() => toggleCode(option.code)}
               type="checkbox"
               value={option.code}
@@ -712,6 +778,7 @@ function CheckboxGroup({
 
 function RadioGroup({
   helpText,
+  isDisabled = false,
   label,
   onChange,
   options,
@@ -719,6 +786,7 @@ function RadioGroup({
   validationError,
 }: {
   helpText: string;
+  isDisabled?: boolean;
   label: string;
   onChange: (code: string) => void;
   options: SurveyOption[];
@@ -732,9 +800,12 @@ function RadioGroup({
       }`}
     >
       <div>
-        <h3 className="font-bold text-[#00658b]">
-          {label} <span className="text-red-600">*</span>
-        </h3>
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="font-bold text-[#00658b]">{label}</h3>
+          <span className="rounded-full border border-[#bfc7cf]/60 bg-white px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wide text-[#40484e]">
+            Verplicht
+          </span>
+        </div>
         <p className="mt-1 text-sm leading-6 text-[#40484e]">{helpText}</p>
         {validationError ? (
           <p className="mt-2 text-sm font-semibold text-red-700">
@@ -756,6 +827,7 @@ function RadioGroup({
             <input
               checked={selectedCode === option.code}
               className="mt-0.5 h-5 w-5 accent-[#00658b]"
+              disabled={isDisabled}
               name="account_type"
               onChange={() => onChange(option.code)}
               type="radio"
@@ -812,6 +884,12 @@ function validateToolStep({
 
 function getSelectedToolName(tool: ToolOption, customToolName: string) {
   return tool.id === "custom" ? customToolName.trim() : tool.name;
+}
+
+function getSelectedOptionLabels(options: SurveyOption[], selectedCodes: string[]) {
+  return selectedCodes
+    .map((code) => options.find((option) => option.code === code)?.label ?? code)
+    .join(", ");
 }
 
 function StepRow({ label, state }: { label: string; state: StepState }) {

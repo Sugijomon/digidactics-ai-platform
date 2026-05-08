@@ -172,6 +172,40 @@ test("data step validates required groups before saving", async ({ page }) => {
   await expect(page).toHaveURL(/\/survey\/data$/);
 });
 
+test("tools step validates required tool details before saving", async ({
+  page,
+}) => {
+  await mockSupabaseRpc(page);
+  await page.goto("/survey");
+  await page.evaluate(() => window.sessionStorage.clear());
+  await page.getByRole("button", { name: "Start de scan" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/profile$/, { timeout: 30_000 });
+  await page.getByRole("button", { name: "Verder" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/motivations$/, { timeout: 30_000 });
+  await page.getByRole("button", { name: "Verder" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/data$/, { timeout: 30_000 });
+  await page.getByRole("button", { name: "Verder" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/tools$/, { timeout: 30_000 });
+  await page.locator('input[value="custom"]').check();
+  await page.getByRole("button", { name: "Tool opslaan" }).click();
+  await expect(
+    page.getByText("Kies een tool of vul een toolnaam in."),
+  ).toBeVisible();
+
+  await page.locator('input[value="chatgpt"]').check();
+  await page.locator('input[value="drafting"]').uncheck();
+  await page.locator('input[value="data_analyseren"]').uncheck();
+  await page.locator('input[value="internal_work"]').uncheck();
+  await page.getByRole("button", { name: "Tool opslaan" }).click();
+  await expect(page.getByText("Kies minimaal een toepassing.")).toBeVisible();
+  await expect(page.getByText("Kies minimaal een context.")).toBeVisible();
+  await expect(page).toHaveURL(/\/survey\/tools$/);
+});
+
 async function mockSupabaseRpc(page: import("@playwright/test").Page) {
   let sequence = 0;
   let completed = false;

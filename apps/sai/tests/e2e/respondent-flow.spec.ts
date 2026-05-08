@@ -36,6 +36,15 @@ test("respondent can complete the SAI survey flow with two tools", async ({
   await expect(page).toHaveURL(/\/survey\/data$/, { timeout: 30_000 });
   await page.locator('input[value="internal_emails"]').check();
   await page.locator('input[value="financial_data"]').check();
+  await expect(page.getByText("3 geselecteerd")).toBeVisible();
+  await page.locator('input[value="unsure"]').check();
+  await expect(page.locator('input[value="customer_data"]')).not.toBeChecked();
+  await expect(page.locator('input[value="internal_emails"]')).not.toBeChecked();
+  await expect(page.locator('input[value="financial_data"]')).not.toBeChecked();
+  await expect(page.locator('input[value="unsure"]')).toBeChecked();
+  await expect(page.getByText(/exclusieve keuze/)).toBeVisible();
+  await page.locator('input[value="internal_emails"]').check();
+  await page.locator('input[value="financial_data"]').check();
   await page.locator('input[value="accuracy"]').check();
   await page.locator('input[value="privacy_security"]').check();
   await page.locator('input[value="training"]').check();

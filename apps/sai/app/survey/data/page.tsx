@@ -45,6 +45,51 @@ const INITIAL_STEPS: StepStates = {
   preferenceReasons: { status: "idle", message: "Wacht op supportbehoeften" },
 };
 
+const DATA_TYPE_GROUPS = [
+  {
+    title: "Publiek en algemeen",
+    codes: ["public_information", "publiek"],
+  },
+  {
+    title: "Intern werkmateriaal",
+    codes: [
+      "internal_emails",
+      "interne_email",
+      "internal_documents",
+      "interne_documenten",
+      "meeting_notes",
+      "notulen",
+      "source_code_logic",
+      "broncode_logica",
+      "excel_sheets",
+    ],
+  },
+  {
+    title: "Klant, financieel en juridisch",
+    codes: [
+      "customer_data",
+      "klantdata",
+      "financial_data",
+      "financiele_data",
+      "legal_documents",
+      "juridische_documenten",
+    ],
+  },
+  {
+    title: "Persoonsgegevens en onzeker",
+    codes: [
+      "names",
+      "namen",
+      "special_personal_data",
+      "gevoelig_persoonsgegeven",
+      "none",
+      "niets",
+      "unsure",
+      "onzeker",
+    ],
+  },
+];
+
 export default function SurveyDataPage() {
   const router = useRouter();
   const [surveySession, setSurveySession] = useState<SurveySession | null>(
@@ -249,6 +294,7 @@ export default function SurveyDataPage() {
               name="data_type"
               onChange={setSelectedDataTypes}
               options={dataTypeOptions}
+              optionGroups={DATA_TYPE_GROUPS}
               required
               selectedCodes={selectedDataTypes}
               validationError={validationErrors.dataTypes}
@@ -340,6 +386,7 @@ function CheckboxGroup({
   label,
   name,
   onChange,
+  optionGroups,
   options,
   required = false,
   selectedCodes,
@@ -349,6 +396,7 @@ function CheckboxGroup({
   label: string;
   name: string;
   onChange: (codes: string[]) => void;
+  optionGroups?: Array<{ title: string; codes: string[] }>;
   options: SurveyOption[];
   required?: boolean;
   selectedCodes: string[];
@@ -370,51 +418,91 @@ function CheckboxGroup({
       }`}
     >
       <div>
-        <h3 className="font-bold text-[#00658b]">
-          {label}
-          {required ? <span className="text-red-600"> *</span> : null}
-        </h3>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 className="font-bold text-[#00658b]">
+            {label}
+            {required ? <span className="text-red-600"> *</span> : null}
+          </h3>
+          <span className="rounded-full bg-[#c4e7ff]/50 px-2.5 py-1 text-xs font-bold text-[#00658b]">
+            {selectedCodes.length} geselecteerd
+          </span>
+        </div>
         <p className="mt-1 text-sm leading-6 text-[#40484e]">{helpText}</p>
+        {selectedCodes.some((code) => EXCLUSIVE_CODES.has(code)) ? (
+          <p className="mt-2 rounded-xl border border-[#f0d38a] bg-[#fff8df] px-3 py-2 text-xs font-semibold leading-5 text-[#6f5600]">
+            Je hebt een exclusieve keuze geselecteerd. Die vervangt andere
+            keuzes binnen deze vraag.
+          </p>
+        ) : null}
         {validationError ? (
           <p className="mt-2 text-sm font-semibold text-red-700">
             {validationError}
           </p>
         ) : null}
       </div>
-      <div className="grid gap-2">
-        {options.map((option) => (
-          <label
-            className={`flex cursor-pointer items-start gap-4 rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:bg-[#c4e7ff]/20 ${
-              selectedCodes.includes(option.code)
-                ? "border-[#00658b] bg-[#c4e7ff]/40"
-                : "border-[#bfc7cf] bg-white/70"
-            } ${option.disabled ? "cursor-not-allowed opacity-55" : ""}`}
-            key={option.code}
-          >
-            <input
-              checked={selectedCodes.includes(option.code)}
-              className="mt-0.5 h-5 w-5 accent-[#00658b]"
-              disabled={option.disabled}
-              name={name}
-              onChange={() => toggleCode(option.code)}
-              type="checkbox"
-              value={option.code}
-            />
-            <span>
-              <span className="block text-sm font-semibold text-[#181c1e]">
-                {option.label}
-              </span>
-              {option.description ? (
-                <span className="mt-1 block text-xs leading-5 text-[#40484e]">
-                  {option.description}
-                </span>
-              ) : null}
-            </span>
-          </label>
+      <div className="grid gap-4">
+        {getOptionGroups(options, optionGroups).map((group) => (
+          <div className="grid gap-2" key={group.title}>
+            {group.title ? (
+              <h4 className="text-xs font-bold uppercase tracking-wide text-[#6993aa]">
+                {group.title}
+              </h4>
+            ) : null}
+            <div className="grid gap-2 md:grid-cols-2">
+              {group.options.map((option) => (
+                <label
+                  className={`flex cursor-pointer items-start gap-4 rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:bg-[#c4e7ff]/20 ${
+                    selectedCodes.includes(option.code)
+                      ? "border-[#00658b] bg-[#c4e7ff]/40"
+                      : "border-[#bfc7cf] bg-white/70"
+                  } ${option.disabled ? "cursor-not-allowed opacity-55" : ""} ${
+                    EXCLUSIVE_CODES.has(option.code) ? "border-dashed" : ""
+                  }`}
+                  key={option.code}
+                >
+                  <input
+                    checked={selectedCodes.includes(option.code)}
+                    className="mt-0.5 h-5 w-5 accent-[#00658b]"
+                    disabled={option.disabled}
+                    name={name}
+                    onChange={() => toggleCode(option.code)}
+                    type="checkbox"
+                    value={option.code}
+                  />
+                  <span>
+                    <span className="block text-sm font-semibold text-[#181c1e]">
+                      {option.label}
+                    </span>
+                    {option.description ? (
+                      <span className="mt-1 block text-xs leading-5 text-[#40484e]">
+                        {option.description}
+                      </span>
+                    ) : null}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
         ))}
       </div>
     </section>
   );
+}
+
+function getOptionGroups(
+  options: SurveyOption[],
+  optionGroups?: Array<{ title: string; codes: string[] }>,
+) {
+  if (!optionGroups) {
+    return [{ title: "", options }];
+  }
+
+  return optionGroups.map((group) => ({
+    title: group.title,
+    options: group.codes
+      .map((code) => options.find((option) => option.code === code))
+      .filter((option): option is SurveyOption => Boolean(option)),
+  }));
 }
 
 function validateSelections(selections: Record<StepKey, string[]>) {

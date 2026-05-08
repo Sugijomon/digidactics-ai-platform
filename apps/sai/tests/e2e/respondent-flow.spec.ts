@@ -81,7 +81,10 @@ test("respondent can complete the SAI survey flow with two tools", async ({
   await expect(page.getByRole("heading", { name: "Bedankt voor je input" })).toBeVisible({
     timeout: 30_000,
   });
-  await expect(page.getByText(/Supabase geweigerd na completion/)).toBeVisible();
+  await expect(
+    page.getByText("Respondent token is gesloten na afronden."),
+  ).toBeVisible();
+  await expect(page.getByText("mock-token")).not.toBeVisible();
 });
 
 test("complete step cannot be opened before a tool is saved", async ({

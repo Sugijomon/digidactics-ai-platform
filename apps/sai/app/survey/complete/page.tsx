@@ -3,6 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { SurveyProgress } from "@/components/survey-progress";
+import {
+  EmptySurveyState,
+  RpcStepRow,
+  RunIdCard,
+  SurveySummaryGrid,
+  SurveySummaryItem,
+  ValidationMessage,
+} from "@/components/survey-ui";
 import { completeSurveyRun, saveProfile } from "@/lib/sai-rpc/client";
 import {
   clearSurveySession,
@@ -125,7 +133,7 @@ export default function SurveyCompletePage() {
       if (burnCheckResult.error.code === "invalid_token_or_run_closed") {
         setTokenCheckStep({
           status: "ok",
-          message: "Expected failure: invalid_token_or_run_closed",
+          message: "Respondent token is gesloten na afronden",
         });
         markSurveyStepCompleted("complete");
         clearSurveySession();
@@ -155,28 +163,31 @@ export default function SurveyCompletePage() {
   if (isFinished) {
     return (
       <main className="grid min-h-screen place-items-center bg-[#f7fafc] px-6 text-[#181c1e]">
-        <section className="max-w-md rounded-2xl border border-[#bfc7cf]/50 bg-white p-6 text-center shadow-sm">
+        <section className="grid w-full max-w-xl gap-5 rounded-[2rem] border border-white/70 bg-white/90 p-6 text-center shadow-[0_8px_40px_rgba(0,101,139,0.06)] md:p-8">
           <p className="mb-2 text-sm font-semibold text-[#6993aa]">
             Scan afgerond
           </p>
           <h1 className="text-2xl font-bold text-[#00658b]">
             Bedankt voor je input
           </h1>
-          <p className="mt-3 text-sm leading-6 text-[#40484e]">
-            De respondent session is lokaal gewist. Je submission token is door
-            Supabase geweigerd na completion, zoals verwacht.
+          <p className="text-sm leading-6 text-[#40484e]">
+            De respondent session is lokaal gewist en de token is gesloten. Je
+            kunt deze scan niet per ongeluk nogmaals wijzigen.
           </p>
-          <p className="mt-4 rounded-xl bg-[#f1f4f6] px-3 py-2 font-mono text-xs text-[#40484e]">
-            Run ID: {runId}
+          <SurveySummaryGrid columnsClassName="md:grid-cols-2">
+            <SurveySummaryItem
+              label="Run"
+              value={runId ? shortRunId(runId) : "Afgerond"}
+            />
+            <SurveySummaryItem
+              label="Tools"
+              value={`${savedTools.length} geregistreerd`}
+              detail={savedTools.map((tool) => tool.toolName).join(", ")}
+            />
+          </SurveySummaryGrid>
+          <p className="rounded-xl border border-[#c4e7ff] bg-[#f3fbff] px-3 py-2 text-sm font-semibold text-[#00658b]">
+            Respondent token is gesloten na afronden.
           </p>
-          {savedTools.length > 0 ? (
-            <p className="mt-3 text-sm leading-6 text-[#40484e]">
-              Opgeslagen tools:{" "}
-              <span className="font-semibold">
-                {savedTools.map((tool) => tool.toolName).join(", ")}
-              </span>
-            </p>
-          ) : null}
         </section>
       </main>
     );
@@ -184,20 +195,9 @@ export default function SurveyCompletePage() {
 
   if (!runId) {
     return (
-      <main className="grid min-h-screen place-items-center bg-[#f7fafc] px-6 text-[#181c1e]">
-        <section className="max-w-md rounded-2xl border border-[#bfc7cf]/50 bg-white p-6 text-center shadow-sm">
-          <h1 className="mb-2 text-2xl font-bold">Geen actieve scan</h1>
-          <p className="mb-5 text-sm leading-6 text-[#40484e]">
-            Start eerst een scan voordat je de respondent-flow afrondt.
-          </p>
-          <a
-            className="inline-flex h-11 items-center rounded-full bg-[#004c6a] px-6 text-sm font-bold text-white"
-            href="/survey"
-          >
-            Terug naar start
-          </a>
-        </section>
-      </main>
+      <EmptySurveyState>
+        Start eerst een scan voordat je de respondent-flow afrondt.
+      </EmptySurveyState>
     );
   }
 
@@ -221,28 +221,30 @@ export default function SurveyCompletePage() {
         />
 
         <section className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_8px_40px_rgba(0,101,139,0.06)]">
-          <div className="mb-6 rounded-2xl border border-[#bfc7cf]/50 bg-white/80 p-4 text-sm">
-            <p>
-              <span className="font-semibold">Run ID:</span>{" "}
-              <span className="font-mono">{runId}</span>
-            </p>
-            <p className="mt-2 text-[#40484e]">
-              Submission token blijft verborgen en wordt na completion lokaal
-              gewist.
-            </p>
+          <div className="mb-6">
+            <RunIdCard runId={runId} />
           </div>
+
+          <SurveySummaryGrid className="mb-6" columnsClassName="md:grid-cols-3">
+            <SurveySummaryItem label="Status" value="Klaar om af te ronden" />
+            <SurveySummaryItem
+              label="Tools"
+              value={`${savedTools.length} geregistreerd`}
+            />
+            <SurveySummaryItem label="Token" value="Verborgen" />
+          </SurveySummaryGrid>
 
           <SavedToolsSummary savedTools={savedTools} />
 
           {error ? (
-            <p className="mb-6 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-              {error}
-            </p>
+            <div className="mb-6">
+              <ValidationMessage>{error}</ValidationMessage>
+            </div>
           ) : null}
 
           <section className="mb-6 grid gap-3">
-            <StepRow label="complete_survey_run" state={completeStep} />
-            <StepRow label="token-burn check" state={tokenCheckStep} />
+            <RpcStepRow label="complete_survey_run" state={completeStep} />
+            <RpcStepRow label="token-burn check" state={tokenCheckStep} />
           </section>
 
           <div className="flex items-center justify-between gap-3 border-t border-[#bfc7cf]/30 pt-6">
@@ -255,6 +257,7 @@ export default function SurveyCompletePage() {
             <button
               className="inline-flex h-11 items-center rounded-full bg-[#00658b] px-7 text-sm font-bold text-white shadow-lg transition hover:bg-[#004c6a] disabled:cursor-not-allowed disabled:opacity-60"
               disabled={isCompleting || savedTools.length === 0}
+              aria-busy={isCompleting}
               onClick={() => {
                 void handleCompleteSurvey();
               }}
@@ -312,20 +315,10 @@ function SavedToolsSummary({
   );
 }
 
-function StepRow({ label, state }: { label: string; state: StepState }) {
-  return (
-    <div className="grid gap-2 rounded-xl border border-[#bfc7cf]/50 bg-white px-4 py-3 sm:grid-cols-[180px_90px_1fr] sm:items-center">
-      <span className="font-mono text-sm font-semibold text-[#181c1e]">
-        {label}
-      </span>
-      <span className="w-max rounded-full border border-[#bfc7cf]/60 px-2.5 py-1 text-xs font-semibold text-[#40484e]">
-        {state.status}
-      </span>
-      <span className="break-words text-sm text-[#40484e]">{state.message}</span>
-    </div>
-  );
-}
-
 function formatRpcError(error: RpcError) {
   return [error.code, error.message].filter(Boolean).join(": ");
+}
+
+function shortRunId(runId: string) {
+  return `${runId.slice(0, 8)}...${runId.slice(-4)}`;
 }

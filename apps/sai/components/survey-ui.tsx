@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import type { SurveyStepId } from "@/lib/sai-survey/flow";
+import { SurveyProgress } from "@/components/survey-progress";
 
 export type RpcStepState = {
   status: "idle" | "running" | "ok" | "error";
@@ -10,6 +12,213 @@ export function RequiredBadge() {
     <span className="rounded-full border border-[#bfc7cf]/60 bg-white px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wide text-[#40484e]">
       Verplicht
     </span>
+  );
+}
+
+export function SurveyPageShell({
+  badge = "Vertrouwelijk & anoniem",
+  children,
+  maxWidthClassName = "max-w-4xl",
+}: {
+  badge?: string;
+  children: ReactNode;
+  maxWidthClassName?: string;
+}) {
+  return (
+    <main className="relative min-h-screen overflow-x-hidden bg-[#f7fafc] text-[#181c1e]">
+      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute -left-44 -top-44 h-[38rem] w-[38rem] rounded-full bg-[#7dd0ff]/30 blur-[80px]" />
+        <div className="absolute -bottom-48 -right-40 h-[34rem] w-[34rem] rounded-full bg-[#bae6ff]/35 blur-[90px]" />
+      </div>
+      <section
+        className={`mx-auto grid min-w-0 w-full ${maxWidthClassName} gap-6 px-6 py-6 md:py-8`}
+      >
+        <SurveyBrandHeader badge={badge} />
+        {children}
+      </section>
+    </main>
+  );
+}
+
+export function SurveyBrandHeader({ badge }: { badge: string }) {
+  return (
+    <header className="flex items-center justify-between gap-4">
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#00658b] text-white shadow-sm">
+          <span className="text-2xl font-black leading-none">S</span>
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-2xl font-extrabold leading-tight tracking-tight text-[#181c1e]">
+            Shadow AI Scan
+          </p>
+          <p className="text-[13px] font-medium tracking-wide text-[#6993aa]">
+            Veilig innoveren met AI
+          </p>
+        </div>
+      </div>
+      <span className="hidden shrink-0 rounded-full border border-[#bfc7cf]/50 bg-white/80 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-[#40484e] shadow-sm backdrop-blur sm:inline-flex">
+        {badge}
+      </span>
+    </header>
+  );
+}
+
+export function SurveyStepLayout({
+  children,
+  completedSteps,
+  currentStep,
+  eyebrow,
+  intro,
+  maxWidthClassName = "max-w-4xl",
+  title,
+}: {
+  children: ReactNode;
+  completedSteps: SurveyStepId[];
+  currentStep: SurveyStepId;
+  eyebrow: string;
+  intro: string;
+  maxWidthClassName?: string;
+  title: string;
+}) {
+  return (
+    <SurveyPageShell maxWidthClassName={maxWidthClassName}>
+      <SurveyProgress completedSteps={completedSteps} currentStep={currentStep} />
+      <SurveyGlassCard>
+        <SurveyCardIntro eyebrow={eyebrow} intro={intro} title={title} />
+        {children}
+      </SurveyGlassCard>
+    </SurveyPageShell>
+  );
+}
+
+export function SurveyGlassCard({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <section
+      className={`rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_8px_40px_rgba(0,101,139,0.06)] backdrop-blur md:p-8 ${className}`}
+    >
+      {children}
+    </section>
+  );
+}
+
+export function SurveyCardIntro({
+  eyebrow,
+  intro,
+  title,
+}: {
+  eyebrow: string;
+  intro: string;
+  title: string;
+}) {
+  return (
+    <div className="mb-7">
+      <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-[#00658b]/70">
+        {eyebrow}
+      </p>
+      <h1 className="text-2xl font-extrabold leading-tight text-[#00658b] md:text-[1.7rem]">
+        {title}
+      </h1>
+      <p className="mt-2 max-w-2xl text-sm leading-6 text-[#40484e]">
+        {intro}
+      </p>
+    </div>
+  );
+}
+
+export function SurveyFooterActions({
+  backHref,
+  children,
+}: {
+  backHref: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-3 border-t border-[#bfc7cf]/30 pt-6 sm:flex-row sm:items-center sm:justify-between">
+      <a
+        className="inline-flex h-11 items-center justify-center rounded-full border border-[#bfc7cf] px-6 text-sm font-bold text-[#40484e] transition hover:border-[#00658b] hover:text-[#00658b]"
+        href={backHref}
+      >
+        Vorige
+      </a>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+export function PrimarySurveyButton({
+  children,
+  disabled = false,
+  isBusy = false,
+  onClick,
+  type = "button",
+}: {
+  children: ReactNode;
+  disabled?: boolean;
+  isBusy?: boolean;
+  onClick?: () => void;
+  type?: "button" | "submit";
+}) {
+  return (
+    <button
+      aria-busy={isBusy}
+      className="inline-flex h-12 items-center justify-center rounded-full bg-[#00658b] px-8 text-sm font-extrabold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-[#004c6a] disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60"
+      disabled={disabled}
+      onClick={onClick}
+      type={type}
+    >
+      {children}
+    </button>
+  );
+}
+
+export function SecondarySurveyButton({
+  children,
+  disabled = false,
+  onClick,
+}: {
+  children: ReactNode;
+  disabled?: boolean;
+  onClick?: () => void;
+}) {
+  return (
+    <button
+      className="inline-flex h-12 items-center justify-center rounded-full border border-[#00658b] bg-white px-8 text-sm font-extrabold text-[#00658b] transition hover:bg-[#c4e7ff]/30 disabled:cursor-not-allowed disabled:opacity-60"
+      disabled={disabled}
+      onClick={onClick}
+      type="button"
+    >
+      {children}
+    </button>
+  );
+}
+
+export function OptionCard({
+  children,
+  isDisabled = false,
+  isSelected = false,
+}: {
+  children: ReactNode;
+  isDisabled?: boolean;
+  isSelected?: boolean;
+}) {
+  return (
+    <label
+      className={`flex cursor-pointer items-start gap-4 rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:bg-[#c4e7ff]/20 ${
+        isSelected
+          ? "border-[#00658b] bg-[#c4e7ff]/40 shadow-[0_4px_18px_rgba(0,101,139,0.08)]"
+          : "border-[#bfc7cf] bg-white/75"
+      } ${isDisabled ? "cursor-not-allowed opacity-55" : ""}`}
+    >
+      {children}
+    </label>
   );
 }
 
@@ -148,8 +357,12 @@ export function EmptySurveyState({
   title?: string;
 }) {
   return (
-    <main className="grid min-h-screen place-items-center bg-[#f7fafc] px-6 text-[#181c1e]">
-      <section className="max-w-md rounded-2xl border border-[#bfc7cf]/50 bg-white p-6 text-center shadow-sm">
+    <main className="relative grid min-h-screen place-items-center overflow-hidden bg-[#f7fafc] px-6 text-[#181c1e]">
+      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute -left-44 -top-44 h-[34rem] w-[34rem] rounded-full bg-[#7dd0ff]/30 blur-[80px]" />
+        <div className="absolute -bottom-44 -right-36 h-[30rem] w-[30rem] rounded-full bg-[#bae6ff]/35 blur-[90px]" />
+      </div>
+      <section className="max-w-md rounded-[2rem] border border-white/70 bg-white/90 p-6 text-center shadow-[0_8px_40px_rgba(0,101,139,0.06)] backdrop-blur">
         <h1 className="mb-2 text-2xl font-bold">{title}</h1>
         <p className="mb-5 text-sm leading-6 text-[#40484e]">{children}</p>
         <a

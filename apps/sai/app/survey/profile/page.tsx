@@ -2,11 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { SurveyProgress } from "@/components/survey-progress";
 import {
   EmptySurveyState,
+  PrimarySurveyButton,
   RunIdCard,
+  SurveyFooterActions,
   SurveyQuestionBlock,
+  SurveyStepLayout,
   SurveySummaryGrid,
   SurveySummaryItem,
   ValidationMessage,
@@ -196,45 +198,14 @@ export default function SurveyProfilePage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f7fafc] px-6 py-8 text-[#181c1e]">
-      <section className="mx-auto grid w-full max-w-2xl gap-6">
-        <header className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#00658b] text-2xl font-bold text-white shadow-sm">
-              S
-            </div>
-            <div>
-              <h1 className="text-2xl font-extrabold tracking-tight">
-                Shadow AI Scan
-              </h1>
-              <p className="text-sm font-medium text-[#6993aa]">
-                Veilig innoveren met AI
-              </p>
-            </div>
-          </div>
-          <span className="rounded-full border border-[#bfc7cf]/60 bg-white/90 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-[#40484e] shadow-sm">
-            Vertrouwelijk
-          </span>
-        </header>
-
-        <SurveyProgress
-          completedSteps={completedSteps}
-          currentStep="profile"
-        />
-
-        <section className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_8px_40px_rgba(0,101,139,0.06)] md:p-9">
-          <div className="mb-8">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-[#00658b]/70">
-              Jouw profiel
-            </p>
-            <h2 className="text-2xl font-extrabold leading-tight text-[#00658b]">
-              Eerst kort je werkcontext en AI-gebruik
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-[#40484e]">
-              Deze vragen horen bij het `save_profile` contract. Je antwoorden
-              worden als codes opgeslagen, niet als directe persoonsgegevens.
-            </p>
-          </div>
+    <SurveyStepLayout
+      completedSteps={completedSteps}
+      currentStep="profile"
+      eyebrow="Jouw profiel"
+      intro="Deze vragen horen bij het save_profile contract. Je antwoorden worden als codes opgeslagen, niet als directe persoonsgegevens."
+      maxWidthClassName="max-w-2xl"
+      title="Eerst kort je werkcontext en AI-gebruik"
+    >
 
           <ProfileAnswerSummary
             departmentLabel={getOptionLabel(
@@ -442,25 +413,17 @@ export default function SurveyProfilePage() {
 
             <RunIdCard runId={sessionView.runId} />
 
-            <div className="flex items-center justify-between gap-3 border-t border-[#bfc7cf]/30 pt-6">
-              <a
-                className="inline-flex h-11 items-center rounded-full border border-[#bfc7cf] px-6 text-sm font-bold text-[#40484e]"
-                href="/survey"
-              >
-                Vorige
-              </a>
-              <button
-                className="inline-flex h-11 items-center rounded-full bg-[#00658b] px-7 text-sm font-bold text-white shadow-lg transition hover:bg-[#004c6a] disabled:cursor-not-allowed disabled:opacity-60"
+            <SurveyFooterActions backHref="/survey">
+              <PrimarySurveyButton
                 disabled={isSaving || !selectedVakgebied || !aiFrequencyCode}
+                isBusy={isSaving}
                 type="submit"
               >
                 {isSaving ? "Opslaan..." : "Verder"}
-              </button>
-            </div>
+              </PrimarySurveyButton>
+            </SurveyFooterActions>
           </form>
-        </section>
-      </section>
-    </main>
+    </SurveyStepLayout>
   );
 }
 

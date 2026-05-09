@@ -2,12 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { SurveyProgress } from "@/components/survey-progress";
 import {
   EmptySurveyState,
+  PrimarySurveyButton,
   RequiredBadge,
   RpcStepRow,
   RunIdCard,
+  SurveyFooterActions,
+  SurveyStepLayout,
   SurveySummaryGrid,
   SurveySummaryItem,
   ValidationMessage,
@@ -248,36 +250,13 @@ export default function SurveyDataPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f7fafc] px-6 py-8 text-[#181c1e]">
-      <section className="mx-auto grid w-full max-w-4xl gap-6">
-        <header className="flex items-center justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold text-[#6993aa]">Stap 3 van 6</p>
-            <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-[#00658b]">
-              Data en context
-            </h1>
-          </div>
-          <span className="rounded-full border border-[#bfc7cf]/60 bg-white px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-[#40484e]">
-            Vertrouwelijk
-          </span>
-        </header>
-
-        <SurveyProgress completedSteps={completedSteps} currentStep="data" />
-
-        <section className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_8px_40px_rgba(0,101,139,0.06)] md:p-8">
-          <div className="mb-6">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-[#00658b]/70">
-              Contextsignalen
-            </p>
-            <h2 className="text-2xl font-extrabold leading-tight text-[#00658b]">
-              Welke data, zorgen en behoeften spelen mee?
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-[#40484e]">
-              Kies de soorten informatie, zorgen en behoeften die bij jouw
-              AI-gebruik passen. Deze stap schrijft uitsluitend via de
-              respondent RPC-laag.
-            </p>
-          </div>
+    <SurveyStepLayout
+      completedSteps={completedSteps}
+      currentStep="data"
+      eyebrow="Contextsignalen"
+      intro="Kies de soorten informatie, zorgen en behoeften die bij jouw AI-gebruik passen. Deze stap schrijft uitsluitend via de respondent RPC-laag."
+      title="Welke data, zorgen en behoeften spelen mee?"
+    >
 
           <DataAnswerSummary
             items={[
@@ -376,25 +355,17 @@ export default function SurveyDataPage() {
 
             <RunIdCard runId={runId} />
 
-            <div className="flex items-center justify-between gap-3 border-t border-[#bfc7cf]/30 pt-6">
-              <a
-                className="inline-flex h-11 items-center rounded-full border border-[#bfc7cf] px-6 text-sm font-bold text-[#40484e]"
-                href="/survey/motivations"
-              >
-                Vorige
-              </a>
-              <button
-                className="inline-flex h-11 items-center rounded-full bg-[#00658b] px-7 text-sm font-bold text-white shadow-lg transition hover:bg-[#004c6a] disabled:cursor-not-allowed disabled:opacity-60"
+            <SurveyFooterActions backHref="/survey/motivations">
+              <PrimarySurveyButton
                 disabled={isSaving}
+                isBusy={isSaving}
                 type="submit"
               >
                 {isSaving ? "Opslaan..." : "Verder"}
-              </button>
-            </div>
+              </PrimarySurveyButton>
+            </SurveyFooterActions>
           </form>
-        </section>
-      </section>
-    </main>
+    </SurveyStepLayout>
   );
 }
 

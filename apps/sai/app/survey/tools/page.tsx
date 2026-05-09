@@ -2,12 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { SurveyProgress } from "@/components/survey-progress";
 import {
   EmptySurveyState,
+  PrimarySurveyButton,
   RequiredBadge,
   RpcStepRow,
   RunIdCard,
+  SecondarySurveyButton,
+  SurveyFooterActions,
+  SurveyStepLayout,
   SurveySummaryGrid,
   SurveySummaryItem,
   ValidationMessage,
@@ -314,36 +317,14 @@ export default function SurveyToolsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f7fafc] px-6 py-8 text-[#181c1e]">
-      <section className="mx-auto grid w-full max-w-5xl gap-6">
-        <header className="flex items-center justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold text-[#6993aa]">Stap 4 van 6</p>
-            <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-[#00658b]">
-              Mijn AI gereedschapskist
-            </h1>
-          </div>
-          <span className="rounded-full border border-[#bfc7cf]/60 bg-white px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-[#40484e]">
-            Vertrouwelijk
-          </span>
-        </header>
-
-        <SurveyProgress completedSteps={completedSteps} currentStep="tools" />
-
-        <section className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_8px_40px_rgba(0,101,139,0.06)] md:p-8">
-          <div className="mb-6">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-[#00658b]/70">
-              Toolregistratie
-            </p>
-            <h2 className="text-2xl font-extrabold leading-tight text-[#00658b]">
-              Welke AI-tool gebruik je, en waarvoor?
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-[#40484e]">
-              Kies een tool, selecteer een of meer toepassingen, geef de context
-              aan en kies het accounttype. Je kunt meerdere tools toevoegen
-              voordat je doorgaat naar afronden.
-            </p>
-          </div>
+    <SurveyStepLayout
+      completedSteps={completedSteps}
+      currentStep="tools"
+      eyebrow="Toolregistratie"
+      intro="Kies een tool, selecteer een of meer toepassingen, geef de context aan en kies het accounttype. Je kunt meerdere tools toevoegen voordat je doorgaat naar afronden."
+      maxWidthClassName="max-w-5xl"
+      title="Welke AI-tool gebruik je, en waarvoor?"
+    >
 
           <form
             className="grid gap-6"
@@ -424,33 +405,23 @@ export default function SurveyToolsPage() {
 
             <RunIdCard runId={runId} />
 
-            <div className="flex items-center justify-between gap-3 border-t border-[#bfc7cf]/30 pt-6">
-              <a
-                className="inline-flex h-11 items-center rounded-full border border-[#bfc7cf] px-6 text-sm font-bold text-[#40484e]"
-                href="/survey/data"
-              >
-                Vorige
-              </a>
-              <button
-                className="inline-flex h-11 items-center rounded-full bg-[#00658b] px-7 text-sm font-bold text-white shadow-lg transition hover:bg-[#004c6a] disabled:cursor-not-allowed disabled:opacity-60"
+            <SurveyFooterActions backHref="/survey/data">
+              <PrimarySurveyButton
                 disabled={isSaving}
+                isBusy={isSaving}
                 type="submit"
               >
                 {isSaving ? "Opslaan..." : "Tool opslaan"}
-              </button>
-              <button
-                className="inline-flex h-11 items-center rounded-full border border-[#00658b] bg-white px-7 text-sm font-bold text-[#00658b] transition hover:bg-[#c4e7ff]/30 disabled:cursor-not-allowed disabled:opacity-60"
+              </PrimarySurveyButton>
+              <SecondarySurveyButton
                 disabled={isSaving || savedTools.length === 0}
                 onClick={handleContinueToComplete}
-                type="button"
               >
                 Verder naar afronden
-              </button>
-            </div>
+              </SecondarySurveyButton>
+            </SurveyFooterActions>
           </form>
-        </section>
-      </section>
-    </main>
+    </SurveyStepLayout>
   );
 }
 

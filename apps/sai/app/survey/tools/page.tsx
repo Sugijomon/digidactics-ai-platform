@@ -326,38 +326,39 @@ export default function SurveyToolsPage() {
       title="Welke AI-tool gebruik je, en waarvoor?"
     >
 
-          <form
-            className="grid gap-6"
-            onSubmit={(event) => {
-              event.preventDefault();
-              void handleSaveToolFlow();
-            }}
-          >
-            <SavedToolsSummary savedTools={savedTools} />
+      <form
+        className="grid gap-6"
+        onSubmit={(event) => {
+          event.preventDefault();
+          void handleSaveToolFlow();
+        }}
+      >
+        <section className="grid gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start">
+          <ToolPicker
+            customToolName={customToolName}
+            filteredToolOptions={filteredToolOptions}
+            isDisabled={isSaving}
+            onCustomToolNameChange={setCustomToolName}
+            onSearchQueryChange={setToolSearchQuery}
+            onSelectCategory={setSelectedToolCategory}
+            onSelect={setSelectedToolId}
+            searchQuery={toolSearchQuery}
+            selectedCategory={selectedToolCategory}
+            selectedToolId={selectedToolId}
+            validationError={validationErrors.tool}
+          />
 
-            <ToolAnswerSummary
-              accountTypeLabel={getSelectedOptionLabels(
-                accountTypeOptions,
-                [selectedAccountType],
-              )}
-              contextCount={selectedContexts.length}
-              toolName={getSelectedToolName(selectedTool, customToolName)}
-              useCaseCount={selectedUseCases.length}
-            />
-
-            <ToolPicker
-              customToolName={customToolName}
-              filteredToolOptions={filteredToolOptions}
-              isDisabled={isSaving}
-              onCustomToolNameChange={setCustomToolName}
-              onSearchQueryChange={setToolSearchQuery}
-              onSelectCategory={setSelectedToolCategory}
-              onSelect={setSelectedToolId}
-              searchQuery={toolSearchQuery}
-              selectedCategory={selectedToolCategory}
-              selectedToolId={selectedToolId}
-              validationError={validationErrors.tool}
-            />
+          <ToolWorkspace
+            accountTypeLabel={getSelectedOptionLabels(
+              accountTypeOptions,
+              [selectedAccountType],
+            )}
+            contextCount={selectedContexts.length}
+            savedTools={savedTools}
+            toolName={getSelectedToolName(selectedTool, customToolName)}
+            useCaseCount={selectedUseCases.length}
+          />
+        </section>
 
             <CheckboxGroup
               helpText="Kies alle toepassingen die voor deze tool gelden."
@@ -420,44 +421,72 @@ export default function SurveyToolsPage() {
                 Verder naar afronden
               </SecondarySurveyButton>
             </SurveyFooterActions>
-          </form>
+      </form>
     </SurveyStepLayout>
   );
 }
 
-function SavedToolsSummary({
+function ToolWorkspace({
+  accountTypeLabel,
+  contextCount,
   savedTools,
+  toolName,
+  useCaseCount,
 }: {
+  accountTypeLabel: string;
+  contextCount: number;
   savedTools: StoredSurveyTool[];
+  toolName: string;
+  useCaseCount: number;
 }) {
   return (
-    <section className="grid gap-3 rounded-2xl border border-[#bfc7cf]/50 bg-white/70 p-4">
-      <div>
-        <h3 className="font-bold text-[#00658b]">Opgeslagen tools</h3>
+    <section className="relative grid min-w-0 gap-4 rounded-[1.6rem] border-2 border-dashed border-[#bfc7cf]/70 bg-white/55 p-4 shadow-[0_8px_24px_rgba(0,101,139,0.04)] md:p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h3 className="text-lg font-extrabold text-[#00658b]">
+            Jouw selectie
+          </h3>
         <p className="mt-1 text-sm leading-6 text-[#40484e]">
-          Voeg minimaal een tool toe. Daarna kun je afronden of nog een tool
-          registreren.
+            Sla per tool de toepassing, context en het accounttype op.
         </p>
+        </div>
+        <span className="rounded-full bg-[#00658b] px-3 py-1 text-xs font-extrabold text-white">
+          {savedTools.length} tool{savedTools.length === 1 ? "" : "s"}
+        </span>
       </div>
+
+      <ToolAnswerSummary
+        accountTypeLabel={accountTypeLabel}
+        contextCount={contextCount}
+        toolName={toolName}
+        useCaseCount={useCaseCount}
+      />
       {savedTools.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-[#bfc7cf] bg-white px-4 py-3 text-sm text-[#40484e]">
-          Nog geen tools opgeslagen.
-        </p>
+        <div className="grid min-h-44 place-items-center rounded-2xl border border-dashed border-[#bfc7cf]/80 bg-white/65 px-4 py-8 text-center">
+          <div>
+            <p className="text-base font-extrabold text-[#00658b]/55">
+              Nog geen tools opgeslagen
+            </p>
+            <p className="mt-2 text-sm leading-6 text-[#40484e]/75">
+              Kies links een tool en gebruik daarna Tool opslaan.
+            </p>
+          </div>
+        </div>
       ) : (
         <div className="grid gap-3">
           {savedTools.map((tool, index) => (
             <article
-              className="grid gap-3 rounded-xl border border-[#bfc7cf]/60 bg-white px-4 py-3 text-sm md:grid-cols-[1fr_auto]"
+              className="grid min-w-0 gap-3 rounded-xl border border-[#00658b]/35 bg-white px-4 py-3 text-sm shadow-[0_4px_14px_rgba(0,101,139,0.06)] md:grid-cols-[1fr_auto]"
               key={tool.surveyToolId}
             >
-              <div>
+              <div className="min-w-0">
                 <h4 className="font-bold text-[#181c1e]">
                   {index + 1}. {tool.toolName}
                 </h4>
-                <p className="mt-2 text-[#40484e]">
+                <p className="mt-2 break-words text-[#40484e]">
                   Usecases: {tool.useCaseCodes.join(", ")}
                 </p>
-                <p className="mt-1 text-[#40484e]">
+                <p className="mt-1 break-words text-[#40484e]">
                   Context: {tool.contextCodes.join(", ")} · Account:{" "}
                   {tool.accountTypeCode}
                 </p>
@@ -492,7 +521,7 @@ function ToolAnswerSummary({
   useCaseCount: number;
 }) {
   return (
-    <SurveySummaryGrid columnsClassName="md:grid-cols-4">
+    <SurveySummaryGrid columnsClassName="grid-cols-2">
       <SurveySummaryItem label="Tool" value={toolName || "Nog niet gekozen"} />
       <SurveySummaryItem
         label="Usecases"
@@ -537,26 +566,25 @@ function ToolPicker({
 }) {
   return (
     <section
-      className={`grid gap-4 rounded-2xl border bg-white/70 p-4 ${
-        validationError ? "border-red-300" : "border-[#bfc7cf]/50"
+      className={`grid min-w-0 gap-4 rounded-[1.6rem] border bg-white/80 p-4 shadow-[0_8px_24px_rgba(0,101,139,0.04)] md:p-5 ${
+        validationError ? "border-red-300" : "border-white/80"
       }`}
     >
-      <div>
-        <div className="flex flex-wrap items-center gap-2">
-          <h3 className="font-bold text-[#00658b]">Tool</h3>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h3 className="text-lg font-extrabold text-[#00658b]">Catalogus</h3>
+          <p className="mt-1 text-sm leading-6 text-[#40484e]">
+            Kies de AI-tool die je in deze stap wilt registreren.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
           <RequiredBadge />
         </div>
-        <p className="mt-1 text-sm leading-6 text-[#40484e]">
-          Kies de AI-tool die je in deze stap wilt registreren.
-        </p>
-        {validationError ? (
-          <p className="mt-2 text-sm font-semibold text-red-700">
-            {validationError}
-          </p>
-        ) : null}
       </div>
 
-      <div className="grid gap-3 rounded-xl border border-[#bfc7cf]/50 bg-white p-3">
+      {validationError ? <ValidationMessage>{validationError}</ValidationMessage> : null}
+
+      <div className="grid gap-3 rounded-2xl border border-[#bfc7cf]/45 bg-[#f7fafc] p-3">
         <label className="grid gap-2 text-sm font-semibold text-[#181c1e]">
           Zoek tool
           <input
@@ -587,38 +615,38 @@ function ToolPicker({
         </div>
       </div>
 
-      <div className="grid gap-2 md:grid-cols-2">
+      <div className="grid max-h-[28rem] gap-2 overflow-y-auto pr-1">
         {filteredToolOptions.map((tool) => (
           <label
-            className={`flex cursor-pointer items-start gap-4 rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:bg-[#c4e7ff]/20 ${
+            className={`flex cursor-pointer items-center justify-between gap-4 rounded-xl border px-4 py-3 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:shadow-[0_4px_12px_rgba(0,101,139,0.06)] ${
               selectedToolId === tool.id
-                ? "border-[#00658b] bg-[#c4e7ff]/40"
-                : "border-[#bfc7cf] bg-white/70"
+                ? "border-[#00658b] bg-[#f1f4f6]"
+                : "border-[#bfc7cf] bg-white"
             }`}
             key={tool.id}
           >
+            <span className="flex min-w-0 items-center gap-3">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[#f1f4f6] text-sm font-black text-[#00658b]">
+                {tool.name.slice(0, 1)}
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate text-sm font-bold text-[#181c1e]">
+                  {tool.name}
+                </span>
+                <span className="mt-0.5 block truncate text-xs font-semibold text-[#40484e]">
+                  {tool.category}
+                </span>
+              </span>
+            </span>
             <input
               checked={selectedToolId === tool.id}
-              className="mt-0.5 h-5 w-5 accent-[#00658b]"
+              className="h-5 w-5 shrink-0 accent-[#00658b]"
               disabled={isDisabled}
               name="tool"
               onChange={() => onSelect(tool.id)}
               type="radio"
               value={tool.id}
             />
-            <span>
-              <span className="block text-sm font-semibold text-[#181c1e]">
-                {tool.name}
-              </span>
-              <span className="mt-1 block text-xs font-semibold uppercase tracking-wide text-[#00658b]">
-                {tool.category}
-              </span>
-              {tool.description ? (
-                <span className="mt-1 block text-xs leading-5 text-[#40484e]">
-                  {tool.description}
-                </span>
-              ) : null}
-            </span>
           </label>
         ))}
       </div>
@@ -629,7 +657,7 @@ function ToolPicker({
       ) : null}
 
       {selectedToolId === "custom" ? (
-        <label className="grid gap-2 text-sm font-semibold text-[#181c1e]">
+        <label className="grid gap-2 border-t border-[#bfc7cf]/35 pt-4 text-sm font-semibold text-[#181c1e]">
           Naam van de tool
           <input
             className="h-11 rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm font-normal outline-none transition focus:border-[#00658b] focus:ring-2 focus:ring-[#c4e7ff]"

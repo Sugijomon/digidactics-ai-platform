@@ -4,6 +4,7 @@ import type {
   LearnerStateView,
   LearningCourseView,
 } from "@/lib/learning-preview-data";
+import { getCoursePages } from "@/lib/learning-preview-data";
 
 export function CourseStatusPanel({
   course,
@@ -13,11 +14,13 @@ export function CourseStatusPanel({
   learnerState: LearnerStateView;
 }) {
   const enrollment = learnerState.enrollment;
-  const firstIncompleteLesson =
-    course.lessons.find(
-      (lesson) =>
-        learnerState.progressByLessonId[lesson.id]?.status !== "completed",
-    ) ?? course.lessons[0];
+  const pages = getCoursePages(course);
+  const firstIncompletePage =
+    pages.find(
+      (page) =>
+        learnerState.progressByPageId[page.id]?.status !== "completed" &&
+        learnerState.progressByLessonId[page.id]?.status !== "completed",
+    ) ?? pages[0];
 
   return (
     <aside className="card sidebar">
@@ -45,11 +48,11 @@ export function CourseStatusPanel({
       </div>
       <div className="actions">
         {learnerState.isAuthenticated ? (
-          firstIncompleteLesson ? (
+          firstIncompletePage ? (
             enrollment ? (
               <Link
                 className="button button-primary"
-                href={`/learning/${course.course_code}/${firstIncompleteLesson.lesson_code}`}
+                href={`/learning/${course.course_code}/${firstIncompletePage.page_code}`}
               >
                 Cursus hervatten
               </Link>
@@ -58,9 +61,9 @@ export function CourseStatusPanel({
                 <input name="courseId" type="hidden" value={course.id} />
                 <input name="courseCode" type="hidden" value={course.course_code} />
                 <input
-                  name="firstLessonCode"
+                  name="firstPageCode"
                   type="hidden"
-                  value={firstIncompleteLesson.lesson_code}
+                  value={firstIncompletePage.page_code}
                 />
                 <button className="button button-primary" type="submit">
                   Start cursus

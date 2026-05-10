@@ -4,6 +4,14 @@ export type LearningDifficulty = "foundation" | "intermediate" | "advanced";
 
 export type LessonType = "lesson" | "microlearning" | "assessment" | "case_lab";
 
+export type LearningPageType =
+  | "content"
+  | "video"
+  | "question"
+  | "case"
+  | "embed"
+  | "assessment";
+
 export type LearnerStatus =
   | "not_started"
   | "in_progress"
@@ -80,6 +88,8 @@ export type LessonBlock =
   | QuizMultipleSelectBlock
   | QuizTrueFalseBlock
   | QuizEssayBlock
+  | IframeBlock
+  | ShortAnswerBlock
   | VideoBlock
   | DownloadBlock;
 
@@ -163,11 +173,27 @@ export interface QuizEssayBlock extends BaseBlock {
   manual_review_required?: boolean;
 }
 
+export interface ShortAnswerBlock extends BaseBlock {
+  type: "short_answer";
+  question: string;
+  placeholder?: string;
+  min_words?: number;
+  guidance?: string;
+}
+
 export interface VideoBlock extends BaseBlock {
   type: "video";
   title?: string;
   url: string;
   transcript_markdown?: string;
+}
+
+export interface IframeBlock extends BaseBlock {
+  type: "iframe";
+  title: string;
+  url: string;
+  height?: number;
+  caption?: string;
 }
 
 export interface DownloadBlock extends BaseBlock {

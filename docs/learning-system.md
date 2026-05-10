@@ -50,7 +50,21 @@ The database validates that content is a JSON object with either `blocks[]` or `
 
 ## Content Model
 
-The preferred content shape for v1 is:
+The authored RouteAI Learning shape is now:
+
+```txt
+Course -> Topic -> Page -> JSONB blocks
+```
+
+This mirrors the intended learner and authoring experience:
+
+- a left-side topic menu for overview
+- multiple pages per topic
+- page-level content blocks
+- free navigation through available pages
+- progress tracking at page level
+
+The preferred page content shape for v1 is:
 
 ```json
 {
@@ -66,7 +80,10 @@ The preferred content shape for v1 is:
 }
 ```
 
-Supported block types are defined in `packages/domain/learning.ts`.
+Supported block types are defined in `packages/domain/learning.ts`. Current
+runtime blocks include text, callouts, checklists, case labs, multiple-choice
+questions, multiple-select questions, true/false questions, open questions,
+video placeholders, iframe embeds, and downloads.
 
 The model intentionally allows additional fields per block. Runtime rendering must validate by block `type` and ignore unknown fields safely.
 
@@ -75,6 +92,8 @@ The model intentionally allows additional fields per block. Runtime rendering mu
 Authoritative content:
 
 - `learning_courses`
+- `learning_topics`
+- `learning_pages`
 - `learning_lessons`
 - `learning_course_lessons`
 - `learning_catalog`
@@ -82,6 +101,7 @@ Authoritative content:
 Learner state:
 
 - `learning_course_enrollments`
+- `learning_page_progress`
 - `learning_lesson_progress`
 - `learning_lesson_attempts`
 - `learning_certifications`
@@ -139,7 +159,18 @@ High-level access:
 The seed adds:
 
 - Course: `ai-literacy-foundation`
-- Lessons:
+- Topics:
+  - `ai-basics`
+  - `data-care`
+  - `human-oversight`
+- Pages:
+  - `ai-literacy-what-is-ai`
+  - `ai-literacy-output-check`
+  - `ai-literacy-data-and-confidentiality`
+  - `ai-literacy-approved-tools`
+  - `ai-literacy-human-oversight`
+  - `ai-literacy-routeai-readiness`
+- Legacy lessons remain available:
   - `ai-literacy-what-is-ai`
   - `ai-literacy-data-and-confidentiality`
   - `ai-literacy-human-oversight`
@@ -164,7 +195,11 @@ Routes:
 
 - `/learning`
 - `/learning/ai-literacy-foundation`
-- `/learning/ai-literacy-foundation/[lessonCode]`
+- `/learning/ai-literacy-foundation/[pageCode]`
+
+The dynamic segment is still physically named `[lessonCode]` in the current
+Next.js folder for compatibility, but the application now resolves it as a page
+code.
 
 The UI reads the AI Literacy course and lessons from Supabase when a valid
 session/configuration is available. In local development, it falls back to the
@@ -174,11 +209,13 @@ auth is wired.
 Server actions:
 
 - `startAiLiteracyCourse`
+- `completeAiLiteracyPage`
 - `completeAiLiteracyLesson`
 
 These actions use the authenticated Supabase session and write to:
 
 - `learning_course_enrollments`
+- `learning_page_progress`
 - `learning_lesson_progress`
 
 Certificate issuance is deliberately not triggered from the lesson UI yet. The

@@ -116,11 +116,43 @@ export function LessonBlockRenderer({ block }: { block: LessonBlock }) {
         </section>
       );
 
+    case "short_answer":
+      return (
+        <section className="block">
+          <h2>Open vraag</h2>
+          <p>{block.question}</p>
+          <div className="answer-box">
+            <span>{block.placeholder ?? "Jouw antwoord komt hier."}</span>
+          </div>
+          {block.guidance ? <p>{block.guidance}</p> : null}
+        </section>
+      );
+
     case "video":
       return (
         <section className="block">
           <h2>{block.title ?? "Video"}</h2>
-          <p>{block.url}</p>
+          <div className="media-frame">
+            <span>Video placeholder</span>
+            <small>{block.url}</small>
+          </div>
+          {block.transcript_markdown ? <p>{block.transcript_markdown}</p> : null}
+        </section>
+      );
+
+    case "iframe":
+      return (
+        <section className="block">
+          <h2>{block.title}</h2>
+          <iframe
+            className="embed-frame"
+            height={block.height ?? 360}
+            loading="lazy"
+            sandbox=""
+            src={block.url}
+            title={block.title}
+          />
+          {block.caption ? <p>{block.caption}</p> : null}
         </section>
       );
 
@@ -136,4 +168,3 @@ export function LessonBlockRenderer({ block }: { block: LessonBlock }) {
       return null;
   }
 }
-

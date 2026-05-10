@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { completeAiLiteracyLesson } from "@/app/learning/actions";
+import { completeAiLiteracyPage } from "@/app/learning/actions";
+import { CourseNavigator } from "@/components/learning/CourseNavigator";
 import { LessonBlockRenderer } from "@/components/learning/LessonBlockRenderer";
 import { LearningTopbar } from "@/components/learning/LearningTopbar";
-import { getAiLiteracyLesson, getLearnerState } from "@/lib/learning-data";
+import { getAiLiteracyPage, getLearnerState } from "@/lib/learning-data";
+import { getCoursePages } from "@/lib/learning-preview-data";
 
 export default async function LessonPage({
   params,
@@ -11,46 +13,51 @@ export default async function LessonPage({
   params: Promise<{ courseCode: string; lessonCode: string }>;
 }) {
   const { courseCode, lessonCode } = await params;
-  const { course, lesson } = await getAiLiteracyLesson(lessonCode);
+  const { course, page } = await getAiLiteracyPage(lessonCode);
   const learnerState = await getLearnerState(course);
 
-  if (course.course_code !== courseCode || !lesson) {
+  if (course.course_code !== courseCode || !page) {
     notFound();
   }
 
-  const currentIndex = course.lessons.findIndex(
-    (item) => item.lesson_code === lesson.lesson_code,
-  );
-  const previousLesson = course.lessons[currentIndex - 1];
-  const nextLesson = course.lessons[currentIndex + 1];
-  const lessonProgress = lesson
-    ? learnerState.progressByLessonId[lesson.id]
-    : null;
+  const pages = getCoursePages(course);
+  const currentIndex = pages.findIndex((item) => item.page_code === page.page_code);
+  const previousPage = pages[currentIndex - 1];
+  const nextPage = pages[currentIndex + 1];
+  const pageProgress =
+    learnerState.progressByPageId[page.id] ??
+    learnerState.progressByLessonId[page.id] ??
+    null;
 
   return (
     <main className="shell">
       <LearningTopbar />
-      <div className="lesson-layout">
-        <article className="lesson-shell">
-          {lesson.content.blocks.map((block) => (
+      <div className="learning-workspace">
+        <CourseNavigator
+          activePage={page}
+          course={course}
+          learnerState={learnerState}
+        />
+        <article className="lesson-shell page-canvas">
+          {page.content.blocks.map((block) => (
             <LessonBlockRenderer block={block} key={block.id} />
           ))}
           <section className="block">
-            <h2>Les afronden</h2>
+            <h2>Pagina afronden</h2>
             <p>
-              Hiermee sla je deze les op als afgerond. De cursusvoortgang wordt
+              Hiermee sla je deze pagina op als afgerond. De cursusvoortgang wordt
               opnieuw berekend, maar er wordt nog geen certificaat uitgegeven.
             </p>
             {learnerState.isAuthenticated ? (
-              <form action={completeAiLiteracyLesson}>
+              <form action={completeAiLiteracyPage}>
                 <input name="courseId" type="hidden" value={course.id} />
                 <input name="courseCode" type="hidden" value={course.course_code} />
-                <input name="lessonId" type="hidden" value={lesson.id} />
-                <input name="lessonCode" type="hidden" value={lesson.lesson_code} />
+                <input name="pageId" type="hidden" value={page.id} />
+                <input name="pageCode" type="hidden" value={page.page_code} />
                 <button className="button button-primary" type="submit">
-                  {lessonProgress?.status === "completed"
+                  {pageProgress?.status === "completed"
                     ? "Opnieuw opslaan als afgerond"
-                    : "Markeer les afgerond"}
+                    : "Markeer pagina afgerond"}
                 </button>
               </form>
             ) : (
@@ -58,20 +65,20 @@ export default async function LessonPage({
             )}
           </section>
           <nav className="actions">
-            {previousLesson ? (
+            {previousPage ? (
               <Link
                 className="button button-secondary"
-                href={`/learning/${course.course_code}/${previousLesson.lesson_code}`}
+                href={`/learning/${course.course_code}/${previousPage.page_code}`}
               >
-                Vorige les
+                Vorige pagina
               </Link>
             ) : null}
-            {nextLesson ? (
+            {nextPage ? (
               <Link
                 className="button button-primary"
-                href={`/learning/${course.course_code}/${nextLesson.lesson_code}`}
+                href={`/learning/${course.course_code}/${nextPage.page_code}`}
               >
-                Volgende les
+                Volgende pagina
               </Link>
             ) : (
               <Link className="button button-primary" href="/learning">
@@ -80,34 +87,6 @@ export default async function LessonPage({
             )}
           </nav>
         </article>
-        <aside className="card sidebar">
-          <p className="eyebrow">Les {lesson.sequence_order}</p>
-          <h2>{lesson.title}</h2>
-          {lesson.summary ? <p>{lesson.summary}</p> : null}
-          <div className="meta-list">
-            <div className="meta-row">
-              <span>Duur</span>
-              <strong>{lesson.estimated_duration_minutes ?? 0} min</strong>
-            </div>
-            <div className="meta-row">
-              <span>Onderdeel</span>
-              <strong>{lesson.lesson_type}</strong>
-            </div>
-            <div className="meta-row">
-              <span>Blokken</span>
-              <strong>{lesson.content.blocks.length}</strong>
-            </div>
-            <div className="meta-row">
-              <span>Voortgang</span>
-              <strong>{lessonProgress?.progress_percentage ?? 0}%</strong>
-            </div>
-          </div>
-          <div className="actions">
-            <Link className="button button-secondary" href="/learning">
-              Programma
-            </Link>
-          </div>
-        </aside>
       </div>
     </main>
   );

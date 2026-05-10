@@ -17,7 +17,9 @@ interface LearnerContext {
 export async function startAiLiteracyCourse(formData: FormData) {
   const courseId = String(formData.get("courseId") ?? "");
   const courseCode = String(formData.get("courseCode") ?? "ai-literacy-foundation");
-  const firstLessonCode = String(formData.get("firstLessonCode") ?? "");
+  const firstPageCode = String(
+    formData.get("firstPageCode") ?? formData.get("firstLessonCode") ?? "",
+  );
 
   if (!courseId) {
     throw new Error("Course id ontbreekt.");
@@ -46,9 +48,68 @@ export async function startAiLiteracyCourse(formData: FormData) {
   revalidatePath("/learning");
   revalidatePath(`/learning/${courseCode}`);
 
-  if (firstLessonCode) {
-    redirect(`/learning/${courseCode}/${firstLessonCode}`);
+  if (firstPageCode) {
+    redirect(`/learning/${courseCode}/${firstPageCode}`);
   }
+}
+
+export async function completeAiLiteracyPage(formData: FormData) {
+  const courseId = String(formData.get("courseId") ?? "");
+  const courseCode = String(formData.get("courseCode") ?? "ai-literacy-foundation");
+  const pageId = String(formData.get("pageId") ?? "");
+  const pageCode = String(formData.get("pageCode") ?? "");
+
+  if (!courseId || !pageId || !pageCode) {
+    throw new Error("Paginavoortgang kan niet worden opgeslagen zonder cursus en pagina.");
+  }
+
+  const supabase = await requireSupabaseClient();
+  const learner = await requireLearnerContext(supabase);
+
+  const { data: page, error: pageError } = await supabase
+    .from("learning_pages")
+    .select("content")
+    .eq("id", pageId)
+    .single<{ content: unknown }>();
+
+  if (pageError || !page || !isLessonContent(page.content)) {
+    throw new Error("Pagina-inhoud kon niet worden gevalideerd.");
+  }
+
+  const completedBlockIds = page.content.blocks.map((block) => block.id);
+  const progressPercentage = estimateCompletionPercentage(
+    page.content,
+    completedBlockIds,
+  );
+  const now = new Date().toISOString();
+
+  const { error: progressError } = await supabase
+    .from("learning_page_progress")
+    .upsert(
+      {
+        org_id: learner.orgId,
+        user_id: learner.userId,
+        page_id: pageId,
+        course_id: courseId,
+        status: progressPercentage === 100 ? "completed" : "in_progress",
+        current_block_id: completedBlockIds.at(-1) ?? null,
+        completed_block_ids: completedBlockIds,
+        progress_percentage: progressPercentage,
+        started_at: now,
+        completed_at: progressPercentage === 100 ? now : null,
+      },
+      { onConflict: "user_id,page_id,course_id" },
+    );
+
+  if (progressError) {
+    throw new Error(`Paginavoortgang opslaan is mislukt: ${progressError.message}`);
+  }
+
+  await upsertCourseProgress(supabase, learner, courseId);
+
+  revalidatePath("/learning");
+  revalidatePath(`/learning/${courseCode}`);
+  revalidatePath(`/learning/${courseCode}/${pageCode}`);
 }
 
 export async function completeAiLiteracyLesson(formData: FormData) {
@@ -115,6 +176,40 @@ async function upsertCourseProgress(
   learner: LearnerContext,
   courseId: string,
 ) {
+  const { data: requiredPages, error: pagesError } = await supabase
+    .from("learning_pages")
+    .select("id")
+    .eq("course_id", courseId)
+    .eq("is_required", true);
+
+  if (!pagesError && requiredPages) {
+    const pageIds = requiredPages.map((row) => row.id as string);
+    const requiredCount = pageIds.length;
+
+    const { data: completedProgress, error: progressError } = pageIds.length
+      ? await supabase
+          .from("learning_page_progress")
+          .select("page_id")
+          .eq("course_id", courseId)
+          .eq("user_id", learner.userId)
+          .eq("status", "completed")
+          .in("page_id", pageIds)
+      : { data: [], error: null };
+
+    if (progressError) {
+      throw new Error(`Cursusvoortgang berekenen is mislukt: ${progressError.message}`);
+    }
+
+    await saveCourseProgress(
+      supabase,
+      learner,
+      courseId,
+      requiredCount,
+      completedProgress?.length ?? 0,
+    );
+    return;
+  }
+
   const { data: requiredLessons, error: lessonsError } = await supabase
     .from("learning_course_lessons")
     .select("lesson_id")
@@ -142,7 +237,22 @@ async function upsertCourseProgress(
     throw new Error(`Cursusvoortgang berekenen is mislukt: ${progressError.message}`);
   }
 
-  const completedCount = completedProgress?.length ?? 0;
+  await saveCourseProgress(
+    supabase,
+    learner,
+    courseId,
+    requiredCount,
+    completedProgress?.length ?? 0,
+  );
+}
+
+async function saveCourseProgress(
+  supabase: SupabaseClient,
+  learner: LearnerContext,
+  courseId: string,
+  requiredCount: number,
+  completedCount: number,
+) {
   const progressPercentage =
     requiredCount === 0 ? 0 : Math.round((completedCount / requiredCount) * 100);
   const now = new Date().toISOString();

@@ -37,6 +37,9 @@ const blockTypes = [
   { category: "Media", type: "iframe", label: "Iframe" },
 ] as const;
 const blockCategories = Array.from(new Set(blockTypes.map((block) => block.category)));
+const blockTypeLabels = Object.fromEntries(
+  blockTypes.map((block) => [block.type, block.label]),
+) as Record<string, string>;
 
 export function LearningAdminEditor({
   course,
@@ -106,7 +109,20 @@ export function LearningAdminEditor({
 
   function addBlock(type: string) {
     const nextBlock = createBlock(type);
-    updateBlocks([...blocks, nextBlock]);
+    const insertAfter =
+      selectedBlockIndex >= 0 && selectedBlockIndex < blocks.length
+        ? selectedBlockIndex + 1
+        : blocks.length;
+    updateBlocks([...blocks.slice(0, insertAfter), nextBlock, ...blocks.slice(insertAfter)]);
+    setSelectedBlockId(nextBlock.id);
+    setActivePanel("content");
+  }
+
+  function duplicateBlock(index: number) {
+    const source = blocks[index];
+    if (!source) return;
+    const nextBlock = cloneBlock(source);
+    updateBlocks([...blocks.slice(0, index + 1), nextBlock, ...blocks.slice(index + 1)]);
     setSelectedBlockId(nextBlock.id);
     setActivePanel("content");
   }
@@ -203,6 +219,7 @@ export function LearningAdminEditor({
                 index={index}
                 isSelected={selectedBlock?.id === block.id}
                 key={block.id}
+                onDuplicate={() => duplicateBlock(index)}
                 onClick={() => setSelectedBlockId(block.id)}
                 onMoveDown={() => moveBlock(index, 1)}
                 onMoveUp={() => moveBlock(index, -1)}
@@ -249,6 +266,9 @@ export function LearningAdminEditor({
             <div className="cardless-panel">
               <p className="eyebrow">Block library</p>
               <h2>Modulaire bouwstenen</h2>
+              <p className="muted">
+                Nieuw block wordt ingevoegd na het geselecteerde block.
+              </p>
               <div className="block-library">
                 {blockCategories.map((category) => (
                   <section className="block-library-group" key={category}>
@@ -429,6 +449,7 @@ function BlockCard({
   index,
   isSelected,
   onClick,
+  onDuplicate,
   onMoveDown,
   onMoveUp,
   onRemove,
@@ -437,6 +458,7 @@ function BlockCard({
   index: number;
   isSelected: boolean;
   onClick: () => void;
+  onDuplicate: () => void;
   onMoveDown: () => void;
   onMoveUp: () => void;
   onRemove: () => void;
@@ -448,7 +470,7 @@ function BlockCard({
       onClick={onClick}
     >
       <button className="editor-block-select" type="button">
-        <span className="pill">{block.type}</span>
+        <span className="pill">{getBlockLabel(block.type)}</span>
         <strong>{getBlockTitle(block, index)}</strong>
         <small>{getBlockSummary(block)}</small>
       </button>
@@ -458,6 +480,9 @@ function BlockCard({
         </button>
         <button type="button" onClick={stopAnd(onMoveDown)} aria-label="Block omlaag">
           v
+        </button>
+        <button type="button" onClick={stopAnd(onDuplicate)} aria-label="Block dupliceren">
+          +
         </button>
         <button type="button" onClick={stopAnd(onRemove)} aria-label="Block verwijderen">
           x
@@ -721,9 +746,13 @@ function ListField({
 }
 
 function getBlockTitle(block: EditableBlock, index: number) {
-  const label = blockTypes.find((blockType) => blockType.type === block.type)?.label ?? block.type;
+  const label = getBlockLabel(block.type);
   const specific = s(block.title) || s(block.question);
   return specific || `${label} ${index + 1}`;
+}
+
+function getBlockLabel(type: string) {
+  return blockTypeLabels[type] ?? type;
 }
 
 function getBlockSummary(block: EditableBlock) {
@@ -774,6 +803,15 @@ function createBlock(type: string): EditableBlock {
     default:
       return { id, type: "paragraph", markdown: "Nieuwe tekst." };
   }
+}
+
+function cloneBlock(block: EditableBlock): EditableBlock {
+  const copy = structuredClone(block) as EditableBlock;
+  return {
+    ...copy,
+    id: `block-${Date.now()}`,
+    title: copy.title ? `${copy.title} kopie` : copy.title,
+  };
 }
 
 function optionsFromText(value: string) {

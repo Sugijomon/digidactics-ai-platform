@@ -237,7 +237,7 @@ export default function SurveyCompletePage() {
           <RpcStepRow label="token-burn check" state={tokenCheckStep} />
         </TechnicalStatus>
 
-        <SurveyFooterActions backHref="/survey/tools">
+        <SurveyFooterActions backHref="/survey/accounts">
           <PrimarySurveyButton
             disabled={isCompleting || savedTools.length === 0}
             isBusy={isCompleting}
@@ -285,7 +285,7 @@ function SavedToolsSummary({
                 Usecases: {tool.useCaseCodes.join(", ")}
               </p>
               <p className="mt-1 text-[#40484e]">
-                Context: {tool.contextCodes.join(", ")} · Account:{" "}
+                Context: {tool.contextCodes.join(", ")} - Account:{" "}
                 {tool.accountTypeCode}
               </p>
             </article>

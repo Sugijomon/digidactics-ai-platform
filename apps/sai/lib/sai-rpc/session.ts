@@ -14,12 +14,22 @@ export type StoredSurveyTool = {
   savedAt: string;
 };
 
+export type PendingSurveyTool = {
+  surveyToolId: string;
+  toolName: string;
+  registeredAt: string;
+  useCaseCodes?: string[];
+  contextCodes?: string[];
+  surveyToolUseCaseIds?: string[];
+};
+
 export type StoredSurveySession = SurveySession & {
   startedAt: string;
   currentStep: SurveyStepId;
   completedSteps?: SurveyStepId[];
   surveyToolId?: string;
   surveyToolUseCaseId?: string;
+  pendingTool?: PendingSurveyTool;
   savedTools?: StoredSurveyTool[];
 };
 
@@ -39,6 +49,8 @@ function isStoredSurveySession(value: unknown): value is StoredSurveySession {
     isSurveyStepId(candidate.currentStep) &&
     (candidate.completedSteps === undefined ||
       isSurveyStepIds(candidate.completedSteps)) &&
+    (candidate.pendingTool === undefined ||
+      isPendingSurveyTool(candidate.pendingTool)) &&
     (savedTools === undefined || isStoredSurveyTools(savedTools))
   );
 }
@@ -49,6 +61,8 @@ function isSurveyStepId(value: unknown): value is SurveyStepId {
     value === "motivations" ||
     value === "data" ||
     value === "tools" ||
+    value === "useCases" ||
+    value === "accounts" ||
     value === "complete"
   );
 }
@@ -79,6 +93,30 @@ function isStoredSurveyTools(value: unknown): value is StoredSurveyTool[] {
       );
     })
   );
+}
+
+function isPendingSurveyTool(value: unknown): value is PendingSurveyTool {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return false;
+  }
+
+  const candidate = value as Record<string, unknown>;
+
+  return (
+    typeof candidate.surveyToolId === "string" &&
+    typeof candidate.toolName === "string" &&
+    typeof candidate.registeredAt === "string" &&
+    (candidate.useCaseCodes === undefined ||
+      isStringArray(candidate.useCaseCodes)) &&
+    (candidate.contextCodes === undefined ||
+      isStringArray(candidate.contextCodes)) &&
+    (candidate.surveyToolUseCaseIds === undefined ||
+      isStringArray(candidate.surveyToolUseCaseIds))
+  );
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === "string");
 }
 
 export function storeSurveySession(
@@ -137,6 +175,7 @@ export function updateSurveySession(
       StoredSurveySession,
       | "completedSteps"
       | "currentStep"
+      | "pendingTool"
       | "surveyToolId"
       | "surveyToolUseCaseId"
       | "savedTools"

@@ -54,7 +54,14 @@ test("respondent can complete the SAI survey flow with two tools", async ({
   await page.getByRole("button", { name: "Verder" }).click();
 
   await expect(page).toHaveURL(/\/survey\/tools$/, { timeout: 30_000 });
-  await page.getByRole("button", { name: "Tool opslaan" }).click();
+  await page.getByRole("button", { name: "Tool registreren" }).click();
+  await expect(page).toHaveURL(/\/survey\/use-cases$/, { timeout: 30_000 });
+  await page.getByRole("button", { name: "Verder naar account" }).click();
+  await expect(page).toHaveURL(/\/survey\/accounts$/, { timeout: 30_000 });
+  await page.getByRole("button", { name: "Opslaan en afronden" }).click();
+  await expect(page).toHaveURL(/\/survey\/complete$/, { timeout: 30_000 });
+
+  await page.goto("/survey/tools");
   await expect(page.getByRole("heading", { name: "1. ChatGPT" })).toBeVisible({
     timeout: 30_000,
   });
@@ -62,14 +69,15 @@ test("respondent can complete the SAI survey flow with two tools", async ({
   await page.getByRole("button", { name: "Algemene AI" }).click();
   await page.getByLabel("Zoek tool").fill("Claude");
   await page.locator('input[value="claude"]').check();
+  await page.getByRole("button", { name: "Tool registreren" }).click();
+  await expect(page).toHaveURL(/\/survey\/use-cases$/, { timeout: 30_000 });
   await page.locator('input[value="code_schrijven"]').check();
+  await expect(page.getByText("Context bij code-toepassing")).toBeVisible();
   await page.locator('input[value="beslisondersteuning"]').check();
-  await page.getByRole("button", { name: "Tool opslaan" }).click();
-  await expect(page.getByRole("heading", { name: "2. Claude" })).toBeVisible({
-    timeout: 30_000,
-  });
-
-  await page.getByRole("button", { name: "Verder naar afronden" }).click();
+  await page.getByRole("button", { name: "Verder naar account" }).click();
+  await expect(page).toHaveURL(/\/survey\/accounts$/, { timeout: 30_000 });
+  await page.locator('input[value="business_license"]').check();
+  await page.getByRole("button", { name: "Opslaan en afronden" }).click();
 
   await expect(page).toHaveURL(/\/survey\/complete$/, { timeout: 30_000 });
   await expect(page.getByText("Geregistreerde tools")).toBeVisible();
@@ -175,7 +183,7 @@ test("data step validates required groups before saving", async ({ page }) => {
   await expect(page).toHaveURL(/\/survey\/data$/);
 });
 
-test("tools step validates required tool details before saving", async ({
+test("tools and use case steps validate required details before saving", async ({
   page,
 }) => {
   await mockSupabaseRpc(page);
@@ -194,19 +202,26 @@ test("tools step validates required tool details before saving", async ({
 
   await expect(page).toHaveURL(/\/survey\/tools$/, { timeout: 30_000 });
   await page.locator('input[value="custom"]').check();
-  await page.getByRole("button", { name: "Tool opslaan" }).click();
+  await page.getByRole("button", { name: "Tool registreren" }).click();
   await expect(
     page.getByText("Kies een tool of vul een toolnaam in."),
   ).toBeVisible();
 
   await page.locator('input[value="chatgpt"]').check();
+  await page.getByRole("button", { name: "Tool registreren" }).click();
+  await expect(page).toHaveURL(/\/survey\/use-cases$/, { timeout: 30_000 });
   await page.locator('input[value="drafting"]').uncheck();
   await page.locator('input[value="data_analyseren"]').uncheck();
+  await page.getByRole("button", { name: "Verder naar account" }).click();
+  await expect(
+    page.getByText("Kies minimaal een toepassing.").first(),
+  ).toBeVisible();
+
+  await page.locator('input[value="code_schrijven"]').check();
   await page.locator('input[value="internal_work"]').uncheck();
-  await page.getByRole("button", { name: "Tool opslaan" }).click();
-  await expect(page.getByText("Kies minimaal een toepassing.")).toBeVisible();
-  await expect(page.getByText("Kies minimaal een context.")).toBeVisible();
-  await expect(page).toHaveURL(/\/survey\/tools$/);
+  await page.getByRole("button", { name: "Verder naar account" }).click();
+  await expect(page.getByText("Kies minimaal een context.").first()).toBeVisible();
+  await expect(page).toHaveURL(/\/survey\/use-cases$/);
 });
 
 async function mockSupabaseRpc(page: import("@playwright/test").Page) {

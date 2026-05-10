@@ -5,6 +5,8 @@ export type SurveyStepId =
   | "motivations"
   | "data"
   | "tools"
+  | "useCases"
+  | "accounts"
   | "complete";
 
 export type SurveyStep = {
@@ -18,6 +20,8 @@ export const surveySteps = [
   { id: "motivations", label: "Motivatie", href: "/survey/motivations" },
   { id: "data", label: "Data", href: "/survey/data" },
   { id: "tools", label: "Tools", href: "/survey/tools" },
+  { id: "useCases", label: "Toepassing", href: "/survey/use-cases" },
+  { id: "accounts", label: "Account", href: "/survey/accounts" },
   { id: "complete", label: "Afronden", href: "/survey/complete" },
 ] satisfies SurveyStep[];
 
@@ -34,6 +38,13 @@ export function canAccessSurveyStep(
   }
 
   if (stepId === "complete" && (session.savedTools?.length ?? 0) === 0) {
+    return false;
+  }
+
+  if (
+    (stepId === "useCases" || stepId === "accounts") &&
+    !session.pendingTool
+  ) {
     return false;
   }
 
@@ -55,6 +66,14 @@ export function getResumeStep(session: StoredSurveySession) {
   if (
     firstIncompleteStep.id === "complete" &&
     (session.savedTools?.length ?? 0) === 0
+  ) {
+    return getSurveyStep("tools");
+  }
+
+  if (
+    (firstIncompleteStep.id === "useCases" ||
+      firstIncompleteStep.id === "accounts") &&
+    !session.pendingTool
   ) {
     return getSurveyStep("tools");
   }

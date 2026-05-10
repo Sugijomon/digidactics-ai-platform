@@ -16,12 +16,7 @@ import {
   TechnicalStatus,
   ValidationMessage,
 } from "@/components/survey-ui";
-import {
-  saveTool,
-  saveToolAccount,
-  saveToolUseCase,
-  saveToolUseCaseContext,
-} from "@/lib/sai-rpc/client";
+import { saveTool } from "@/lib/sai-rpc/client";
 import {
   markSurveyStepCompleted,
   readSurveySession,
@@ -31,7 +26,6 @@ import {
 } from "@/lib/sai-rpc/session";
 import type {
   RpcError,
-  RpcResult,
   SaveToolPayload,
   SurveySession,
 } from "@/lib/sai-rpc/types";
@@ -40,32 +34,16 @@ import {
   getResumeStep,
   type SurveyStepId,
 } from "@/lib/sai-survey/flow";
-import {
-  accountTypeOptions,
-  contextOptions,
-  toolOptions,
-  useCaseOptions,
-  type SurveyOption,
-  type ToolOption,
-} from "@/lib/sai-survey/options";
-
-type StepKey = "tool" | "useCase" | "context" | "account";
+import { toolOptions, type ToolOption } from "@/lib/sai-survey/options";
 
 type StepState = {
   status: "idle" | "running" | "ok" | "error";
   message: string;
 };
 
-type StepStates = Record<StepKey, StepState>;
-type ValidationErrors = Partial<
-  Record<"tool" | "useCases" | "contexts" | "account", string>
->;
-
-const INITIAL_STEPS: StepStates = {
-  tool: { status: "idle", message: "Wacht op opslaan" },
-  useCase: { status: "idle", message: "Wacht op toolregistratie" },
-  context: { status: "idle", message: "Wacht op use case" },
-  account: { status: "idle", message: "Wacht op toolregistratie" },
+const INITIAL_TOOL_STEP: StepState = {
+  status: "idle",
+  message: "Wacht op toolkeuze",
 };
 
 const ALL_TOOL_CATEGORIES = "Alle";
@@ -86,23 +64,14 @@ export default function SurveyToolsPage() {
     useState(ALL_TOOL_CATEGORIES);
   const [toolSearchQuery, setToolSearchQuery] = useState("");
   const [customToolName, setCustomToolName] = useState("");
-  const [selectedUseCases, setSelectedUseCases] = useState([
-    "drafting",
-    "data_analyseren",
-  ]);
-  const [selectedContexts, setSelectedContexts] = useState(["internal_work"]);
-  const [selectedAccountType, setSelectedAccountType] =
-    useState("personal_free");
-  const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
-    {},
-  );
-  const [steps, setSteps] = useState<StepStates>(INITIAL_STEPS);
   const [savedTools, setSavedTools] = useState<StoredSurveyTool[]>([]);
+  const [toolStep, setToolStep] = useState<StepState>(INITIAL_TOOL_STEP);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const selectedTool = useMemo(
-    () => toolOptions.find((tool) => tool.id === selectedToolId) ?? toolOptions[0],
+    () =>
+      toolOptions.find((tool) => tool.id === selectedToolId) ?? toolOptions[0],
     [selectedToolId],
   );
   const filteredToolOptions = useMemo(
@@ -121,6 +90,7 @@ export default function SurveyToolsPage() {
       }),
     [selectedToolCategory, toolSearchQuery],
   );
+  const selectedToolName = getSelectedToolName(selectedTool, customToolName);
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -146,34 +116,24 @@ export default function SurveyToolsPage() {
     });
   }, [router]);
 
-  async function handleSaveToolFlow() {
+  async function handleSaveTool() {
     if (!surveySession) {
       setError("Geen actieve respondent session gevonden. Start de scan opnieuw.");
       return;
     }
 
     setError(null);
-    setValidationErrors({});
 
-    const toolName = getSelectedToolName(selectedTool, customToolName);
-    const nextValidationErrors = validateToolStep({
-      accountType: selectedAccountType,
-      contexts: selectedContexts,
-      toolName,
-      useCases: selectedUseCases,
-    });
-
-    if (Object.keys(nextValidationErrors).length > 0) {
-      setValidationErrors(nextValidationErrors);
-      setError("Controleer de gemarkeerde vragen voordat je doorgaat.");
+    if (!selectedToolName.trim()) {
+      setError("Kies een tool of vul een toolnaam in.");
       return;
     }
 
     setIsSaving(true);
-    setSteps(INITIAL_STEPS);
+    setToolStep({ status: "running", message: "Tool registreren" });
 
     const toolPayload: SaveToolPayload = {
-      tool_name: toolName,
+      tool_name: selectedToolName,
       is_custom: !selectedTool.toolCode,
       catalog_beheerstatus_code: "newly_discovered",
     };
@@ -182,74 +142,29 @@ export default function SurveyToolsPage() {
       toolPayload.tool_code = selectedTool.toolCode;
     }
 
-    const toolResult = await runStep(
-      "tool",
-      () => saveTool(surveySession, toolPayload),
-      `${toolName} opgeslagen`,
-    );
-    if (!toolResult.ok) return finishWithError(toolResult.error);
+    const toolResult = await saveTool(surveySession, toolPayload);
 
-    updateSurveySession({ surveyToolId: toolResult.data });
-
-    const useCaseIds: string[] = [];
-
-    for (const useCaseCode of selectedUseCases) {
-      const useCaseResult = await runStep(
-        "useCase",
-        () => saveToolUseCase(surveySession, toolResult.data, useCaseCode),
-        `Use cases opgeslagen (${useCaseIds.length + 1}/${selectedUseCases.length})`,
-      );
-
-      if (!useCaseResult.ok) {
-        return finishWithError(useCaseResult.error);
-      }
-
-      useCaseIds.push(useCaseResult.data);
+    if (!toolResult.ok) {
+      finishWithError(toolResult.error);
+      return;
     }
 
-    updateSurveySession({ surveyToolUseCaseId: useCaseIds[0] });
-
-    for (const useCaseId of useCaseIds) {
-      const contextResult = await runStep(
-        "context",
-        () =>
-          saveToolUseCaseContext(surveySession, useCaseId, selectedContexts),
-        `Contexten opgeslagen (${selectedContexts.length})`,
-      );
-
-      if (!contextResult.ok) {
-        return finishWithError(contextResult.error);
-      }
-    }
-
-    const accountResult = await runStep(
-      "account",
-      () =>
-        saveToolAccount(surveySession, toolResult.data, selectedAccountType),
-      "Accounttype opgeslagen",
-    );
-    if (!accountResult.ok) return finishWithError(accountResult.error);
-
-    const savedTool: StoredSurveyTool = {
+    const pendingTool = {
       surveyToolId: toolResult.data,
-      toolName,
-      useCaseCodes: selectedUseCases,
-      contextCodes: selectedContexts,
-      accountTypeCode: selectedAccountType,
-      savedAt: new Date().toISOString(),
+      toolName: selectedToolName,
+      registeredAt: new Date().toISOString(),
     };
-    const nextSavedTools = [...savedTools, savedTool];
 
-    setSavedTools(nextSavedTools);
+    markSurveyStepCompleted("tools");
     updateSurveySession({
-      currentStep: "tools",
-      savedTools: nextSavedTools,
+      currentStep: "useCases",
+      pendingTool,
       surveyToolId: toolResult.data,
-      surveyToolUseCaseId: useCaseIds[0],
+      surveyToolUseCaseId: undefined,
     });
-    resetToolForm();
-    setStep("tool", "ok", `${toolName} opgeslagen. Je kunt nog een tool toevoegen.`);
+    setToolStep({ status: "ok", message: `${selectedToolName} geregistreerd` });
     setIsSaving(false);
+    router.push("/survey/use-cases");
   }
 
   function handleContinueToComplete() {
@@ -264,48 +179,10 @@ export default function SurveyToolsPage() {
     router.push("/survey/complete");
   }
 
-  function resetToolForm() {
-    setSelectedToolId("chatgpt");
-    setSelectedToolCategory(ALL_TOOL_CATEGORIES);
-    setToolSearchQuery("");
-    setCustomToolName("");
-    setSelectedUseCases(["drafting", "data_analyseren"]);
-    setSelectedContexts(["internal_work"]);
-    setSelectedAccountType("personal_free");
-    setValidationErrors({});
-  }
-
-  async function runStep<T>(
-    key: StepKey,
-    action: () => Promise<RpcResult<T>>,
-    successMessage: string,
-  ) {
-    setStep(key, "running", "Bezig");
-    const result = await action();
-
-    if (!result.ok) {
-      setStep(key, "error", formatRpcError(result.error));
-      return result;
-    }
-
-    setStep(key, "ok", successMessage);
-    return result;
-  }
-
   function finishWithError(rpcError: RpcError) {
+    setToolStep({ status: "error", message: formatRpcError(rpcError) });
     setError(formatRpcError(rpcError));
     setIsSaving(false);
-  }
-
-  function setStep(
-    key: StepKey,
-    status: StepState["status"],
-    message: string,
-  ) {
-    setSteps((current) => ({
-      ...current,
-      [key]: { status, message },
-    }));
   }
 
   if (!runId) {
@@ -322,16 +199,15 @@ export default function SurveyToolsPage() {
       completedSteps={completedSteps}
       currentStep="tools"
       eyebrow="Toolregistratie"
-      intro="Kies een tool, selecteer waarvoor je hem gebruikt en voeg hem toe aan je selectie. Je kunt meerdere tools registreren voordat je afrondt."
+      intro="Kies de AI-tool die je gebruikt. Toepassing, context en accountstatus volgen in aparte stappen."
       maxWidthClassName="max-w-5xl"
-      title="Welke AI-tool gebruik je, en waarvoor?"
+      title="Welke AI-tool wil je registreren?"
     >
-
       <form
         className="grid gap-6"
         onSubmit={(event) => {
           event.preventDefault();
-          void handleSaveToolFlow();
+          void handleSaveTool();
         }}
       >
         <section className="grid gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start">
@@ -346,61 +222,19 @@ export default function SurveyToolsPage() {
             searchQuery={toolSearchQuery}
             selectedCategory={selectedToolCategory}
             selectedToolId={selectedToolId}
-            validationError={validationErrors.tool}
           />
 
           <ToolWorkspace
-            accountTypeLabel={getSelectedOptionLabels(
-              accountTypeOptions,
-              [selectedAccountType],
-            )}
-            contextCount={selectedContexts.length}
             savedTools={savedTools}
-            toolName={getSelectedToolName(selectedTool, customToolName)}
-            useCaseCount={selectedUseCases.length}
+            selectedCategory={selectedTool.category}
+            toolName={selectedToolName}
           />
         </section>
-
-        <CheckboxGroup
-          helpText="Kies alle toepassingen die voor deze tool gelden."
-          isDisabled={isSaving}
-          label="Toepassingen"
-          onChange={setSelectedUseCases}
-          options={useCaseOptions}
-          selectedCodes={selectedUseCases}
-          validationError={validationErrors.useCases}
-        />
-
-        <CheckboxGroup
-          helpText="Kies de context waarin je deze tool inzet."
-          isDisabled={isSaving}
-          label="Context"
-          onChange={setSelectedContexts}
-          options={contextOptions}
-          selectedCodes={selectedContexts}
-          validationError={validationErrors.contexts}
-        />
-
-        <RadioGroup
-          helpText="Kies het accounttype dat het best past bij deze tool."
-          isDisabled={isSaving}
-          label="Accounttype"
-          onChange={setSelectedAccountType}
-          options={accountTypeOptions}
-          selectedCode={selectedAccountType}
-          validationError={validationErrors.account}
-        />
 
         {error ? <ValidationMessage>{error}</ValidationMessage> : null}
 
         <TechnicalStatus>
-          <RpcStepRow label="save_tool" state={steps.tool} />
-          <RpcStepRow label="save_tool_use_case" state={steps.useCase} />
-          <RpcStepRow
-            label="save_tool_use_case_context"
-            state={steps.context}
-          />
-          <RpcStepRow label="save_tool_account" state={steps.account} />
+          <RpcStepRow label="save_tool" state={toolStep} />
         </TechnicalStatus>
 
         <RunIdCard runId={runId} />
@@ -411,7 +245,7 @@ export default function SurveyToolsPage() {
             isBusy={isSaving}
             type="submit"
           >
-            {isSaving ? "Opslaan..." : "Tool opslaan"}
+            {isSaving ? "Opslaan..." : "Tool registreren"}
           </PrimarySurveyButton>
           <SecondarySurveyButton
             disabled={isSaving || savedTools.length === 0}
@@ -426,17 +260,13 @@ export default function SurveyToolsPage() {
 }
 
 function ToolWorkspace({
-  accountTypeLabel,
-  contextCount,
   savedTools,
+  selectedCategory,
   toolName,
-  useCaseCount,
 }: {
-  accountTypeLabel: string;
-  contextCount: number;
   savedTools: StoredSurveyTool[];
+  selectedCategory: string;
   toolName: string;
-  useCaseCount: number;
 }) {
   return (
     <section className="relative grid min-w-0 gap-4 rounded-[1.6rem] border-2 border-dashed border-[#bfc7cf]/70 bg-white/55 p-4 shadow-[0_8px_24px_rgba(0,101,139,0.04)] md:p-5">
@@ -446,28 +276,27 @@ function ToolWorkspace({
             Jouw selectie
           </h3>
           <p className="mt-1 text-sm leading-6 text-[#40484e]">
-            Sla per tool de toepassing, context en het accounttype op.
+            Na registratie kies je de toepassing en accountstatus.
           </p>
         </div>
         <span className="rounded-full bg-[#00658b] px-3 py-1 text-xs font-extrabold text-white">
-          {savedTools.length} tool{savedTools.length === 1 ? "" : "s"}
+          {savedTools.length} afgerond
         </span>
       </div>
 
-      <ToolAnswerSummary
-        accountTypeLabel={accountTypeLabel}
-        contextCount={contextCount}
-        toolName={toolName}
-        useCaseCount={useCaseCount}
-      />
+      <SurveySummaryGrid columnsClassName="grid-cols-2">
+        <SurveySummaryItem label="Tool" value={toolName || "Nog niet gekozen"} />
+        <SurveySummaryItem label="Categorie" value={selectedCategory} />
+      </SurveySummaryGrid>
+
       {savedTools.length === 0 ? (
         <div className="grid min-h-44 place-items-center rounded-2xl border border-dashed border-[#bfc7cf]/80 bg-white/65 px-4 py-8 text-center">
           <div>
             <p className="text-base font-extrabold text-[#00658b]/55">
-              Nog geen tools opgeslagen
+              Nog geen afgeronde toolregistraties
             </p>
             <p className="mt-2 text-sm leading-6 text-[#40484e]/75">
-              Kies links een tool en gebruik daarna Tool opslaan.
+              Kies links een tool en ga daarna door naar toepassingen.
             </p>
           </div>
         </div>
@@ -475,66 +304,22 @@ function ToolWorkspace({
         <div className="grid gap-3">
           {savedTools.map((tool, index) => (
             <article
-              className="grid min-w-0 gap-3 rounded-xl border border-[#00658b]/35 bg-white px-4 py-3 text-sm shadow-[0_4px_14px_rgba(0,101,139,0.06)] md:grid-cols-[1fr_auto]"
+              className="grid min-w-0 gap-2 rounded-xl border border-[#00658b]/35 bg-white px-4 py-3 text-sm shadow-[0_4px_14px_rgba(0,101,139,0.06)]"
               key={tool.surveyToolId}
             >
-              <div className="min-w-0">
-                <h4 className="font-bold text-[#181c1e]">
-                  {index + 1}. {tool.toolName}
-                </h4>
-                <p className="mt-2 break-words text-[#40484e]">
-                  Usecases: {tool.useCaseCodes.join(", ")}
-                </p>
-                <p className="mt-1 break-words text-[#40484e]">
-                  Context: {tool.contextCodes.join(", ")} · Account:{" "}
-                  {tool.accountTypeCode}
-                </p>
-              </div>
-              <div className="flex flex-wrap items-start gap-2 md:justify-end">
-                <span className="rounded-full bg-[#c4e7ff]/50 px-2.5 py-1 text-xs font-semibold text-[#00658b]">
-                  {tool.useCaseCodes.length} usecase
-                  {tool.useCaseCodes.length === 1 ? "" : "s"}
-                </span>
-                <span className="rounded-full bg-[#f1f4f6] px-2.5 py-1 text-xs font-semibold text-[#40484e]">
-                  {tool.contextCodes.length} context
-                  {tool.contextCodes.length === 1 ? "" : "en"}
-                </span>
-              </div>
+              <h4 className="font-bold text-[#181c1e]">
+                {index + 1}. {tool.toolName}
+              </h4>
+              <p className="break-words text-[#40484e]">
+                {tool.useCaseCodes.length} toepassing
+                {tool.useCaseCodes.length === 1 ? "" : "en"} -{" "}
+                {tool.accountTypeCode}
+              </p>
             </article>
           ))}
         </div>
       )}
     </section>
-  );
-}
-
-function ToolAnswerSummary({
-  accountTypeLabel,
-  contextCount,
-  toolName,
-  useCaseCount,
-}: {
-  accountTypeLabel: string;
-  contextCount: number;
-  toolName: string;
-  useCaseCount: number;
-}) {
-  return (
-    <SurveySummaryGrid columnsClassName="grid-cols-2">
-      <SurveySummaryItem label="Tool" value={toolName || "Nog niet gekozen"} />
-      <SurveySummaryItem
-        label="Usecases"
-        value={`${useCaseCount} geselecteerd`}
-      />
-      <SurveySummaryItem
-        label="Context"
-        value={`${contextCount} geselecteerd`}
-      />
-      <SurveySummaryItem
-        label="Account"
-        value={accountTypeLabel || "Niet gekozen"}
-      />
-    </SurveySummaryGrid>
   );
 }
 
@@ -549,7 +334,6 @@ function ToolPicker({
   searchQuery,
   selectedCategory,
   selectedToolId,
-  validationError,
 }: {
   customToolName: string;
   filteredToolOptions: ToolOption[];
@@ -561,14 +345,9 @@ function ToolPicker({
   searchQuery: string;
   selectedCategory: string;
   selectedToolId: string;
-  validationError?: string;
 }) {
   return (
-    <section
-      className={`grid min-w-0 gap-4 rounded-[1.6rem] border bg-white/80 p-4 shadow-[0_8px_24px_rgba(0,101,139,0.04)] md:p-5 ${
-        validationError ? "border-red-300" : "border-white/80"
-      }`}
-    >
+    <section className="grid min-w-0 gap-4 rounded-[1.6rem] border border-white/80 bg-white/80 p-4 shadow-[0_8px_24px_rgba(0,101,139,0.04)] md:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="text-lg font-extrabold text-[#00658b]">Catalogus</h3>
@@ -576,12 +355,8 @@ function ToolPicker({
             Kies de AI-tool die je in deze stap wilt registreren.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <RequiredBadge />
-        </div>
+        <RequiredBadge />
       </div>
-
-      {validationError ? <ValidationMessage>{validationError}</ValidationMessage> : null}
 
       <div className="grid gap-3 rounded-2xl border border-[#bfc7cf]/45 bg-[#f7fafc] p-3">
         <label className="grid gap-2 text-sm font-semibold text-[#181c1e]">
@@ -672,202 +447,8 @@ function ToolPicker({
   );
 }
 
-function CheckboxGroup({
-  helpText,
-  isDisabled = false,
-  label,
-  onChange,
-  options,
-  selectedCodes,
-  validationError,
-}: {
-  helpText: string;
-  isDisabled?: boolean;
-  label: string;
-  onChange: (codes: string[]) => void;
-  options: SurveyOption[];
-  selectedCodes: string[];
-  validationError?: string;
-}) {
-  function toggleCode(code: string) {
-    onChange(
-      selectedCodes.includes(code)
-        ? selectedCodes.filter((selectedCode) => selectedCode !== code)
-        : [...selectedCodes, code],
-    );
-  }
-
-  return (
-    <section
-      className={`grid gap-4 rounded-[1.35rem] border bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
-        validationError ? "border-red-300" : "border-white/80"
-      }`}
-    >
-      <div>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-bold text-[#00658b]">{label}</h3>
-            <RequiredBadge />
-          </div>
-          <span className="rounded-full bg-[#c4e7ff]/50 px-2.5 py-1 text-xs font-bold text-[#00658b]">
-            {selectedCodes.length} geselecteerd
-          </span>
-        </div>
-        <p className="mt-1 text-sm leading-6 text-[#40484e]">{helpText}</p>
-        {validationError ? (
-          <p className="mt-2 text-sm font-semibold text-red-700">
-            {validationError}
-          </p>
-        ) : null}
-      </div>
-
-      <div className="grid gap-2 md:grid-cols-2">
-        {options.map((option) => (
-          <label
-            className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:shadow-[0_4px_12px_rgba(0,101,139,0.06)] ${
-              selectedCodes.includes(option.code)
-                ? "border-[#00658b] bg-[#f1f4f6]"
-                : "border-[#bfc7cf] bg-white"
-            }`}
-            key={option.code}
-          >
-            <input
-              checked={selectedCodes.includes(option.code)}
-              className="mt-0.5 h-5 w-5 accent-[#00658b]"
-              disabled={isDisabled}
-              onChange={() => toggleCode(option.code)}
-              type="checkbox"
-              value={option.code}
-            />
-            <span>
-              <span className="block text-sm font-semibold text-[#181c1e]">
-                {option.label}
-              </span>
-              {option.description ? (
-                <span className="mt-1 block text-xs leading-5 text-[#40484e]">
-                  {option.description}
-                </span>
-              ) : null}
-            </span>
-          </label>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function RadioGroup({
-  helpText,
-  isDisabled = false,
-  label,
-  onChange,
-  options,
-  selectedCode,
-  validationError,
-}: {
-  helpText: string;
-  isDisabled?: boolean;
-  label: string;
-  onChange: (code: string) => void;
-  options: SurveyOption[];
-  selectedCode: string;
-  validationError?: string;
-}) {
-  return (
-    <section
-      className={`grid gap-4 rounded-[1.35rem] border bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
-        validationError ? "border-red-300" : "border-white/80"
-      }`}
-    >
-      <div>
-        <div className="flex flex-wrap items-center gap-2">
-          <h3 className="font-bold text-[#00658b]">{label}</h3>
-          <RequiredBadge />
-        </div>
-        <p className="mt-1 text-sm leading-6 text-[#40484e]">{helpText}</p>
-        {validationError ? (
-          <p className="mt-2 text-sm font-semibold text-red-700">
-            {validationError}
-          </p>
-        ) : null}
-      </div>
-
-      <div className="grid gap-2 md:grid-cols-2">
-        {options.map((option) => (
-          <label
-            className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:shadow-[0_4px_12px_rgba(0,101,139,0.06)] ${
-              selectedCode === option.code
-                ? "border-[#00658b] bg-[#f1f4f6]"
-                : "border-[#bfc7cf] bg-white"
-            }`}
-            key={option.code}
-          >
-            <input
-              checked={selectedCode === option.code}
-              className="mt-0.5 h-5 w-5 accent-[#00658b]"
-              disabled={isDisabled}
-              name="account_type"
-              onChange={() => onChange(option.code)}
-              type="radio"
-              value={option.code}
-            />
-            <span>
-              <span className="block text-sm font-semibold text-[#181c1e]">
-                {option.label}
-              </span>
-              {option.description ? (
-                <span className="mt-1 block text-xs leading-5 text-[#40484e]">
-                  {option.description}
-                </span>
-              ) : null}
-            </span>
-          </label>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function validateToolStep({
-  accountType,
-  contexts,
-  toolName,
-  useCases,
-}: {
-  accountType: string;
-  contexts: string[];
-  toolName: string;
-  useCases: string[];
-}) {
-  const errors: ValidationErrors = {};
-
-  if (!toolName.trim()) {
-    errors.tool = "Kies een tool of vul een toolnaam in.";
-  }
-
-  if (useCases.length === 0) {
-    errors.useCases = "Kies minimaal een toepassing.";
-  }
-
-  if (contexts.length === 0) {
-    errors.contexts = "Kies minimaal een context.";
-  }
-
-  if (!accountType) {
-    errors.account = "Kies een accounttype.";
-  }
-
-  return errors;
-}
-
 function getSelectedToolName(tool: ToolOption, customToolName: string) {
   return tool.id === "custom" ? customToolName.trim() : tool.name;
-}
-
-function getSelectedOptionLabels(options: SurveyOption[], selectedCodes: string[]) {
-  return selectedCodes
-    .map((code) => options.find((option) => option.code === code)?.label ?? code)
-    .join(", ");
 }
 
 function formatRpcError(error: RpcError) {

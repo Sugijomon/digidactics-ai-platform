@@ -230,6 +230,8 @@ Server actions:
 - `startAiLiteracyCourse`
 - `completeAiLiteracyPage`
 - `completeAiLiteracyLesson`
+- `createLearningPage`
+- `updateLearningPageContent`
 
 These actions use the authenticated Supabase session and write to:
 
@@ -262,3 +264,18 @@ http://localhost:3010/auth/callback
 
 Once login succeeds, the Learning System can write enrollments and lesson
 progress through the existing server actions.
+
+## Authoring Foundation
+
+`/learning/admin` now contains the first visual authoring foundation for content
+editors:
+
+- left-side course structure with topics and pages
+- central page canvas with page metadata and editable block forms
+- right-side block picker and new-page form
+- supported visual block forms: paragraph, callout, checklist, multiple choice
+- fallback raw JSON inspector for advanced or not-yet-modeled block types
+
+The editor still writes to the same `learning_pages.content` JSONB structure.
+This keeps the backend stable while the authoring UX grows toward the fuller
+Lovable-style editor.

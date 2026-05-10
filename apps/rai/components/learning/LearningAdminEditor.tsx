@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import type { MouseEvent, ReactNode } from "react";
 import type { LessonContent } from "@digidactics/domain/learning";
 import type {
   LearningCourseView,
@@ -17,6 +18,7 @@ type PageDraft = {
   isRequired: boolean;
   content: LessonContent;
 };
+type EditorPanel = "content" | "settings" | "advanced";
 
 const blockTypes = [
   ["hero", "Hero"],
@@ -45,6 +47,8 @@ export function LearningAdminEditor({
 }) {
   const pages = useMemo(() => course.topics.flatMap((topic) => topic.pages), [course]);
   const [activePageId, setActivePageId] = useState(pages[0]?.id ?? "");
+  const [activePanel, setActivePanel] = useState<EditorPanel>("content");
+  const [selectedBlockId, setSelectedBlockId] = useState("");
   const activePage = pages.find((page) => page.id === activePageId) ?? pages[0];
   const [drafts, setDrafts] = useState<Record<string, PageDraft>>(() =>
     Object.fromEntries(
@@ -75,6 +79,11 @@ export function LearningAdminEditor({
     content: activePage.content,
   };
   const blocks = draft.content.blocks as EditableBlock[];
+  const selectedBlock =
+    blocks.find((block) => block.id === selectedBlockId) ?? blocks[0] ?? null;
+  const selectedBlockIndex = selectedBlock
+    ? blocks.findIndex((block) => block.id === selectedBlock.id)
+    : -1;
 
   function updateDraft(patch: Partial<PageDraft>) {
     setDrafts((current) => ({
@@ -94,7 +103,10 @@ export function LearningAdminEditor({
   }
 
   function addBlock(type: string) {
-    updateBlocks([...blocks, createBlock(type)]);
+    const nextBlock = createBlock(type);
+    updateBlocks([...blocks, nextBlock]);
+    setSelectedBlockId(nextBlock.id);
+    setActivePanel("content");
   }
 
   function moveBlock(index: number, direction: -1 | 1) {
@@ -106,7 +118,15 @@ export function LearningAdminEditor({
   }
 
   function removeBlock(index: number) {
-    updateBlocks(blocks.filter((_, itemIndex) => itemIndex !== index));
+    const nextBlocks = blocks.filter((_, itemIndex) => itemIndex !== index);
+    updateBlocks(nextBlocks);
+    setSelectedBlockId(nextBlocks[Math.max(0, index - 1)]?.id ?? "");
+  }
+
+  function selectPage(pageId: string) {
+    setActivePageId(pageId);
+    setSelectedBlockId("");
+    setActivePanel("content");
   }
 
   return (
@@ -121,7 +141,7 @@ export function LearningAdminEditor({
             <TopicNavigation
               activePageId={activePage.id}
               key={topic.id}
-              onSelect={setActivePageId}
+              onSelect={selectPage}
               topic={topic}
             />
           ))}
@@ -132,6 +152,8 @@ export function LearningAdminEditor({
         <input name="pageId" type="hidden" value={activePage.id} />
         <input name="courseCode" type="hidden" value={course.course_code} />
         <input name="pageCode" type="hidden" value={activePage.page_code} />
+        <input name="title" type="hidden" value={draft.title} />
+        <input name="summary" type="hidden" value={draft.summary} />
         <input name="content" type="hidden" value={JSON.stringify(draft.content)} />
         <input name="pageType" type="hidden" value={draft.pageType} />
         <input name="estimatedMinutes" type="hidden" value={draft.estimatedMinutes} />
@@ -141,6 +163,7 @@ export function LearningAdminEditor({
           <div>
             <p className="eyebrow">Pagina</p>
             <h1>{draft.title}</h1>
+            <p className="muted">{draft.summary || "Geen samenvatting ingesteld."}</p>
           </div>
           <div className="actions">
             <Link
@@ -155,99 +178,178 @@ export function LearningAdminEditor({
           </div>
         </div>
 
-        <div className="editor-meta-grid">
-          <TextField
-            label="Titel"
-            name="title"
-            value={draft.title}
-            onChange={(title) => updateDraft({ title })}
-          />
-          <TextField
-            label="Samenvatting"
-            name="summary"
-            value={draft.summary}
-            onChange={(summary) => updateDraft({ summary })}
-          />
-          <label className="field">
-            <span>Type</span>
-            <select
-              value={draft.pageType}
-              onChange={(event) => updateDraft({ pageType: event.target.value })}
-            >
-              <option value="content">content</option>
-              <option value="question">question</option>
-              <option value="case">case</option>
-              <option value="video">video</option>
-              <option value="embed">embed</option>
-              <option value="assessment">assessment</option>
-            </select>
-          </label>
-          <div className="editor-two-column">
-            <TextField
-              label="Minuten"
-              type="number"
-              value={String(draft.estimatedMinutes)}
-              onChange={(value) =>
-                updateDraft({ estimatedMinutes: Number(value) || 1 })
-              }
-            />
-            <label className="field checkbox-field">
-              <span>Verplicht</span>
-              <input
-                checked={draft.isRequired}
-                onChange={(event) =>
-                  updateDraft({ isRequired: event.target.checked })
-                }
-                type="checkbox"
-              />
-            </label>
-          </div>
+        <div className="editor-tabs" role="tablist" aria-label="Editorweergave">
+          <EditorTab active={activePanel === "content"} onClick={() => setActivePanel("content")}>
+            Content
+          </EditorTab>
+          <EditorTab active={activePanel === "settings"} onClick={() => setActivePanel("settings")}>
+            Instellingen
+          </EditorTab>
+          <EditorTab active={activePanel === "advanced"} onClick={() => setActivePanel("advanced")}>
+            Advanced
+          </EditorTab>
         </div>
 
-        <div className="editor-block-stack">
-          {blocks.map((block, index) => (
-            <BlockEditor
-              block={block}
-              index={index}
-              key={block.id}
-              onChange={(nextBlock) => updateBlock(index, nextBlock)}
-              onMoveDown={() => moveBlock(index, 1)}
-              onMoveUp={() => moveBlock(index, -1)}
-              onRemove={() => removeBlock(index)}
-            />
-          ))}
-        </div>
+        {activePanel === "content" ? (
+          <div className="editor-page-canvas">
+            {blocks.map((block, index) => (
+              <BlockCard
+                block={block}
+                index={index}
+                isSelected={selectedBlock?.id === block.id}
+                key={block.id}
+                onClick={() => setSelectedBlockId(block.id)}
+                onMoveDown={() => moveBlock(index, 1)}
+                onMoveUp={() => moveBlock(index, -1)}
+                onRemove={() => removeBlock(index)}
+              />
+            ))}
+            {blocks.length === 0 ? (
+              <p className="empty-state">Deze pagina heeft nog geen blocks.</p>
+            ) : null}
+          </div>
+        ) : null}
+
+        {activePanel === "settings" ? (
+          <PageSettings draft={draft} updateDraft={updateDraft} />
+        ) : null}
+
+        {activePanel === "advanced" ? (
+          <div className="editor-advanced">
+            <p className="muted">
+              Inspectie van de opgeslagen content. Dit blijft bewust een advanced view.
+            </p>
+            <pre>{JSON.stringify(draft.content, null, 2)}</pre>
+          </div>
+        ) : null}
       </form>
 
       <aside className="editor-properties">
-        <div className="cardless-panel">
-          <p className="eyebrow">Blocks</p>
-          <h2>Toevoegen</h2>
-          <div className="block-picker">
-            {blockTypes.map(([type, label]) => (
-              <button
-                className="button button-secondary"
-                key={type}
-                onClick={() => addBlock(type)}
-                type="button"
-              >
-                {label}
-              </button>
-            ))}
+        {activePanel === "content" ? (
+          <>
+            <div className="cardless-panel">
+              <p className="eyebrow">Block library</p>
+              <h2>Toevoegen</h2>
+              <div className="block-picker">
+                {blockTypes.map(([type, label]) => (
+                  <button
+                    className="button button-secondary"
+                    key={type}
+                    onClick={() => addBlock(type)}
+                    type="button"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="cardless-panel">
+              <p className="eyebrow">Properties</p>
+              {selectedBlock && selectedBlockIndex >= 0 ? (
+                <>
+                  <h2>{getBlockTitle(selectedBlock, selectedBlockIndex)}</h2>
+                  <BlockFields
+                    block={selectedBlock}
+                    onChange={(nextBlock) => updateBlock(selectedBlockIndex, nextBlock)}
+                  />
+                </>
+              ) : (
+                <p className="empty-state">Selecteer een block om de inhoud te bewerken.</p>
+              )}
+            </div>
+          </>
+        ) : null}
+
+        {activePanel === "settings" ? (
+          <div className="cardless-panel">
+            <p className="eyebrow">Nieuwe pagina</p>
+            <NewPageForm course={course} createAction={createAction} />
           </div>
-        </div>
+        ) : null}
 
-        <div className="cardless-panel">
-          <p className="eyebrow">Nieuwe pagina</p>
-          <NewPageForm course={course} createAction={createAction} />
-        </div>
-
-        <details className="json-inspector">
-          <summary>JSON inspectie</summary>
-          <pre>{JSON.stringify(draft.content, null, 2)}</pre>
-        </details>
+        {activePanel === "advanced" ? (
+          <div className="cardless-panel">
+            <p className="eyebrow">Technisch</p>
+            <h2>Content JSON</h2>
+            <p className="muted">
+              De JSON blijft los inspecteerbaar zodat content later goed te versioneren is.
+            </p>
+          </div>
+        ) : null}
       </aside>
     </section>
+  );
+}
+
+function EditorTab({
+  active,
+  children,
+  onClick,
+}: {
+  active: boolean;
+  children: ReactNode;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      aria-selected={active}
+      className="editor-tab"
+      onClick={onClick}
+      role="tab"
+      type="button"
+    >
+      {children}
+    </button>
+  );
+}
+
+function PageSettings({
+  draft,
+  updateDraft,
+}: {
+  draft: PageDraft;
+  updateDraft: (patch: Partial<PageDraft>) => void;
+}) {
+  return (
+    <div className="editor-page-settings">
+      <TextField label="Titel" value={draft.title} onChange={(title) => updateDraft({ title })} />
+      <TextField
+        label="Samenvatting"
+        value={draft.summary}
+        onChange={(summary) => updateDraft({ summary })}
+      />
+      <label className="field">
+        <span>Type</span>
+        <select
+          value={draft.pageType}
+          onChange={(event) => updateDraft({ pageType: event.target.value })}
+        >
+          <option value="content">content</option>
+          <option value="question">question</option>
+          <option value="case">case</option>
+          <option value="video">video</option>
+          <option value="embed">embed</option>
+          <option value="assessment">assessment</option>
+        </select>
+      </label>
+      <div className="editor-two-column">
+        <TextField
+          label="Minuten"
+          type="number"
+          value={String(draft.estimatedMinutes)}
+          onChange={(value) => updateDraft({ estimatedMinutes: Number(value) || 1 })}
+        />
+        <label className="field checkbox-field">
+          <span>Verplicht</span>
+          <input
+            checked={draft.isRequired}
+            onChange={(event) => updateDraft({ isRequired: event.target.checked })}
+            type="checkbox"
+          />
+        </label>
+      </div>
+    </div>
   );
 }
 
@@ -281,6 +383,56 @@ function TopicNavigation({
       </div>
     </section>
   );
+}
+
+function BlockCard({
+  block,
+  index,
+  isSelected,
+  onClick,
+  onMoveDown,
+  onMoveUp,
+  onRemove,
+}: {
+  block: EditableBlock;
+  index: number;
+  isSelected: boolean;
+  onClick: () => void;
+  onMoveDown: () => void;
+  onMoveUp: () => void;
+  onRemove: () => void;
+}) {
+  return (
+    <section
+      aria-current={isSelected ? "true" : undefined}
+      className="editor-block-card"
+      onClick={onClick}
+    >
+      <button className="editor-block-select" type="button">
+        <span className="pill">{block.type}</span>
+        <strong>{getBlockTitle(block, index)}</strong>
+        <small>{getBlockSummary(block)}</small>
+      </button>
+      <div className="icon-actions">
+        <button type="button" onClick={stopAnd(onMoveUp)} aria-label="Block omhoog">
+          ^
+        </button>
+        <button type="button" onClick={stopAnd(onMoveDown)} aria-label="Block omlaag">
+          v
+        </button>
+        <button type="button" onClick={stopAnd(onRemove)} aria-label="Block verwijderen">
+          x
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function stopAnd(action: () => void) {
+  return (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    action();
+  };
 }
 
 function NewPageForm({
@@ -326,45 +478,6 @@ function NewPageForm({
         Pagina maken
       </button>
     </form>
-  );
-}
-
-function BlockEditor({
-  block,
-  index,
-  onChange,
-  onMoveDown,
-  onMoveUp,
-  onRemove,
-}: {
-  block: EditableBlock;
-  index: number;
-  onChange: (block: EditableBlock) => void;
-  onMoveDown: () => void;
-  onMoveUp: () => void;
-  onRemove: () => void;
-}) {
-  return (
-    <section className="editor-block">
-      <div className="editor-block-header">
-        <div>
-          <span className="pill">{block.type}</span>
-          <h2>Block {index + 1}</h2>
-        </div>
-        <div className="icon-actions">
-          <button type="button" onClick={onMoveUp} aria-label="Block omhoog">
-            ^
-          </button>
-          <button type="button" onClick={onMoveDown} aria-label="Block omlaag">
-            v
-          </button>
-          <button type="button" onClick={onRemove} aria-label="Block verwijderen">
-            x
-          </button>
-        </div>
-      </div>
-      <BlockFields block={block} onChange={onChange} />
-    </section>
   );
 }
 
@@ -566,6 +679,31 @@ function ListField({
       onChange={(value) => onChange(value.split("\n").map((item) => item.trim()).filter(Boolean))}
     />
   );
+}
+
+function getBlockTitle(block: EditableBlock, index: number) {
+  const label = blockTypes.find(([type]) => type === block.type)?.[1] ?? block.type;
+  const specific = s(block.title) || s(block.question);
+  return specific || `${label} ${index + 1}`;
+}
+
+function getBlockSummary(block: EditableBlock) {
+  if (block.type === "key_takeaways" || block.type === "checklist") {
+    return Array.isArray(block.items) ? `${block.items.length} items` : "Geen items";
+  }
+  const text =
+    s(block.subtitle) ||
+    s(block.markdown) ||
+    s(block.reflection_prompt) ||
+    s(block.explanation) ||
+    s(block.url) ||
+    s(block.caption);
+  return text ? truncate(text, 120) : "Klik om eigenschappen te bewerken";
+}
+
+function truncate(value: string, maxLength: number) {
+  const compact = value.replace(/\s+/g, " ").trim();
+  return compact.length > maxLength ? `${compact.slice(0, maxLength - 1)}...` : compact;
 }
 
 function createBlock(type: string): EditableBlock {

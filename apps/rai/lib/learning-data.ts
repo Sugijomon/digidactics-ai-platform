@@ -104,6 +104,7 @@ export async function getAiLiteracyCourse(): Promise<LearningCourseView> {
     .from("learning_topics")
     .select("id, topic_code, title, summary, sequence_order, is_required")
     .eq("course_id", course.id)
+    .eq("status", "published")
     .order("sequence_order", { ascending: true });
 
   if (!courseLessonsError && courseLessonRows?.length) {

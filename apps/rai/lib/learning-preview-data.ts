@@ -73,320 +73,488 @@ export interface LearningLessonView {
   content: LessonContent;
 }
 
-export function getCoursePages(course: LearningCourseView): LearningPageView[] {
-  return course.pages.length
-    ? course.pages
-    : course.topics.flatMap((topic) => topic.pages);
+interface PageSeed {
+  code: string;
+  title: string;
+  summary: string;
+  type: string;
+  minutes: number;
+  blocks: LessonContent["blocks"];
 }
 
-export const aiLiteracyPreviewCourse: LearningCourseView = {
-  id: "preview-ai-literacy-foundation",
-  course_code: "ai-literacy-foundation",
-  title: "AI Literacy voor verantwoord AI-gebruik",
-  subtitle: "Van praktisch begrip naar verantwoord handelen",
-  description:
-    "Basisprogramma voor medewerkers die AI-tools gebruiken of AI-output beoordelen. De cursus combineert praktische AI-geletterdheid met governance, datazorg en menselijk toezicht.",
-  difficulty_level: "foundation",
-  required_for_onboarding: true,
-  passing_threshold: 80,
-  topics: [
-    {
-      id: "preview-topic-ai-basics",
-      topic_code: "ai-basics",
-      title: "AI begrijpen",
-      summary: "Een nuchtere basis voor medewerkers die AI-output gebruiken.",
-      sequence_order: 1,
-      is_required: true,
-      pages: [
-        {
-          id: "preview-page-ai-literacy-what-is-ai",
-          page_code: "ai-literacy-what-is-ai",
-          topic_id: "preview-topic-ai-basics",
-          title: "Wat is AI en wat is het niet?",
-          summary:
-            "AI voorspelt patronen, maar begrijpt niet wat het produceert.",
-          page_type: "content",
-          estimated_duration_minutes: 6,
-          sequence_order: 1,
-          is_required: true,
-          content: {
-            version: 1,
-            blocks: [
+interface TopicSeed {
+  code: string;
+  title: string;
+  summary: string;
+  pages: PageSeed[];
+}
+
+const topicSeeds: TopicSeed[] = [
+  {
+    code: "l1-ai-fundamentals",
+    title: "L1 - AI Fundamentals",
+    summary: "Wat telt als AI, inclusief GenAI, GPAI en veelvoorkomende mythes.",
+    pages: [
+      {
+        code: "aisa-regulatory-anchor",
+        title: "Regulatory anchor",
+        summary: "EU AI Act Article 4 en de startdatum van de AI literacy verplichting.",
+        type: "content",
+        minutes: 5,
+        blocks: [
           {
             id: "hero",
             type: "hero",
-            title: "Wat is AI?",
-            subtitle: "Begrijp het systeem voordat je de output vertrouwt.",
+            title: "AISA AI Literacy Foundations",
+            subtitle: "EU AI Act aligned basisprogramma voor risk-based, role-appropriate literacy.",
           },
+          {
+            id: "anchor",
+            type: "key_takeaways",
+            items: [
+              "EU AI Act Article 4 maakt AI literacy verplicht.",
+              "De verplichting is van toepassing vanaf 2 februari 2025.",
+              "Literacy moet risk-based en passend bij de rol zijn.",
+            ],
+          },
+          {
+            id: "outcomes",
+            type: "checklist",
+            items: [
+              "Uitleggen wat AI wel en niet is, inclusief GenAI en GPAI.",
+              "AI-risico's herkennen die relevant zijn voor de eigen rol.",
+              "AI verantwoord gebruiken binnen het bedrijfsbeleid.",
+              "Risico's op de juiste manier escaleren.",
+              "Verwachtingen rondom menselijk toezicht begrijpen.",
+            ],
+          },
+        ],
+      },
+      {
+        code: "aisa-l1-what-counts-as-ai",
+        title: "Wat telt als AI onder de AI Act",
+        summary: "Een praktische afbakening van AI-systemen in de werkomgeving.",
+        type: "content",
+        minutes: 7,
+        blocks: [
           {
             id: "concept",
             type: "paragraph",
             markdown:
-              "AI-systemen herkennen patronen en genereren voorspellingen of output. Ze hebben geen bewustzijn, geen intentie en geen garantie op waarheid. Dat maakt menselijke beoordeling geen formaliteit, maar onderdeel van verantwoord gebruik.",
+              "Onder de AI Act gaat het niet alleen om chatbots. Ook systemen die voorspellen, aanbevelen, classificeren of beslisondersteuning geven kunnen AI-systemen zijn.",
           },
           {
-            id: "practice",
-            type: "case_lab",
-            title: "Praktijksituatie",
-            markdown:
-              "Een collega laat AI een advies samenvatten voor een klant. Wat moet je controleren voordat het advies wordt gebruikt?",
-            reflection_prompt: "Noem twee controles die jij altijd zou uitvoeren.",
-          },
-          {
-            id: "quiz-1",
-            type: "quiz_multiple_choice",
-            question: "Welke uitspraak is het meest juist?",
-            options: [
-              { id: "a", label: "AI begrijpt teksten zoals mensen dat doen." },
-              {
-                id: "b",
-                label: "AI voorspelt waarschijnlijke output op basis van patronen.",
-              },
-              {
-                id: "c",
-                label: "AI-output is betrouwbaar zodra de prompt duidelijk is.",
-              },
+            id: "examples",
+            type: "key_takeaways",
+            items: [
+              "Een model dat sollicitaties rangschikt kan een AI-systeem zijn.",
+              "Een tool die klantvragen prioriteert kan een AI-systeem zijn.",
+              "Een simpele vaste beslisboom is niet automatisch AI.",
             ],
-            correct_option_id: "b",
-            explanation:
-              "Een duidelijke prompt helpt, maar neemt hallucinaties, bias of contextverlies niet weg.",
+          },
+          {
+            id: "check",
+            type: "quiz_multiple_choice",
+            question: "Wat is de beste eerste vraag bij twijfel of iets AI is?",
+            options: [
+              { id: "a", label: "Gebruikt het systeem patronen, voorspellingen of classificaties?" },
+              { id: "b", label: "Heeft het systeem een modern dashboard?" },
+              { id: "c", label: "Is de leverancier een groot technologiebedrijf?" },
+            ],
+            correct_option_id: "a",
           },
         ],
       },
-        },
-        {
-          id: "preview-page-ai-output-check",
-          page_code: "ai-literacy-output-check",
-          topic_id: "preview-topic-ai-basics",
-          title: "AI-output controleren",
-          summary: "Een praktische routine voor bron, context en plausibiliteit.",
-          page_type: "question",
-          estimated_duration_minutes: 5,
-          sequence_order: 2,
-          is_required: true,
-          content: {
-            version: 1,
-            blocks: [
-              {
-                id: "intro",
-                type: "paragraph",
-                markdown:
-                  "Controleer AI-output altijd op bronkwaliteit, ontbrekende context, feitelijke juistheid en mogelijke impact voordat je ermee verder werkt.",
-              },
-              {
-                id: "checklist",
-                type: "checklist",
-                items: [
-                  "Welke aannames doet de AI?",
-                  "Welke bron of input ontbreekt?",
-                  "Wie kan geraakt worden als deze output fout is?",
-                ],
-              },
-              {
-                id: "reflection",
-                type: "short_answer",
-                question:
-                  "Welke controle zou jij toevoegen voordat AI-output in een klant- of beleidscontext wordt gebruikt?",
-                placeholder: "Beschrijf je controle in een paar zinnen.",
-                min_words: 20,
-                guidance:
-                  "Denk aan broncontrole, menselijke review, privacy of impact op betrokkenen.",
-              },
-            ],
-          },
-        },
-      ],
-    },
-    {
-      id: "preview-topic-data-care",
-      topic_code: "data-care",
-      title: "Data, vertrouwelijkheid en AI-tools",
-      summary:
-        "Welke data mag wel, niet of alleen onder voorwaarden in AI-tools?",
-      sequence_order: 2,
-      is_required: true,
-      pages: [
-        {
-          id: "preview-page-ai-literacy-data-and-confidentiality",
-          page_code: "ai-literacy-data-and-confidentiality",
-          topic_id: "preview-topic-data-care",
-          title: "Data en vertrouwelijkheid",
-          summary:
-            "Leer welke data je wel en niet in AI-tools verwerkt.",
-          page_type: "content",
-          estimated_duration_minutes: 7,
-          sequence_order: 1,
-          is_required: true,
-          content: {
-            version: 1,
-            blocks: [
+      {
+        code: "aisa-l1-genai-gpai",
+        title: "Basiskennis van Generatieve AI en GPAI",
+        summary: "Wat GenAI en general-purpose AI kunnen, en waar de grenzen liggen.",
+        type: "content",
+        minutes: 8,
+        blocks: [
           {
-            id: "hero",
-            type: "hero",
-            title: "Data bepaalt het risico",
-            subtitle: "Niet elke AI-taak is gelijk. De data maakt vaak het verschil.",
+            id: "genai",
+            type: "paragraph",
+            markdown:
+              "Generatieve AI maakt nieuwe tekst, beelden, code of andere output op basis van patronen in trainingsdata en context. GPAI-modellen kunnen breed worden toegepast en worden vaak ingebouwd in verschillende tools.",
           },
           {
-            id: "data-types",
-            type: "key_takeaways",
-            items: [
-              "Persoonsgegevens vragen altijd extra zorg.",
-              "Bijzondere persoonsgegevens en HR-contexten vragen expliciete beoordeling.",
-              "Bedrijfsvertrouwelijke informatie hoort alleen in goedgekeurde tools en accounts.",
-            ],
-          },
-          {
-            id: "policy-callout",
+            id: "limits",
             type: "callout",
             tone: "warning",
             markdown:
-              "Als je niet weet of een tool is goedgekeurd, behandel de output en invoer als onder review. Vraag beleid op voordat je gevoelige data verwerkt.",
+              "GenAI kan overtuigend klinken zonder juist te zijn. Hallucinaties, bias en ontbrekende context blijven normale risico's.",
           },
           {
-            id: "quiz-1",
-            type: "quiz_true_false",
-            question:
-              "Een gratis persoonlijk AI-account is geschikt voor interne klantdata als je de naam weglaat.",
-            correct_answer: false,
-            explanation:
-              "Ook pseudonieme of contextueel herleidbare data kan gevoelig zijn. Accounttype en toolbeleid blijven relevant.",
+            id: "myths",
+            type: "checklist",
+            items: [
+              "AI begrijpt niet automatisch de betekenis van output.",
+              "Een goede prompt is geen garantie op betrouwbare output.",
+              "GPAI in een goedgekeurde tool vraagt nog steeds passend gebruik.",
+            ],
           },
         ],
       },
-        },
-        {
-          id: "preview-page-ai-literacy-approved-tools",
-          page_code: "ai-literacy-approved-tools",
-          topic_id: "preview-topic-data-care",
-          title: "Goedgekeurde tools en accounts",
-          summary: "Waarom accounttype, contract en toolbeleid uitmaken.",
-          page_type: "embed",
-          estimated_duration_minutes: 4,
-          sequence_order: 2,
-          is_required: true,
-          content: {
-            version: 1,
-            blocks: [
-              {
-                id: "callout",
-                type: "callout",
-                tone: "info",
-                markdown:
-                  "Een goedgekeurde AI-tool is niet alleen een handige app. Het gaat om contractuele waarborgen, logging, dataverwerking en duidelijke afspraken over gebruik.",
-              },
-              {
-                id: "policy-frame",
-                type: "iframe",
-                title: "Interne AI-tooling policy",
-                url: "https://example.com/ai-policy-placeholder",
-                height: 320,
-                caption:
-                  "Placeholder voor een toekomstige policy-embed of klantdocument.",
-              },
+    ],
+  },
+  {
+    code: "l2-risk-responsibility",
+    title: "L2 - Risk & Responsibility",
+    summary: "AI-risiconiveaus, praktijkvoorbeelden en wat verboden of toegestaan is.",
+    pages: [
+      {
+        code: "aisa-l2-risk-levels",
+        title: "AI-risiconiveaus eenvoudig uitgelegd",
+        summary: "Van verboden gebruik tot beperkte en hogere risico's.",
+        type: "content",
+        minutes: 8,
+        blocks: [
+          {
+            id: "levels",
+            type: "key_takeaways",
+            items: [
+              "Sommige AI-toepassingen zijn verboden.",
+              "Hogere risico's vragen strengere waarborgen.",
+              "Ook beperkte risico's vragen transparantie en verantwoord gebruik.",
             ],
           },
-        },
-      ],
-    },
-    {
-      id: "preview-topic-human-oversight",
-      topic_code: "human-oversight",
-      title: "Menselijk toezicht dat echt iets betekent",
-      summary:
-        "Maak van human-in-the-loop geen vinkje, maar een controlehandeling.",
-      sequence_order: 3,
-      is_required: true,
-      pages: [
-        {
-          id: "preview-page-ai-literacy-human-oversight",
-          page_code: "ai-literacy-human-oversight",
-          topic_id: "preview-topic-human-oversight",
-          title: "Menselijk toezicht",
-          summary:
-            "AI mag ondersteunen, maar niet ongemerkt beslissen.",
-          page_type: "case",
-          estimated_duration_minutes: 8,
-          sequence_order: 1,
-          is_required: true,
-          content: {
-            version: 1,
-            blocks: [
           {
-            id: "hero",
-            type: "hero",
-            title: "Jij blijft verantwoordelijk",
-            subtitle: "AI mag ondersteunen, maar niet ongemerkt beslissen.",
+            id: "routeai-link",
+            type: "callout",
+            tone: "info",
+            markdown:
+              "RouteAI operationaliseert deze classificatie straks via de risk engine. Deze cursus is het toegangsbewijs om usecases verantwoord te checken.",
+          },
+        ],
+      },
+      {
+        code: "aisa-l2-workplace-examples",
+        title: "Praktijkvoorbeelden uit de werkomgeving",
+        summary: "Herken AI-risico's in HR, klantcontact, beleid en analyse.",
+        type: "case",
+        minutes: 9,
+        blocks: [
+          {
+            id: "case-hr",
+            type: "case_lab",
+            title: "Voorbeeld: HR-beoordeling",
+            markdown:
+              "Een team wil AI gebruiken om beoordelingsgesprekken samen te vatten en promotiekandidaten te signaleren.",
+            reflection_prompt:
+              "Welke risico's zie je voor medewerkers, data en menselijke besluitvorming?",
           },
           {
-            id: "oversight-model",
+            id: "case-service",
+            type: "case_lab",
+            title: "Voorbeeld: klantprioritering",
+            markdown:
+              "Een AI-tool geeft urgentiescores aan klantvragen en stuurt sommige vragen sneller door.",
+            reflection_prompt:
+              "Wanneer wordt dit meer dan alleen administratieve ondersteuning?",
+          },
+        ],
+      },
+      {
+        code: "aisa-l2-prohibited-allowed",
+        title: "Wat verboden is versus wat toegestaan is",
+        summary: "Een praktische escalatielens voor medewerkers.",
+        type: "question",
+        minutes: 7,
+        blocks: [
+          {
+            id: "boundary",
             type: "paragraph",
             markdown:
-              "Goed toezicht betekent dat je weet wat de AI heeft gedaan, welke informatie ontbreekt, welke gevolgen de output kan hebben, en welke beslissing jij zelf neemt.",
+              "Medewerkers hoeven geen jurist te zijn, maar moeten wel herkennen wanneer een AI-toepassing niet zelf gestart mag worden en moet worden geëscaleerd.",
+          },
+          {
+            id: "escalate",
+            type: "checklist",
+            items: [
+              "Raakt de AI toegang tot werk, onderwijs, zorg, geld of dienstverlening?",
+              "Worden personen beoordeeld, gerangschikt of uitgesloten?",
+              "Is de toepassing niet vooraf goedgekeurd of onduidelijk beschreven?",
+            ],
+          },
+          {
+            id: "question",
+            type: "short_answer",
+            question: "Noem één voorbeeld waarin jij eerst zou escaleren voordat AI wordt gebruikt.",
+            placeholder: "Beschrijf kort de situatie en waarom escalatie nodig is.",
+            min_words: 20,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    code: "l3-responsible-use",
+    title: "L3 - Responsible Use",
+    summary: "Transparantie, human-in-the-loop, bias, data en veilige prompting.",
+    pages: [
+      {
+        code: "aisa-l3-transparency",
+        title: "Transparantie",
+        summary: "Wanneer en hoe maak je AI-gebruik zichtbaar?",
+        type: "content",
+        minutes: 6,
+        blocks: [
+          {
+            id: "transparency",
+            type: "paragraph",
+            markdown:
+              "Transparantie betekent dat betrokkenen en collega's kunnen begrijpen dat AI is gebruikt, waarvoor het is gebruikt en welke menselijke controle heeft plaatsgevonden.",
+          },
+          {
+            id: "takeaways",
+            type: "key_takeaways",
+            items: [
+              "Verberg AI-gebruik niet wanneer het relevant is voor vertrouwen of besluitvorming.",
+              "Leg vast welke AI-output is gebruikt en wie deze heeft beoordeeld.",
+              "Gebruik geen AI-output alsof het een gevalideerde bron is.",
+            ],
+          },
+        ],
+      },
+      {
+        code: "aisa-l3-human-in-the-loop",
+        title: "Human-in-the-loop",
+        summary: "Menselijk toezicht dat echt iets betekent.",
+        type: "case",
+        minutes: 8,
+        blocks: [
+          {
+            id: "oversight",
+            type: "paragraph",
+            markdown:
+              "Menselijk toezicht is geen vinkje. De reviewer moet kunnen ingrijpen, de output begrijpen, afwijkingen herkennen en verantwoordelijkheid nemen voor de uiteindelijke handeling.",
           },
           {
             id: "checklist",
             type: "checklist",
             items: [
-              "Kan ik uitleggen waarop de output is gebaseerd?",
-              "Is er sprake van impact op een persoon, baan, toegang, geld of beoordeling?",
-              "Heb ik afwijkingen, twijfel of contextverschillen vastgelegd?",
+              "Kan ik uitleggen waarom ik de output accepteer of afwijs?",
+              "Heb ik voldoende context om de output te beoordelen?",
+              "Is er een escalatieroute als de output twijfelachtig is?",
             ],
-          },
-          {
-            id: "quiz-1",
-            type: "quiz_essay",
-            question:
-              "Beschrijf een situatie waarin AI-output niet direct gebruikt mag worden zonder extra controle.",
-            min_words: 60,
-            max_words: 180,
-            manual_review_required: true,
           },
         ],
       },
-        },
-        {
-          id: "preview-page-ai-literacy-routeai-readiness",
-          page_code: "ai-literacy-routeai-readiness",
-          topic_id: "preview-topic-human-oversight",
-          title: "RouteAI readiness check",
-          summary: "De afrondende check voordat RouteAI usecase checks open gaan.",
-          page_type: "assessment",
-          estimated_duration_minutes: 6,
-          sequence_order: 2,
-          is_required: true,
-          content: {
-            version: 1,
-            blocks: [
-              {
-                id: "scenario",
-                type: "case_lab",
-                title: "Mini-casus",
-                markdown:
-                  "Je team wil een AI-tool gebruiken om binnenkomende klantvragen te prioriteren. De tool verwerkt tekst van klanten en geeft een urgentiescore.",
-                reflection_prompt:
-                  "Welke risico's moet RouteAI straks minimaal classificeren voordat dit gebruik live mag?",
-              },
-              {
-                id: "quiz-risk",
-                type: "quiz_multiple_select",
-                question: "Welke punten horen in ieder geval in de usecase check?",
-                options: [
-                  { id: "a", label: "Verwerkte persoonsgegevens of vertrouwelijke data" },
-                  { id: "b", label: "Impact op klanten of toegang tot dienstverlening" },
-                  { id: "c", label: "Alleen de kleur van de applicatie-interface" },
-                  { id: "d", label: "Menselijke controle op de AI-score" },
-                ],
-                correct_option_ids: ["a", "b", "d"],
-                explanation:
-                  "RouteAI moet vooral data, impact, context en toezicht operationaliseren.",
-              },
+      {
+        code: "aisa-l3-bias-data",
+        title: "Bewustzijn van bias en data",
+        summary: "Data bepaalt vaak het risico van een AI-toepassing.",
+        type: "content",
+        minutes: 8,
+        blocks: [
+          {
+            id: "data",
+            type: "callout",
+            tone: "warning",
+            markdown:
+              "Persoonsgegevens, bijzondere persoonsgegevens, bedrijfsvertrouwelijke informatie en context over kwetsbare personen vragen extra waarborgen.",
+          },
+          {
+            id: "bias",
+            type: "paragraph",
+            markdown:
+              "Bias kan ontstaan door trainingsdata, selectie van input, historische patronen of verkeerde interpretatie van output. Daarom moet AI-output altijd in context worden beoordeeld.",
+          },
+          {
+            id: "quiz",
+            type: "quiz_true_false",
+            question: "Geanonimiseerde input is altijd veilig om in elke AI-tool te gebruiken.",
+            correct_answer: false,
+            explanation:
+              "Ook contextueel herleidbare of vertrouwelijke informatie kan risico's opleveren. Toolbeleid en dataclassificatie blijven nodig.",
+          },
+        ],
+      },
+      {
+        code: "aisa-l3-safe-prompting",
+        title: "Prompting basics: veilig gebruik",
+        summary: "Praktisch prompten zonder gevoelige data of omwegen.",
+        type: "question",
+        minutes: 7,
+        blocks: [
+          {
+            id: "safe",
+            type: "key_takeaways",
+            items: [
+              "Gebruik geen gevoelige data in niet-goedgekeurde tools.",
+              "Vraag AI om beperkingen en onzekerheden expliciet te benoemen.",
+              "Gebruik geen prompts om beleid, beveiliging of beperkingen te omzeilen.",
             ],
           },
+          {
+            id: "prompt",
+            type: "short_answer",
+            question: "Herschrijf een risicovolle prompt naar een veilige prompt zonder gevoelige data.",
+            placeholder: "Beschrijf je veilige variant.",
+            min_words: 25,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    code: "l4-assessment-evidence",
+    title: "Assessment & Evidence",
+    summary: "Scenario-toetsing, bewijsstukken, geldigheid en positionering.",
+    pages: [
+      {
+        code: "aisa-assessment",
+        title: "Scenario-gebaseerde toetsing",
+        summary: "Open-book assessment met rol-specifieke varianten.",
+        type: "assessment",
+        minutes: 10,
+        blocks: [
+          {
+            id: "assessment",
+            type: "case_lab",
+            title: "Scenario completion evidence",
+            markdown:
+              "Deelnemers werken met scenario's die passen bij hun rol. Het doel is niet memoriseren, maar aantonen dat zij risico's herkennen, verantwoord handelen en op tijd escaleren.",
+            reflection_prompt:
+              "Welke informatie heb je nodig voordat je deze AI-usecase veilig kunt beoordelen?",
+          },
+          {
+            id: "variants",
+            type: "checklist",
+            items: [
+              "Open book toetsing.",
+              "Rol-specifieke varianten.",
+              "Bewijs van scenario completion.",
+            ],
+          },
+        ],
+      },
+      {
+        code: "aisa-outputs-evidence",
+        title: "Outputs en bewijsstukken",
+        summary: "Wat de organisatie en deelnemer kunnen aantonen.",
+        type: "content",
+        minutes: 5,
+        blocks: [
+          {
+            id: "outputs",
+            type: "key_takeaways",
+            items: [
+              "Individueel certificaat van afronding.",
+              "Organisatorisch trainingslogboek.",
+              "Resultaten van scenario-assessments.",
+              "Bewijs van scenario completion.",
+            ],
+          },
+          {
+            id: "delivery",
+            type: "callout",
+            tone: "info",
+            markdown:
+              "De training kan online, als live workshop van 2-3 uur, of blended worden aangeboden. Blended is de voorkeursvariant.",
+          },
+        ],
+      },
+      {
+        code: "aisa-versioned-credential",
+        title: "Versioned compliance credential",
+        summary: "Credential wording, geldigheid en refreshers.",
+        type: "content",
+        minutes: 6,
+        blocks: [
+          {
+            id: "credential",
+            type: "hero",
+            title: "AISA AI Governance Foundations - v2026.1",
+            subtitle:
+              "Proof of AI literacy & governance training aligned with EU AI Act Article 4.",
+          },
+          {
+            id: "why-versioned",
+            type: "key_takeaways",
+            items: [
+              "Wetgeving ontwikkelt zich.",
+              "Guidance ontwikkelt zich.",
+              "Jurisprudentie ontwikkelt zich.",
+              "Reasonable measures ontwikkelen zich.",
+            ],
+          },
+          {
+            id: "validity",
+            type: "callout",
+            tone: "success",
+            markdown:
+              "Credential geldig voor 12-18 maanden. Daarna volgt een lichte refresher, bijvoorbeeld v2027.1 of v2028.1.",
+          },
+        ],
+      },
+      {
+        code: "aisa-positioning",
+        title: "Positionering",
+        summary: "Stand-alone en embedded binnen KIT/RouteAI.",
+        type: "content",
+        minutes: 4,
+        blocks: [
+          {
+            id: "positioning",
+            type: "key_takeaways",
+            items: [
+              "Stand-alone te verkopen als compliance-ready AI-literacy training.",
+              "Embedded als verplicht onderdeel binnen de KIT.",
+              "In RouteAI fungeert afronding als harde toegangseis voor usecase checks.",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+];
+
+export const aiLiteracyPreviewCourse: LearningCourseView = {
+  id: "preview-ai-literacy-foundation",
+  course_code: "ai-literacy-foundation",
+  title: "AISA AI Literacy Foundations",
+  subtitle: "EU AI Act aligned",
+  description:
+    "Risk-based, role-appropriate AI literacy training aligned with EU AI Act Article 4. De cursus vormt het RouteAI rijbewijs en kan stand-alone of embedded worden aangeboden.",
+  difficulty_level: "foundation",
+  required_for_onboarding: true,
+  passing_threshold: 80,
+  topics: topicSeeds.map((topic, topicIndex) => {
+    const topicId = `preview-topic-${topic.code}`;
+
+    return {
+      id: topicId,
+      topic_code: topic.code,
+      title: topic.title,
+      summary: topic.summary,
+      sequence_order: topicIndex + 1,
+      is_required: true,
+      pages: topic.pages.map((page, pageIndex) => ({
+        id: `preview-page-${page.code}`,
+        page_code: page.code,
+        topic_id: topicId,
+        title: page.title,
+        summary: page.summary,
+        page_type: page.type,
+        estimated_duration_minutes: page.minutes,
+        sequence_order: pageIndex + 1,
+        is_required: true,
+        content: {
+          version: 1,
+          blocks: page.blocks,
         },
-      ],
-    },
-  ],
+      })),
+    };
+  }),
   pages: [],
 };
+
+export function getCoursePages(course: LearningCourseView): LearningPageView[] {
+  return course.topics.length
+    ? course.topics.flatMap((topic) => topic.pages)
+    : course.pages;
+}
 
 aiLiteracyPreviewCourse.pages = getCoursePages(aiLiteracyPreviewCourse);

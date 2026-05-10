@@ -128,6 +128,16 @@ This supports:
 
 The Learning System exists first as an AI Literacy training and access gate for RouteAI.
 
+The current AI Literacy course is positioned as:
+
+- Product name: `AISA AI Literacy Foundations`
+- Alignment: EU AI Act aligned
+- Regulatory anchor: EU AI Act Article 4
+- Applicability date: February 2, 2025
+- Literacy model: risk-based and role-appropriate
+- Credential wording: `AISA AI Governance Foundations - v2026.1`
+- Credential validity: 12-18 months, followed by a light refresher version
+
 The intended flow:
 
 - A user completes the AI Literacy foundation training.
@@ -160,16 +170,25 @@ The seed adds:
 
 - Course: `ai-literacy-foundation`
 - Topics:
-  - `ai-basics`
-  - `data-care`
-  - `human-oversight`
+  - `l1-ai-fundamentals`
+  - `l2-risk-responsibility`
+  - `l3-responsible-use`
+  - `l4-assessment-evidence`
 - Pages:
-  - `ai-literacy-what-is-ai`
-  - `ai-literacy-output-check`
-  - `ai-literacy-data-and-confidentiality`
-  - `ai-literacy-approved-tools`
-  - `ai-literacy-human-oversight`
-  - `ai-literacy-routeai-readiness`
+  - `aisa-regulatory-anchor`
+  - `aisa-l1-what-counts-as-ai`
+  - `aisa-l1-genai-gpai`
+  - `aisa-l2-risk-levels`
+  - `aisa-l2-workplace-examples`
+  - `aisa-l2-prohibited-allowed`
+  - `aisa-l3-transparency`
+  - `aisa-l3-human-in-the-loop`
+  - `aisa-l3-bias-data`
+  - `aisa-l3-safe-prompting`
+  - `aisa-assessment`
+  - `aisa-outputs-evidence`
+  - `aisa-versioned-credential`
+  - `aisa-positioning`
 - Legacy lessons remain available:
   - `ai-literacy-what-is-ai`
   - `ai-literacy-data-and-confidentiality`

@@ -12,6 +12,7 @@ import {
   SurveyStepLayout,
   SurveySummaryGrid,
   SurveySummaryItem,
+  TechnicalStatus,
   ValidationMessage,
 } from "@/components/survey-ui";
 import { completeSurveyRun, saveProfile } from "@/lib/sai-rpc/client";
@@ -41,7 +42,7 @@ const INITIAL_COMPLETE_STEP: StepState = {
 
 const INITIAL_TOKEN_CHECK_STEP: StepState = {
   status: "idle",
-  message: "Wacht op complete_survey_run",
+  message: "Wacht op afronden",
 };
 
 export default function SurveyCompletePage() {
@@ -88,7 +89,7 @@ export default function SurveyCompletePage() {
 
   async function handleCompleteSurvey() {
     if (!surveySession) {
-      setError("Geen actieve respondent session gevonden. Start de scan opnieuw.");
+      setError("Geen actieve scan gevonden. Start de scan opnieuw.");
       return;
     }
 
@@ -102,7 +103,7 @@ export default function SurveyCompletePage() {
     setCompleteStep({ status: "running", message: "Run afronden" });
     setTokenCheckStep({
       status: "idle",
-      message: "Wacht op complete_survey_run",
+      message: "Wacht op afronden",
     });
 
     const completeResult = await completeSurveyRun(surveySession);
@@ -119,11 +120,11 @@ export default function SurveyCompletePage() {
 
     setCompleteStep({
       status: "ok",
-      message: "Run afgerond; token hoort nu opgebrand te zijn",
+      message: "Scan afgerond; sessie wordt gesloten",
     });
     setTokenCheckStep({
       status: "running",
-      message: "Controleert of dezelfde token wordt geweigerd",
+      message: "Controleert of de sessie gesloten is",
     });
 
     const burnCheckResult = await saveProfile(surveySession, {
@@ -136,7 +137,7 @@ export default function SurveyCompletePage() {
       if (burnCheckResult.error.code === "invalid_token_or_run_closed") {
         setTokenCheckStep({
           status: "ok",
-          message: "Respondent token is gesloten na afronden",
+          message: "Sessie is gesloten na afronden",
         });
         markSurveyStepCompleted("complete");
         clearSurveySession();
@@ -157,9 +158,9 @@ export default function SurveyCompletePage() {
 
     setTokenCheckStep({
       status: "error",
-      message: "Unexpected success: token was still accepted after completion.",
+      message: "Onverwacht resultaat: sessie accepteerde nog wijzigingen.",
     });
-    setError("Token burn check failed: old token was still accepted.");
+    setError("De afsluitcontrole faalde: de sessie accepteerde nog wijzigingen.");
     setIsCompleting(false);
   }
 
@@ -175,7 +176,7 @@ export default function SurveyCompletePage() {
               Bedankt voor je input
             </h1>
             <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-[#40484e]">
-              De respondent session is lokaal gewist en de token is gesloten.
+              De lokale scansessie is gewist en de sessie is gesloten.
               Je kunt deze scan niet per ongeluk nogmaals wijzigen.
             </p>
           </div>
@@ -191,7 +192,7 @@ export default function SurveyCompletePage() {
             />
           </SurveySummaryGrid>
           <p className="rounded-xl border border-[#c4e7ff] bg-[#f3fbff] px-3 py-2 text-sm font-semibold text-[#00658b]">
-            Respondent token is gesloten na afronden.
+            De scansessie is gesloten na afronden.
           </p>
         </section>
       </SurveyPageShell>
@@ -224,17 +225,17 @@ export default function SurveyCompletePage() {
             label="Tools"
             value={`${savedTools.length} geregistreerd`}
           />
-          <SurveySummaryItem label="Token" value="Verborgen" />
+          <SurveySummaryItem label="Sessie" value="Verborgen" />
         </SurveySummaryGrid>
 
         <SavedToolsSummary savedTools={savedTools} />
 
         {error ? <ValidationMessage>{error}</ValidationMessage> : null}
 
-        <section className="grid gap-3">
+        <TechnicalStatus summary="Afsluitcontrole">
           <RpcStepRow label="complete_survey_run" state={completeStep} />
           <RpcStepRow label="token-burn check" state={tokenCheckStep} />
-        </section>
+        </TechnicalStatus>
 
         <SurveyFooterActions backHref="/survey/tools">
           <PrimarySurveyButton
@@ -268,7 +269,7 @@ function SavedToolsSummary({
       </div>
       {savedTools.length === 0 ? (
         <p className="rounded-xl border border-dashed border-[#bfc7cf] bg-white px-4 py-3 text-[#40484e]">
-          Er staat nog geen opgeslagen tool in deze respondent session.
+          Er staat nog geen opgeslagen tool in deze scan.
         </p>
       ) : (
         <div className="grid gap-2">

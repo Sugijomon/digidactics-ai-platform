@@ -13,6 +13,7 @@ import {
   SurveyStepLayout,
   SurveySummaryGrid,
   SurveySummaryItem,
+  TechnicalStatus,
   ValidationMessage,
 } from "@/components/survey-ui";
 import {
@@ -394,7 +395,7 @@ export default function SurveyToolsPage() {
               <ValidationMessage>{error}</ValidationMessage>
             ) : null}
 
-            <section className="grid gap-3">
+            <TechnicalStatus>
               <RpcStepRow label="save_tool" state={steps.tool} />
               <RpcStepRow label="save_tool_use_case" state={steps.useCase} />
               <RpcStepRow
@@ -402,7 +403,7 @@ export default function SurveyToolsPage() {
                 state={steps.context}
               />
               <RpcStepRow label="save_tool_account" state={steps.account} />
-            </section>
+            </TechnicalStatus>
 
             <RunIdCard runId={runId} />
 

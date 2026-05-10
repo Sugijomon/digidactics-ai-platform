@@ -310,13 +310,30 @@ export function RunIdCard({ runId }: { runId: string }) {
   return (
     <section className="rounded-2xl border border-[#bfc7cf]/50 bg-white/80 p-4 text-sm">
       <p>
-        <span className="font-semibold">Run ID:</span>{" "}
+        <span className="font-semibold">Scanreferentie:</span>{" "}
         <span className="font-mono">{runId}</span>
       </p>
       <p className="mt-2 text-[#40484e]">
         De beveiligde sessiesleutel wordt niet getoond.
       </p>
     </section>
+  );
+}
+
+export function TechnicalStatus({
+  children,
+  summary = "Technische status",
+}: {
+  children: ReactNode;
+  summary?: string;
+}) {
+  return (
+    <details className="rounded-2xl border border-[#bfc7cf]/50 bg-white/65 p-4 text-sm">
+      <summary className="cursor-pointer font-bold text-[#00658b]">
+        {summary}
+      </summary>
+      <div className="mt-4 grid gap-3">{children}</div>
+    </details>
   );
 }
 

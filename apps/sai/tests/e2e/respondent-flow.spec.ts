@@ -82,7 +82,7 @@ test("respondent can complete the SAI survey flow with two tools", async ({
     timeout: 30_000,
   });
   await expect(
-    page.getByText("Respondent token is gesloten na afronden."),
+    page.getByText("De scansessie is gesloten na afronden."),
   ).toBeVisible();
   await expect(page.getByText("mock-token")).not.toBeVisible();
 });

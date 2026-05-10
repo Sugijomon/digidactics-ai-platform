@@ -615,7 +615,7 @@ h3 {
 .block-picker {
   display: grid;
   gap: 8px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
 }
 
 .block-picker .button {
@@ -721,9 +721,40 @@ h3 {
 
 .editor-page-canvas,
 .editor-page-settings,
-.editor-advanced {
+.editor-advanced,
+.editor-preview-frame {
   display: grid;
   gap: 12px;
+}
+
+.editor-preview-frame {
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+
+.editor-preview-header {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  font-size: 0.82rem;
+  font-weight: 800;
+  justify-content: space-between;
+  padding: 2px 4px 8px;
+  text-transform: uppercase;
+}
+
+.editor-preview-frame .lesson-shell {
+  gap: 10px;
+}
+
+.editor-preview-frame .block {
+  box-shadow: none;
+}
+
+.editor-preview-frame .block h1 {
+  font-size: clamp(1.8rem, 3vw, 3rem);
 }
 
 .editor-page-settings {
@@ -807,6 +838,23 @@ h3 {
 
 .editor-properties .form-stack {
   margin: 0;
+}
+
+.block-library {
+  display: grid;
+  gap: 14px;
+}
+
+.block-library-group {
+  display: grid;
+  gap: 8px;
+}
+
+.block-library-group h3 {
+  color: var(--muted);
+  font-size: 0.78rem;
+  margin-bottom: 0;
+  text-transform: uppercase;
 }
 
 .cardless-panel {

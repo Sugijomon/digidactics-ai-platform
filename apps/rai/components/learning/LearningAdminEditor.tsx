@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { MouseEvent, ReactNode } from "react";
-import type { LessonContent } from "@digidactics/domain/learning";
+import type { LessonBlock, LessonContent } from "@digidactics/domain/learning";
+import { LessonBlockRenderer } from "@/components/learning/LessonBlockRenderer";
 import type {
   LearningCourseView,
   LearningTopicView,
@@ -18,23 +19,24 @@ type PageDraft = {
   isRequired: boolean;
   content: LessonContent;
 };
-type EditorPanel = "content" | "settings" | "advanced";
+type EditorPanel = "content" | "preview" | "settings" | "advanced";
 
 const blockTypes = [
-  ["hero", "Hero"],
-  ["paragraph", "Tekst"],
-  ["callout", "Callout"],
-  ["key_takeaways", "Kernpunten"],
-  ["checklist", "Checklist"],
-  ["case_lab", "Casus"],
-  ["quiz_multiple_choice", "Multiple choice"],
-  ["quiz_multiple_select", "Multiple select"],
-  ["quiz_true_false", "Waar/niet waar"],
-  ["quiz_essay", "Reflectievraag"],
-  ["short_answer", "Open vraag"],
-  ["video", "Video"],
-  ["iframe", "Iframe"],
+  { category: "Basis", type: "hero", label: "Hero" },
+  { category: "Basis", type: "paragraph", label: "Tekst" },
+  { category: "Basis", type: "callout", label: "Callout" },
+  { category: "Basis", type: "key_takeaways", label: "Kernpunten" },
+  { category: "Basis", type: "checklist", label: "Checklist" },
+  { category: "Oefenen", type: "case_lab", label: "Casus" },
+  { category: "Vragen", type: "quiz_multiple_choice", label: "Multiple choice" },
+  { category: "Vragen", type: "quiz_multiple_select", label: "Multiple select" },
+  { category: "Vragen", type: "quiz_true_false", label: "Waar/niet waar" },
+  { category: "Vragen", type: "quiz_essay", label: "Reflectievraag" },
+  { category: "Vragen", type: "short_answer", label: "Open vraag" },
+  { category: "Media", type: "video", label: "Video" },
+  { category: "Media", type: "iframe", label: "Iframe" },
 ] as const;
+const blockCategories = Array.from(new Set(blockTypes.map((block) => block.category)));
 
 export function LearningAdminEditor({
   course,
@@ -180,7 +182,10 @@ export function LearningAdminEditor({
 
         <div className="editor-tabs" role="tablist" aria-label="Editorweergave">
           <EditorTab active={activePanel === "content"} onClick={() => setActivePanel("content")}>
-            Content
+            Bewerken
+          </EditorTab>
+          <EditorTab active={activePanel === "preview"} onClick={() => setActivePanel("preview")}>
+            Preview
           </EditorTab>
           <EditorTab active={activePanel === "settings"} onClick={() => setActivePanel("settings")}>
             Instellingen
@@ -210,6 +215,20 @@ export function LearningAdminEditor({
           </div>
         ) : null}
 
+        {activePanel === "preview" ? (
+          <div className="editor-preview-frame">
+            <div className="editor-preview-header">
+              <span>Leerlingweergave</span>
+              <small>{blocks.length} blocks</small>
+            </div>
+            <article className="lesson-shell page-canvas">
+              {blocks.map((block) => (
+                <LessonBlockRenderer block={block as LessonBlock} key={block.id} />
+              ))}
+            </article>
+          </div>
+        ) : null}
+
         {activePanel === "settings" ? (
           <PageSettings draft={draft} updateDraft={updateDraft} />
         ) : null}
@@ -229,17 +248,26 @@ export function LearningAdminEditor({
           <>
             <div className="cardless-panel">
               <p className="eyebrow">Block library</p>
-              <h2>Toevoegen</h2>
-              <div className="block-picker">
-                {blockTypes.map(([type, label]) => (
-                  <button
-                    className="button button-secondary"
-                    key={type}
-                    onClick={() => addBlock(type)}
-                    type="button"
-                  >
-                    {label}
-                  </button>
+              <h2>Modulaire bouwstenen</h2>
+              <div className="block-library">
+                {blockCategories.map((category) => (
+                  <section className="block-library-group" key={category}>
+                    <h3>{category}</h3>
+                    <div className="block-picker">
+                      {blockTypes
+                        .filter((blockType) => blockType.category === category)
+                        .map((blockType) => (
+                          <button
+                            className="button button-secondary"
+                            key={blockType.type}
+                            onClick={() => addBlock(blockType.type)}
+                            type="button"
+                          >
+                            {blockType.label}
+                          </button>
+                        ))}
+                    </div>
+                  </section>
                 ))}
               </div>
             </div>
@@ -259,6 +287,17 @@ export function LearningAdminEditor({
               )}
             </div>
           </>
+        ) : null}
+
+        {activePanel === "preview" ? (
+          <div className="cardless-panel">
+            <p className="eyebrow">Preview</p>
+            <h2>Controleer de lesflow</h2>
+            <p className="muted">
+              Dit gebruikt dezelfde renderer als de learner route. Zo zie je sneller of de pagina
+              logisch opbouwt voordat je opslaat.
+            </p>
+          </div>
         ) : null}
 
         {activePanel === "settings" ? (
@@ -682,7 +721,7 @@ function ListField({
 }
 
 function getBlockTitle(block: EditableBlock, index: number) {
-  const label = blockTypes.find(([type]) => type === block.type)?.[1] ?? block.type;
+  const label = blockTypes.find((blockType) => blockType.type === block.type)?.label ?? block.type;
   const specific = s(block.title) || s(block.question);
   return specific || `${label} ${index + 1}`;
 }

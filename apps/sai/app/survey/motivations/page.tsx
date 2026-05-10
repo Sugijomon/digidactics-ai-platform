@@ -129,7 +129,7 @@ export default function SurveyMotivationsPage() {
       completedSteps={completedSteps}
       currentStep="motivations"
       eyebrow="Gebruikssignaal"
-      intro="Kies een of meer motivaties. Deze stap schrijft via save_motivations en toont je submission token niet."
+      intro="Kies een of meer redenen waarom AI voor jou waardevol is in je werk."
       title="Waarom gebruik je AI-tools in je werk?"
     >
 
@@ -210,7 +210,7 @@ function MotivationGroup({
   }
 
   return (
-    <section className="grid gap-4 rounded-2xl border border-[#bfc7cf]/50 bg-white/70 p-4">
+    <section className="grid gap-4 rounded-[1.35rem] border border-white/80 bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)]">
       <div>
         <div className="flex flex-wrap items-center gap-2">
           <h3 className="font-bold text-[#00658b]">Motivaties</h3>
@@ -226,10 +226,10 @@ function MotivationGroup({
       <div className="grid gap-2 md:grid-cols-2">
         {options.map((option) => (
           <label
-            className={`flex cursor-pointer items-start gap-4 rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:bg-[#c4e7ff]/20 ${
+            className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:shadow-[0_4px_12px_rgba(0,101,139,0.06)] ${
               selectedCodes.includes(option.code)
-                ? "border-[#00658b] bg-[#c4e7ff]/40"
-                : "border-[#bfc7cf] bg-white/70"
+                ? "border-[#00658b] bg-[#f1f4f6]"
+                : "border-[#bfc7cf] bg-white"
             }`}
             key={option.code}
           >

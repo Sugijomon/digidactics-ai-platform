@@ -9,7 +9,7 @@ export type RpcStepState = {
 
 export function RequiredBadge() {
   return (
-    <span className="rounded-full border border-[#bfc7cf]/60 bg-white px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wide text-[#40484e]">
+    <span className="rounded-full border border-[#bfc7cf]/60 bg-white px-2 py-0.5 text-[0.68rem] font-bold uppercase tracking-wide text-[#40484e]">
       Verplicht
     </span>
   );
@@ -211,10 +211,10 @@ export function OptionCard({
 }) {
   return (
     <label
-      className={`flex cursor-pointer items-start gap-4 rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:bg-[#c4e7ff]/20 ${
+      className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:shadow-[0_4px_12px_rgba(0,101,139,0.06)] ${
         isSelected
-          ? "border-[#00658b] bg-[#c4e7ff]/40 shadow-[0_4px_18px_rgba(0,101,139,0.08)]"
-          : "border-[#bfc7cf] bg-white/75"
+          ? "border-[#00658b] bg-[#f1f4f6] shadow-[0_4px_18px_rgba(0,101,139,0.08)]"
+          : "border-[#bfc7cf] bg-white"
       } ${isDisabled ? "cursor-not-allowed opacity-55" : ""}`}
     >
       {children}
@@ -247,8 +247,8 @@ export function SurveyQuestionBlock({
 }) {
   return (
     <section
-      className={`grid gap-4 rounded-2xl border bg-white/70 p-4 ${
-        isInvalid || error ? "border-red-300" : "border-[#bfc7cf]/50"
+      className={`grid gap-4 rounded-[1.35rem] border bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
+        isInvalid || error ? "border-red-300" : "border-white/80"
       }`}
     >
       <div>
@@ -314,7 +314,7 @@ export function RunIdCard({ runId }: { runId: string }) {
         <span className="font-mono">{runId}</span>
       </p>
       <p className="mt-2 text-[#40484e]">
-        Submission token blijft alleen in respondent session state.
+        De beveiligde sessiesleutel wordt niet getoond.
       </p>
     </section>
   );

@@ -254,7 +254,7 @@ export default function SurveyDataPage() {
       completedSteps={completedSteps}
       currentStep="data"
       eyebrow="Contextsignalen"
-      intro="Kies de soorten informatie, zorgen en behoeften die bij jouw AI-gebruik passen. Deze stap schrijft uitsluitend via de respondent RPC-laag."
+      intro="Kies welke soorten informatie, zorgen en ondersteuningsbehoeften bij jouw AI-gebruik passen."
       title="Welke data, zorgen en behoeften spelen mee?"
     >
 
@@ -403,8 +403,8 @@ function CheckboxGroup({
 
   return (
     <section
-      className={`grid gap-4 rounded-2xl border bg-white/70 p-4 ${
-        validationError ? "border-red-300" : "border-[#bfc7cf]/50"
+      className={`grid gap-4 rounded-[1.35rem] border bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
+        validationError ? "border-red-300" : "border-white/80"
       }`}
     >
       <div>
@@ -443,10 +443,10 @@ function CheckboxGroup({
             <div className="grid gap-2 md:grid-cols-2">
               {group.options.map((option) => (
                 <label
-                  className={`flex cursor-pointer items-start gap-4 rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:bg-[#c4e7ff]/20 ${
+                  className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:shadow-[0_4px_12px_rgba(0,101,139,0.06)] ${
                     selectedCodes.includes(option.code)
-                      ? "border-[#00658b] bg-[#c4e7ff]/40"
-                      : "border-[#bfc7cf] bg-white/70"
+                      ? "border-[#00658b] bg-[#f1f4f6]"
+                      : "border-[#bfc7cf] bg-white"
                   } ${option.disabled ? "cursor-not-allowed opacity-55" : ""} ${
                     EXCLUSIVE_CODES.has(option.code) ? "border-dashed" : ""
                   }`}

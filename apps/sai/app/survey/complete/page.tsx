@@ -211,7 +211,7 @@ export default function SurveyCompletePage() {
       completedSteps={completedSteps}
       currentStep="complete"
       eyebrow="Laatste stap"
-      intro="Afronden sluit de survey run en brandt de submission token op. De token wordt niet getoond."
+      intro="Rond je scan af. Daarna wordt deze sessie gesloten en kun je je antwoorden niet per ongeluk nog aanpassen."
       maxWidthClassName="max-w-2xl"
       title="Scan afronden"
     >

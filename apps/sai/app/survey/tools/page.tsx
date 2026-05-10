@@ -321,7 +321,7 @@ export default function SurveyToolsPage() {
       completedSteps={completedSteps}
       currentStep="tools"
       eyebrow="Toolregistratie"
-      intro="Kies een tool, selecteer een of meer toepassingen, geef de context aan en kies het accounttype. Je kunt meerdere tools toevoegen voordat je doorgaat naar afronden."
+      intro="Kies een tool, selecteer waarvoor je hem gebruikt en voeg hem toe aan je selectie. Je kunt meerdere tools registreren voordat je afrondt."
       maxWidthClassName="max-w-5xl"
       title="Welke AI-tool gebruik je, en waarvoor?"
     >

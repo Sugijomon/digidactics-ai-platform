@@ -202,7 +202,7 @@ export default function SurveyProfilePage() {
       completedSteps={completedSteps}
       currentStep="profile"
       eyebrow="Jouw profiel"
-      intro="Deze vragen horen bij het save_profile contract. Je antwoorden worden als codes opgeslagen, niet als directe persoonsgegevens."
+      intro="Kies kort je werkcontext en hoe je AI nu gebruikt. We vragen alleen wat nodig is om de scan goed te duiden."
       maxWidthClassName="max-w-2xl"
       title="Eerst kort je werkcontext en AI-gebruik"
     >
@@ -244,10 +244,10 @@ export default function SurveyProfilePage() {
               <div className="grid gap-2 md:grid-cols-2">
                 {departmentOptions.map((option: SurveyOption) => (
                   <label
-                    className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:bg-[#c4e7ff]/20 ${
+                    className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:shadow-[0_4px_12px_rgba(0,101,139,0.06)] ${
                       selectedVakgebied === option.code
-                        ? "border-[#00658b] bg-[#c4e7ff]/40"
-                        : "border-[#bfc7cf] bg-white/70"
+                        ? "border-[#00658b] bg-[#f1f4f6]"
+                        : "border-[#bfc7cf] bg-white"
                     } ${option.disabled ? "cursor-not-allowed opacity-60" : ""}`}
                     key={option.code}
                   >
@@ -277,7 +277,7 @@ export default function SurveyProfilePage() {
                 <label className="mt-3 grid gap-2 text-sm font-semibold text-[#181c1e]">
                   Vul jouw vakgebied in
                   <input
-                    className="h-11 rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm outline-none focus:border-[#00658b]"
+                    className="h-11 rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm outline-none transition focus:border-[#00658b] focus:ring-2 focus:ring-[#c4e7ff]"
                     onChange={(event) =>
                       setDepartmentOtherText(event.target.value)
                     }
@@ -531,7 +531,7 @@ function SelectField({
         {required ? <span className="text-red-700"> *</span> : null}
       </span>
       <select
-        className="h-11 rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm outline-none focus:border-[#00658b]"
+        className="h-11 rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm outline-none transition focus:border-[#00658b] focus:ring-2 focus:ring-[#c4e7ff]"
         onChange={(event) => onChange(event.target.value)}
         value={value}
       >

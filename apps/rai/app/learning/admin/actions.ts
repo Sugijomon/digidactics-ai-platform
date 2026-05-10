@@ -64,6 +64,9 @@ export async function updateLearningPageContent(formData: FormData) {
   const pageCode = readRequired(formData, "pageCode");
   const title = readRequired(formData, "title");
   const summary = String(formData.get("summary") ?? "").trim() || null;
+  const pageType = String(formData.get("pageType") ?? "content");
+  const estimatedMinutes = Number(formData.get("estimatedMinutes") ?? 5);
+  const isRequired = String(formData.get("isRequired") ?? "true") === "true";
   const contentText = readRequired(formData, "content");
   const content = parseContentJson(contentText);
 
@@ -72,6 +75,11 @@ export async function updateLearningPageContent(formData: FormData) {
     .update({
       title,
       summary,
+      page_type: pageType,
+      estimated_duration_minutes: Number.isFinite(estimatedMinutes)
+        ? estimatedMinutes
+        : 5,
+      is_required: isRequired,
       content,
       updated_at: new Date().toISOString(),
     })

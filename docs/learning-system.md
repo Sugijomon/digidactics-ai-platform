@@ -273,7 +273,10 @@ editors:
 - left-side course structure with topics and pages
 - central page canvas with page metadata and editable block forms
 - right-side block picker and new-page form
-- supported visual block forms: paragraph, callout, checklist, multiple choice
+- supported visual block forms: hero, paragraph, callout, key takeaways,
+  checklist, case lab, multiple choice, multiple select, true/false,
+  essay/reflection, short answer, video, and iframe
+- page metadata editing for title, summary, type, duration, and required status
 - fallback raw JSON inspector for advanced or not-yet-modeled block types
 
 The editor still writes to the same `learning_pages.content` JSONB structure.

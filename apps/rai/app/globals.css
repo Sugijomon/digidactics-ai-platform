@@ -511,6 +511,12 @@ h3 {
   resize: vertical;
 }
 
+.checkbox-field input {
+  height: 22px;
+  min-height: 22px;
+  width: 22px;
+}
+
 .admin-layout {
   align-items: start;
   display: grid;
@@ -601,10 +607,20 @@ h3 {
 
 .editor-topic-list,
 .editor-page-list,
-.editor-block-stack,
+.editor-block-stack {
+  display: grid;
+  gap: 8px;
+}
+
 .block-picker {
   display: grid;
   gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.block-picker .button {
+  min-height: 38px;
+  padding: 0 10px;
 }
 
 .editor-topic {

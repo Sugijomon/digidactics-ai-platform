@@ -361,67 +361,65 @@ export default function SurveyToolsPage() {
           />
         </section>
 
-            <CheckboxGroup
-              helpText="Kies alle toepassingen die voor deze tool gelden."
-              isDisabled={isSaving}
-              label="Toepassingen"
-              onChange={setSelectedUseCases}
-              options={useCaseOptions}
-              selectedCodes={selectedUseCases}
-              validationError={validationErrors.useCases}
-            />
+        <CheckboxGroup
+          helpText="Kies alle toepassingen die voor deze tool gelden."
+          isDisabled={isSaving}
+          label="Toepassingen"
+          onChange={setSelectedUseCases}
+          options={useCaseOptions}
+          selectedCodes={selectedUseCases}
+          validationError={validationErrors.useCases}
+        />
 
-            <CheckboxGroup
-              helpText="Kies de context waarin je deze tool inzet."
-              isDisabled={isSaving}
-              label="Context"
-              onChange={setSelectedContexts}
-              options={contextOptions}
-              selectedCodes={selectedContexts}
-              validationError={validationErrors.contexts}
-            />
+        <CheckboxGroup
+          helpText="Kies de context waarin je deze tool inzet."
+          isDisabled={isSaving}
+          label="Context"
+          onChange={setSelectedContexts}
+          options={contextOptions}
+          selectedCodes={selectedContexts}
+          validationError={validationErrors.contexts}
+        />
 
-            <RadioGroup
-              helpText="Kies het accounttype dat het best past bij deze tool."
-              isDisabled={isSaving}
-              label="Accounttype"
-              onChange={setSelectedAccountType}
-              options={accountTypeOptions}
-              selectedCode={selectedAccountType}
-              validationError={validationErrors.account}
-            />
+        <RadioGroup
+          helpText="Kies het accounttype dat het best past bij deze tool."
+          isDisabled={isSaving}
+          label="Accounttype"
+          onChange={setSelectedAccountType}
+          options={accountTypeOptions}
+          selectedCode={selectedAccountType}
+          validationError={validationErrors.account}
+        />
 
-            {error ? (
-              <ValidationMessage>{error}</ValidationMessage>
-            ) : null}
+        {error ? <ValidationMessage>{error}</ValidationMessage> : null}
 
-            <TechnicalStatus>
-              <RpcStepRow label="save_tool" state={steps.tool} />
-              <RpcStepRow label="save_tool_use_case" state={steps.useCase} />
-              <RpcStepRow
-                label="save_tool_use_case_context"
-                state={steps.context}
-              />
-              <RpcStepRow label="save_tool_account" state={steps.account} />
-            </TechnicalStatus>
+        <TechnicalStatus>
+          <RpcStepRow label="save_tool" state={steps.tool} />
+          <RpcStepRow label="save_tool_use_case" state={steps.useCase} />
+          <RpcStepRow
+            label="save_tool_use_case_context"
+            state={steps.context}
+          />
+          <RpcStepRow label="save_tool_account" state={steps.account} />
+        </TechnicalStatus>
 
-            <RunIdCard runId={runId} />
+        <RunIdCard runId={runId} />
 
-            <SurveyFooterActions backHref="/survey/data">
-              <PrimarySurveyButton
-                disabled={isSaving}
-                isBusy={isSaving}
-                type="submit"
-              >
-                {isSaving ? "Opslaan..." : "Tool opslaan"}
-              </PrimarySurveyButton>
-              <SecondarySurveyButton
-                disabled={isSaving || savedTools.length === 0}
-                onClick={handleContinueToComplete}
-              >
-                Verder naar afronden
-              </SecondarySurveyButton>
-            </SurveyFooterActions>
+        <SurveyFooterActions backHref="/survey/data">
+          <PrimarySurveyButton
+            disabled={isSaving}
+            isBusy={isSaving}
+            type="submit"
+          >
+            {isSaving ? "Opslaan..." : "Tool opslaan"}
+          </PrimarySurveyButton>
+          <SecondarySurveyButton
+            disabled={isSaving || savedTools.length === 0}
+            onClick={handleContinueToComplete}
+          >
+            Verder naar afronden
+          </SecondarySurveyButton>
+        </SurveyFooterActions>
       </form>
     </SurveyStepLayout>
   );
@@ -447,9 +445,9 @@ function ToolWorkspace({
           <h3 className="text-lg font-extrabold text-[#00658b]">
             Jouw selectie
           </h3>
-        <p className="mt-1 text-sm leading-6 text-[#40484e]">
+          <p className="mt-1 text-sm leading-6 text-[#40484e]">
             Sla per tool de toepassing, context en het accounttype op.
-        </p>
+          </p>
         </div>
         <span className="rounded-full bg-[#00658b] px-3 py-1 text-xs font-extrabold text-white">
           {savedTools.length} tool{savedTools.length === 1 ? "" : "s"}
@@ -701,8 +699,8 @@ function CheckboxGroup({
 
   return (
     <section
-      className={`grid gap-4 rounded-2xl border bg-white/70 p-4 ${
-        validationError ? "border-red-300" : "border-[#bfc7cf]/50"
+      className={`grid gap-4 rounded-[1.35rem] border bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
+        validationError ? "border-red-300" : "border-white/80"
       }`}
     >
       <div>
@@ -726,10 +724,10 @@ function CheckboxGroup({
       <div className="grid gap-2 md:grid-cols-2">
         {options.map((option) => (
           <label
-            className={`flex cursor-pointer items-start gap-4 rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:bg-[#c4e7ff]/20 ${
+            className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:shadow-[0_4px_12px_rgba(0,101,139,0.06)] ${
               selectedCodes.includes(option.code)
-                ? "border-[#00658b] bg-[#c4e7ff]/40"
-                : "border-[#bfc7cf] bg-white/70"
+                ? "border-[#00658b] bg-[#f1f4f6]"
+                : "border-[#bfc7cf] bg-white"
             }`}
             key={option.code}
           >
@@ -777,8 +775,8 @@ function RadioGroup({
 }) {
   return (
     <section
-      className={`grid gap-4 rounded-2xl border bg-white/70 p-4 ${
-        validationError ? "border-red-300" : "border-[#bfc7cf]/50"
+      className={`grid gap-4 rounded-[1.35rem] border bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
+        validationError ? "border-red-300" : "border-white/80"
       }`}
     >
       <div>
@@ -797,10 +795,10 @@ function RadioGroup({
       <div className="grid gap-2 md:grid-cols-2">
         {options.map((option) => (
           <label
-            className={`flex cursor-pointer items-start gap-4 rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:bg-[#c4e7ff]/20 ${
+            className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:shadow-[0_4px_12px_rgba(0,101,139,0.06)] ${
               selectedCode === option.code
-                ? "border-[#00658b] bg-[#c4e7ff]/40"
-                : "border-[#bfc7cf] bg-white/70"
+                ? "border-[#00658b] bg-[#f1f4f6]"
+                : "border-[#bfc7cf] bg-white"
             }`}
             key={option.code}
           >

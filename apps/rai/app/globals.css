@@ -628,11 +628,34 @@ h3 {
   gap: 8px;
 }
 
+.editor-topic-heading {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
 .editor-topic h3 {
   color: var(--muted);
   font-size: 0.8rem;
   line-height: 1.25;
+  margin-bottom: 0;
   text-transform: uppercase;
+}
+
+.editor-topic-heading span {
+  background: var(--surface-muted);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  min-width: 24px;
+  padding: 3px 7px;
+  text-align: center;
+}
+
+.editor-new-page-button {
+  width: 100%;
 }
 
 .editor-page-button {
@@ -683,6 +706,25 @@ h3 {
   margin-bottom: 8px;
 }
 
+.editor-breadcrumb {
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  font-weight: 800;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.editor-breadcrumb span {
+  align-items: center;
+  background: var(--surface-muted);
+  border-radius: 999px;
+  display: inline-flex;
+  min-height: 26px;
+  padding: 0 10px;
+}
+
 .editor-meta-grid,
 .editor-two-column {
   display: grid;
@@ -725,6 +767,33 @@ h3 {
 .editor-preview-frame {
   display: grid;
   gap: 12px;
+}
+
+.editor-page-status {
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 12px;
+}
+
+.status-metric {
+  display: grid;
+  gap: 3px;
+}
+
+.status-metric span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.status-metric strong {
+  font-size: 0.92rem;
+  line-height: 1.2;
 }
 
 .editor-preview-frame {
@@ -920,7 +989,8 @@ h3 {
   .admin-layout,
   .editor-shell,
   .editor-meta-grid,
-  .editor-two-column {
+  .editor-two-column,
+  .editor-page-status {
     grid-template-columns: 1fr;
   }
 

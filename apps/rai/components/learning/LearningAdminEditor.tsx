@@ -55,6 +55,9 @@ export function LearningAdminEditor({
   const [activePanel, setActivePanel] = useState<EditorPanel>("content");
   const [selectedBlockId, setSelectedBlockId] = useState("");
   const activePage = pages.find((page) => page.id === activePageId) ?? pages[0];
+  const activeTopic =
+    course.topics.find((topic) => topic.pages.some((page) => page.id === activePage?.id)) ??
+    course.topics[0];
   const [drafts, setDrafts] = useState<Record<string, PageDraft>>(() =>
     Object.fromEntries(
       pages.map((page) => [
@@ -153,7 +156,17 @@ export function LearningAdminEditor({
         <div>
           <p className="eyebrow">Structuur</p>
           <h2>{course.title}</h2>
+          <p className="muted">
+            {course.topics.length} topics / {pages.length} pagina's
+          </p>
         </div>
+        <button
+          className="button button-primary editor-new-page-button"
+          onClick={() => setActivePanel("settings")}
+          type="button"
+        >
+          Nieuwe pagina
+        </button>
         <div className="editor-topic-list">
           {course.topics.map((topic) => (
             <TopicNavigation
@@ -180,6 +193,11 @@ export function LearningAdminEditor({
         <div className="editor-toolbar">
           <div>
             <p className="eyebrow">Pagina</p>
+            <div className="editor-breadcrumb">
+              <span>{activeTopic?.title ?? "Topic"}</span>
+              <span>{draft.pageType}</span>
+              <span>{blocks.length} blocks</span>
+            </div>
             <h1>{draft.title}</h1>
             <p className="muted">{draft.summary || "Geen samenvatting ingesteld."}</p>
           </div>
@@ -213,6 +231,12 @@ export function LearningAdminEditor({
 
         {activePanel === "content" ? (
           <div className="editor-page-canvas">
+            <EditorPageStatus
+              blockCount={blocks.length}
+              estimatedMinutes={draft.estimatedMinutes}
+              isRequired={draft.isRequired}
+              selectedBlock={selectedBlock}
+            />
             {blocks.map((block, index) => (
               <BlockCard
                 block={block}
@@ -423,7 +447,10 @@ function TopicNavigation({
 }) {
   return (
     <section className="editor-topic">
-      <h3>{topic.title}</h3>
+      <div className="editor-topic-heading">
+        <h3>{topic.title}</h3>
+        <span>{topic.pages.length}</span>
+      </div>
       <div className="editor-page-list">
         {topic.pages.map((page) => (
           <button
@@ -441,6 +468,39 @@ function TopicNavigation({
         ))}
       </div>
     </section>
+  );
+}
+
+function EditorPageStatus({
+  blockCount,
+  estimatedMinutes,
+  isRequired,
+  selectedBlock,
+}: {
+  blockCount: number;
+  estimatedMinutes: number;
+  isRequired: boolean;
+  selectedBlock: EditableBlock | null;
+}) {
+  return (
+    <div className="editor-page-status" aria-label="Pagina-overzicht">
+      <StatusMetric label="Blocks" value={String(blockCount)} />
+      <StatusMetric label="Duur" value={`${estimatedMinutes} min`} />
+      <StatusMetric label="Status" value={isRequired ? "Verplicht" : "Optioneel"} />
+      <StatusMetric
+        label="Selectie"
+        value={selectedBlock ? getBlockLabel(selectedBlock.type) : "Geen block"}
+      />
+    </div>
+  );
+}
+
+function StatusMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="status-metric">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
   );
 }
 

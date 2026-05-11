@@ -7,6 +7,7 @@ import {
   PrimarySurveyButton,
   RpcStepRow,
   RunIdCard,
+  SecondarySurveyButton,
   SurveyFooterActions,
   SurveyPageShell,
   SurveyStepLayout,
@@ -182,11 +183,12 @@ export default function SurveyCompletePage() {
               Bedankt voor je input
             </h1>
             <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-[#40484e]">
-              De lokale scansessie is gewist en de sessie is gesloten.
-              Je kunt deze scan niet per ongeluk nogmaals wijzigen.
+              Je antwoorden zijn veilig ontvangen. De lokale scansessie is
+              gewist en deze scan kan niet per ongeluk nogmaals gewijzigd
+              worden.
             </p>
           </div>
-          <SurveySummaryGrid columnsClassName="md:grid-cols-2">
+          <SurveySummaryGrid columnsClassName="md:grid-cols-3">
             <SurveySummaryItem
               label="Run"
               value={runId ? shortRunId(runId) : "Afgerond"}
@@ -196,10 +198,9 @@ export default function SurveyCompletePage() {
               label="Tools"
               value={`${savedTools.length} geregistreerd`}
             />
+            <SurveySummaryItem label="Sessie" value="Gesloten" />
           </SurveySummaryGrid>
-          <p className="rounded-xl border border-[#c4e7ff] bg-[#f3fbff] px-3 py-2 text-sm font-semibold text-[#00658b]">
-            De scansessie is gesloten na afronden.
-          </p>
+          <CompletionAssurance />
         </section>
       </SurveyPageShell>
     );
@@ -219,20 +220,11 @@ export default function SurveyCompletePage() {
       currentStep="complete"
       eyebrow="Laatste stap"
       intro="Rond je scan af. Daarna wordt deze sessie gesloten en kun je je antwoorden niet per ongeluk nog aanpassen."
-      maxWidthClassName="max-w-2xl"
+      maxWidthClassName="max-w-4xl"
       title="Scan afronden"
     >
       <div className="grid gap-6">
-        <RunIdCard runId={runId} />
-
-        <SurveySummaryGrid columnsClassName="md:grid-cols-3">
-          <SurveySummaryItem label="Status" value="Klaar om af te ronden" />
-          <SurveySummaryItem
-            label="Tools"
-            value={`${savedTools.length} geregistreerd`}
-          />
-          <SurveySummaryItem label="Sessie" value="Verborgen" />
-        </SurveySummaryGrid>
+        <CompletionOverview savedTools={savedTools} />
 
         <SavedToolsSummary savedTools={savedTools} />
 
@@ -243,7 +235,15 @@ export default function SurveyCompletePage() {
           <RpcStepRow label="token-burn check" state={tokenCheckStep} />
         </TechnicalStatus>
 
+        <RunIdCard runId={runId} />
+
         <SurveyFooterActions backHref="/survey/accounts">
+          <SecondarySurveyButton
+            disabled={isCompleting}
+            onClick={() => router.push("/survey/tools")}
+          >
+            Nog een tool toevoegen
+          </SecondarySurveyButton>
           <PrimarySurveyButton
             disabled={isCompleting || savedTools.length === 0}
             isBusy={isCompleting}
@@ -256,6 +256,80 @@ export default function SurveyCompletePage() {
         </SurveyFooterActions>
       </div>
     </SurveyStepLayout>
+  );
+}
+
+function CompletionOverview({
+  savedTools,
+}: {
+  savedTools: StoredSurveyTool[];
+}) {
+  const accountTypes = new Set(savedTools.map((tool) => tool.accountTypeCode));
+  const toolsWithContext = savedTools.filter(
+    (tool) => tool.contextCodes.length > 0,
+  ).length;
+
+  return (
+    <section className="grid gap-4 rounded-[1.6rem] border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm md:p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-wide text-[#00658b]/70">
+            Klaar voor afsluiten
+          </p>
+          <h2 className="mt-1 text-xl font-extrabold text-[#00658b]">
+            Controleer je toolregistratie
+          </h2>
+          <p className="mt-2 max-w-2xl leading-6 text-[#40484e]">
+            Na afronden wordt de respondentensessie gesloten en verdwijnt de
+            lokale sessiesleutel uit deze browser.
+          </p>
+        </div>
+        <span className="rounded-full border border-[#00658b]/20 bg-white px-3 py-1 text-xs font-extrabold text-[#00658b]">
+          {savedTools.length} tool{savedTools.length === 1 ? "" : "s"}
+        </span>
+      </div>
+
+      <SurveySummaryGrid
+        className="border-white/70 bg-white/70"
+        columnsClassName="md:grid-cols-3"
+      >
+        <SurveySummaryItem
+          label="Geregistreerd"
+          value={`${savedTools.length} tool${savedTools.length === 1 ? "" : "s"}`}
+        />
+        <SurveySummaryItem
+          label="Accountstatus"
+          value={`${accountTypes.size} type${accountTypes.size === 1 ? "" : "s"}`}
+        />
+        <SurveySummaryItem
+          label="Context"
+          value={
+            toolsWithContext > 0
+              ? `${toolsWithContext} met context`
+              : "Niet van toepassing"
+          }
+        />
+      </SurveySummaryGrid>
+    </section>
+  );
+}
+
+function CompletionAssurance() {
+  return (
+    <section className="grid gap-3 text-left text-sm md:grid-cols-3">
+      <AssuranceItem label="Ontvangen" text="Je antwoorden zijn opgeslagen." />
+      <AssuranceItem label="Gesloten" text="De scansessie is gesloten na afronden." />
+      <AssuranceItem label="Gewist" text="De lokale sessiesleutel is verwijderd." />
+    </section>
+  );
+}
+
+function AssuranceItem({ label, text }: { label: string; text: string }) {
+  return (
+    <div className="rounded-xl border border-[#c4e7ff] bg-[#f3fbff] px-3 py-3">
+      <p className="font-bold text-[#00658b]">{label}</p>
+      <p className="mt-1 leading-5 text-[#40484e]">{text}</p>
+    </div>
   );
 }
 

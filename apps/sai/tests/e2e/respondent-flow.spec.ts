@@ -139,7 +139,7 @@ test("respondent can save one tool and go straight to completion", async ({
   await page.getByRole("button", { name: "Naar afronden" }).click();
 
   await expect(page).toHaveURL(/\/survey\/complete$/, { timeout: 30_000 });
-  await expect(page.getByText("1 geregistreerd")).toBeVisible();
+  await expect(page.getByText("1 tool").first()).toBeVisible();
 });
 
 test("profile step validates dependent required answers before saving", async ({

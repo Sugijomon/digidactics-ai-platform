@@ -37,7 +37,7 @@ The app uses `@supabase/ssr` for Next.js App Router auth:
 
 - `lib/supabase/client.ts` creates the browser client for Client Components.
 - `lib/supabase/server.ts` creates the server client for Server Components, Server Actions, and Route Handlers.
-- `middleware.ts` refreshes Supabase auth cookies for requests.
+- `proxy.ts` refreshes Supabase auth cookies for requests.
 - `lib/supabase/get-user-role.ts` loads the authenticated user's `role` and `org_id` from `public.user_roles`.
 - `components/auth-provider.tsx` and `hooks/use-auth.ts` expose client-side auth state for UI only.
 

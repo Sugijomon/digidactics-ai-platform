@@ -58,10 +58,12 @@ test("respondent can complete the SAI survey flow with two tools", async ({
   await expect(page).toHaveURL(/\/survey\/use-cases$/, { timeout: 30_000 });
   await page.getByRole("button", { name: "Verder naar account" }).click();
   await expect(page).toHaveURL(/\/survey\/accounts$/, { timeout: 30_000 });
-  await page.getByRole("button", { name: "Opslaan en afronden" }).click();
-  await expect(page).toHaveURL(/\/survey\/complete$/, { timeout: 30_000 });
-
-  await page.goto("/survey/tools");
+  await page.getByRole("button", { name: "Account opslaan" }).click();
+  await expect(page.getByText("ChatGPT is opgeslagen")).toBeVisible({
+    timeout: 30_000,
+  });
+  await page.getByRole("button", { name: "Nog een tool toevoegen" }).click();
+  await expect(page).toHaveURL(/\/survey\/tools$/, { timeout: 30_000 });
   await expect(page.getByRole("heading", { name: "1. ChatGPT" })).toBeVisible({
     timeout: 30_000,
   });
@@ -77,7 +79,11 @@ test("respondent can complete the SAI survey flow with two tools", async ({
   await page.getByRole("button", { name: "Verder naar account" }).click();
   await expect(page).toHaveURL(/\/survey\/accounts$/, { timeout: 30_000 });
   await page.locator('input[value="business_license"]').check();
-  await page.getByRole("button", { name: "Opslaan en afronden" }).click();
+  await page.getByRole("button", { name: "Account opslaan" }).click();
+  await expect(page.getByText("Claude is opgeslagen")).toBeVisible({
+    timeout: 30_000,
+  });
+  await page.getByRole("button", { name: "Naar afronden" }).click();
 
   await expect(page).toHaveURL(/\/survey\/complete$/, { timeout: 30_000 });
   await expect(page.getByText("Geregistreerde tools")).toBeVisible();
@@ -100,6 +106,40 @@ test("complete step cannot be opened before a tool is saved", async ({
 }) => {
   await page.goto("/survey/complete");
   await expect(page.getByRole("heading", { name: "Geen actieve scan" })).toBeVisible();
+});
+
+test("respondent can save one tool and go straight to completion", async ({
+  page,
+}) => {
+  await mockSupabaseRpc(page);
+  await page.goto("/survey");
+  await page.evaluate(() => window.sessionStorage.clear());
+  await page.getByRole("button", { name: "Start de scan" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/profile$/, { timeout: 30_000 });
+  await page.getByRole("button", { name: "Verder" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/motivations$/, { timeout: 30_000 });
+  await page.getByRole("button", { name: "Verder" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/data$/, { timeout: 30_000 });
+  await page.getByRole("button", { name: "Verder" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/tools$/, { timeout: 30_000 });
+  await page.getByRole("button", { name: "Tool registreren" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/use-cases$/, { timeout: 30_000 });
+  await page.getByRole("button", { name: "Verder naar account" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/accounts$/, { timeout: 30_000 });
+  await page.getByRole("button", { name: "Account opslaan" }).click();
+  await expect(page.getByText("ChatGPT is opgeslagen")).toBeVisible({
+    timeout: 30_000,
+  });
+  await page.getByRole("button", { name: "Naar afronden" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/complete$/, { timeout: 30_000 });
+  await expect(page.getByText("1 geregistreerd")).toBeVisible();
 });
 
 test("profile step validates dependent required answers before saving", async ({

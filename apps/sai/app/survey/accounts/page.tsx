@@ -8,6 +8,7 @@ import {
   RequiredBadge,
   RpcStepRow,
   RunIdCard,
+  SecondarySurveyButton,
   SurveyFooterActions,
   SurveyStepLayout,
   SurveySummaryGrid,
@@ -93,6 +94,7 @@ export default function SurveyAccountsPage() {
     useState("personal_free");
   const [accountStep, setAccountStep] =
     useState<StepState>(INITIAL_ACCOUNT_STEP);
+  const [isAccountSaved, setIsAccountSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -165,13 +167,24 @@ export default function SurveyAccountsPage() {
     setAccountStep({ status: "ok", message: "Accounttype opgeslagen" });
     markSurveyStepCompleted("accounts");
     updateSurveySession({
-      currentStep: "complete",
+      currentStep: "accounts",
       pendingTool: undefined,
       savedTools: nextSavedTools,
       surveyToolId: pendingTool.surveyToolId,
       surveyToolUseCaseId: pendingTool.surveyToolUseCaseIds?.[0],
     });
+    setSavedTools(nextSavedTools);
+    setIsAccountSaved(true);
     setIsSaving(false);
+  }
+
+  function handleAddAnotherTool() {
+    updateSurveyCurrentStep("tools");
+    router.push("/survey/tools");
+  }
+
+  function handleContinueToComplete() {
+    updateSurveyCurrentStep("complete");
     router.push("/survey/complete");
   }
 
@@ -222,6 +235,13 @@ export default function SurveyAccountsPage() {
 
         {error ? <ValidationMessage>{error}</ValidationMessage> : null}
 
+        {isAccountSaved ? (
+          <AccountSavedChoice
+            savedToolCount={savedTools.length}
+            toolName={pendingTool.toolName}
+          />
+        ) : null}
+
         <TechnicalStatus>
           <RpcStepRow label="save_tool_account" state={accountStep} />
         </TechnicalStatus>
@@ -229,16 +249,46 @@ export default function SurveyAccountsPage() {
         <RunIdCard runId={runId} />
 
         <SurveyFooterActions backHref="/survey/use-cases">
-          <PrimarySurveyButton
-            disabled={isSaving}
-            isBusy={isSaving}
-            type="submit"
-          >
-            {isSaving ? "Opslaan..." : "Opslaan en afronden"}
-          </PrimarySurveyButton>
+          {isAccountSaved ? (
+            <>
+              <SecondarySurveyButton onClick={handleAddAnotherTool}>
+                Nog een tool toevoegen
+              </SecondarySurveyButton>
+              <PrimarySurveyButton onClick={handleContinueToComplete}>
+                Naar afronden
+              </PrimarySurveyButton>
+            </>
+          ) : (
+            <PrimarySurveyButton
+              disabled={isSaving}
+              isBusy={isSaving}
+              type="submit"
+            >
+              {isSaving ? "Opslaan..." : "Account opslaan"}
+            </PrimarySurveyButton>
+          )}
         </SurveyFooterActions>
       </form>
     </SurveyStepLayout>
+  );
+}
+
+function AccountSavedChoice({
+  savedToolCount,
+  toolName,
+}: {
+  savedToolCount: number;
+  toolName: string;
+}) {
+  return (
+    <section className="rounded-[1.35rem] border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm text-[#40484e]">
+      <p className="font-bold text-[#00658b]">{toolName} is opgeslagen</p>
+      <p className="mt-1 leading-6">
+        Je hebt nu {savedToolCount} tool
+        {savedToolCount === 1 ? "" : "s"} compleet geregistreerd. Voeg nog een
+        tool toe als je meerdere AI-tools gebruikt, of rond de scan af.
+      </p>
+    </section>
   );
 }
 

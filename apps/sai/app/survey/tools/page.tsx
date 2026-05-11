@@ -34,7 +34,13 @@ import {
   getResumeStep,
   type SurveyStepId,
 } from "@/lib/sai-survey/flow";
-import { toolOptions, type ToolOption } from "@/lib/sai-survey/options";
+import {
+  accountTypeOptions,
+  toolOptions,
+  type SurveyOption,
+  type ToolOption,
+  useCaseOptions,
+} from "@/lib/sai-survey/options";
 
 type StepState = {
   status: "idle" | "running" | "ok" | "error";
@@ -91,6 +97,9 @@ export default function SurveyToolsPage() {
     [selectedToolCategory, toolSearchQuery],
   );
   const selectedToolName = getSelectedToolName(selectedTool, customToolName);
+  const alreadySavedCount = savedTools.filter(
+    (tool) => tool.toolName.toLowerCase() === selectedToolName.toLowerCase(),
+  ).length;
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -212,6 +221,7 @@ export default function SurveyToolsPage() {
       >
         <section className="grid gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start">
           <ToolPicker
+            alreadySavedCount={alreadySavedCount}
             customToolName={customToolName}
             filteredToolOptions={filteredToolOptions}
             isDisabled={isSaving}
@@ -245,7 +255,11 @@ export default function SurveyToolsPage() {
             isBusy={isSaving}
             type="submit"
           >
-            {isSaving ? "Opslaan..." : "Tool registreren"}
+            {isSaving
+              ? "Opslaan..."
+              : alreadySavedCount > 0
+                ? "Nogmaals registreren"
+                : "Tool registreren"}
           </PrimarySurveyButton>
           <SecondarySurveyButton
             disabled={isSaving || savedTools.length === 0}
@@ -276,7 +290,8 @@ function ToolWorkspace({
             Jouw selectie
           </h3>
           <p className="mt-1 text-sm leading-6 text-[#40484e]">
-            Na registratie kies je de toepassing en accountstatus.
+            Voeg per AI-tool toepassing en accountstatus toe. Na elke tool kies
+            je of je nog een tool registreert of afrondt.
           </p>
         </div>
         <span className="rounded-full bg-[#00658b] px-3 py-1 text-xs font-extrabold text-white">
@@ -313,7 +328,10 @@ function ToolWorkspace({
               <p className="break-words text-[#40484e]">
                 {tool.useCaseCodes.length} toepassing
                 {tool.useCaseCodes.length === 1 ? "" : "en"} -{" "}
-                {tool.accountTypeCode}
+                {getOptionLabel(accountTypeOptions, tool.accountTypeCode)}
+              </p>
+              <p className="break-words text-xs text-[#40484e]/80">
+                {getOptionLabels(useCaseOptions, tool.useCaseCodes)}
               </p>
             </article>
           ))}
@@ -324,6 +342,7 @@ function ToolWorkspace({
 }
 
 function ToolPicker({
+  alreadySavedCount,
   customToolName,
   filteredToolOptions,
   isDisabled = false,
@@ -335,6 +354,7 @@ function ToolPicker({
   selectedCategory,
   selectedToolId,
 }: {
+  alreadySavedCount: number;
   customToolName: string;
   filteredToolOptions: ToolOption[];
   isDisabled?: boolean;
@@ -388,6 +408,13 @@ function ToolPicker({
           ))}
         </div>
       </div>
+
+      {alreadySavedCount > 0 ? (
+        <p className="rounded-xl border border-[#c4e7ff] bg-[#f3fbff] px-4 py-3 text-sm font-medium text-[#00658b]">
+          Deze tool staat al {alreadySavedCount} keer in je registratie. Je kunt
+          hem nogmaals toevoegen als het om een andere toepassing of account gaat.
+        </p>
+      ) : null}
 
       <div className="grid max-h-[28rem] gap-2 overflow-y-auto pr-1">
         {filteredToolOptions.map((tool) => (
@@ -453,4 +480,12 @@ function getSelectedToolName(tool: ToolOption, customToolName: string) {
 
 function formatRpcError(error: RpcError) {
   return [error.code, error.message].filter(Boolean).join(": ");
+}
+
+function getOptionLabel(options: SurveyOption[], code: string) {
+  return options.find((option) => option.code === code)?.label ?? code;
+}
+
+function getOptionLabels(options: SurveyOption[], codes: string[]) {
+  return codes.map((code) => getOptionLabel(options, code)).join(", ");
 }

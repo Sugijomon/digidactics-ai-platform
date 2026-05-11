@@ -39,7 +39,12 @@ export default async function LessonPage({
           course={course}
           learnerState={learnerState}
         />
-        <article className="lesson-shell page-canvas">
+        <form action={completeAiLiteracyPage} className="lesson-shell page-canvas">
+          <input name="courseId" type="hidden" value={course.id} />
+          <input name="courseCode" type="hidden" value={course.course_code} />
+          <input name="pageId" type="hidden" value={page.id} />
+          <input name="pageCode" type="hidden" value={page.page_code} />
+          <input name="nextPageCode" type="hidden" value={nextPage?.page_code ?? ""} />
           {page.content.blocks.map((block) => (
             <LessonBlockRenderer block={block} key={block.id} />
           ))}
@@ -74,22 +79,15 @@ export default async function LessonPage({
                 Terug naar cursus
               </Link>
             ) : learnerState.isAuthenticated ? (
-              <form action={completeAiLiteracyPage}>
-                <input name="courseId" type="hidden" value={course.id} />
-                <input name="courseCode" type="hidden" value={course.course_code} />
-                <input name="pageId" type="hidden" value={page.id} />
-                <input name="pageCode" type="hidden" value={page.page_code} />
-                <input name="nextPageCode" type="hidden" value={nextPage?.page_code ?? ""} />
-                <button className="button button-primary" type="submit">
-                  {nextPage ? "Afronden en doorgaan" : "Cursus afronden"}
-                </button>
-              </form>
+              <button className="button button-primary" type="submit">
+                {nextPage ? "Afronden en doorgaan" : "Cursus afronden"}
+              </button>
             ) : (
               <span className="button button-secondary">Login vereist</span>
             )}
             </div>
           </nav>
-        </article>
+        </form>
       </div>
     </main>
   );

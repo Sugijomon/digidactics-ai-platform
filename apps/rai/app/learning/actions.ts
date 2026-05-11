@@ -77,6 +77,44 @@ export async function completeAiLiteracyPage(formData: FormData) {
     throw new Error("Pagina-inhoud kon niet worden gevalideerd.");
   }
 
+  const answers = extractPageAnswers(formData, page.content);
+  const manualReviewRequired = page.content.blocks.some(
+    (block) =>
+      block.type === "quiz_essay" ||
+      block.type === "short_answer" ||
+      block.type === "case_lab",
+  );
+  const { count: attemptCount, error: attemptCountError } = await supabase
+    .from("learning_page_attempts")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", learner.userId)
+    .eq("page_id", pageId)
+    .eq("course_id", courseId);
+
+  if (attemptCountError) {
+    throw new Error(`Pogingnummer bepalen is mislukt: ${attemptCountError.message}`);
+  }
+
+  if (Object.keys(answers).length > 0) {
+    const { error: attemptError } = await supabase
+      .from("learning_page_attempts")
+      .insert({
+        org_id: learner.orgId,
+        user_id: learner.userId,
+        page_id: pageId,
+        course_id: courseId,
+        attempt_number: (attemptCount ?? 0) + 1,
+        status: "submitted",
+        answers,
+        manual_review_required: manualReviewRequired,
+        submitted_at: new Date().toISOString(),
+      });
+
+    if (attemptError) {
+      throw new Error(`Antwoorden opslaan is mislukt: ${attemptError.message}`);
+    }
+  }
+
   const completedBlockIds = page.content.blocks.map((block) => block.id);
   const progressPercentage = estimateCompletionPercentage(
     page.content,
@@ -117,6 +155,33 @@ export async function completeAiLiteracyPage(formData: FormData) {
   }
 
   redirect(`/learning/${courseCode}`);
+}
+
+function extractPageAnswers(formData: FormData, content: { blocks: Array<{ id: string; type: string }> }) {
+  return Object.fromEntries(
+    content.blocks
+      .map((block) => {
+        const values = formData
+          .getAll(`answer:${block.id}`)
+          .map((value) => String(value).trim())
+          .filter(Boolean);
+
+        if (values.length === 0) {
+          return null;
+        }
+
+        return [
+          block.id,
+          {
+            block_type: block.type,
+            value: values.length === 1 ? values[0] : values,
+          },
+        ] as const;
+      })
+      .filter((entry): entry is readonly [string, { block_type: string; value: string | string[] }] =>
+        Boolean(entry),
+      ),
+  );
 }
 
 export async function completeAiLiteracyLesson(formData: FormData) {

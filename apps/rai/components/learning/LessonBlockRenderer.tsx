@@ -60,6 +60,7 @@ export function LessonBlockRenderer({ block }: { block: LessonBlock }) {
               <p>{block.reflection_prompt}</p>
               <textarea
                 aria-label="Reflectieantwoord"
+                name={`answer:${block.id}`}
                 placeholder="Noteer kort je afweging. Opslaan volgt in een latere sprint."
                 rows={4}
               />
@@ -77,7 +78,7 @@ export function LessonBlockRenderer({ block }: { block: LessonBlock }) {
           <div className="quiz-options">
             {block.options.map((option) => (
               <label className="quiz-option" key={option.id}>
-                <input name={block.id} type="radio" value={option.id} />
+                <input name={`answer:${block.id}`} type="radio" value={option.id} />
                 <span>{option.label}</span>
               </label>
             ))}
@@ -95,7 +96,7 @@ export function LessonBlockRenderer({ block }: { block: LessonBlock }) {
           <div className="quiz-options">
             {block.options.map((option) => (
               <label className="quiz-option" key={option.id}>
-                <input name={`${block.id}-${option.id}`} type="checkbox" value={option.id} />
+                <input name={`answer:${block.id}`} type="checkbox" value={option.id} />
                 <span>{option.label}</span>
               </label>
             ))}
@@ -112,11 +113,11 @@ export function LessonBlockRenderer({ block }: { block: LessonBlock }) {
           <p>{block.question}</p>
           <div className="quiz-options two-options">
             <label className="quiz-option">
-              <input name={block.id} type="radio" value="true" />
+              <input name={`answer:${block.id}`} type="radio" value="true" />
               <span>Waar</span>
             </label>
             <label className="quiz-option">
-              <input name={block.id} type="radio" value="false" />
+              <input name={`answer:${block.id}`} type="radio" value="false" />
               <span>Niet waar</span>
             </label>
           </div>
@@ -136,6 +137,7 @@ export function LessonBlockRenderer({ block }: { block: LessonBlock }) {
             </span>
             <textarea
               aria-label="Reflectieantwoord"
+              name={`answer:${block.id}`}
               placeholder="Schrijf hier je reflectie. Opslaan volgt in een latere sprint."
               rows={6}
             />
@@ -152,6 +154,7 @@ export function LessonBlockRenderer({ block }: { block: LessonBlock }) {
           <div className="answer-box">
             <textarea
               aria-label="Open antwoord"
+              name={`answer:${block.id}`}
               placeholder={block.placeholder ?? "Schrijf je antwoord."}
               rows={4}
             />

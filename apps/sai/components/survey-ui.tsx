@@ -31,7 +31,7 @@ export function SurveyPageShell({
         <div className="absolute -bottom-48 -right-40 h-[34rem] w-[34rem] rounded-full bg-[#bae6ff]/35 blur-[90px]" />
       </div>
       <section
-        className={`mx-auto grid min-w-0 w-full ${maxWidthClassName} gap-6 px-6 py-6 md:py-8`}
+        className={`mx-auto grid min-w-0 w-[calc(100vw-2rem)] ${maxWidthClassName} gap-6 py-6 sm:w-[calc(100vw-3rem)] md:py-8`}
       >
         <SurveyBrandHeader badge={badge} />
         {children}
@@ -100,7 +100,7 @@ export function SurveyGlassCard({
 }) {
   return (
     <section
-      className={`rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_8px_40px_rgba(0,101,139,0.06)] backdrop-blur md:p-8 ${className}`}
+      className={`min-w-0 rounded-[2rem] border border-white/70 bg-white/85 p-5 shadow-[0_8px_40px_rgba(0,101,139,0.06)] backdrop-blur md:p-8 ${className}`}
     >
       {children}
     </section>
@@ -247,16 +247,20 @@ export function SurveyQuestionBlock({
 }) {
   return (
     <section
-      className={`grid gap-4 rounded-[1.35rem] border bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
+      className={`grid min-w-0 max-w-full gap-4 rounded-[1.35rem] border bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
         isInvalid || error ? "border-red-300" : "border-white/80"
       }`}
     >
-      <div>
+      <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <h3 className="font-bold text-[#00658b]">{title}</h3>
+          <h3 className="min-w-0 break-words font-bold text-[#00658b]">
+            {title}
+          </h3>
           {required ? <RequiredBadge /> : null}
         </div>
-        <p className="mt-1 text-sm leading-6 text-[#40484e]">{helpText}</p>
+        <p className="mt-1 break-words text-sm leading-6 text-[#40484e]">
+          {helpText}
+        </p>
       </div>
       {error ? <ValidationMessage>{error}</ValidationMessage> : null}
       {children}
@@ -275,7 +279,7 @@ export function SurveySummaryGrid({
 }) {
   return (
     <section
-      className={`grid gap-3 rounded-2xl border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm ${columnsClassName} ${className}`}
+      className={`grid min-w-0 max-w-full gap-3 rounded-2xl border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm ${columnsClassName} ${className}`}
     >
       {children}
     </section>
@@ -308,10 +312,10 @@ export function SurveySummaryItem({
 
 export function RunIdCard({ runId }: { runId: string }) {
   return (
-    <section className="rounded-2xl border border-[#bfc7cf]/50 bg-white/80 p-4 text-sm">
+    <section className="min-w-0 max-w-full rounded-2xl border border-[#bfc7cf]/50 bg-white/80 p-4 text-sm">
       <p>
         <span className="font-semibold">Scanreferentie:</span>{" "}
-        <span className="font-mono">{runId}</span>
+        <span className="break-all font-mono">{runId}</span>
       </p>
       <p className="mt-2 text-[#40484e]">
         De beveiligde sessiesleutel wordt niet getoond.
@@ -328,8 +332,8 @@ export function TechnicalStatus({
   summary?: string;
 }) {
   return (
-    <details className="rounded-2xl border border-[#bfc7cf]/50 bg-white/65 p-4 text-sm">
-      <summary className="cursor-pointer font-bold text-[#00658b]">
+    <details className="rounded-2xl border border-[#bfc7cf]/45 bg-white/45 p-4 text-sm">
+      <summary className="cursor-pointer text-sm font-bold text-[#00658b]">
         {summary}
       </summary>
       <div className="mt-4 grid gap-3">{children}</div>

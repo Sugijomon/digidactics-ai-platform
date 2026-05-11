@@ -260,12 +260,12 @@ export default function SurveyProfilePage() {
                       type="radio"
                       value={option.code}
                     />
-                    <span>
+                    <span className="min-w-0">
                       <span className="block text-sm font-semibold text-[#181c1e]">
                         {option.label}
                       </span>
                       {option.description ? (
-                        <span className="mt-1 block text-xs leading-5 text-[#40484e]">
+                        <span className="mt-1 block break-words text-xs leading-5 text-[#40484e]">
                           {option.description}
                         </span>
                       ) : null}
@@ -400,7 +400,7 @@ export default function SurveyProfilePage() {
               title="Welke werkzaamheden lenen zich volgens jou goed voor AI-ondersteuning?"
             >
               <textarea
-                className="min-h-28 rounded-xl border border-[#bfc7cf] bg-white px-3 py-2 text-sm outline-none focus:border-[#00658b]"
+                className="min-h-28 w-full min-w-0 rounded-xl border border-[#bfc7cf] bg-white px-3 py-2 text-sm outline-none focus:border-[#00658b]"
                 onChange={(event) => setFutureUsecasesText(event.target.value)}
                 placeholder="Bijvoorbeeld: conceptteksten, samenvatten, analyseren..."
                 value={futureUsecasesText}
@@ -525,13 +525,13 @@ function SelectField({
   value: string;
 }) {
   return (
-    <label className="grid gap-2 text-sm font-semibold text-[#181c1e]">
+    <label className="grid min-w-0 max-w-full gap-2 text-sm font-semibold text-[#181c1e]">
       <span>
         {label}
         {required ? <span className="text-red-700"> *</span> : null}
       </span>
       <select
-        className="h-11 rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm outline-none transition focus:border-[#00658b] focus:ring-2 focus:ring-[#c4e7ff]"
+        className="h-11 w-full min-w-0 max-w-full rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm outline-none transition focus:border-[#00658b] focus:ring-2 focus:ring-[#c4e7ff]"
         onChange={(event) => onChange(event.target.value)}
         value={value}
       >

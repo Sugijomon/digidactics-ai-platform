@@ -53,7 +53,7 @@ export default function SurveyStartPage() {
       <div className="flex min-h-[calc(100vh-9rem)] min-w-0 flex-col justify-center py-6">
         <div className="mx-auto mb-10 min-w-0 max-w-2xl text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#e5c687] bg-[#faf5e8] px-3.5 py-1.5 text-xs font-bold text-[#ca8a04] shadow-sm">
-            <span aria-hidden="true">timer</span>
+            <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[#ca8a04]" />
             Scan is open voor de smoke-test wave
           </div>
 
@@ -167,7 +167,7 @@ function IntroCard({
     green: {
       color: "#527a1b",
       background: "#eef7e1",
-      icon: "✓",
+      icon: "OK",
     },
     secondary: {
       color: "#396379",

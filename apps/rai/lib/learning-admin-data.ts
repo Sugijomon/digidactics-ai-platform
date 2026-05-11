@@ -13,6 +13,7 @@ export interface LearningAdminCourseSummary {
   description: string | null;
   status: string;
   required_for_onboarding: boolean;
+  unlocks_capability: string | null;
   passing_threshold: number;
   page_count: number;
   published_page_count: number;
@@ -44,6 +45,7 @@ interface CourseRow {
   description: string | null;
   status: string;
   required_for_onboarding: boolean;
+  unlocks_capability: string | null;
   passing_threshold: number;
 }
 
@@ -101,7 +103,7 @@ export async function getLearningAdminOverview(): Promise<LearningAdminOverview>
   const { data: courseRows, error: courseError } = await supabase
     .from("learning_courses")
     .select(
-      "id, course_code, title, description, status, required_for_onboarding, passing_threshold",
+      "id, course_code, title, description, status, required_for_onboarding, unlocks_capability, passing_threshold",
     )
     .order("created_at", { ascending: false });
 
@@ -114,11 +116,13 @@ export async function getLearningAdminOverview(): Promise<LearningAdminOverview>
     .select(
       "id, course_id, page_code, title, summary, status, estimated_duration_minutes, content",
     )
+    .neq("status", "archived")
     .order("created_at", { ascending: false });
 
   const { data: microRows } = await supabase
     .from("learning_lessons")
     .select("id, lesson_code, title, summary, lesson_type, status, estimated_duration_minutes, content")
+    .neq("status", "archived")
     .eq("lesson_type", "microlearning")
     .order("created_at", { ascending: false });
 
@@ -186,6 +190,7 @@ function previewOverview(): LearningAdminOverview {
         description: aiLiteracyPreviewCourse.description,
         status: "published",
         required_for_onboarding: aiLiteracyPreviewCourse.required_for_onboarding,
+        unlocks_capability: "routeai_usecase_check",
         passing_threshold: aiLiteracyPreviewCourse.passing_threshold,
         page_count: aiLiteracyPreviewCourse.pages.length,
         published_page_count: aiLiteracyPreviewCourse.pages.length,

@@ -156,6 +156,11 @@ test("respondent can resume an active scan from the start page", async ({
 
   await expect(page).toHaveURL(/\/survey\/motivations$/, { timeout: 30_000 });
   await page.goto("/survey");
+  await expect(page.getByText("Actieve scan gevonden")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Verder bij Motivatie" })).toBeVisible();
+  await expect(page.getByText("1/7 klaar")).toBeVisible();
+  await expect(page.getByText("0 tools opgeslagen")).toBeVisible();
+  await expect(page.getByText("mock-token")).not.toBeVisible();
   await expect(
     page.getByRole("link", { name: "Hervat actieve scan" }),
   ).toBeVisible();

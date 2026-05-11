@@ -9,16 +9,31 @@ import {
   ValidationMessage,
 } from "@/components/survey-ui";
 import { startSurveyRun } from "@/lib/sai-rpc/client";
-import { readSurveySession, storeSurveySession } from "@/lib/sai-rpc/session";
+import {
+  readSurveySession,
+  storeSurveySession,
+  type StoredSurveySession,
+} from "@/lib/sai-rpc/session";
 import type { RpcError } from "@/lib/sai-rpc/types";
-import { getResumeStep } from "@/lib/sai-survey/flow";
+import { getResumeStep, surveySteps } from "@/lib/sai-survey/flow";
 
 const DEFAULT_WAVE_TOKEN = "sai-smoke-wave-token";
+
+type ResumeSurveyView = {
+  completedCount: number;
+  href: string;
+  savedToolCount: number;
+  startedAtLabel: string;
+  stepLabel: string;
+  totalSteps: number;
+};
 
 export default function SurveyStartPage() {
   const router = useRouter();
   const [waveToken, setWaveToken] = useState(DEFAULT_WAVE_TOKEN);
-  const [resumeHref, setResumeHref] = useState<string | null>(null);
+  const [resumeSurvey, setResumeSurvey] = useState<ResumeSurveyView | null>(
+    null,
+  );
   const [isStarting, setIsStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,7 +42,7 @@ export default function SurveyStartPage() {
       const storedSession = readSurveySession();
 
       if (storedSession) {
-        setResumeHref(getResumeStep(storedSession).href);
+        setResumeSurvey(getResumeSurveyView(storedSession));
       }
     });
   }, []);
@@ -128,13 +143,8 @@ export default function SurveyStartPage() {
           >
             {isStarting ? "Scan starten..." : "Start de scan"}
           </PrimarySurveyButton>
-          {resumeHref ? (
-            <a
-              className="inline-flex h-11 items-center justify-center rounded-full border border-[#00658b] bg-white px-6 text-sm font-bold text-[#00658b] transition hover:bg-[#c4e7ff]/30"
-              href={resumeHref}
-            >
-              Hervat actieve scan
-            </a>
+          {resumeSurvey ? (
+            <ResumeSurveyCard resumeSurvey={resumeSurvey} />
           ) : null}
           <p className="text-center text-xs font-medium text-[#40484e]">
             Duurt ca. 8-10 minuten - Anoniem - Geen verplichte velden
@@ -194,4 +204,68 @@ function IntroCard({
 
 function formatRpcError(error: RpcError) {
   return [error.code, error.message].filter(Boolean).join(": ");
+}
+
+function ResumeSurveyCard({
+  resumeSurvey,
+}: {
+  resumeSurvey: ResumeSurveyView;
+}) {
+  return (
+    <section className="grid gap-3 rounded-2xl border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs font-bold uppercase tracking-wide text-[#00658b]/70">
+            Actieve scan gevonden
+          </p>
+          <h2 className="mt-1 break-words text-base font-extrabold text-[#00658b]">
+            Verder bij {resumeSurvey.stepLabel}
+          </h2>
+        </div>
+        <span className="rounded-full border border-[#00658b]/20 bg-white px-3 py-1 text-xs font-extrabold text-[#00658b]">
+          {resumeSurvey.completedCount}/{resumeSurvey.totalSteps} klaar
+        </span>
+      </div>
+      <div className="grid gap-2 rounded-xl bg-white/70 px-3 py-2 text-xs font-medium text-[#40484e] sm:grid-cols-2">
+        <p>{resumeSurvey.savedToolCount} tools opgeslagen</p>
+        <p>Gestart: {resumeSurvey.startedAtLabel}</p>
+      </div>
+      <a
+        className="inline-flex h-11 items-center justify-center rounded-full border border-[#00658b] bg-white px-6 text-sm font-bold text-[#00658b] transition hover:bg-[#c4e7ff]/30"
+        href={resumeSurvey.href}
+      >
+        Hervat actieve scan
+      </a>
+    </section>
+  );
+}
+
+function getResumeSurveyView(
+  storedSession: StoredSurveySession,
+): ResumeSurveyView {
+  const resumeStep = getResumeStep(storedSession);
+
+  return {
+    completedCount: storedSession.completedSteps?.length ?? 0,
+    href: resumeStep.href,
+    savedToolCount: storedSession.savedTools?.length ?? 0,
+    startedAtLabel: formatStartedAt(storedSession.startedAt),
+    stepLabel: resumeStep.label,
+    totalSteps: surveySteps.length,
+  };
+}
+
+function formatStartedAt(startedAt: string) {
+  const date = new Date(startedAt);
+
+  if (Number.isNaN(date.getTime())) {
+    return "onbekend";
+  }
+
+  return new Intl.DateTimeFormat("nl-NL", {
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    month: "2-digit",
+  }).format(date);
 }

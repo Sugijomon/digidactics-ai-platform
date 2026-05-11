@@ -44,6 +44,10 @@ export default async function AdminCourseEditorPage({
             <details className="admin-inline-details">
               <summary className="button button-primary">Lessen toevoegen</summary>
               <form action={addExistingLessonToCourse} className="admin-popover-form">
+                <div className="admin-popover-heading">
+                  <h2>Lessen toevoegen</h2>
+                  <p>Kies een microlearning-template en plaats die als cursusles in een topic.</p>
+                </div>
                 <input name="courseId" type="hidden" value={course.id} />
                 <input name="courseCode" type="hidden" value={course.course_code} />
                 <label className="field">
@@ -59,14 +63,22 @@ export default async function AdminCourseEditorPage({
                 <label className="field">
                   <span>Microlearning</span>
                   <select name="lessonId">
-                    {overview.microLearnings.map((lesson) => (
-                      <option key={lesson.id} value={lesson.id}>
-                        {lesson.title}
-                      </option>
-                    ))}
+                    {overview.microLearnings.length ? (
+                      overview.microLearnings.map((lesson) => (
+                        <option key={lesson.id} value={lesson.id}>
+                          {lesson.title}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="">Geen microlearnings beschikbaar</option>
+                    )}
                   </select>
                 </label>
-                <button className="button button-primary" type="submit">
+                <button
+                  className="button button-primary"
+                  disabled={!overview.microLearnings.length}
+                  type="submit"
+                >
                   Toevoegen
                 </button>
               </form>
@@ -78,6 +90,7 @@ export default async function AdminCourseEditorPage({
               <tr>
                 <th>#</th>
                 <th>Les</th>
+                <th>Topic</th>
                 <th>Verplicht</th>
                 <th>Acties</th>
               </tr>
@@ -90,6 +103,7 @@ export default async function AdminCourseEditorPage({
                     <strong>{page.title}</strong>
                     <span>{page.summary ?? "Geen samenvatting ingesteld."}</span>
                   </td>
+                  <td>{course.topics.find((topic) => topic.id === page.topic_id)?.title ?? "-"}</td>
                   <td>{page.is_required ? "Ja" : "Nee"}</td>
                   <td>
                     <div className="table-actions">

@@ -257,6 +257,7 @@ export function LearningAdminEditor({
             {blocks.length === 0 ? (
               <p className="empty-state">Deze pagina heeft nog geen blocks.</p>
             ) : null}
+            <BlockAddTray onAddBlock={addBlock} />
           </div>
         ) : null}
 
@@ -292,36 +293,7 @@ export function LearningAdminEditor({
         {activePanel === "content" ? (
           <>
             <div className="cardless-panel">
-              <p className="eyebrow">Block library</p>
-              <h2>Modulaire bouwstenen</h2>
-              <p className="muted">
-                Nieuw block wordt ingevoegd na het geselecteerde block.
-              </p>
-              <div className="block-library">
-                {blockCategories.map((category) => (
-                  <section className="block-library-group" key={category}>
-                    <h3>{category}</h3>
-                    <div className="block-picker">
-                      {blockTypes
-                        .filter((blockType) => blockType.category === category)
-                        .map((blockType) => (
-                          <button
-                            className="button button-secondary"
-                            key={blockType.type}
-                            onClick={() => addBlock(blockType.type)}
-                            type="button"
-                          >
-                            {blockType.label}
-                          </button>
-                        ))}
-                    </div>
-                  </section>
-                ))}
-              </div>
-            </div>
-
-            <div className="cardless-panel">
-              <p className="eyebrow">Properties</p>
+              <p className="eyebrow">Eigenschappen</p>
               {selectedBlock && selectedBlockIndex >= 0 ? (
                 <>
                   <h2>{getBlockTitle(selectedBlock, selectedBlockIndex)}</h2>
@@ -333,6 +305,14 @@ export function LearningAdminEditor({
               ) : (
                 <p className="empty-state">Selecteer een block om de inhoud te bewerken.</p>
               )}
+            </div>
+            <div className="cardless-panel">
+              <p className="eyebrow">Pagina</p>
+              <h2>Rustig bouwen</h2>
+              <p className="muted">
+                Selecteer links een contentblok, bewerk hier de inhoud en voeg onderaan nieuwe
+                blokken toe.
+              </p>
             </div>
           </>
         ) : null}
@@ -365,6 +345,38 @@ export function LearningAdminEditor({
           </div>
         ) : null}
       </aside>
+    </section>
+  );
+}
+
+function BlockAddTray({ onAddBlock }: { onAddBlock: (type: string) => void }) {
+  return (
+    <section className="editor-add-tray" aria-label="Blok toevoegen">
+      <div>
+        <p className="eyebrow">Blok toevoegen</p>
+        <h2>Contentblokken</h2>
+      </div>
+      <div className="editor-add-groups">
+        {blockCategories.map((category) => (
+          <div className="editor-add-group" key={category}>
+            <span>{category}</span>
+            <div>
+              {blockTypes
+                .filter((blockType) => blockType.category === category)
+                .map((blockType) => (
+                  <button
+                    className="button button-secondary"
+                    key={blockType.type}
+                    onClick={() => onAddBlock(blockType.type)}
+                    type="button"
+                  >
+                    {blockType.label}
+                  </button>
+                ))}
+            </div>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }

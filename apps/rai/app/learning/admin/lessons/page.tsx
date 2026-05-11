@@ -24,8 +24,12 @@ export default async function AdminLessonsPage() {
           <h1>Lessen</h1>
         </div>
         <details className="admin-inline-details align-right">
-          <summary className="button button-primary">Nieuwe Les</summary>
+          <summary className="button button-primary">Nieuwe les</summary>
           <form action={createLearningPage} className="admin-popover-form wide">
+            <div className="admin-popover-heading">
+              <h2>Nieuwe les aanmaken</h2>
+              <p>Maak een cursusles aan. Daarna kun je direct contentblokken toevoegen.</p>
+            </div>
             <label className="field">
               <span>Cursus / topic</span>
               <select name="target">
@@ -102,6 +106,7 @@ export default async function AdminLessonsPage() {
               <th>Gebruikt in</th>
               <th>Duur</th>
               <th>Status</th>
+              <th>Blokken</th>
               <th>Acties</th>
             </tr>
           </thead>
@@ -120,11 +125,12 @@ export default async function AdminLessonsPage() {
                     {lesson.status === "published" ? "Gepubliceerd" : "Concept"}
                   </span>
                 </td>
+                <td>{lesson.block_count}</td>
                 <td>
                   {lesson.kind === "course_page" ? (
                     <Link href={`/learning/admin/lessons/${lesson.code}`}>Bewerken</Link>
                   ) : (
-                    <span className="muted">Later</span>
+                    <span className="muted">Template</span>
                   )}
                 </td>
               </tr>

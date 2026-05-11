@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AddLessonDialog } from "@/components/learning/admin/AddLessonDialog";
 import { ContentEditorShell } from "@/components/learning/admin/ContentEditorShell";
 import { getAdminCourse, getLearningAdminOverview } from "@/lib/learning-admin-data";
 import {
@@ -20,7 +21,6 @@ export default async function AdminCourseEditorPage({
   ]);
   const courseSummary = overview.courses.find((item) => item.course_code === course.course_code);
   const pages = course.topics.flatMap((topic) => topic.pages);
-  const defaultTopic = course.topics[0];
 
   return (
     <ContentEditorShell active="courses">
@@ -41,48 +41,11 @@ export default async function AdminCourseEditorPage({
               <h2>Lessen in Cursus</h2>
               <p>Voeg lessen toe en bepaal de volgorde. Gebruikers doorlopen de lessen in deze volgorde.</p>
             </div>
-            <details className="admin-inline-details">
-              <summary className="button button-primary">Lessen toevoegen</summary>
-              <form action={addExistingLessonToCourse} className="admin-popover-form">
-                <div className="admin-popover-heading">
-                  <h2>Lessen toevoegen</h2>
-                  <p>Kies een microlearning-template en plaats die als cursusles in een topic.</p>
-                </div>
-                <input name="courseId" type="hidden" value={course.id} />
-                <input name="courseCode" type="hidden" value={course.course_code} />
-                <label className="field">
-                  <span>Topic</span>
-                  <select name="topicId" defaultValue={defaultTopic?.id}>
-                    {course.topics.map((topic) => (
-                      <option key={topic.id} value={topic.id}>
-                        {topic.title}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="field">
-                  <span>Microlearning</span>
-                  <select name="lessonId">
-                    {overview.microLearnings.length ? (
-                      overview.microLearnings.map((lesson) => (
-                        <option key={lesson.id} value={lesson.id}>
-                          {lesson.title}
-                        </option>
-                      ))
-                    ) : (
-                      <option value="">Geen microlearnings beschikbaar</option>
-                    )}
-                  </select>
-                </label>
-                <button
-                  className="button button-primary"
-                  disabled={!overview.microLearnings.length}
-                  type="submit"
-                >
-                  Toevoegen
-                </button>
-              </form>
-            </details>
+            <AddLessonDialog
+              action={addExistingLessonToCourse}
+              course={course}
+              lessons={overview.microLearnings}
+            />
           </div>
 
           <table className="admin-data-table">

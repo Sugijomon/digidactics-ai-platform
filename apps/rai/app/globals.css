@@ -1755,6 +1755,93 @@ h3 {
   margin: 0;
 }
 
+.admin-dialog-backdrop {
+  align-items: center;
+  background: rgba(15, 23, 42, 0.52);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 24px;
+  position: fixed;
+  z-index: 80;
+}
+
+.admin-dialog {
+  background: white;
+  border: 1px solid var(--editor-line);
+  border-radius: 8px;
+  box-shadow: 0 30px 90px rgba(15, 23, 42, 0.24);
+  max-height: calc(100vh - 48px);
+  max-width: 520px;
+  overflow: auto;
+  width: min(100%, 520px);
+}
+
+.compact-dialog {
+  max-width: 460px;
+}
+
+.admin-dialog-header {
+  align-items: flex-start;
+  border-bottom: 1px solid var(--editor-line);
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  padding: 22px 24px 16px;
+}
+
+.admin-dialog-header h2 {
+  font-size: 1.24rem;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.admin-dialog-header p {
+  color: #53627a;
+  line-height: 1.45;
+  margin: 6px 0 0;
+}
+
+.admin-dialog-close {
+  align-items: center;
+  background: white;
+  border: 1px solid var(--editor-line);
+  border-radius: 8px;
+  color: #53627a;
+  cursor: pointer;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font: inherit;
+  font-weight: 900;
+  height: 34px;
+  justify-content: center;
+  width: 34px;
+}
+
+.admin-dialog-form {
+  display: grid;
+  gap: 16px;
+  padding: 20px 24px 24px;
+}
+
+.admin-dialog-actions {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.admin-dialog-note {
+  background: #f7f9fc;
+  border: 1px solid var(--editor-line);
+  border-radius: 8px;
+  color: #53627a;
+  line-height: 1.45;
+  margin: 0;
+  padding: 12px;
+}
+
 .admin-side-stack {
   display: grid;
   gap: 18px;
@@ -1952,5 +2039,22 @@ h3 {
   .admin-popover-form.wide {
     min-width: min(88vw, 420px);
     right: auto;
+  }
+
+  .admin-dialog-backdrop {
+    align-items: flex-end;
+    padding: 12px;
+  }
+
+  .admin-dialog,
+  .compact-dialog {
+    max-height: calc(100vh - 24px);
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .admin-dialog-actions {
+    align-items: stretch;
+    display: grid;
   }
 }

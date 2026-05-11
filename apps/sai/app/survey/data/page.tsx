@@ -402,12 +402,25 @@ function CheckboxGroup({
     onChange(normalizeExclusiveSelection(nextSelection, code));
   }
 
+  const groupId = toDomId(label);
+  const helpId = `${groupId}-help`;
+  const exclusiveHintId = `${groupId}-exclusive-hint`;
+  const errorId = validationError ? `${groupId}-error` : undefined;
+  const hasExclusiveSelection = selectedCodes.some((code) =>
+    EXCLUSIVE_CODES.has(code),
+  );
+
   return (
-    <section
+    <fieldset
+      aria-describedby={[helpId, hasExclusiveSelection ? exclusiveHintId : "", errorId]
+        .filter(Boolean)
+        .join(" ")}
+      aria-invalid={validationError ? true : undefined}
       className={`grid min-w-0 max-w-full gap-4 rounded-[1.35rem] border bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
         validationError ? "border-red-300" : "border-white/80"
       }`}
     >
+      <legend className="sr-only">Keuzegroep</legend>
       <div className="min-w-0">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2">
@@ -422,17 +435,23 @@ function CheckboxGroup({
             {selectedCodes.length} geselecteerd
           </span>
         </div>
-        <p className="mt-1 break-words text-sm leading-6 text-[#40484e]">
+        <p
+          className="mt-1 break-words text-sm leading-6 text-[#40484e]"
+          id={helpId}
+        >
           {helpText}
         </p>
-        {selectedCodes.some((code) => EXCLUSIVE_CODES.has(code)) ? (
-          <p className="mt-2 rounded-xl border border-[#f0d38a] bg-[#fff8df] px-3 py-2 text-xs font-semibold leading-5 text-[#6f5600]">
+        {hasExclusiveSelection ? (
+          <p
+            className="mt-2 rounded-xl border border-[#f0d38a] bg-[#fff8df] px-3 py-2 text-xs font-semibold leading-5 text-[#6f5600]"
+            id={exclusiveHintId}
+          >
             Je hebt een exclusieve keuze geselecteerd. Die vervangt andere
             keuzes binnen deze vraag.
           </p>
         ) : null}
         {validationError ? (
-          <p className="mt-2 text-sm font-semibold text-red-700">
+          <p className="mt-2 text-sm font-semibold text-red-700" id={errorId}>
             {validationError}
           </p>
         ) : null}
@@ -482,7 +501,7 @@ function CheckboxGroup({
           </div>
         ))}
       </div>
-    </section>
+    </fieldset>
   );
 }
 
@@ -575,4 +594,11 @@ function normalizeExclusiveSelection(codes: string[], latestCode: string) {
 
 function formatRpcError(error: RpcError) {
   return [error.code, error.message].filter(Boolean).join(": ");
+}
+
+function toDomId(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
 }

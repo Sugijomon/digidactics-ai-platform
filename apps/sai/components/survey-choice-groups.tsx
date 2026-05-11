@@ -28,12 +28,19 @@ export function SurveyCheckboxGroup({
     );
   }
 
+  const groupId = toDomId(label);
+  const helpId = `${groupId}-help`;
+  const errorId = validationError ? `${groupId}-error` : undefined;
+
   return (
-    <section
+    <fieldset
+      aria-describedby={[helpId, errorId].filter(Boolean).join(" ")}
+      aria-invalid={validationError ? true : undefined}
       className={`grid min-w-0 max-w-full gap-4 rounded-[1.35rem] border bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
         validationError ? "border-red-300" : "border-white/80"
       }`}
     >
+      <legend className="sr-only">Keuzegroep</legend>
       <div className="min-w-0">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2">
@@ -46,11 +53,14 @@ export function SurveyCheckboxGroup({
             {selectedCodes.length} geselecteerd
           </span>
         </div>
-        <p className="mt-1 break-words text-sm leading-6 text-[#40484e]">
+        <p
+          className="mt-1 break-words text-sm leading-6 text-[#40484e]"
+          id={helpId}
+        >
           {helpText}
         </p>
         {validationError ? (
-          <p className="mt-2 text-sm font-semibold text-red-700">
+          <p className="mt-2 text-sm font-semibold text-red-700" id={errorId}>
             {validationError}
           </p>
         ) : null}
@@ -70,6 +80,7 @@ export function SurveyCheckboxGroup({
               checked={selectedCodes.includes(option.code)}
               className="mt-0.5 h-5 w-5 accent-[#00658b]"
               disabled={isDisabled}
+              name={groupId}
               onChange={() => toggleCode(option.code)}
               type="checkbox"
               value={option.code}
@@ -87,7 +98,7 @@ export function SurveyCheckboxGroup({
           </label>
         ))}
       </div>
-    </section>
+    </fieldset>
   );
 }
 
@@ -110,12 +121,19 @@ export function SurveyRadioGroup({
   selectedCode: string;
   validationError?: string;
 }) {
+  const groupId = toDomId(label);
+  const helpId = `${groupId}-help`;
+  const errorId = validationError ? `${groupId}-error` : undefined;
+
   return (
-    <section
+    <fieldset
+      aria-describedby={[helpId, errorId].filter(Boolean).join(" ")}
+      aria-invalid={validationError ? true : undefined}
       className={`grid min-w-0 max-w-full gap-4 rounded-[1.35rem] border bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
         validationError ? "border-red-300" : "border-white/80"
       }`}
     >
+      <legend className="sr-only">Keuzegroep</legend>
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <h3 className="min-w-0 break-words font-bold text-[#00658b]">
@@ -123,11 +141,14 @@ export function SurveyRadioGroup({
           </h3>
           <RequiredBadge />
         </div>
-        <p className="mt-1 break-words text-sm leading-6 text-[#40484e]">
+        <p
+          className="mt-1 break-words text-sm leading-6 text-[#40484e]"
+          id={helpId}
+        >
           {helpText}
         </p>
         {validationError ? (
-          <p className="mt-2 text-sm font-semibold text-red-700">
+          <p className="mt-2 text-sm font-semibold text-red-700" id={errorId}>
             {validationError}
           </p>
         ) : null}
@@ -165,6 +186,13 @@ export function SurveyRadioGroup({
           </label>
         ))}
       </div>
-    </section>
+    </fieldset>
   );
+}
+
+function toDomId(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
 }

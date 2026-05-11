@@ -391,14 +391,23 @@ function ToolPicker({
   selectedToolId: string;
   totalToolCount: number;
 }) {
+  const catalogHelpId = "tool-catalog-help";
+
   return (
-    <section className="grid min-w-0 max-w-full gap-4 rounded-[1.6rem] border border-white/80 bg-white/80 p-4 shadow-[0_8px_24px_rgba(0,101,139,0.04)] md:p-5">
+    <fieldset
+      aria-describedby={catalogHelpId}
+      className="grid min-w-0 max-w-full gap-4 rounded-[1.6rem] border border-white/80 bg-white/80 p-4 shadow-[0_8px_24px_rgba(0,101,139,0.04)] md:p-5"
+    >
+      <legend className="sr-only">Keuzegroep</legend>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="break-words text-lg font-extrabold text-[#00658b]">
             Catalogus
           </h3>
-          <p className="mt-1 break-words text-sm leading-6 text-[#40484e]">
+          <p
+            className="mt-1 break-words text-sm leading-6 text-[#40484e]"
+            id={catalogHelpId}
+          >
             Kies de AI-tool die je in deze stap wilt registreren.
           </p>
         </div>
@@ -543,7 +552,7 @@ function ToolPicker({
           />
         </label>
       ) : null}
-    </section>
+    </fieldset>
   );
 }
 

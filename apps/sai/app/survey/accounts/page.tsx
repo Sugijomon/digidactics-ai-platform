@@ -362,12 +362,18 @@ function AccountMatrix({
   selectedCode: string;
   validationError?: string;
 }) {
+  const helpId = "accountstatus-help";
+  const errorId = validationError ? "accountstatus-error" : undefined;
+
   return (
-    <section
+    <fieldset
+      aria-describedby={[helpId, errorId].filter(Boolean).join(" ")}
+      aria-invalid={validationError ? true : undefined}
       className={`grid min-w-0 max-w-full gap-4 rounded-[1.35rem] border bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
         validationError ? "border-red-300" : "border-white/80"
       }`}
     >
+      <legend className="sr-only">Keuzegroep</legend>
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <h3 className="min-w-0 break-words font-bold text-[#00658b]">
@@ -375,11 +381,14 @@ function AccountMatrix({
           </h3>
           <RequiredBadge />
         </div>
-        <p className="mt-1 break-words text-sm leading-6 text-[#40484e]">
+        <p
+          className="mt-1 break-words text-sm leading-6 text-[#40484e]"
+          id={helpId}
+        >
           Kies de kolom die het best past bij hoe je deze tool gebruikt.
         </p>
         {validationError ? (
-          <p className="mt-2 text-sm font-semibold text-red-700">
+          <p className="mt-2 text-sm font-semibold text-red-700" id={errorId}>
             {validationError}
           </p>
         ) : null}
@@ -423,7 +432,7 @@ function AccountMatrix({
           </label>
         ))}
       </div>
-    </section>
+    </fieldset>
   );
 }
 

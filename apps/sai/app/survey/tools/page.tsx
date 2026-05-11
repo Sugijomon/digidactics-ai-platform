@@ -57,6 +57,17 @@ const TOOL_CATEGORIES = [
   ALL_TOOL_CATEGORIES,
   ...Array.from(new Set(toolOptions.map((tool) => tool.category))),
 ];
+const POPULAR_TOOL_IDS = [
+  "chatgpt",
+  "claude",
+  "gemini",
+  "microsoft_copilot",
+  "perplexity",
+  "midjourney",
+  "fireflies_ai",
+  "cursor",
+  "n8n",
+];
 
 export default function SurveyToolsPage() {
   const router = useRouter();
@@ -96,6 +107,11 @@ export default function SurveyToolsPage() {
       }),
     [selectedToolCategory, toolSearchQuery],
   );
+  const popularToolOptions = useMemo(
+    () => getPopularTools(toolOptions),
+    [],
+  );
+  const categoryCounts = useMemo(() => getCategoryCounts(toolOptions), []);
   const selectedToolName = getSelectedToolName(selectedTool, customToolName);
   const alreadySavedCount = savedTools.filter(
     (tool) => tool.toolName.toLowerCase() === selectedToolName.toLowerCase(),
@@ -222,6 +238,7 @@ export default function SurveyToolsPage() {
         <section className="grid gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start">
           <ToolPicker
             alreadySavedCount={alreadySavedCount}
+            categoryCounts={categoryCounts}
             customToolName={customToolName}
             filteredToolOptions={filteredToolOptions}
             isDisabled={isSaving}
@@ -229,9 +246,11 @@ export default function SurveyToolsPage() {
             onSearchQueryChange={setToolSearchQuery}
             onSelectCategory={setSelectedToolCategory}
             onSelect={setSelectedToolId}
+            popularToolOptions={popularToolOptions}
             searchQuery={toolSearchQuery}
             selectedCategory={selectedToolCategory}
             selectedToolId={selectedToolId}
+            totalToolCount={toolOptions.length}
           />
 
           <ToolWorkspace
@@ -343,6 +362,7 @@ function ToolWorkspace({
 
 function ToolPicker({
   alreadySavedCount,
+  categoryCounts,
   customToolName,
   filteredToolOptions,
   isDisabled = false,
@@ -350,11 +370,14 @@ function ToolPicker({
   onSearchQueryChange,
   onSelect,
   onSelectCategory,
+  popularToolOptions,
   searchQuery,
   selectedCategory,
   selectedToolId,
+  totalToolCount,
 }: {
   alreadySavedCount: number;
+  categoryCounts: Map<string, number>;
   customToolName: string;
   filteredToolOptions: ToolOption[];
   isDisabled?: boolean;
@@ -362,9 +385,11 @@ function ToolPicker({
   onSearchQueryChange: (value: string) => void;
   onSelect: (toolId: string) => void;
   onSelectCategory: (category: string) => void;
+  popularToolOptions: ToolOption[];
   searchQuery: string;
   selectedCategory: string;
   selectedToolId: string;
+  totalToolCount: number;
 }) {
   return (
     <section className="grid min-w-0 gap-4 rounded-[1.6rem] border border-white/80 bg-white/80 p-4 shadow-[0_8px_24px_rgba(0,101,139,0.04)] md:p-5">
@@ -376,6 +401,34 @@ function ToolPicker({
           </p>
         </div>
         <RequiredBadge />
+      </div>
+
+      <div className="grid gap-3 rounded-2xl border border-[#c4e7ff] bg-[#f3fbff] p-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h4 className="text-sm font-extrabold text-[#00658b]">
+            Veel gekozen
+          </h4>
+          <span className="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-[#00658b]">
+            Snelle keuze
+          </span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {popularToolOptions.map((tool) => (
+            <button
+              className={`rounded-full border px-3 py-1.5 text-xs font-bold transition ${
+                selectedToolId === tool.id
+                  ? "border-[#00658b] bg-[#00658b] text-white"
+                  : "border-[#bfc7cf] bg-white text-[#40484e] hover:border-[#00658b] hover:text-[#00658b]"
+              }`}
+              disabled={isDisabled}
+              key={tool.id}
+              onClick={() => onSelect(tool.id)}
+              type="button"
+            >
+              {tool.name}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="grid gap-3 rounded-2xl border border-[#bfc7cf]/45 bg-[#f7fafc] p-3">
@@ -403,7 +456,12 @@ function ToolPicker({
               onClick={() => onSelectCategory(category)}
               type="button"
             >
-              {category}
+              {category}{" "}
+              <span className="font-black opacity-75">
+                {category === ALL_TOOL_CATEGORIES
+                  ? totalToolCount
+                  : (categoryCounts.get(category) ?? 0)}
+              </span>
             </button>
           ))}
         </div>
@@ -452,9 +510,22 @@ function ToolPicker({
         ))}
       </div>
       {filteredToolOptions.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-[#bfc7cf] bg-white px-4 py-3 text-sm text-[#40484e]">
-          Geen tool gevonden. Kies Andere tool of pas je filter aan.
-        </p>
+        <div className="grid gap-3 rounded-xl border border-dashed border-[#bfc7cf] bg-white px-4 py-4 text-sm text-[#40484e]">
+          <div>
+            <p className="font-bold text-[#181c1e]">Geen tool gevonden</p>
+            <p className="mt-1 leading-6">
+              Registreer de tool als eigen invoer of pas je zoekterm/filter aan.
+            </p>
+          </div>
+          <button
+            className="inline-flex h-10 w-max items-center justify-center rounded-full border border-[#00658b] px-4 text-xs font-extrabold text-[#00658b] transition hover:bg-[#c4e7ff]/30"
+            disabled={isDisabled}
+            onClick={() => onSelect("custom")}
+            type="button"
+          >
+            Eigen invoer gebruiken
+          </button>
+        </div>
       ) : null}
 
       {selectedToolId === "custom" ? (
@@ -488,4 +559,25 @@ function getOptionLabel(options: SurveyOption[], code: string) {
 
 function getOptionLabels(options: SurveyOption[], codes: string[]) {
   return codes.map((code) => getOptionLabel(options, code)).join(", ");
+}
+
+function getCategoryCounts(tools: ToolOption[]) {
+  return tools.reduce((counts, tool) => {
+    counts.set(tool.category, (counts.get(tool.category) ?? 0) + 1);
+    return counts;
+  }, new Map<string, number>());
+}
+
+function getPopularTools(tools: readonly ToolOption[]) {
+  const popularTools: ToolOption[] = [];
+
+  for (const toolId of POPULAR_TOOL_IDS) {
+    const tool = tools.find((candidate) => candidate.id === toolId);
+
+    if (tool) {
+      popularTools.push(tool);
+    }
+  }
+
+  return popularTools;
 }

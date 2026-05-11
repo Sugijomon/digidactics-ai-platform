@@ -264,6 +264,40 @@ test("tools and use case steps validate required details before saving", async (
   await expect(page).toHaveURL(/\/survey\/use-cases$/);
 });
 
+test("tool picker supports popular shortcuts and custom empty search", async ({
+  page,
+}) => {
+  await mockSupabaseRpc(page);
+  await page.goto("/survey");
+  await page.evaluate(() => window.sessionStorage.clear());
+  await page.getByRole("button", { name: "Start de scan" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/profile$/, { timeout: 30_000 });
+  await page.getByRole("button", { name: "Verder" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/motivations$/, { timeout: 30_000 });
+  await page.getByRole("button", { name: "Verder" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/data$/, { timeout: 30_000 });
+  await page.getByRole("button", { name: "Verder" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/tools$/, { timeout: 30_000 });
+  await expect(page.getByText("Veel gekozen")).toBeVisible();
+  await page.getByRole("button", { name: "Cursor" }).click();
+  await expect(page.locator('input[value="cursor"]')).toBeChecked();
+
+  await page.getByLabel("Zoek tool").fill("Bestaat Niet");
+  await expect(page.getByText("Geen tool gevonden")).toBeVisible();
+  await page.getByRole("button", { name: "Eigen invoer gebruiken" }).click();
+  await page.getByLabel("Naam van de tool").fill("Eigen AI Tool");
+  await page.getByRole("button", { name: "Tool registreren" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/use-cases$/, { timeout: 30_000 });
+  await expect(
+    page.getByRole("heading", { name: "Eigen AI Tool", exact: true }),
+  ).toBeVisible();
+});
+
 async function mockSupabaseRpc(page: import("@playwright/test").Page) {
   let sequence = 0;
   let completed = false;

@@ -5,56 +5,85 @@ import { getLearningAdminOverview } from "@/lib/learning-admin-data";
 export default async function LearningAdminPage() {
   const overview = await getLearningAdminOverview();
   const publishedCourses = overview.courses.filter((course) => course.status === "published");
+  const totalBlocks = [...overview.lessons, ...overview.microLearnings].reduce(
+    (sum, lesson) => sum + lesson.block_count,
+    0,
+  );
+  const primaryCourse = overview.courses[0] ?? null;
 
   return (
     <ContentEditorShell active="dashboard">
       <div className="admin-page-header">
         <div>
-          <p className="breadcrumb">Content Editor</p>
-          <h1>Content Editor</h1>
+          <p className="breadcrumb">Content Editor / Dashboard</p>
+          <h1>Learning content dashboard</h1>
         </div>
-        <Link className="button button-primary" href="/learning">
-          Bekijk learner
-        </Link>
-      </div>
-
-      <div className="admin-tabs">
-        <Link aria-current="page" href="/learning/admin">
-          Cursussen
-        </Link>
-        <Link href="/learning/admin/lessons">
-          Micro-learnings <strong>{overview.microLearnings.length}</strong>
-        </Link>
+        <div className="actions compact-actions">
+          <Link className="button button-secondary" href="/learning">
+            Learner bekijken
+          </Link>
+          <Link className="button button-primary" href="/learning/admin/lessons">
+            Nieuwe les
+          </Link>
+        </div>
       </div>
 
       <section className="admin-stat-grid" aria-label="Contentstatistieken">
         <StatCard label="Cursussen" value={String(overview.courses.length)} />
-        <StatCard label="Lessen" value={String(overview.lessons.length)} />
+        <StatCard label="Cursuslessen" value={String(overview.lessons.length)} />
+        <StatCard label="Microlearnings" value={String(overview.microLearnings.length)} />
         <StatCard label="Gepubliceerd" value={String(publishedCourses.length)} />
       </section>
 
-      <section className="admin-course-grid" aria-label="Cursussen">
-        {overview.courses.map((course) => (
-          <article className="admin-course-card" key={course.id}>
-            <div className="admin-card-title-row">
-              <h2>{course.title}</h2>
-              <StatusBadge status={course.status} />
-            </div>
-            <p>{course.description ?? "Geen beschrijving ingesteld."}</p>
-            <div className="admin-card-footer">
-              <span>
-                {course.page_count} {course.page_count === 1 ? "les" : "lessen"}
-              </span>
-              <Link
-                className="button button-secondary"
-                href={`/learning/admin/courses/${course.course_code}`}
-              >
-                Bewerken
-              </Link>
-            </div>
-          </article>
-        ))}
+      <section className="dashboard-workbench" aria-label="Werkgebieden">
+        <WorkbenchCard
+          description="Beheer cursusstructuur, metadata en volgorde van lessen."
+          href="/learning/admin/courses"
+          label="Cursussen"
+          meta={`${overview.courses.length} actief`}
+        />
+        <WorkbenchCard
+          description="Maak en bewerk cursuslessen en microlearning templates."
+          href="/learning/admin/lessons"
+          label="Lessen"
+          meta={`${overview.lessons.length + overview.microLearnings.length} totaal`}
+        />
+        <WorkbenchCard
+          description="Bekijk welke bouwstenen beschikbaar zijn voor lessen."
+          href="/learning/admin/blocks"
+          label="Contentblokken"
+          meta={`${totalBlocks} gebruikt`}
+        />
       </section>
+
+      {primaryCourse ? (
+        <section className="admin-table-card dashboard-focus-card">
+          <div className="admin-section-heading">
+            <div>
+              <h2>Actieve cursus</h2>
+              <p>De belangrijkste RouteAI learning flow die nu klaarstaat.</p>
+            </div>
+            <Link
+              className="button button-secondary"
+              href={`/learning/admin/courses/${primaryCourse.course_code}`}
+            >
+              Cursus bewerken
+            </Link>
+          </div>
+          <div className="dashboard-course-focus">
+            <div>
+              <span className="status-badge published">RouteAI rijbewijs</span>
+              <h2>{primaryCourse.title}</h2>
+              <p>{primaryCourse.description ?? "Geen beschrijving ingesteld."}</p>
+            </div>
+            <div className="dashboard-course-metrics">
+              <Metric label="Lessen" value={String(primaryCourse.page_count)} />
+              <Metric label="Norm" value={`${primaryCourse.passing_threshold}%`} />
+              <Metric label="Capability" value={primaryCourse.unlocks_capability ?? "-"} />
+            </div>
+          </div>
+        </section>
+      ) : null}
     </ContentEditorShell>
   );
 }
@@ -68,10 +97,31 @@ function StatCard({ label, value }: { label: string; value: string }) {
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
+function WorkbenchCard({
+  description,
+  href,
+  label,
+  meta,
+}: {
+  description: string;
+  href: string;
+  label: string;
+  meta: string;
+}) {
   return (
-    <span className={`status-badge ${status === "published" ? "published" : ""}`}>
-      {status === "published" ? "Gepubliceerd" : "Concept"}
-    </span>
+    <Link className="dashboard-workbench-card" href={href}>
+      <span>{meta}</span>
+      <strong>{label}</strong>
+      <p>{description}</p>
+    </Link>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="dashboard-metric">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
   );
 }

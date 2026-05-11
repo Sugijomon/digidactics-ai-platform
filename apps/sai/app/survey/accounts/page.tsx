@@ -2,10 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { SurveyRadioGroup } from "@/components/survey-choice-groups";
 import {
   EmptySurveyState,
   PrimarySurveyButton,
+  RequiredBadge,
   RpcStepRow,
   RunIdCard,
   SurveyFooterActions,
@@ -30,7 +30,12 @@ import {
   getResumeStep,
   type SurveyStepId,
 } from "@/lib/sai-survey/flow";
-import { accountTypeOptions } from "@/lib/sai-survey/options";
+import {
+  accountTypeOptions,
+  contextOptions,
+  useCaseOptions,
+  type SurveyOption,
+} from "@/lib/sai-survey/options";
 
 type StepState = {
   status: "idle" | "running" | "ok" | "error";
@@ -40,6 +45,37 @@ type StepState = {
 const INITIAL_ACCOUNT_STEP: StepState = {
   status: "idle",
   message: "Wacht op accountstatus",
+};
+
+const ACCOUNT_MATRIX_OPTIONS = [
+  {
+    code: "business_license",
+    eyebrow: "Beheerd",
+    label: "Zakelijke licentie",
+    description: "De organisatie heeft grip op contract, logging en beheer.",
+  },
+  {
+    code: "personal_free",
+    eyebrow: "Prive",
+    label: "Gratis account",
+    description: "Gebruik zonder zakelijke overeenkomst of centraal beheer.",
+  },
+  {
+    code: "personal_paid",
+    eyebrow: "Prive",
+    label: "Betaald account",
+    description: "Zelf betaald, maar meestal nog buiten organisatieregie.",
+  },
+  {
+    code: "both",
+    eyebrow: "Gemengd",
+    label: "Beide",
+    description: "Je gebruikt zowel een zakelijke als persoonlijke variant.",
+  },
+] satisfies SurveyOptionWithEyebrow[];
+
+type SurveyOptionWithEyebrow = SurveyOption & {
+  eyebrow: string;
 };
 
 export default function SurveyAccountsPage() {
@@ -169,25 +205,17 @@ export default function SurveyAccountsPage() {
           void handleSaveAccount();
         }}
       >
-        <SurveySummaryGrid columnsClassName="md:grid-cols-3">
-          <SurveySummaryItem label="Tool" value={pendingTool.toolName} />
-          <SurveySummaryItem
-            label="Toepassingen"
-            value={`${pendingTool.useCaseCodes?.length ?? 0} gekozen`}
-          />
-          <SurveySummaryItem
-            label="Context"
-            value={`${pendingTool.contextCodes?.length ?? 0} opgeslagen`}
-          />
-        </SurveySummaryGrid>
+        <AccountStepHeader
+          pendingTool={pendingTool}
+          selectedAccountLabel={getOptionLabel(
+            accountTypeOptions,
+            selectedAccountType,
+          )}
+        />
 
-        <SurveyRadioGroup
-          helpText="Kies het accounttype dat het best past bij deze tool."
+        <AccountMatrix
           isDisabled={isSaving}
-          label="Accounttype"
-          name="account_type"
           onChange={setSelectedAccountType}
-          options={accountTypeOptions}
           selectedCode={selectedAccountType}
           validationError={!selectedAccountType ? "Kies een accounttype." : undefined}
         />
@@ -214,6 +242,147 @@ export default function SurveyAccountsPage() {
   );
 }
 
+function AccountStepHeader({
+  pendingTool,
+  selectedAccountLabel,
+}: {
+  pendingTool: PendingSurveyTool;
+  selectedAccountLabel: string;
+}) {
+  return (
+    <section className="grid gap-4 rounded-[1.6rem] border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm md:p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs font-bold uppercase tracking-wide text-[#00658b]/70">
+            Toegang en beheer
+          </p>
+          <h2 className="mt-1 break-words text-xl font-extrabold text-[#00658b]">
+            {pendingTool.toolName}
+          </h2>
+          <p className="mt-2 max-w-2xl leading-6 text-[#40484e]">
+            Het belangrijkste verschil is wie het account beheert. Bij
+            persoonlijke accounts heeft de organisatie minder grip op
+            contracten, logging en bewaartermijnen.
+          </p>
+        </div>
+        <span className="rounded-full border border-[#00658b]/20 bg-white px-3 py-1 text-xs font-extrabold text-[#00658b]">
+          {selectedAccountLabel}
+        </span>
+      </div>
+
+      <SurveySummaryGrid
+        className="border-white/70 bg-white/70"
+        columnsClassName="md:grid-cols-3"
+      >
+        <SurveySummaryItem
+          detail={getOptionLabels(useCaseOptions, pendingTool.useCaseCodes ?? [])}
+          label="Toepassingen"
+          value={`${pendingTool.useCaseCodes?.length ?? 0} gekozen`}
+        />
+        <SurveySummaryItem
+          detail={
+            pendingTool.contextCodes?.length
+              ? getOptionLabels(contextOptions, pendingTool.contextCodes)
+              : "Niet van toepassing"
+          }
+          label="Context"
+          value={
+            pendingTool.contextCodes?.length
+              ? `${pendingTool.contextCodes.length} opgeslagen`
+              : "Overgeslagen"
+          }
+        />
+        <SurveySummaryItem
+          label="Account"
+          value={selectedAccountLabel || "Nog kiezen"}
+        />
+      </SurveySummaryGrid>
+    </section>
+  );
+}
+
+function AccountMatrix({
+  isDisabled = false,
+  onChange,
+  selectedCode,
+  validationError,
+}: {
+  isDisabled?: boolean;
+  onChange: (code: string) => void;
+  selectedCode: string;
+  validationError?: string;
+}) {
+  return (
+    <section
+      className={`grid gap-4 rounded-[1.35rem] border bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
+        validationError ? "border-red-300" : "border-white/80"
+      }`}
+    >
+      <div>
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="font-bold text-[#00658b]">Accountstatus</h3>
+          <RequiredBadge />
+        </div>
+        <p className="mt-1 text-sm leading-6 text-[#40484e]">
+          Kies de kolom die het best past bij hoe je deze tool gebruikt.
+        </p>
+        {validationError ? (
+          <p className="mt-2 text-sm font-semibold text-red-700">
+            {validationError}
+          </p>
+        ) : null}
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-4">
+        {ACCOUNT_MATRIX_OPTIONS.map((option) => (
+          <label
+            className={`relative grid cursor-pointer gap-3 rounded-2xl border px-4 py-4 text-center transition hover:-translate-y-0.5 hover:border-[#00658b] hover:shadow-[0_4px_12px_rgba(0,101,139,0.06)] ${
+              selectedCode === option.code
+                ? "border-[#00658b] bg-[#f3fbff] shadow-[0_4px_18px_rgba(0,101,139,0.08)]"
+                : "border-[#bfc7cf] bg-white"
+            } ${isDisabled ? "cursor-not-allowed opacity-60" : ""}`}
+            key={option.code}
+          >
+            <span className="text-xs font-bold uppercase tracking-wide text-[#6993aa]">
+              {option.eyebrow}
+            </span>
+            <span className="mx-auto grid h-8 w-8 place-items-center rounded-full border-2 border-[#bfc7cf] bg-white">
+              <span
+                className={`h-3 w-3 rounded-full ${
+                  selectedCode === option.code ? "bg-[#00658b]" : "bg-transparent"
+                }`}
+              />
+            </span>
+            <span className="text-sm font-extrabold text-[#181c1e]">
+              {option.label}
+            </span>
+            <span className="text-xs leading-5 text-[#40484e]">
+              {option.description}
+            </span>
+            <input
+              checked={selectedCode === option.code}
+              className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+              disabled={isDisabled}
+              name="account_type"
+              onChange={() => onChange(option.code)}
+              type="radio"
+              value={option.code}
+            />
+          </label>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function formatRpcError(error: RpcError) {
   return [error.code, error.message].filter(Boolean).join(": ");
+}
+
+function getOptionLabel(options: SurveyOption[], code: string) {
+  return options.find((option) => option.code === code)?.label ?? code;
+}
+
+function getOptionLabels(options: SurveyOption[], codes: string[]) {
+  return codes.map((code) => getOptionLabel(options, code)).join(", ");
 }

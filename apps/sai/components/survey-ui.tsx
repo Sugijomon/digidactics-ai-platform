@@ -298,7 +298,7 @@ export function SurveySummaryItem({
       </p>
       <p className="mt-1 truncate font-semibold text-[#181c1e]">{value}</p>
       {detail ? (
-        <p className="mt-1 truncate text-xs font-medium text-[#40484e]">
+        <p className="mt-1 break-words text-xs font-medium text-[#40484e]">
           {detail}
         </p>
       ) : null}

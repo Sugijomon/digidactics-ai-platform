@@ -29,7 +29,11 @@ import {
   getResumeStep,
   type SurveyStepId,
 } from "@/lib/sai-survey/flow";
-import { contextOptions, useCaseOptions } from "@/lib/sai-survey/options";
+import {
+  contextOptions,
+  useCaseOptions,
+  type SurveyOption,
+} from "@/lib/sai-survey/options";
 
 type StepKey = "useCase" | "context";
 
@@ -244,13 +248,18 @@ export default function SurveyUseCasesPage() {
           void handleSaveUseCases();
         }}
       >
-        <SurveySummaryGrid columnsClassName="md:grid-cols-2">
-          <SurveySummaryItem label="Tool" value={pendingTool.toolName} />
-          <SurveySummaryItem
-            label="Context"
-            value={needsContext ? "Nodig" : "Niet nodig"}
-          />
-        </SurveySummaryGrid>
+        <ToolUseCaseHeader
+          needsContext={needsContext}
+          selectedContextLabels={getSelectedOptionLabels(
+            contextOptions,
+            selectedContexts,
+          )}
+          selectedUseCaseLabels={getSelectedOptionLabels(
+            useCaseOptions,
+            selectedUseCases,
+          )}
+          toolName={pendingTool.toolName}
+        />
 
         <SurveyCheckboxGroup
           helpText="Kies alle toepassingen die voor deze tool gelden."
@@ -279,12 +288,16 @@ export default function SurveyUseCasesPage() {
             }
           />
         ) : (
-          <section className="rounded-[1.35rem] border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm text-[#40484e]">
-            <h3 className="font-bold text-[#00658b]">Context</h3>
-            <p className="mt-1 leading-6">
-              Context wordt in deze V8-slice alleen uitgevraagd bij
-              code-toepassingen. Voor deze selectie slaan we geen contextcodes
-              op.
+          <section className="grid gap-3 rounded-[1.35rem] border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm text-[#40484e]">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h3 className="font-bold text-[#00658b]">Context</h3>
+              <span className="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-[#00658b]">
+                Niet van toepassing
+              </span>
+            </div>
+            <p className="leading-6">
+              Context wordt alleen uitgevraagd wanneer je Code schrijven kiest.
+              Voor deze selectie slaan we geen contextcodes op.
             </p>
           </section>
         )}
@@ -315,6 +328,58 @@ export default function SurveyUseCasesPage() {
   );
 }
 
+function ToolUseCaseHeader({
+  needsContext,
+  selectedContextLabels,
+  selectedUseCaseLabels,
+  toolName,
+}: {
+  needsContext: boolean;
+  selectedContextLabels: string;
+  selectedUseCaseLabels: string;
+  toolName: string;
+}) {
+  return (
+    <section className="grid gap-4 rounded-[1.6rem] border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm md:p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs font-bold uppercase tracking-wide text-[#00658b]/70">
+            Geregistreerde tool
+          </p>
+          <h2 className="mt-1 break-words text-xl font-extrabold text-[#00658b]">
+            {toolName}
+          </h2>
+        </div>
+        <span className="rounded-full border border-[#00658b]/20 bg-white px-3 py-1 text-xs font-extrabold text-[#00658b]">
+          {needsContext ? "Context nodig" : "Geen contextvraag"}
+        </span>
+      </div>
+
+      <SurveySummaryGrid
+        className="border-white/70 bg-white/70"
+        columnsClassName="md:grid-cols-2"
+      >
+        <SurveySummaryItem
+          detail={selectedUseCaseLabels || "Nog geen toepassing gekozen"}
+          label="Toepassingen"
+          value={selectedUseCaseLabels ? "Geselecteerd" : "Nog kiezen"}
+        />
+        <SurveySummaryItem
+          detail={needsContext ? selectedContextLabels : "Niet van toepassing"}
+          label="Context"
+          value={needsContext ? "Wordt opgeslagen" : "Overgeslagen"}
+        />
+      </SurveySummaryGrid>
+    </section>
+  );
+}
+
 function formatRpcError(error: RpcError) {
   return [error.code, error.message].filter(Boolean).join(": ");
+}
+
+function getSelectedOptionLabels(options: SurveyOption[], selectedCodes: string[]) {
+  return selectedCodes
+    .map((code) => options.find((option) => option.code === code)?.label ?? code)
+    .join(", ");
 }

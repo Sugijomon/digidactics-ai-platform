@@ -29,6 +29,12 @@ import {
   getResumeStep,
   type SurveyStepId,
 } from "@/lib/sai-survey/flow";
+import {
+  accountTypeOptions,
+  contextOptions,
+  useCaseOptions,
+  type SurveyOption,
+} from "@/lib/sai-survey/options";
 
 type StepState = {
   status: "idle" | "running" | "ok" | "error";
@@ -275,24 +281,47 @@ function SavedToolsSummary({
         <div className="grid gap-2">
           {savedTools.map((tool, index) => (
             <article
-              className="rounded-xl border border-[#bfc7cf]/60 bg-white px-4 py-3"
+              className="grid gap-3 rounded-xl border border-[#bfc7cf]/60 bg-white px-4 py-3"
               key={tool.surveyToolId}
             >
-              <p className="font-bold text-[#181c1e]">
-                {index + 1}. {tool.toolName}
-              </p>
-              <p className="mt-1 text-[#40484e]">
-                Usecases: {tool.useCaseCodes.join(", ")}
-              </p>
-              <p className="mt-1 text-[#40484e]">
-                Context: {tool.contextCodes.join(", ")} - Account:{" "}
-                {tool.accountTypeCode}
-              </p>
+              <div>
+                <p className="font-bold text-[#181c1e]">
+                  {index + 1}. {tool.toolName}
+                </p>
+                <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-[#6993aa]">
+                  {getOptionLabel(accountTypeOptions, tool.accountTypeCode)}
+                </p>
+              </div>
+              <dl className="grid gap-2 md:grid-cols-2">
+                <SummaryPair
+                  label="Toepassingen"
+                  value={getOptionLabels(useCaseOptions, tool.useCaseCodes)}
+                />
+                <SummaryPair
+                  label="Context"
+                  value={
+                    tool.contextCodes.length
+                      ? getOptionLabels(contextOptions, tool.contextCodes)
+                      : "Niet van toepassing"
+                  }
+                />
+              </dl>
             </article>
           ))}
         </div>
       )}
     </section>
+  );
+}
+
+function SummaryPair({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0 rounded-xl bg-[#f7fafc] px-3 py-2">
+      <dt className="text-xs font-bold uppercase tracking-wide text-[#00658b]/70">
+        {label}
+      </dt>
+      <dd className="mt-1 break-words text-sm text-[#40484e]">{value}</dd>
+    </div>
   );
 }
 
@@ -302,4 +331,12 @@ function formatRpcError(error: RpcError) {
 
 function shortRunId(runId: string) {
   return `${runId.slice(0, 8)}...${runId.slice(-4)}`;
+}
+
+function getOptionLabels(options: SurveyOption[], codes: string[]) {
+  return codes.map((code) => getOptionLabel(options, code)).join(", ");
+}
+
+function getOptionLabel(options: SurveyOption[], code: string) {
+  return options.find((option) => option.code === code)?.label ?? code;
 }

@@ -50,13 +50,19 @@ export function LessonBlockRenderer({ block }: { block: LessonBlock }) {
 
     case "case_lab":
       return (
-        <section className="block">
+        <section className="block practice-block">
+          <p className="eyebrow">Casus</p>
           <h2>{block.title}</h2>
           <p>{block.markdown}</p>
           {block.reflection_prompt ? (
-            <div className="flat-card">
+            <div className="reflection-panel">
               <strong>Reflectie</strong>
               <p>{block.reflection_prompt}</p>
+              <textarea
+                aria-label="Reflectieantwoord"
+                placeholder="Noteer kort je afweging. Opslaan volgt in een latere sprint."
+                rows={4}
+              />
             </div>
           ) : null}
         </section>
@@ -64,65 +70,91 @@ export function LessonBlockRenderer({ block }: { block: LessonBlock }) {
 
     case "quiz_multiple_choice":
       return (
-        <section className="block">
+        <section className="block practice-block">
+          <p className="eyebrow">Checkvraag</p>
           <h2>Checkvraag</h2>
           <p>{block.question}</p>
           <div className="quiz-options">
             {block.options.map((option) => (
-              <div className="quiz-option" key={option.id}>
-                {option.label}
-              </div>
+              <label className="quiz-option" key={option.id}>
+                <input name={block.id} type="radio" value={option.id} />
+                <span>{option.label}</span>
+              </label>
             ))}
           </div>
-          {block.explanation ? <p>{block.explanation}</p> : null}
+          <Explanation text={block.explanation} />
         </section>
       );
 
     case "quiz_multiple_select":
       return (
-        <section className="block">
+        <section className="block practice-block">
+          <p className="eyebrow">Checkvraag</p>
           <h2>Checkvraag</h2>
           <p>{block.question}</p>
           <div className="quiz-options">
             {block.options.map((option) => (
-              <div className="quiz-option" key={option.id}>
-                {option.label}
-              </div>
+              <label className="quiz-option" key={option.id}>
+                <input name={`${block.id}-${option.id}`} type="checkbox" value={option.id} />
+                <span>{option.label}</span>
+              </label>
             ))}
           </div>
-          {block.explanation ? <p>{block.explanation}</p> : null}
+          <Explanation text={block.explanation} />
         </section>
       );
 
     case "quiz_true_false":
       return (
-        <section className="block">
+        <section className="block practice-block">
+          <p className="eyebrow">Waar of niet waar</p>
           <h2>Waar of niet waar</h2>
           <p>{block.question}</p>
-          {block.explanation ? <p>{block.explanation}</p> : null}
+          <div className="quiz-options two-options">
+            <label className="quiz-option">
+              <input name={block.id} type="radio" value="true" />
+              <span>Waar</span>
+            </label>
+            <label className="quiz-option">
+              <input name={block.id} type="radio" value="false" />
+              <span>Niet waar</span>
+            </label>
+          </div>
+          <Explanation text={block.explanation} />
         </section>
       );
 
     case "quiz_essay":
       return (
-        <section className="block">
+        <section className="block practice-block">
+          <p className="eyebrow">Reflectievraag</p>
           <h2>Reflectievraag</h2>
           <p>{block.question}</p>
-          <div className="flat-card">
+          <div className="answer-box">
             <span>
               {block.min_words ?? 0}-{block.max_words ?? "open"} woorden
             </span>
+            <textarea
+              aria-label="Reflectieantwoord"
+              placeholder="Schrijf hier je reflectie. Opslaan volgt in een latere sprint."
+              rows={6}
+            />
           </div>
         </section>
       );
 
     case "short_answer":
       return (
-        <section className="block">
+        <section className="block practice-block">
+          <p className="eyebrow">Open vraag</p>
           <h2>Open vraag</h2>
           <p>{block.question}</p>
           <div className="answer-box">
-            <span>{block.placeholder ?? "Jouw antwoord komt hier."}</span>
+            <textarea
+              aria-label="Open antwoord"
+              placeholder={block.placeholder ?? "Schrijf je antwoord."}
+              rows={4}
+            />
           </div>
           {block.guidance ? <p>{block.guidance}</p> : null}
         </section>
@@ -167,4 +199,15 @@ export function LessonBlockRenderer({ block }: { block: LessonBlock }) {
     default:
       return null;
   }
+}
+
+function Explanation({ text }: { text?: string }) {
+  if (!text) return null;
+
+  return (
+    <details className="answer-explanation">
+      <summary>Toon toelichting</summary>
+      <p>{text}</p>
+    </details>
+  );
 }

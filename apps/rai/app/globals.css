@@ -435,10 +435,38 @@ h3 {
   margin-top: 14px;
 }
 
+.two-options {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .quiz-option {
+  align-items: flex-start;
   background: var(--surface-muted);
+  border: 1px solid transparent;
   border-radius: var(--radius);
+  cursor: pointer;
+  display: flex;
+  gap: 10px;
   padding: 12px;
+}
+
+.quiz-option:hover {
+  border-color: var(--brand);
+}
+
+.quiz-option input {
+  accent-color: var(--brand);
+  flex: 0 0 auto;
+  margin-top: 3px;
+}
+
+.practice-block {
+  display: grid;
+  gap: 12px;
+}
+
+.practice-block .eyebrow {
+  margin-bottom: 0;
 }
 
 .answer-box,
@@ -451,6 +479,45 @@ h3 {
   gap: 8px;
   min-height: 120px;
   padding: 16px;
+}
+
+.answer-box textarea,
+.reflection-panel textarea {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--text);
+  font: inherit;
+  line-height: 1.5;
+  min-height: 120px;
+  padding: 12px;
+  resize: vertical;
+  width: 100%;
+}
+
+.reflection-panel {
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+}
+
+.answer-explanation {
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+
+.answer-explanation summary {
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.answer-explanation p {
+  margin-top: 10px;
 }
 
 .media-frame {
@@ -1060,6 +1127,10 @@ h3 {
   .lesson-completion-actions form,
   .lesson-completion-actions form button {
     width: 100%;
+  }
+
+  .two-options {
+    grid-template-columns: 1fr;
   }
 
   .topic-card-header {

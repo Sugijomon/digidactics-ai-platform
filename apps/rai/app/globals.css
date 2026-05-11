@@ -1778,6 +1778,10 @@ h3 {
   margin-bottom: 14px;
 }
 
+.admin-filter-row.expanded {
+  grid-template-columns: minmax(260px, 1fr) 220px 160px 210px;
+}
+
 .admin-filter-row input,
 .admin-filter-row select {
   background: white;
@@ -1786,6 +1790,27 @@ h3 {
   font: inherit;
   min-height: 42px;
   padding: 0 12px;
+}
+
+.admin-table-meta {
+  align-items: center;
+  color: #53627a;
+  display: flex;
+  font-size: 0.88rem;
+  font-weight: 750;
+  gap: 12px;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.text-button {
+  background: transparent;
+  border: 0;
+  color: var(--editor-blue);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 850;
+  padding: 0;
 }
 
 .lesson-table td:first-child {
@@ -1899,6 +1924,7 @@ h3 {
   .admin-course-grid,
   .admin-split-layout,
   .admin-filter-row,
+  .admin-filter-row.expanded,
   .block-library-grid {
     grid-template-columns: 1fr;
   }

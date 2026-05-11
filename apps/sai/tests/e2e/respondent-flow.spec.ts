@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 const SUPABASE_RPC_ROUTE = "**/rest/v1/rpc/**";
+const SURVEY_SESSION_STORAGE_KEY = "sai.respondent.session";
 
 test("respondent can complete the SAI survey flow with two tools", async ({
   page,
@@ -140,6 +141,48 @@ test("respondent can save one tool and go straight to completion", async ({
 
   await expect(page).toHaveURL(/\/survey\/complete$/, { timeout: 30_000 });
   await expect(page.getByText("1 tool").first()).toBeVisible();
+});
+
+test("respondent can resume an active scan from the start page", async ({
+  page,
+}) => {
+  await mockSupabaseRpc(page);
+  await page.goto("/survey");
+  await page.evaluate(() => window.sessionStorage.clear());
+  await page.getByRole("button", { name: "Start de scan" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/profile$/, { timeout: 30_000 });
+  await page.getByRole("button", { name: "Verder" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/motivations$/, { timeout: 30_000 });
+  await page.goto("/survey");
+  await expect(
+    page.getByRole("link", { name: "Hervat actieve scan" }),
+  ).toBeVisible();
+  await page.getByRole("link", { name: "Hervat actieve scan" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/motivations$/);
+});
+
+test("start page clears corrupt respondent session state", async ({ page }) => {
+  await mockSupabaseRpc(page);
+  await page.addInitScript((storageKey) => {
+    window.sessionStorage.setItem(storageKey, "not-json");
+  }, SURVEY_SESSION_STORAGE_KEY);
+
+  await page.goto("/survey");
+
+  await expect(
+    page.getByRole("link", { name: "Hervat actieve scan" }),
+  ).toHaveCount(0);
+  await expect
+    .poll(() =>
+      page.evaluate((storageKey) => window.sessionStorage.getItem(storageKey), SURVEY_SESSION_STORAGE_KEY),
+    )
+    .toBeNull();
+
+  await page.getByRole("button", { name: "Start de scan" }).click();
+  await expect(page).toHaveURL(/\/survey\/profile$/, { timeout: 30_000 });
 });
 
 test("profile step validates dependent required answers before saving", async ({

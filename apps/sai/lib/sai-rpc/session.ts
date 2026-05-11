@@ -146,8 +146,14 @@ export function readSurveySession(): StoredSurveySession | null {
   try {
     const parsedSession: unknown = JSON.parse(rawSession);
 
-    return isStoredSurveySession(parsedSession) ? parsedSession : null;
+    if (isStoredSurveySession(parsedSession)) {
+      return parsedSession;
+    }
+
+    clearSurveySession();
+    return null;
   } catch {
+    clearSurveySession();
     return null;
   }
 }

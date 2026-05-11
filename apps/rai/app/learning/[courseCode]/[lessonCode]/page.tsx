@@ -28,6 +28,7 @@ export default async function LessonPage({
     learnerState.progressByPageId[page.id] ??
     learnerState.progressByLessonId[page.id] ??
     null;
+  const isCompleted = pageProgress?.status === "completed";
 
   return (
     <main className="shell">
@@ -42,29 +43,17 @@ export default async function LessonPage({
           {page.content.blocks.map((block) => (
             <LessonBlockRenderer block={block} key={block.id} />
           ))}
-          <section className="block">
-            <h2>Pagina afronden</h2>
-            <p>
-              Hiermee sla je deze pagina op als afgerond. De cursusvoortgang wordt
-              opnieuw berekend, maar er wordt nog geen certificaat uitgegeven.
-            </p>
-            {learnerState.isAuthenticated ? (
-              <form action={completeAiLiteracyPage}>
-                <input name="courseId" type="hidden" value={course.id} />
-                <input name="courseCode" type="hidden" value={course.course_code} />
-                <input name="pageId" type="hidden" value={page.id} />
-                <input name="pageCode" type="hidden" value={page.page_code} />
-                <button className="button button-primary" type="submit">
-                  {pageProgress?.status === "completed"
-                    ? "Opnieuw opslaan als afgerond"
-                    : "Markeer pagina afgerond"}
-                </button>
-              </form>
-            ) : (
-              <span className="button button-secondary">Login vereist</span>
-            )}
-          </section>
-          <nav className="actions">
+          <nav className="lesson-completion-bar" aria-label="Pagina voortgang">
+            <div>
+              <p className="eyebrow">Voortgang</p>
+              <h2>{isCompleted ? "Pagina afgerond" : "Klaar met deze pagina?"}</h2>
+              <p className="muted">
+                {isCompleted
+                  ? "Je voortgang is opgeslagen."
+                  : "Sla je voortgang op en ga door met de cursus."}
+              </p>
+            </div>
+            <div className="lesson-completion-actions">
             {previousPage ? (
               <Link
                 className="button button-secondary"
@@ -73,18 +62,32 @@ export default async function LessonPage({
                 Vorige pagina
               </Link>
             ) : null}
-            {nextPage ? (
+            {isCompleted && nextPage ? (
               <Link
                 className="button button-primary"
                 href={`/learning/${course.course_code}/${nextPage.page_code}`}
               >
                 Volgende pagina
               </Link>
-            ) : (
+            ) : isCompleted ? (
               <Link className="button button-primary" href="/learning">
                 Terug naar cursus
               </Link>
+            ) : learnerState.isAuthenticated ? (
+              <form action={completeAiLiteracyPage}>
+                <input name="courseId" type="hidden" value={course.id} />
+                <input name="courseCode" type="hidden" value={course.course_code} />
+                <input name="pageId" type="hidden" value={page.id} />
+                <input name="pageCode" type="hidden" value={page.page_code} />
+                <input name="nextPageCode" type="hidden" value={nextPage?.page_code ?? ""} />
+                <button className="button button-primary" type="submit">
+                  {nextPage ? "Afronden en doorgaan" : "Cursus afronden"}
+                </button>
+              </form>
+            ) : (
+              <span className="button button-secondary">Login vereist</span>
             )}
+            </div>
           </nav>
         </article>
       </div>

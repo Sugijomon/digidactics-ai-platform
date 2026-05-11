@@ -58,6 +58,7 @@ export async function completeAiLiteracyPage(formData: FormData) {
   const courseCode = String(formData.get("courseCode") ?? "ai-literacy-foundation");
   const pageId = String(formData.get("pageId") ?? "");
   const pageCode = String(formData.get("pageCode") ?? "");
+  const nextPageCode = String(formData.get("nextPageCode") ?? "");
 
   if (!courseId || !pageId || !pageCode) {
     throw new Error("Paginavoortgang kan niet worden opgeslagen zonder cursus en pagina.");
@@ -110,6 +111,12 @@ export async function completeAiLiteracyPage(formData: FormData) {
   revalidatePath("/learning");
   revalidatePath(`/learning/${courseCode}`);
   revalidatePath(`/learning/${courseCode}/${pageCode}`);
+
+  if (nextPageCode) {
+    redirect(`/learning/${courseCode}/${nextPageCode}`);
+  }
+
+  redirect(`/learning/${courseCode}`);
 }
 
 export async function completeAiLiteracyLesson(formData: FormData) {

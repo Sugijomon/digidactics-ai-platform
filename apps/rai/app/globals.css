@@ -359,6 +359,34 @@ h3 {
   gap: 16px;
 }
 
+.lesson-completion-bar {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  padding: 18px;
+}
+
+.lesson-completion-bar h2 {
+  font-size: 1.25rem;
+  margin-bottom: 6px;
+}
+
+.lesson-completion-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.lesson-completion-actions form {
+  margin: 0;
+}
+
 .page-canvas {
   min-width: 0;
 }
@@ -1017,6 +1045,21 @@ h3 {
 
   .editor-toolbar {
     display: grid;
+  }
+
+  .lesson-completion-bar {
+    align-items: stretch;
+    display: grid;
+  }
+
+  .lesson-completion-actions {
+    justify-content: stretch;
+  }
+
+  .lesson-completion-actions .button,
+  .lesson-completion-actions form,
+  .lesson-completion-actions form button {
+    width: 100%;
   }
 
   .topic-card-header {

@@ -1,49 +1,77 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { getCurrentUserContext } from "@digidactics/auth";
-import { createLearningPage, updateLearningPageContent } from "./actions";
-import { LearningAdminEditor } from "@/components/learning/LearningAdminEditor";
-import { LearningTopbar } from "@/components/learning/LearningTopbar";
-import { getAiLiteracyCourse } from "@/lib/learning-data";
-import { getSupabaseServerClient } from "@/lib/supabase-server";
+import { ContentEditorShell } from "@/components/learning/admin/ContentEditorShell";
+import { getLearningAdminOverview } from "@/lib/learning-admin-data";
 
 export default async function LearningAdminPage() {
-  const supabase = await getSupabaseServerClient();
-  const context = await getCurrentUserContext(supabase);
-  const course = await getAiLiteracyCourse();
-
-  if (!context) {
-    redirect("/auth/login?next=/learning/admin");
-  }
-
-  if (
-    context.primaryRole !== "content_editor" &&
-    context.primaryRole !== "super_admin"
-  ) {
-    redirect("/dashboard");
-  }
+  const overview = await getLearningAdminOverview();
+  const publishedCourses = overview.courses.filter((course) => course.status === "published");
 
   return (
-    <main className="shell wide-shell">
-      <LearningTopbar />
-      <section className="card">
-        <p className="eyebrow">Learning admin</p>
-        <h1>Contentbeheer</h1>
-        <p className="lead">
-          Beheer de AISA AI Literacy cursusstructuur met topics, pagina's en
-          visuele block forms. De editor bewaart nog steeds in JSONB blocks.
-        </p>
-        <div className="actions">
-          <Link className="button button-primary" href="/learning">
-            Bekijk Learning System
-          </Link>
+    <ContentEditorShell active="dashboard">
+      <div className="admin-page-header">
+        <div>
+          <p className="breadcrumb">Content Editor</p>
+          <h1>Content Editor</h1>
         </div>
+        <Link className="button button-primary" href="/learning">
+          Bekijk learner
+        </Link>
+      </div>
+
+      <div className="admin-tabs">
+        <Link aria-current="page" href="/learning/admin">
+          Cursussen
+        </Link>
+        <Link href="/learning/admin/lessons">
+          Micro-learnings <strong>{overview.microLearnings.length}</strong>
+        </Link>
+      </div>
+
+      <section className="admin-stat-grid" aria-label="Contentstatistieken">
+        <StatCard label="Cursussen" value={String(overview.courses.length)} />
+        <StatCard label="Lessen" value={String(overview.lessons.length)} />
+        <StatCard label="Gepubliceerd" value={String(publishedCourses.length)} />
       </section>
-      <LearningAdminEditor
-        course={course}
-        createAction={createLearningPage}
-        updateAction={updateLearningPageContent}
-      />
-    </main>
+
+      <section className="admin-course-grid" aria-label="Cursussen">
+        {overview.courses.map((course) => (
+          <article className="admin-course-card" key={course.id}>
+            <div className="admin-card-title-row">
+              <h2>{course.title}</h2>
+              <StatusBadge status={course.status} />
+            </div>
+            <p>{course.description ?? "Geen beschrijving ingesteld."}</p>
+            <div className="admin-card-footer">
+              <span>
+                {course.page_count} {course.page_count === 1 ? "les" : "lessen"}
+              </span>
+              <Link
+                className="button button-secondary"
+                href={`/learning/admin/courses/${course.course_code}`}
+              >
+                Bewerken
+              </Link>
+            </div>
+          </article>
+        ))}
+      </section>
+    </ContentEditorShell>
+  );
+}
+
+function StatCard({ label, value }: { label: string; value: string }) {
+  return (
+    <article className="admin-stat-card">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </article>
+  );
+}
+
+function StatusBadge({ status }: { status: string }) {
+  return (
+    <span className={`status-badge ${status === "published" ? "published" : ""}`}>
+      {status === "published" ? "Gepubliceerd" : "Concept"}
+    </span>
   );
 }

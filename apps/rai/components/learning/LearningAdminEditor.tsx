@@ -44,14 +44,18 @@ const blockTypeLabels = Object.fromEntries(
 export function LearningAdminEditor({
   course,
   createAction,
+  initialPageCode,
   updateAction,
 }: {
   course: LearningCourseView;
   createAction: (formData: FormData) => void | Promise<void>;
+  initialPageCode?: string;
   updateAction: (formData: FormData) => void | Promise<void>;
 }) {
   const pages = useMemo(() => course.topics.flatMap((topic) => topic.pages), [course]);
-  const [activePageId, setActivePageId] = useState(pages[0]?.id ?? "");
+  const initialPageId =
+    pages.find((page) => page.page_code === initialPageCode)?.id ?? pages[0]?.id ?? "";
+  const [activePageId, setActivePageId] = useState(initialPageId);
   const [activePanel, setActivePanel] = useState<EditorPanel>("content");
   const [selectedBlockId, setSelectedBlockId] = useState("");
   const activePage = pages.find((page) => page.id === activePageId) ?? pages[0];

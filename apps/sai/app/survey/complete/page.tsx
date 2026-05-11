@@ -174,15 +174,15 @@ export default function SurveyCompletePage() {
   if (isFinished) {
     return (
       <SurveyPageShell maxWidthClassName="max-w-2xl">
-        <section className="grid gap-5 rounded-[2rem] border border-white/70 bg-white/90 p-6 text-center shadow-[0_8px_40px_rgba(0,101,139,0.06)] md:p-8">
-          <div>
+        <section className="grid min-w-0 max-w-full gap-5 rounded-[2rem] border border-white/70 bg-white/90 p-6 text-center shadow-[0_8px_40px_rgba(0,101,139,0.06)] md:p-8">
+          <div className="min-w-0">
             <p className="mb-2 text-sm font-semibold uppercase tracking-widest text-[#6993aa]">
               Scan afgerond
             </p>
-            <h1 className="text-2xl font-extrabold text-[#00658b]">
+            <h1 className="break-words text-2xl font-extrabold text-[#00658b]">
               Bedankt voor je input
             </h1>
-            <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-[#40484e]">
+            <p className="mx-auto mt-2 max-w-lg break-words text-sm leading-6 text-[#40484e]">
               Je antwoorden zijn veilig ontvangen. De lokale scansessie is
               gewist en deze scan kan niet per ongeluk nogmaals gewijzigd
               worden.
@@ -223,7 +223,7 @@ export default function SurveyCompletePage() {
       maxWidthClassName="max-w-4xl"
       title="Scan afronden"
     >
-      <div className="grid gap-6">
+      <div className="grid min-w-0 gap-6">
         <CompletionOverview savedTools={savedTools} />
 
         <SavedToolsSummary savedTools={savedTools} />
@@ -270,16 +270,16 @@ function CompletionOverview({
   ).length;
 
   return (
-    <section className="grid gap-4 rounded-[1.6rem] border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm md:p-5">
+    <section className="grid min-w-0 max-w-full gap-4 rounded-[1.6rem] border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm md:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           <p className="text-xs font-bold uppercase tracking-wide text-[#00658b]/70">
             Klaar voor afsluiten
           </p>
-          <h2 className="mt-1 text-xl font-extrabold text-[#00658b]">
+          <h2 className="mt-1 break-words text-xl font-extrabold text-[#00658b]">
             Controleer je toolregistratie
           </h2>
-          <p className="mt-2 max-w-2xl leading-6 text-[#40484e]">
+          <p className="mt-2 max-w-2xl break-words leading-6 text-[#40484e]">
             Na afronden wordt de respondentensessie gesloten en verdwijnt de
             lokale sessiesleutel uit deze browser.
           </p>
@@ -316,7 +316,7 @@ function CompletionOverview({
 
 function CompletionAssurance() {
   return (
-    <section className="grid gap-3 text-left text-sm md:grid-cols-3">
+    <section className="grid min-w-0 gap-3 text-left text-sm md:grid-cols-3">
       <AssuranceItem label="Ontvangen" text="Je antwoorden zijn opgeslagen." />
       <AssuranceItem label="Gesloten" text="De scansessie is gesloten na afronden." />
       <AssuranceItem label="Gewist" text="De lokale sessiesleutel is verwijderd." />
@@ -326,9 +326,9 @@ function CompletionAssurance() {
 
 function AssuranceItem({ label, text }: { label: string; text: string }) {
   return (
-    <div className="rounded-xl border border-[#c4e7ff] bg-[#f3fbff] px-3 py-3">
-      <p className="font-bold text-[#00658b]">{label}</p>
-      <p className="mt-1 leading-5 text-[#40484e]">{text}</p>
+    <div className="min-w-0 rounded-xl border border-[#c4e7ff] bg-[#f3fbff] px-3 py-3">
+      <p className="break-words font-bold text-[#00658b]">{label}</p>
+      <p className="mt-1 break-words leading-5 text-[#40484e]">{text}</p>
     </div>
   );
 }
@@ -339,27 +339,27 @@ function SavedToolsSummary({
   savedTools: StoredSurveyTool[];
 }) {
   return (
-    <section className="mb-6 grid gap-3 rounded-2xl border border-[#bfc7cf]/50 bg-white/80 p-4 text-sm">
-      <div>
-        <h2 className="font-bold text-[#00658b]">Geregistreerde tools</h2>
-        <p className="mt-1 text-[#40484e]">
+    <section className="mb-6 grid min-w-0 max-w-full gap-3 rounded-2xl border border-[#bfc7cf]/50 bg-white/80 p-4 text-sm">
+      <div className="min-w-0">
+        <h2 className="break-words font-bold text-[#00658b]">Geregistreerde tools</h2>
+        <p className="mt-1 break-words text-[#40484e]">
           Controleer kort of je minimaal je belangrijkste AI-tools hebt
           toegevoegd.
         </p>
       </div>
       {savedTools.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-[#bfc7cf] bg-white px-4 py-3 text-[#40484e]">
+        <p className="break-words rounded-xl border border-dashed border-[#bfc7cf] bg-white px-4 py-3 text-[#40484e]">
           Er staat nog geen opgeslagen tool in deze scan.
         </p>
       ) : (
-        <div className="grid gap-2">
+        <div className="grid min-w-0 gap-2">
           {savedTools.map((tool, index) => (
             <article
-              className="grid gap-3 rounded-xl border border-[#bfc7cf]/60 bg-white px-4 py-3"
+              className="grid min-w-0 gap-3 rounded-xl border border-[#bfc7cf]/60 bg-white px-4 py-3"
               key={tool.surveyToolId}
             >
-              <div>
-                <p className="font-bold text-[#181c1e]">
+              <div className="min-w-0">
+                <p className="break-words font-bold text-[#181c1e]">
                   {index + 1}. {tool.toolName}
                 </p>
                 <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-[#6993aa]">

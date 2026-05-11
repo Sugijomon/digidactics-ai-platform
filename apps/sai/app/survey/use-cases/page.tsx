@@ -288,14 +288,16 @@ export default function SurveyUseCasesPage() {
             }
           />
         ) : (
-          <section className="grid gap-3 rounded-[1.35rem] border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm text-[#40484e]">
+          <section className="grid min-w-0 max-w-full gap-3 rounded-[1.35rem] border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm text-[#40484e]">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h3 className="font-bold text-[#00658b]">Context</h3>
+              <h3 className="min-w-0 break-words font-bold text-[#00658b]">
+                Context
+              </h3>
               <span className="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-[#00658b]">
                 Niet van toepassing
               </span>
             </div>
-            <p className="leading-6">
+            <p className="break-words leading-6">
               Context wordt alleen uitgevraagd wanneer je Code schrijven kiest.
               Voor deze selectie slaan we geen contextcodes op.
             </p>
@@ -340,7 +342,7 @@ function ToolUseCaseHeader({
   toolName: string;
 }) {
   return (
-    <section className="grid gap-4 rounded-[1.6rem] border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm md:p-5">
+    <section className="grid min-w-0 max-w-full gap-4 rounded-[1.6rem] border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm md:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs font-bold uppercase tracking-wide text-[#00658b]/70">

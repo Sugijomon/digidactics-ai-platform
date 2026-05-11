@@ -30,21 +30,25 @@ export function SurveyCheckboxGroup({
 
   return (
     <section
-      className={`grid gap-4 rounded-[1.35rem] border bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
+      className={`grid min-w-0 max-w-full gap-4 rounded-[1.35rem] border bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
         validationError ? "border-red-300" : "border-white/80"
       }`}
     >
-      <div>
+      <div className="min-w-0">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-bold text-[#00658b]">{label}</h3>
+            <h3 className="min-w-0 break-words font-bold text-[#00658b]">
+              {label}
+            </h3>
             {required ? <RequiredBadge /> : null}
           </div>
           <span className="rounded-full bg-[#c4e7ff]/50 px-2.5 py-1 text-xs font-bold text-[#00658b]">
             {selectedCodes.length} geselecteerd
           </span>
         </div>
-        <p className="mt-1 text-sm leading-6 text-[#40484e]">{helpText}</p>
+        <p className="mt-1 break-words text-sm leading-6 text-[#40484e]">
+          {helpText}
+        </p>
         {validationError ? (
           <p className="mt-2 text-sm font-semibold text-red-700">
             {validationError}
@@ -52,7 +56,7 @@ export function SurveyCheckboxGroup({
         ) : null}
       </div>
 
-      <div className="grid gap-2 md:grid-cols-2">
+      <div className="grid min-w-0 gap-2 md:grid-cols-2">
         {options.map((option) => (
           <label
             className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:shadow-[0_4px_12px_rgba(0,101,139,0.06)] ${
@@ -70,12 +74,12 @@ export function SurveyCheckboxGroup({
               type="checkbox"
               value={option.code}
             />
-            <span>
+            <span className="min-w-0">
               <span className="block text-sm font-semibold text-[#181c1e]">
                 {option.label}
               </span>
               {option.description ? (
-                <span className="mt-1 block text-xs leading-5 text-[#40484e]">
+                <span className="mt-1 block break-words text-xs leading-5 text-[#40484e]">
                   {option.description}
                 </span>
               ) : null}
@@ -108,16 +112,20 @@ export function SurveyRadioGroup({
 }) {
   return (
     <section
-      className={`grid gap-4 rounded-[1.35rem] border bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
+      className={`grid min-w-0 max-w-full gap-4 rounded-[1.35rem] border bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
         validationError ? "border-red-300" : "border-white/80"
       }`}
     >
-      <div>
+      <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <h3 className="font-bold text-[#00658b]">{label}</h3>
+          <h3 className="min-w-0 break-words font-bold text-[#00658b]">
+            {label}
+          </h3>
           <RequiredBadge />
         </div>
-        <p className="mt-1 text-sm leading-6 text-[#40484e]">{helpText}</p>
+        <p className="mt-1 break-words text-sm leading-6 text-[#40484e]">
+          {helpText}
+        </p>
         {validationError ? (
           <p className="mt-2 text-sm font-semibold text-red-700">
             {validationError}
@@ -125,7 +133,7 @@ export function SurveyRadioGroup({
         ) : null}
       </div>
 
-      <div className="grid gap-2 md:grid-cols-2">
+      <div className="grid min-w-0 gap-2 md:grid-cols-2">
         {options.map((option) => (
           <label
             className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:shadow-[0_4px_12px_rgba(0,101,139,0.06)] ${
@@ -144,12 +152,12 @@ export function SurveyRadioGroup({
               type="radio"
               value={option.code}
             />
-            <span>
+            <span className="min-w-0">
               <span className="block text-sm font-semibold text-[#181c1e]">
                 {option.label}
               </span>
               {option.description ? (
-                <span className="mt-1 block text-xs leading-5 text-[#40484e]">
+                <span className="mt-1 block break-words text-xs leading-5 text-[#40484e]">
                   {option.description}
                 </span>
               ) : null}

@@ -281,7 +281,7 @@ function AccountSavedChoice({
   toolName: string;
 }) {
   return (
-    <section className="rounded-[1.35rem] border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm text-[#40484e]">
+    <section className="min-w-0 max-w-full rounded-[1.35rem] border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm text-[#40484e]">
       <p className="font-bold text-[#00658b]">{toolName} is opgeslagen</p>
       <p className="mt-1 leading-6">
         Je hebt nu {savedToolCount} tool
@@ -300,7 +300,7 @@ function AccountStepHeader({
   selectedAccountLabel: string;
 }) {
   return (
-    <section className="grid gap-4 rounded-[1.6rem] border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm md:p-5">
+    <section className="grid min-w-0 max-w-full gap-4 rounded-[1.6rem] border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm md:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs font-bold uppercase tracking-wide text-[#00658b]/70">
@@ -364,16 +364,18 @@ function AccountMatrix({
 }) {
   return (
     <section
-      className={`grid gap-4 rounded-[1.35rem] border bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
+      className={`grid min-w-0 max-w-full gap-4 rounded-[1.35rem] border bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
         validationError ? "border-red-300" : "border-white/80"
       }`}
     >
-      <div>
+      <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <h3 className="font-bold text-[#00658b]">Accountstatus</h3>
+          <h3 className="min-w-0 break-words font-bold text-[#00658b]">
+            Accountstatus
+          </h3>
           <RequiredBadge />
         </div>
-        <p className="mt-1 text-sm leading-6 text-[#40484e]">
+        <p className="mt-1 break-words text-sm leading-6 text-[#40484e]">
           Kies de kolom die het best past bij hoe je deze tool gebruikt.
         </p>
         {validationError ? (
@@ -383,7 +385,7 @@ function AccountMatrix({
         ) : null}
       </div>
 
-      <div className="grid gap-3 md:grid-cols-4">
+      <div className="grid min-w-0 gap-3 md:grid-cols-4">
         {ACCOUNT_MATRIX_OPTIONS.map((option) => (
           <label
             className={`relative grid cursor-pointer gap-3 rounded-2xl border px-4 py-4 text-center transition hover:-translate-y-0.5 hover:border-[#00658b] hover:shadow-[0_4px_12px_rgba(0,101,139,0.06)] ${
@@ -403,10 +405,10 @@ function AccountMatrix({
                 }`}
               />
             </span>
-            <span className="text-sm font-extrabold text-[#181c1e]">
+            <span className="break-words text-sm font-extrabold text-[#181c1e]">
               {option.label}
             </span>
-            <span className="text-xs leading-5 text-[#40484e]">
+            <span className="break-words text-xs leading-5 text-[#40484e]">
               {option.description}
             </span>
             <input

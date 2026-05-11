@@ -349,8 +349,8 @@ export function RpcStepRow({
   state: RpcStepState;
 }) {
   return (
-    <div className="grid gap-2 rounded-xl border border-[#bfc7cf]/50 bg-white px-4 py-3 sm:grid-cols-[250px_90px_1fr] sm:items-center">
-      <span className="font-mono text-sm font-semibold text-[#181c1e]">
+    <div className="grid min-w-0 max-w-full gap-2 rounded-xl border border-[#bfc7cf]/50 bg-white px-4 py-3 sm:grid-cols-[250px_90px_1fr] sm:items-center">
+      <span className="break-all font-mono text-sm font-semibold text-[#181c1e]">
         {label}
       </span>
       <span

@@ -153,10 +153,10 @@ export default function SurveyMotivationsPage() {
             />
 
             {selectedMotivations.includes("anders") ? (
-              <label className="grid gap-2 text-sm font-semibold text-[#181c1e]">
+              <label className="grid min-w-0 max-w-full gap-2 text-sm font-semibold text-[#181c1e]">
                 Andere motivatie
                 <input
-                  className="h-11 rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm font-normal outline-none transition focus:border-[#00658b] focus:ring-2 focus:ring-[#c4e7ff]"
+                  className="h-11 w-full min-w-0 rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm font-normal outline-none transition focus:border-[#00658b] focus:ring-2 focus:ring-[#c4e7ff]"
                   onChange={(event) => setOtherText(event.target.value)}
                   placeholder="Bijvoorbeeld: verplicht vanuit project of klantvraag"
                   type="text"
@@ -210,20 +210,22 @@ function MotivationGroup({
   }
 
   return (
-    <section className="grid gap-4 rounded-[1.35rem] border border-white/80 bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)]">
-      <div>
+    <section className="grid min-w-0 max-w-full gap-4 rounded-[1.35rem] border border-white/80 bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)]">
+      <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <h3 className="font-bold text-[#00658b]">Motivaties</h3>
+          <h3 className="min-w-0 break-words font-bold text-[#00658b]">
+            Motivaties
+          </h3>
           <RequiredBadge />
         </div>
-        <p className="mt-1 text-sm leading-6 text-[#40484e]">
+        <p className="mt-1 break-words text-sm leading-6 text-[#40484e]">
           Meerdere antwoorden zijn mogelijk.
         </p>
       </div>
       {error ? (
         <ValidationMessage>{error}</ValidationMessage>
       ) : null}
-      <div className="grid gap-2 md:grid-cols-2">
+      <div className="grid min-w-0 gap-2 md:grid-cols-2">
         {options.map((option) => (
           <label
             className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:shadow-[0_4px_12px_rgba(0,101,139,0.06)] ${
@@ -240,12 +242,12 @@ function MotivationGroup({
               type="checkbox"
               value={option.code}
             />
-            <span>
+            <span className="min-w-0">
               <span className="block text-sm font-semibold text-[#181c1e]">
                 {option.label}
               </span>
               {option.description ? (
-                <span className="mt-1 block text-xs leading-5 text-[#40484e]">
+                <span className="mt-1 block break-words text-xs leading-5 text-[#40484e]">
                   {option.description}
                 </span>
               ) : null}

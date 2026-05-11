@@ -235,7 +235,7 @@ export default function SurveyToolsPage() {
           void handleSaveTool();
         }}
       >
-        <section className="grid gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start">
+        <section className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start">
           <ToolPicker
             alreadySavedCount={alreadySavedCount}
             categoryCounts={categoryCounts}
@@ -302,13 +302,13 @@ function ToolWorkspace({
   toolName: string;
 }) {
   return (
-    <section className="relative grid min-w-0 gap-4 rounded-[1.6rem] border-2 border-dashed border-[#bfc7cf]/70 bg-white/55 p-4 shadow-[0_8px_24px_rgba(0,101,139,0.04)] md:p-5">
+    <section className="relative grid min-w-0 max-w-full gap-4 rounded-[1.6rem] border-2 border-dashed border-[#bfc7cf]/70 bg-white/55 p-4 shadow-[0_8px_24px_rgba(0,101,139,0.04)] md:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="text-lg font-extrabold text-[#00658b]">
+          <h3 className="break-words text-lg font-extrabold text-[#00658b]">
             Jouw selectie
           </h3>
-          <p className="mt-1 text-sm leading-6 text-[#40484e]">
+          <p className="mt-1 break-words text-sm leading-6 text-[#40484e]">
             Voeg per AI-tool toepassing en accountstatus toe. Na elke tool kies
             je of je nog een tool registreert of afrondt.
           </p>
@@ -324,12 +324,12 @@ function ToolWorkspace({
       </SurveySummaryGrid>
 
       {savedTools.length === 0 ? (
-        <div className="grid min-h-44 place-items-center rounded-2xl border border-dashed border-[#bfc7cf]/80 bg-white/65 px-4 py-8 text-center">
-          <div>
-            <p className="text-base font-extrabold text-[#00658b]/55">
+        <div className="grid min-h-44 min-w-0 place-items-center rounded-2xl border border-dashed border-[#bfc7cf]/80 bg-white/65 px-4 py-8 text-center">
+          <div className="min-w-0">
+            <p className="break-words text-base font-extrabold text-[#00658b]/55">
               Nog geen afgeronde toolregistraties
             </p>
-            <p className="mt-2 text-sm leading-6 text-[#40484e]/75">
+            <p className="mt-2 break-words text-sm leading-6 text-[#40484e]/75">
               Kies links een tool en ga daarna door naar toepassingen.
             </p>
           </div>
@@ -392,18 +392,20 @@ function ToolPicker({
   totalToolCount: number;
 }) {
   return (
-    <section className="grid min-w-0 gap-4 rounded-[1.6rem] border border-white/80 bg-white/80 p-4 shadow-[0_8px_24px_rgba(0,101,139,0.04)] md:p-5">
+    <section className="grid min-w-0 max-w-full gap-4 rounded-[1.6rem] border border-white/80 bg-white/80 p-4 shadow-[0_8px_24px_rgba(0,101,139,0.04)] md:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="text-lg font-extrabold text-[#00658b]">Catalogus</h3>
-          <p className="mt-1 text-sm leading-6 text-[#40484e]">
+          <h3 className="break-words text-lg font-extrabold text-[#00658b]">
+            Catalogus
+          </h3>
+          <p className="mt-1 break-words text-sm leading-6 text-[#40484e]">
             Kies de AI-tool die je in deze stap wilt registreren.
           </p>
         </div>
         <RequiredBadge />
       </div>
 
-      <div className="grid gap-3 rounded-2xl border border-[#c4e7ff] bg-[#f3fbff] p-3">
+      <div className="grid min-w-0 gap-3 rounded-2xl border border-[#c4e7ff] bg-[#f3fbff] p-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h4 className="text-sm font-extrabold text-[#00658b]">
             Veel gekozen
@@ -431,11 +433,11 @@ function ToolPicker({
         </div>
       </div>
 
-      <div className="grid gap-3 rounded-2xl border border-[#bfc7cf]/45 bg-[#f7fafc] p-3">
-        <label className="grid gap-2 text-sm font-semibold text-[#181c1e]">
+      <div className="grid min-w-0 gap-3 rounded-2xl border border-[#bfc7cf]/45 bg-[#f7fafc] p-3">
+        <label className="grid min-w-0 gap-2 text-sm font-semibold text-[#181c1e]">
           Zoek tool
           <input
-            className="h-11 rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm font-normal outline-none transition focus:border-[#00658b] focus:ring-2 focus:ring-[#c4e7ff]"
+            className="h-11 w-full min-w-0 rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm font-normal outline-none transition focus:border-[#00658b] focus:ring-2 focus:ring-[#c4e7ff]"
             disabled={isDisabled}
             onChange={(event) => onSearchQueryChange(event.target.value)}
             placeholder="Zoek bijvoorbeeld Claude, Copilot of n8n"
@@ -468,7 +470,7 @@ function ToolPicker({
       </div>
 
       {alreadySavedCount > 0 ? (
-        <p className="rounded-xl border border-[#c4e7ff] bg-[#f3fbff] px-4 py-3 text-sm font-medium text-[#00658b]">
+        <p className="break-words rounded-xl border border-[#c4e7ff] bg-[#f3fbff] px-4 py-3 text-sm font-medium text-[#00658b]">
           Deze tool staat al {alreadySavedCount} keer in je registratie. Je kunt
           hem nogmaals toevoegen als het om een andere toepassing of account gaat.
         </p>
@@ -510,10 +512,10 @@ function ToolPicker({
         ))}
       </div>
       {filteredToolOptions.length === 0 ? (
-        <div className="grid gap-3 rounded-xl border border-dashed border-[#bfc7cf] bg-white px-4 py-4 text-sm text-[#40484e]">
-          <div>
-            <p className="font-bold text-[#181c1e]">Geen tool gevonden</p>
-            <p className="mt-1 leading-6">
+        <div className="grid min-w-0 gap-3 rounded-xl border border-dashed border-[#bfc7cf] bg-white px-4 py-4 text-sm text-[#40484e]">
+          <div className="min-w-0">
+            <p className="break-words font-bold text-[#181c1e]">Geen tool gevonden</p>
+            <p className="mt-1 break-words leading-6">
               Registreer de tool als eigen invoer of pas je zoekterm/filter aan.
             </p>
           </div>
@@ -529,10 +531,10 @@ function ToolPicker({
       ) : null}
 
       {selectedToolId === "custom" ? (
-        <label className="grid gap-2 border-t border-[#bfc7cf]/35 pt-4 text-sm font-semibold text-[#181c1e]">
+        <label className="grid min-w-0 gap-2 border-t border-[#bfc7cf]/35 pt-4 text-sm font-semibold text-[#181c1e]">
           Naam van de tool
           <input
-            className="h-11 rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm font-normal outline-none transition focus:border-[#00658b] focus:ring-2 focus:ring-[#c4e7ff]"
+            className="h-11 w-full min-w-0 rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm font-normal outline-none transition focus:border-[#00658b] focus:ring-2 focus:ring-[#c4e7ff]"
             disabled={isDisabled}
             onChange={(event) => onCustomToolNameChange(event.target.value)}
             placeholder="Bijvoorbeeld: Gamma, Fireflies.ai of eigen tool"

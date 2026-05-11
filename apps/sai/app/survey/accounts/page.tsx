@@ -20,6 +20,7 @@ import { saveToolAccount } from "@/lib/sai-rpc/client";
 import {
   markSurveyStepCompleted,
   readSurveySession,
+  storeSurveyGuardNotice,
   type PendingSurveyTool,
   type StoredSurveyTool,
   updateSurveyCurrentStep,
@@ -107,11 +108,17 @@ export default function SurveyAccountsPage() {
       }
 
       if (!canAccessSurveyStep(storedSession, "accounts")) {
+        storeSurveyGuardNotice(
+          "We hebben je teruggezet naar de eerstvolgende open stap.",
+        );
         router.replace(getResumeStep(storedSession).href);
         return;
       }
 
       if (!storedSession.pendingTool?.useCaseCodes?.length) {
+        storeSurveyGuardNotice(
+          "Leg eerst de toepassing van je tool vast voordat je accountstatus kiest.",
+        );
         router.replace("/survey/use-cases");
         return;
       }

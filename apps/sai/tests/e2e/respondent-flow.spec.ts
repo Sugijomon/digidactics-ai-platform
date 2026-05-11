@@ -185,6 +185,33 @@ test("start page clears corrupt respondent session state", async ({ page }) => {
   await expect(page).toHaveURL(/\/survey\/profile$/, { timeout: 30_000 });
 });
 
+test("guarded future steps explain why the respondent was redirected", async ({
+  page,
+}) => {
+  await mockSupabaseRpc(page);
+  await page.addInitScript((storageKey) => {
+    window.sessionStorage.setItem(
+      storageKey,
+      JSON.stringify({
+        runId: "00000000-0000-4000-8000-000000000001",
+        submissionToken: "mock-token-guarded",
+        startedAt: new Date().toISOString(),
+        currentStep: "profile",
+        completedSteps: ["profile"],
+      }),
+    );
+  }, SURVEY_SESSION_STORAGE_KEY);
+
+  await page.goto("/survey/data");
+
+  await expect(page).toHaveURL(/\/survey\/motivations$/, {
+    timeout: 30_000,
+  });
+  await expect(
+    page.getByText("We hebben je teruggezet naar de eerstvolgende open stap."),
+  ).toBeVisible();
+});
+
 test("profile step validates dependent required answers before saving", async ({
   page,
 }) => {

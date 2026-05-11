@@ -20,6 +20,7 @@ import { saveTool } from "@/lib/sai-rpc/client";
 import {
   markSurveyStepCompleted,
   readSurveySession,
+  storeSurveyGuardNotice,
   type StoredSurveyTool,
   updateSurveyCurrentStep,
   updateSurveySession,
@@ -126,6 +127,9 @@ export default function SurveyToolsPage() {
       }
 
       if (!canAccessSurveyStep(storedSession, "tools")) {
+        storeSurveyGuardNotice(
+          "We hebben je teruggezet naar de eerstvolgende open stap.",
+        );
         router.replace(getResumeStep(storedSession).href);
         return;
       }

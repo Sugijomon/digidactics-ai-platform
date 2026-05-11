@@ -19,6 +19,7 @@ import { saveToolUseCase, saveToolUseCaseContext } from "@/lib/sai-rpc/client";
 import {
   markSurveyStepCompleted,
   readSurveySession,
+  storeSurveyGuardNotice,
   updateSurveyCurrentStep,
   updateSurveySession,
   type PendingSurveyTool,
@@ -85,11 +86,17 @@ export default function SurveyUseCasesPage() {
       }
 
       if (!canAccessSurveyStep(storedSession, "useCases")) {
+        storeSurveyGuardNotice(
+          "We hebben je teruggezet naar de eerstvolgende open stap.",
+        );
         router.replace(getResumeStep(storedSession).href);
         return;
       }
 
       if (!storedSession.pendingTool) {
+        storeSurveyGuardNotice(
+          "Kies eerst een tool voordat je toepassingen vastlegt.",
+        );
         router.replace("/survey/tools");
         return;
       }

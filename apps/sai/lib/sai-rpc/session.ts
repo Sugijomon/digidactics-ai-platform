@@ -4,6 +4,12 @@ import type { SurveySession } from "@/lib/sai-rpc/types";
 import type { SurveyStepId } from "@/lib/sai-survey/flow";
 
 const SURVEY_SESSION_STORAGE_KEY = "sai.respondent.session";
+const SURVEY_GUARD_NOTICE_STORAGE_KEY = "sai.respondent.guard_notice";
+
+export type SurveyGuardNotice = {
+  message: string;
+  createdAt: string;
+};
 
 export type StoredSurveyTool = {
   surveyToolId: string;
@@ -202,4 +208,49 @@ export function updateSurveySession(
 
 export function clearSurveySession() {
   window.sessionStorage.removeItem(SURVEY_SESSION_STORAGE_KEY);
+}
+
+export function storeSurveyGuardNotice(message: string) {
+  const notice: SurveyGuardNotice = {
+    message,
+    createdAt: new Date().toISOString(),
+  };
+
+  window.sessionStorage.setItem(
+    SURVEY_GUARD_NOTICE_STORAGE_KEY,
+    JSON.stringify(notice),
+  );
+}
+
+export function consumeSurveyGuardNotice(): SurveyGuardNotice | null {
+  const rawNotice = window.sessionStorage.getItem(
+    SURVEY_GUARD_NOTICE_STORAGE_KEY,
+  );
+
+  if (!rawNotice) {
+    return null;
+  }
+
+  window.sessionStorage.removeItem(SURVEY_GUARD_NOTICE_STORAGE_KEY);
+
+  try {
+    const parsedNotice: unknown = JSON.parse(rawNotice);
+
+    return isSurveyGuardNotice(parsedNotice) ? parsedNotice : null;
+  } catch {
+    return null;
+  }
+}
+
+function isSurveyGuardNotice(value: unknown): value is SurveyGuardNotice {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return false;
+  }
+
+  const candidate = value as Record<string, unknown>;
+
+  return (
+    typeof candidate.message === "string" &&
+    typeof candidate.createdAt === "string"
+  );
 }

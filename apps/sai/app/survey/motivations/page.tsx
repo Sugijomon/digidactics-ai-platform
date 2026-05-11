@@ -17,6 +17,7 @@ import { saveMotivations } from "@/lib/sai-rpc/client";
 import {
   markSurveyStepCompleted,
   readSurveySession,
+  storeSurveyGuardNotice,
   updateSurveyCurrentStep,
 } from "@/lib/sai-rpc/session";
 import type { RpcError, SurveySession } from "@/lib/sai-rpc/types";
@@ -60,6 +61,9 @@ export default function SurveyMotivationsPage() {
       }
 
       if (!canAccessSurveyStep(storedSession, "motivations")) {
+        storeSurveyGuardNotice(
+          "We hebben je teruggezet naar de eerstvolgende open stap.",
+        );
         router.replace(getResumeStep(storedSession).href);
         return;
       }

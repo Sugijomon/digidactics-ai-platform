@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { SurveyStepId } from "@/lib/sai-survey/flow";
+import { SurveyGuardNotice } from "@/components/survey-guard-notice";
 import { SurveyProgress } from "@/components/survey-progress";
 
 export type RpcStepState = {
@@ -83,6 +84,7 @@ export function SurveyStepLayout({
   return (
     <SurveyPageShell maxWidthClassName={maxWidthClassName}>
       <SurveyProgress completedSteps={completedSteps} currentStep={currentStep} />
+      <SurveyGuardNotice />
       <SurveyGlassCard>
         <SurveyCardIntro eyebrow={eyebrow} intro={intro} title={title} />
         {children}

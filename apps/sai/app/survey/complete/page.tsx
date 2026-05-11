@@ -21,6 +21,7 @@ import {
   clearSurveySession,
   markSurveyStepCompleted,
   readSurveySession,
+  storeSurveyGuardNotice,
   type StoredSurveyTool,
   updateSurveyCurrentStep,
 } from "@/lib/sai-rpc/session";
@@ -79,6 +80,9 @@ export default function SurveyCompletePage() {
       }
 
       if (!canAccessSurveyStep(storedSession, "complete")) {
+        storeSurveyGuardNotice(
+          "Registreer minimaal een tool voordat je de scan afrondt.",
+        );
         router.replace(getResumeStep(storedSession).href);
         return;
       }

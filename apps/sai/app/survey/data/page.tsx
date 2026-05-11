@@ -24,6 +24,7 @@ import {
 import {
   markSurveyStepCompleted,
   readSurveySession,
+  storeSurveyGuardNotice,
   updateSurveyCurrentStep,
 } from "@/lib/sai-rpc/session";
 import type { RpcError, RpcResult, SurveySession } from "@/lib/sai-rpc/types";
@@ -133,6 +134,9 @@ export default function SurveyDataPage() {
       }
 
       if (!canAccessSurveyStep(storedSession, "data")) {
+        storeSurveyGuardNotice(
+          "We hebben je teruggezet naar de eerstvolgende open stap.",
+        );
         router.replace(getResumeStep(storedSession).href);
         return;
       }

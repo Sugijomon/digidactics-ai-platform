@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import type { MouseEvent, ReactNode } from "react";
+import type { MouseEvent } from "react";
 import type { LessonBlock, LessonContent } from "@digidactics/domain/learning";
 import { LessonBlockRenderer } from "@/components/learning/LessonBlockRenderer";
 import type {
@@ -19,7 +19,7 @@ type PageDraft = {
   isRequired: boolean;
   content: LessonContent;
 };
-type EditorPanel = "content" | "preview" | "settings" | "advanced";
+type EditorPanel = "content" | "preview" | "advanced";
 
 const blockTypes = [
   { category: "Basis", type: "hero", label: "Hero" },
@@ -62,6 +62,7 @@ export function LearningAdminEditor({
   const activeTopic =
     course.topics.find((topic) => topic.pages.some((page) => page.id === activePage?.id)) ??
     course.topics[0];
+  const activeTopicPages = activeTopic?.pages ?? [];
   const [drafts, setDrafts] = useState<Record<string, PageDraft>>(() =>
     Object.fromEntries(
       pages.map((page) => [
@@ -155,7 +156,7 @@ export function LearningAdminEditor({
   }
 
   return (
-    <section className="editor-shell">
+    <section className="editor-shell lesson-editor-shell">
       <aside className="editor-nav" aria-label="Cursusstructuur">
         <div>
           <p className="eyebrow">Structuur</p>
@@ -164,13 +165,9 @@ export function LearningAdminEditor({
             {course.topics.length} topics / {pages.length} pagina's
           </p>
         </div>
-        <button
-          className="button button-primary editor-new-page-button"
-          onClick={() => setActivePanel("settings")}
-          type="button"
-        >
-          Nieuwe pagina
-        </button>
+        <div className="editor-nav-progress" aria-label="Cursusopbouw">
+          <span style={{ width: `${Math.min(100, Math.round((pages.length / 14) * 100))}%` }} />
+        </div>
         <div className="editor-topic-list">
           {course.topics.map((topic) => (
             <TopicNavigation
@@ -180,6 +177,10 @@ export function LearningAdminEditor({
               topic={topic}
             />
           ))}
+        </div>
+        <div className="editor-nav-footer">
+          <strong>AI Rijbewijs</strong>
+          <span>{pages.length} pagina's</span>
         </div>
       </aside>
 
@@ -206,6 +207,13 @@ export function LearningAdminEditor({
             <p className="muted">{draft.summary || "Geen samenvatting ingesteld."}</p>
           </div>
           <div className="actions">
+            <button
+              className="button button-secondary"
+              onClick={() => setActivePanel(activePanel === "preview" ? "content" : "preview")}
+              type="button"
+            >
+              {activePanel === "preview" ? "Bewerken" : "Preview"}
+            </button>
             <Link
               className="button button-secondary"
               href={`/learning/${course.course_code}/${activePage.page_code}`}
@@ -218,19 +226,19 @@ export function LearningAdminEditor({
           </div>
         </div>
 
-        <div className="editor-tabs" role="tablist" aria-label="Editorweergave">
-          <EditorTab active={activePanel === "content"} onClick={() => setActivePanel("content")}>
-            Bewerken
-          </EditorTab>
-          <EditorTab active={activePanel === "preview"} onClick={() => setActivePanel("preview")}>
-            Preview
-          </EditorTab>
-          <EditorTab active={activePanel === "settings"} onClick={() => setActivePanel("settings")}>
-            Instellingen
-          </EditorTab>
-          <EditorTab active={activePanel === "advanced"} onClick={() => setActivePanel("advanced")}>
-            Advanced
-          </EditorTab>
+        <div className="editor-page-tabs" role="tablist" aria-label="Pagina's in huidig topic">
+          {activeTopicPages.map((page, index) => (
+            <button
+              aria-selected={page.id === activePage.id}
+              key={page.id}
+              onClick={() => selectPage(page.id)}
+              role="tab"
+              type="button"
+            >
+              <span>{index + 1}</span>
+              {page.title}
+            </button>
+          ))}
         </div>
 
         {activePanel === "content" ? (
@@ -257,7 +265,6 @@ export function LearningAdminEditor({
             {blocks.length === 0 ? (
               <p className="empty-state">Deze pagina heeft nog geen blocks.</p>
             ) : null}
-            <BlockAddTray onAddBlock={addBlock} />
           </div>
         ) : null}
 
@@ -275,10 +282,6 @@ export function LearningAdminEditor({
           </div>
         ) : null}
 
-        {activePanel === "settings" ? (
-          <PageSettings draft={draft} updateDraft={updateDraft} />
-        ) : null}
-
         {activePanel === "advanced" ? (
           <div className="editor-advanced">
             <p className="muted">
@@ -290,60 +293,40 @@ export function LearningAdminEditor({
       </form>
 
       <aside className="editor-properties">
-        {activePanel === "content" ? (
-          <>
-            <div className="cardless-panel">
-              <p className="eyebrow">Eigenschappen</p>
-              {selectedBlock && selectedBlockIndex >= 0 ? (
-                <>
-                  <h2>{getBlockTitle(selectedBlock, selectedBlockIndex)}</h2>
-                  <BlockFields
-                    block={selectedBlock}
-                    onChange={(nextBlock) => updateBlock(selectedBlockIndex, nextBlock)}
-                  />
-                </>
-              ) : (
-                <p className="empty-state">Selecteer een block om de inhoud te bewerken.</p>
-              )}
-            </div>
-            <div className="cardless-panel">
-              <p className="eyebrow">Pagina</p>
-              <h2>Rustig bouwen</h2>
-              <p className="muted">
-                Selecteer links een contentblok, bewerk hier de inhoud en voeg onderaan nieuwe
-                blokken toe.
-              </p>
-            </div>
-          </>
-        ) : null}
+        <div className="cardless-panel">
+          <p className="eyebrow">Les instellingen</p>
+          <PageSettings draft={draft} updateDraft={updateDraft} />
+        </div>
 
-        {activePanel === "preview" ? (
-          <div className="cardless-panel">
-            <p className="eyebrow">Preview</p>
-            <h2>Controleer de lesflow</h2>
-            <p className="muted">
-              Dit gebruikt dezelfde renderer als de learner route. Zo zie je sneller of de pagina
-              logisch opbouwt voordat je opslaat.
-            </p>
-          </div>
-        ) : null}
+        <div className="cardless-panel">
+          <p className="eyebrow">Block eigenschappen</p>
+          {selectedBlock && selectedBlockIndex >= 0 ? (
+            <>
+              <h2>{getBlockTitle(selectedBlock, selectedBlockIndex)}</h2>
+              <BlockFields
+                block={selectedBlock}
+                onChange={(nextBlock) => updateBlock(selectedBlockIndex, nextBlock)}
+              />
+            </>
+          ) : (
+            <p className="empty-state">Selecteer een block om de inhoud te bewerken.</p>
+          )}
+        </div>
 
-        {activePanel === "settings" ? (
-          <div className="cardless-panel">
-            <p className="eyebrow">Nieuwe pagina</p>
-            <NewPageForm course={course} createAction={createAction} />
-          </div>
-        ) : null}
+        <BlockAddTray onAddBlock={addBlock} />
 
-        {activePanel === "advanced" ? (
-          <div className="cardless-panel">
-            <p className="eyebrow">Technisch</p>
-            <h2>Content JSON</h2>
-            <p className="muted">
-              De JSON blijft los inspecteerbaar zodat content later goed te versioneren is.
-            </p>
-          </div>
-        ) : null}
+        <details className="cardless-panel editor-new-page-details">
+          <summary>Nieuwe pagina</summary>
+          <NewPageForm course={course} createAction={createAction} />
+        </details>
+
+        <button
+          className="button button-secondary editor-advanced-toggle"
+          onClick={() => setActivePanel(activePanel === "advanced" ? "content" : "advanced")}
+          type="button"
+        >
+          {activePanel === "advanced" ? "Content tonen" : "JSON bekijken"}
+        </button>
       </aside>
     </section>
   );
@@ -378,28 +361,6 @@ function BlockAddTray({ onAddBlock }: { onAddBlock: (type: string) => void }) {
         ))}
       </div>
     </section>
-  );
-}
-
-function EditorTab({
-  active,
-  children,
-  onClick,
-}: {
-  active: boolean;
-  children: ReactNode;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      aria-selected={active}
-      className="editor-tab"
-      onClick={onClick}
-      role="tab"
-      type="button"
-    >
-      {children}
-    </button>
   );
 }
 

@@ -885,6 +885,13 @@ h3 {
   margin-top: 24px;
 }
 
+.lesson-editor-shell {
+  align-items: stretch;
+  gap: 0;
+  grid-template-columns: 288px minmax(0, 1fr) 360px;
+  min-height: calc(100vh - 190px);
+}
+
 .editor-nav,
 .editor-canvas,
 .editor-properties {
@@ -901,6 +908,42 @@ h3 {
   padding: 16px;
   position: sticky;
   top: 20px;
+}
+
+.lesson-editor-shell .editor-nav {
+  align-content: start;
+  background: #122a44;
+  border-color: #122a44;
+  border-radius: 8px 0 0 8px;
+  box-shadow: none;
+  color: white;
+  max-height: calc(100vh - 120px);
+  overflow: auto;
+}
+
+.lesson-editor-shell .editor-nav .eyebrow,
+.lesson-editor-shell .editor-nav .muted,
+.lesson-editor-shell .editor-page-button small,
+.lesson-editor-shell .editor-topic h3,
+.lesson-editor-shell .editor-topic-heading span {
+  color: #a9bfd5;
+}
+
+.lesson-editor-shell .editor-canvas {
+  border-left: 0;
+  border-radius: 0;
+  box-shadow: none;
+  min-height: calc(100vh - 190px);
+  padding: 0;
+}
+
+.lesson-editor-shell .editor-properties {
+  align-content: start;
+  border-left: 0;
+  border-radius: 0 8px 8px 0;
+  box-shadow: none;
+  max-height: calc(100vh - 120px);
+  overflow: auto;
 }
 
 .editor-nav h2,
@@ -962,11 +1005,37 @@ h3 {
   width: 100%;
 }
 
+.editor-nav-progress {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  height: 7px;
+  overflow: hidden;
+}
+
+.editor-nav-progress span {
+  background: #20aee5;
+  display: block;
+  height: 100%;
+}
+
+.editor-nav-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  display: grid;
+  gap: 4px;
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.editor-nav-footer span {
+  color: #a9bfd5;
+  font-size: 0.85rem;
+}
+
 .editor-page-button {
   background: transparent;
   border: 1px solid transparent;
   border-radius: var(--radius);
-  color: var(--text);
+  color: inherit;
   cursor: pointer;
   display: grid;
   font: inherit;
@@ -976,8 +1045,8 @@ h3 {
 }
 
 .editor-page-button[aria-current="page"] {
-  background: var(--surface-muted);
-  border-color: var(--line);
+  background: #17486d;
+  border-color: #2fb8ea;
 }
 
 .editor-page-button span {
@@ -995,6 +1064,11 @@ h3 {
   gap: 16px;
   min-width: 0;
   padding: 16px;
+}
+
+.lesson-editor-shell .editor-toolbar {
+  border-bottom: 1px solid var(--line);
+  padding: 28px 34px 24px;
 }
 
 .editor-toolbar {
@@ -1027,6 +1101,56 @@ h3 {
   display: inline-flex;
   min-height: 26px;
   padding: 0 10px;
+}
+
+.editor-page-tabs {
+  align-items: center;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 12px 34px;
+}
+
+.editor-page-tabs button {
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: #53627a;
+  cursor: pointer;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font: inherit;
+  font-weight: 800;
+  gap: 8px;
+  max-width: 240px;
+  min-height: 40px;
+  overflow: hidden;
+  padding: 0 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editor-page-tabs button span {
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 0.76rem;
+  height: 22px;
+  justify-content: center;
+  width: 22px;
+}
+
+.editor-page-tabs button[aria-selected="true"] {
+  background: var(--brand);
+  color: white;
+}
+
+.editor-page-tabs button[aria-selected="true"] span {
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .editor-meta-grid,
@@ -1071,6 +1195,15 @@ h3 {
 .editor-preview-frame {
   display: grid;
   gap: 12px;
+}
+
+.lesson-editor-shell .editor-page-canvas,
+.lesson-editor-shell .editor-preview-frame,
+.lesson-editor-shell .editor-advanced {
+  margin: 0 auto;
+  max-width: 980px;
+  padding: 34px;
+  width: 100%;
 }
 
 .editor-page-status {
@@ -1226,6 +1359,13 @@ h3 {
   padding: 16px;
 }
 
+.editor-properties > .editor-add-tray {
+  background: white;
+  border-width: 0 0 1px;
+  border-radius: 0;
+  padding: 0 0 18px;
+}
+
 .editor-add-tray h2 {
   font-size: 1.08rem;
   margin: 0;
@@ -1253,15 +1393,31 @@ h3 {
 }
 
 .editor-add-group div {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .editor-add-group .button {
   background: white;
+  justify-content: flex-start;
   min-height: 34px;
   padding: 0 11px;
+}
+
+.editor-new-page-details {
+  display: block;
+}
+
+.editor-new-page-details summary {
+  cursor: pointer;
+  font-weight: 900;
+  margin-bottom: 12px;
+}
+
+.editor-advanced-toggle {
+  justify-content: center;
+  width: 100%;
 }
 
 .block-library-group {

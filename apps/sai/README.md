@@ -72,7 +72,7 @@ Current pilot-hardening behavior:
 - `submission_token` is never rendered.
 - Corrupt respondent session state in `sessionStorage` is cleared automatically.
 - Guarded routes redirect respondents back to the first valid open step and show a short explanation.
-- Completion calls `complete_survey_run`, performs a token-burn check, then clears local respondent state.
+- Completion calls `complete_survey_run`, verifies that the session is closed, then clears local respondent state.
 
 The survey can register multiple tools. Tool selection, use cases, context, and account status are separate steps to match the V8.1 survey structure.
 

@@ -203,6 +203,14 @@ function IntroCard({
 }
 
 function formatRpcError(error: RpcError) {
+  if (error.code === "invalid_or_closed_wave") {
+    return "Deze toegangscode is niet actief of verlopen. Controleer de code of vraag een nieuwe toegangscode aan.";
+  }
+
+  if (error.code === "missing_supabase_env") {
+    return "De scan kan lokaal niet starten omdat de Supabase instellingen ontbreken.";
+  }
+
   return [error.code, error.message].filter(Boolean).join(": ");
 }
 

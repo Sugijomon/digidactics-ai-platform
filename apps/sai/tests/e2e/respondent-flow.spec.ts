@@ -169,6 +169,35 @@ test("respondent can resume an active scan from the start page", async ({
   await expect(page).toHaveURL(/\/survey\/motivations$/);
 });
 
+test("start page explains inactive or expired access codes", async ({
+  page,
+}) => {
+  await page.route(SUPABASE_RPC_ROUTE, async (route) => {
+    if (route.request().method() === "OPTIONS") {
+      await route.fulfill({
+        status: 204,
+        headers: corsHeaders(),
+      });
+      return;
+    }
+
+    await route.fulfill({
+      status: 400,
+      headers: jsonHeaders(),
+      body: JSON.stringify({ message: "invalid_or_closed_wave" }),
+    });
+  });
+
+  await page.goto("/survey");
+  await page.evaluate(() => window.sessionStorage.clear());
+  await page.getByRole("button", { name: "Start de scan" }).click();
+
+  await expect(
+    page.getByText("Deze toegangscode is niet actief of verlopen."),
+  ).toBeVisible();
+  await expect(page.getByText("invalid_or_closed_wave")).toHaveCount(0);
+});
+
 test("start page clears corrupt respondent session state", async ({ page }) => {
   await mockSupabaseRpc(page);
   await page.addInitScript((storageKey) => {

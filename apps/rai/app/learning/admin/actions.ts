@@ -232,6 +232,68 @@ export async function moveLearningPage(formData: FormData) {
   redirect(`/learning/admin/courses/${courseCode}`);
 }
 
+export async function moveLearningPageToTopic(formData: FormData) {
+  const supabase = await requireLearningAdmin();
+
+  const pageId = readRequired(formData, "pageId");
+  const courseCode = readRequired(formData, "courseCode");
+  const targetTopicId = readRequired(formData, "targetTopicId");
+
+  const { data: page, error: pageError } = await supabase
+    .from("learning_pages")
+    .select("id, topic_id")
+    .eq("id", pageId)
+    .single<{ id: string; topic_id: string }>();
+
+  if (pageError || !page) {
+    throw new Error(`Topic wijzigen is mislukt: ${pageError?.message ?? "pagina niet gevonden"}`);
+  }
+
+  if (page.topic_id === targetTopicId) {
+    redirect(`/learning/admin/courses/${courseCode}`);
+  }
+
+  const sequenceOrder = await resolveSequenceOrder(supabase, targetTopicId, 1);
+  const { error } = await supabase
+    .from("learning_pages")
+    .update({
+      topic_id: targetTopicId,
+      sequence_order: sequenceOrder,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", pageId);
+
+  if (error) {
+    throw new Error(`Topic wijzigen is mislukt: ${error.message}`);
+  }
+
+  revalidateLearningCourse(courseCode);
+  redirect(`/learning/admin/courses/${courseCode}`);
+}
+
+export async function toggleLearningPageRequired(formData: FormData) {
+  const supabase = await requireLearningAdmin();
+
+  const pageId = readRequired(formData, "pageId");
+  const courseCode = readRequired(formData, "courseCode");
+  const isRequired = String(formData.get("isRequired") ?? "") === "true";
+
+  const { error } = await supabase
+    .from("learning_pages")
+    .update({
+      is_required: !isRequired,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", pageId);
+
+  if (error) {
+    throw new Error(`Verplichtstelling wijzigen is mislukt: ${error.message}`);
+  }
+
+  revalidateLearningCourse(courseCode);
+  redirect(`/learning/admin/courses/${courseCode}`);
+}
+
 export async function archiveLearningPage(formData: FormData) {
   const supabase = await requireLearningAdmin();
 
@@ -357,6 +419,15 @@ function readCourseTopicTarget(formData: FormData) {
     courseCode: readRequired(formData, "courseCode"),
     topicId: readRequired(formData, "topicId"),
   };
+}
+
+function revalidateLearningCourse(courseCode: string) {
+  revalidatePath("/learning");
+  revalidatePath("/learning/admin");
+  revalidatePath("/learning/admin/courses");
+  revalidatePath("/learning/admin/lessons");
+  revalidatePath(`/learning/admin/courses/${courseCode}`);
+  revalidatePath(`/learning/${courseCode}`);
 }
 
 function parseContentJson(value: string) {

@@ -6,6 +6,8 @@ import {
   addExistingLessonToCourse,
   archiveLearningPage,
   moveLearningPage,
+  moveLearningPageToTopic,
+  toggleLearningPageRequired,
   updateLearningCourseDetails,
 } from "../../actions";
 
@@ -112,11 +114,36 @@ export default async function AdminCourseEditorPage({
                       {page.page_type} / {page.estimated_duration_minutes ?? "-"} min
                     </small>
                   </td>
-                  <td>{course.topics.find((topic) => topic.id === page.topic_id)?.title ?? "-"}</td>
                   <td>
-                    <span className={`status-badge ${page.is_required ? "published" : ""}`}>
-                      {page.is_required ? "Verplicht" : "Optioneel"}
-                    </span>
+                    <form action={moveLearningPageToTopic} className="topic-move-form">
+                      <input name="pageId" type="hidden" value={page.id} />
+                      <input name="courseCode" type="hidden" value={course.course_code} />
+                      <select
+                        aria-label={`${page.title} naar topic verplaatsen`}
+                        defaultValue={page.topic_id}
+                        name="targetTopicId"
+                      >
+                        {course.topics.map((topic) => (
+                          <option key={topic.id} value={topic.id}>
+                            {topic.title}
+                          </option>
+                        ))}
+                      </select>
+                      <button type="submit">Verplaats</button>
+                    </form>
+                  </td>
+                  <td>
+                    <form action={toggleLearningPageRequired} className="required-toggle-form">
+                      <input name="pageId" type="hidden" value={page.id} />
+                      <input name="courseCode" type="hidden" value={course.course_code} />
+                      <input name="isRequired" type="hidden" value={String(page.is_required)} />
+                      <button
+                        className={`status-badge button-badge ${page.is_required ? "published" : ""}`}
+                        type="submit"
+                      >
+                        {page.is_required ? "Verplicht" : "Optioneel"}
+                      </button>
+                    </form>
                   </td>
                   <td>
                     <div className="table-actions">

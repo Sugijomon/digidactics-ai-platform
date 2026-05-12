@@ -21,6 +21,10 @@ export default async function AdminCourseEditorPage({
   ]);
   const courseSummary = overview.courses.find((item) => item.course_code === course.course_code);
   const pages = course.topics.flatMap((topic) => topic.pages);
+  const totalMinutes = pages.reduce(
+    (sum, page) => sum + (page.estimated_duration_minutes ?? 0),
+    0,
+  );
 
   return (
     <ContentEditorShell active="courses">
@@ -33,6 +37,45 @@ export default async function AdminCourseEditorPage({
           Terug
         </Link>
       </div>
+
+      <section className="admin-table-card course-editor-hero">
+        <div>
+          <span className={`status-badge ${courseSummary?.status === "published" ? "published" : ""}`}>
+            {courseSummary?.status === "published" ? "Gepubliceerd" : "Concept"}
+          </span>
+          <h2>{course.title}</h2>
+          <p>{course.description ?? "Geen beschrijving ingesteld."}</p>
+        </div>
+        <div className="course-editor-metrics">
+          <Metric label="Topics" value={String(course.topics.length)} />
+          <Metric label="Lessen" value={String(pages.length)} />
+          <Metric label="Duur" value={`${totalMinutes} min`} />
+          <Metric label="Norm" value={`${course.passing_threshold}%`} />
+        </div>
+      </section>
+
+      <section className="topic-summary-grid" aria-label="Topicoverzicht">
+        {course.topics.map((topic) => {
+          const topicPages = topic.pages;
+          const topicMinutes = topicPages.reduce(
+            (sum, page) => sum + (page.estimated_duration_minutes ?? 0),
+            0,
+          );
+
+          return (
+            <article className="topic-summary-card" key={topic.id}>
+              <span>{topic.sequence_order}</span>
+              <div>
+                <h2>{topic.title}</h2>
+                <p>{topic.summary ?? "Geen topicomschrijving ingesteld."}</p>
+                <small>
+                  {topicPages.length} lessen / {topicMinutes} min
+                </small>
+              </div>
+            </article>
+          );
+        })}
+      </section>
 
       <div className="admin-split-layout">
         <section className="admin-table-card">
@@ -65,9 +108,16 @@ export default async function AdminCourseEditorPage({
                   <td>
                     <strong>{page.title}</strong>
                     <span>{page.summary ?? "Geen samenvatting ingesteld."}</span>
+                    <small>
+                      {page.page_type} / {page.estimated_duration_minutes ?? "-"} min
+                    </small>
                   </td>
                   <td>{course.topics.find((topic) => topic.id === page.topic_id)?.title ?? "-"}</td>
-                  <td>{page.is_required ? "Ja" : "Nee"}</td>
+                  <td>
+                    <span className={`status-badge ${page.is_required ? "published" : ""}`}>
+                      {page.is_required ? "Verplicht" : "Optioneel"}
+                    </span>
+                  </td>
                   <td>
                     <div className="table-actions">
                       <Link href={`/learning/admin/lessons/${page.page_code}`}>Bewerken</Link>
@@ -166,5 +216,14 @@ export default async function AdminCourseEditorPage({
         </aside>
       </div>
     </ContentEditorShell>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="dashboard-metric">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
   );
 }

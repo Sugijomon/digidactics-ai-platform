@@ -11,6 +11,7 @@ import type {
 } from "@/lib/learning-preview-data";
 
 type EditableBlock = Record<string, any> & { id: string; type: string };
+type ChoiceOption = { id: string; label: string };
 type PageDraft = {
   title: string;
   summary: string;
@@ -40,6 +41,21 @@ const blockCategories = Array.from(new Set(blockTypes.map((block) => block.categ
 const blockTypeLabels = Object.fromEntries(
   blockTypes.map((block) => [block.type, block.label]),
 ) as Record<string, string>;
+const blockTypeDescriptions: Record<string, string> = {
+  hero: "Grote titel of opener voor een pagina.",
+  paragraph: "Lopende tekst met markdown.",
+  callout: "Uitgelichte waarschuwing, tip of nuance.",
+  key_takeaways: "Compacte lijst met kernpunten.",
+  checklist: "Afvinkbare of scanbare punten.",
+  case_lab: "Praktijkscenario met reflectie.",
+  quiz_multiple_choice: "Een vraag met een correct antwoord.",
+  quiz_multiple_select: "Een vraag met meerdere correcte antwoorden.",
+  quiz_true_false: "Waar/niet waar stelling.",
+  quiz_essay: "Open reflectievraag met woordlimiet.",
+  short_answer: "Korte open invoervraag.",
+  video: "Video met optioneel transcript.",
+  iframe: "Embed van externe content.",
+};
 
 export function LearningAdminEditor({
   course,
@@ -348,12 +364,13 @@ function BlockAddTray({ onAddBlock }: { onAddBlock: (type: string) => void }) {
                 .filter((blockType) => blockType.category === category)
                 .map((blockType) => (
                   <button
-                    className="button button-secondary"
+                    className="block-add-button"
                     key={blockType.type}
                     onClick={() => onAddBlock(blockType.type)}
                     type="button"
                   >
-                    {blockType.label}
+                    <strong>{blockType.label}</strong>
+                    <small>{blockTypeDescriptions[blockType.type]}</small>
                   </button>
                 ))}
             </div>
@@ -506,6 +523,9 @@ function BlockCard({
       className="editor-block-card"
       onClick={onClick}
     >
+      <div className="editor-block-order" aria-label={`Blok ${index + 1}`}>
+        {index + 1}
+      </div>
       <button className="editor-block-select" type="button">
         <span className="pill">{getBlockLabel(block.type)}</span>
         <strong>{getBlockTitle(block, index)}</strong>
@@ -513,16 +533,16 @@ function BlockCard({
       </button>
       <div className="icon-actions">
         <button type="button" onClick={stopAnd(onMoveUp)} aria-label="Block omhoog">
-          ^
+          Omhoog
         </button>
         <button type="button" onClick={stopAnd(onMoveDown)} aria-label="Block omlaag">
-          v
+          Omlaag
         </button>
         <button type="button" onClick={stopAnd(onDuplicate)} aria-label="Block dupliceren">
-          +
+          Kopie
         </button>
         <button type="button" onClick={stopAnd(onRemove)} aria-label="Block verwijderen">
-          x
+          Verwijder
         </button>
       </div>
     </section>
@@ -615,7 +635,12 @@ function BlockFields({
       );
     case "checklist":
     case "key_takeaways":
-      return <ListField label="Items, een per regel" values={block.items} onChange={(items) => onChange({ ...block, items })} />;
+      return (
+        <div className="form-stack">
+          <ListField label="Items, een per regel" values={block.items} onChange={(items) => onChange({ ...block, items })} />
+          <p className="field-hint">Gebruik een item per regel. De volgorde wordt direct in de les opgeslagen.</p>
+        </div>
+      );
     case "case_lab":
       return (
         <div className="form-stack">
@@ -691,25 +716,111 @@ function ChoiceFields({
   multiple: boolean;
   onChange: (block: EditableBlock) => void;
 }) {
+  const options = normalizeOptions(block.options);
+  const selectedIds = new Set(
+    multiple
+      ? Array.isArray(block.correct_option_ids)
+        ? block.correct_option_ids.map(String)
+        : []
+      : [s(block.correct_option_id)].filter(Boolean),
+  );
+
+  function updateOptions(nextOptions: ChoiceOption[]) {
+    const validIds = new Set(nextOptions.map((option) => option.id));
+    onChange({
+      ...block,
+      options: nextOptions,
+      correct_option_id: multiple
+        ? block.correct_option_id
+        : nextOptions.find((option) => option.id === block.correct_option_id)?.id ??
+          nextOptions[0]?.id ??
+          "",
+      correct_option_ids: multiple
+        ? Array.from(selectedIds).filter((id) => validIds.has(id))
+        : block.correct_option_ids,
+    });
+  }
+
+  function updateOption(index: number, patch: Partial<ChoiceOption>) {
+    updateOptions(
+      options.map((option, optionIndex) =>
+        optionIndex === index ? { ...option, ...patch } : option,
+      ),
+    );
+  }
+
+  function addOption() {
+    const nextId = nextOptionId(options);
+    updateOptions([...options, { id: nextId, label: `Optie ${nextId.toUpperCase()}` }]);
+  }
+
+  function removeOption(index: number) {
+    updateOptions(options.filter((_, optionIndex) => optionIndex !== index));
+  }
+
+  function toggleCorrect(optionId: string) {
+    if (multiple) {
+      const nextIds = new Set(selectedIds);
+      if (nextIds.has(optionId)) {
+        nextIds.delete(optionId);
+      } else {
+        nextIds.add(optionId);
+      }
+      onChange({ ...block, correct_option_ids: Array.from(nextIds) });
+      return;
+    }
+
+    onChange({ ...block, correct_option_id: optionId });
+  }
+
   return (
     <div className="form-stack">
       <TextareaField label="Vraag" value={s(block.question)} onChange={(question) => onChange({ ...block, question })} />
-      <TextareaField
-        label="Opties, een per regel"
-        value={Array.isArray(block.options) ? block.options.map((option) => option.label).join("\n") : ""}
-        onChange={(value) => onChange({ ...block, options: optionsFromText(value) })}
-      />
-      <TextField
-        label={multiple ? "Correcte ids, komma-gescheiden" : "Correct option id"}
-        value={multiple ? (block.correct_option_ids ?? []).join(", ") : s(block.correct_option_id)}
-        onChange={(value) =>
-          onChange(
-            multiple
-              ? { ...block, correct_option_ids: splitCsv(value) }
-              : { ...block, correct_option_id: value },
-          )
-        }
-      />
+      <div className="choice-editor">
+        <div className="choice-editor-heading">
+          <span>Antwoordopties</span>
+          <button type="button" onClick={addOption}>
+            Optie toevoegen
+          </button>
+        </div>
+        {options.map((option, index) => (
+          <div className="choice-option-row" key={`${option.id}-${index}`}>
+            <label className="choice-correct-toggle">
+              <input
+                checked={selectedIds.has(option.id)}
+                onChange={() => toggleCorrect(option.id)}
+                type={multiple ? "checkbox" : "radio"}
+              />
+              <span>{multiple ? "Correct" : "Juist"}</span>
+            </label>
+            <label className="field compact-field">
+              <span>ID</span>
+              <input
+                value={option.id}
+                onChange={(event) =>
+                  updateOption(index, { id: slugOptionId(event.target.value, index) })
+                }
+              />
+            </label>
+            <label className="field compact-field option-label-field">
+              <span>Optietekst</span>
+              <input
+                value={option.label}
+                onChange={(event) => updateOption(index, { label: event.target.value })}
+              />
+            </label>
+            <button
+              aria-label={`${option.label} verwijderen`}
+              className="choice-remove-button"
+              disabled={options.length <= 2}
+              onClick={() => removeOption(index)}
+              type="button"
+            >
+              Verwijder
+            </button>
+          </div>
+        ))}
+      </div>
       <TextareaField label="Uitleg" value={s(block.explanation)} onChange={(explanation) => onChange({ ...block, explanation })} />
     </div>
   );
@@ -858,8 +969,40 @@ function optionsFromText(value: string) {
     .filter((option) => option.label);
 }
 
-function splitCsv(value: string) {
-  return value.split(",").map((item) => item.trim()).filter(Boolean);
+function normalizeOptions(value: unknown): ChoiceOption[] {
+  if (!Array.isArray(value)) {
+    return optionsFromText("Optie A\nOptie B");
+  }
+
+  const options = value
+    .map((option, index) => ({
+      id: s((option as ChoiceOption)?.id) || String.fromCharCode(97 + index),
+      label: s((option as ChoiceOption)?.label) || `Optie ${index + 1}`,
+    }))
+    .filter((option) => option.label);
+
+  return options.length ? options : optionsFromText("Optie A\nOptie B");
+}
+
+function nextOptionId(options: ChoiceOption[]) {
+  const usedIds = new Set(options.map((option) => option.id));
+  for (let index = 0; index < 26; index += 1) {
+    const id = String.fromCharCode(97 + index);
+    if (!usedIds.has(id)) return id;
+  }
+
+  return `optie-${options.length + 1}`;
+}
+
+function slugOptionId(value: string, index: number) {
+  const fallback = String.fromCharCode(97 + index);
+  return (
+    value
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || fallback
+  );
 }
 
 function tryJson(

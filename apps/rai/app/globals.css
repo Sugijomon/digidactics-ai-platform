@@ -1275,9 +1275,9 @@ h3 {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  display: flex;
+  display: grid;
   gap: 12px;
-  justify-content: space-between;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
   padding: 12px;
   transition:
     border-color 120ms ease,
@@ -1292,6 +1292,20 @@ h3 {
 
 .editor-block-card[aria-current="true"] {
   background: #f9fcfc;
+}
+
+.editor-block-order {
+  align-items: center;
+  background: #eef7fb;
+  border: 1px solid #cbe7f4;
+  border-radius: 999px;
+  color: var(--brand);
+  display: inline-flex;
+  font-size: 0.88rem;
+  font-weight: 900;
+  height: 34px;
+  justify-content: center;
+  width: 34px;
 }
 
 .editor-block-select {
@@ -1321,9 +1335,10 @@ h3 {
 }
 
 .icon-actions {
-  align-self: start;
-  display: flex;
+  align-self: center;
+  display: grid;
   gap: 6px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .icon-actions button {
@@ -1335,10 +1350,12 @@ h3 {
   cursor: pointer;
   display: inline-flex;
   font: inherit;
+  font-size: 0.74rem;
   font-weight: 800;
-  height: 34px;
+  height: 30px;
   justify-content: center;
-  width: 34px;
+  min-width: 68px;
+  padding: 0 8px;
 }
 
 .editor-properties .form-stack {
@@ -1403,6 +1420,120 @@ h3 {
   justify-content: flex-start;
   min-height: 34px;
   padding: 0 11px;
+}
+
+.block-add-button {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  cursor: pointer;
+  display: grid;
+  font: inherit;
+  gap: 3px;
+  min-height: 58px;
+  padding: 10px;
+  text-align: left;
+}
+
+.block-add-button:hover {
+  border-color: var(--brand);
+}
+
+.block-add-button strong {
+  font-size: 0.88rem;
+  line-height: 1.2;
+}
+
+.block-add-button small {
+  color: var(--muted);
+  font-size: 0.74rem;
+  line-height: 1.25;
+}
+
+.choice-editor {
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.choice-editor-heading {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.choice-editor-heading span {
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.choice-editor-heading button,
+.choice-remove-button {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  min-height: 32px;
+  padding: 0 10px;
+}
+
+.choice-option-row {
+  align-items: end;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 76px 70px minmax(0, 1fr) auto;
+  padding: 10px;
+}
+
+.choice-correct-toggle {
+  align-items: center;
+  align-self: stretch;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  font-size: 0.78rem;
+  font-weight: 800;
+  gap: 6px;
+}
+
+.compact-field {
+  gap: 4px;
+}
+
+.compact-field span {
+  font-size: 0.72rem;
+}
+
+.option-label-field input {
+  min-width: 0;
+}
+
+.choice-remove-button {
+  color: #b42318;
+}
+
+.choice-remove-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.field-hint {
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  margin: 0;
 }
 
 .editor-new-page-details {

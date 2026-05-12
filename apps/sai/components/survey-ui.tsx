@@ -320,7 +320,8 @@ export function RunIdCard({ runId }: { runId: string }) {
         <span className="break-all font-mono">{runId}</span>
       </p>
       <p className="mt-2 text-[#40484e]">
-        De beveiligde sessiesleutel wordt niet getoond.
+        Deze referentie helpt bij support. Je beveiligde sessiesleutel blijft
+        verborgen.
       </p>
     </section>
   );
@@ -328,7 +329,7 @@ export function RunIdCard({ runId }: { runId: string }) {
 
 export function TechnicalStatus({
   children,
-  summary = "Technische status",
+  summary = "Opslagdetails",
 }: {
   children: ReactNode;
   summary?: string;

@@ -106,7 +106,7 @@ export default function SurveyProfilePage() {
 
   async function handleSubmit() {
     if (!surveySession) {
-      setError("Geen actieve respondent session gevonden. Start de scan opnieuw.");
+      setError("Geen actieve scan gevonden. Start de scan opnieuw.");
       return;
     }
 
@@ -192,7 +192,7 @@ export default function SurveyProfilePage() {
   if (!sessionView) {
     return (
       <EmptySurveyState>
-        Start eerst een scan zodat de respondent session state beschikbaar is.
+        Start eerst een scan zodat je veilig verder kunt.
       </EmptySurveyState>
     );
   }

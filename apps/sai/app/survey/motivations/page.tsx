@@ -80,7 +80,7 @@ export default function SurveyMotivationsPage() {
 
   async function handleSaveMotivations() {
     if (!surveySession) {
-      setError("Geen actieve respondent session gevonden. Start de scan opnieuw.");
+      setError("Geen actieve scan gevonden. Start de scan opnieuw.");
       return;
     }
 

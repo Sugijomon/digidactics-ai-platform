@@ -69,7 +69,7 @@ export default function SurveyStartPage() {
         <div className="mx-auto mb-10 min-w-0 max-w-2xl text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#e5c687] bg-[#faf5e8] px-3.5 py-1.5 text-xs font-bold text-[#ca8a04] shadow-sm">
             <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[#ca8a04]" />
-            Scan is open voor de smoke-test wave
+            Scan is open
           </div>
 
           <h1 className="mb-4 max-w-full break-words text-[2rem] font-extrabold leading-tight text-[#00658b] sm:text-4xl md:text-5xl">
@@ -126,7 +126,7 @@ export default function SurveyStartPage() {
 
         <SurveyGlassCard className="mx-auto grid w-full max-w-full gap-4 p-5 md:max-w-xl md:p-6">
           <label className="grid gap-2 text-sm font-semibold text-[#181c1e]">
-            Wave token
+            Toegangscode
             <input
               className="h-11 rounded-xl border border-[#bfc7cf] bg-white px-3 font-mono text-sm outline-none transition focus:border-[#00658b] focus:ring-2 focus:ring-[#c4e7ff]"
               value={waveToken}
@@ -147,7 +147,7 @@ export default function SurveyStartPage() {
             <ResumeSurveyCard resumeSurvey={resumeSurvey} />
           ) : null}
           <p className="text-center text-xs font-medium text-[#40484e]">
-            Duurt ca. 8-10 minuten - Anoniem - Geen verplichte velden
+            Duurt ca. 8-10 minuten - Anoniem - Veilig opgeslagen
           </p>
         </SurveyGlassCard>
       </div>

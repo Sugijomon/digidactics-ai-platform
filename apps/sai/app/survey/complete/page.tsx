@@ -111,7 +111,7 @@ export default function SurveyCompletePage() {
 
     setIsCompleting(true);
     setError(null);
-    setCompleteStep({ status: "running", message: "Run afronden" });
+    setCompleteStep({ status: "running", message: "Scan afronden" });
     setTokenCheckStep({
       status: "idle",
       message: "Wacht op afronden",
@@ -235,8 +235,8 @@ export default function SurveyCompletePage() {
         {error ? <ValidationMessage>{error}</ValidationMessage> : null}
 
         <TechnicalStatus summary="Afsluitcontrole">
-          <RpcStepRow label="complete_survey_run" state={completeStep} />
-          <RpcStepRow label="token-burn check" state={tokenCheckStep} />
+          <RpcStepRow label="Scan afronden" state={completeStep} />
+          <RpcStepRow label="Sessie sluiten" state={tokenCheckStep} />
         </TechnicalStatus>
 
         <RunIdCard runId={runId} />

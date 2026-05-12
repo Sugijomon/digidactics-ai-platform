@@ -153,7 +153,7 @@ export default function SurveyDataPage() {
 
   async function handleSaveDataFlow() {
     if (!surveySession) {
-      setError("Geen actieve respondent session gevonden. Start de scan opnieuw.");
+      setError("Geen actieve scan gevonden. Start de scan opnieuw.");
       return;
     }
 

@@ -5,10 +5,13 @@ import { getAdminCourse, getLearningAdminOverview } from "@/lib/learning-admin-d
 import {
   addExistingLessonToCourse,
   archiveLearningPage,
+  createLearningTopic,
   moveLearningPage,
   moveLearningPageToTopic,
+  moveLearningTopic,
   toggleLearningPageRequired,
   updateLearningCourseDetails,
+  updateLearningTopicDetails,
 } from "../../actions";
 
 export default async function AdminCourseEditorPage({
@@ -222,6 +225,82 @@ export default async function AdminCourseEditorPage({
               Wijzigingen opslaan
             </button>
           </form>
+
+          <section className="admin-side-panel topic-management-panel">
+            <div>
+              <h2>Topics beheren</h2>
+              <p>Maak de cursusstructuur modulair: topics vormen de hoofdstukken waar lessen onder vallen.</p>
+            </div>
+
+            <form action={createLearningTopic} className="topic-create-form">
+              <input name="courseId" type="hidden" value={course.id} />
+              <input name="courseCode" type="hidden" value={course.course_code} />
+              <label className="field">
+                <span>Nieuw topic</span>
+                <input name="title" placeholder="Bijv. AI Fundamentals" />
+              </label>
+              <label className="field">
+                <span>Code</span>
+                <input name="topicCode" placeholder="ai-fundamentals" />
+              </label>
+              <label className="field">
+                <span>Samenvatting</span>
+                <textarea name="summary" placeholder="Korte omschrijving van dit topic..." rows={3} />
+              </label>
+              <button className="button button-primary" type="submit">
+                Topic toevoegen
+              </button>
+            </form>
+
+            <div className="topic-management-list">
+              {course.topics.map((topic, index) => (
+                <article className="topic-management-card" key={topic.id}>
+                  <form action={updateLearningTopicDetails} className="topic-update-form">
+                    <input name="topicId" type="hidden" value={topic.id} />
+                    <input name="courseCode" type="hidden" value={course.course_code} />
+                    <div className="topic-management-card-header">
+                      <span>{topic.sequence_order}</span>
+                      <strong>{topic.pages.length} lessen</strong>
+                    </div>
+                    <label className="field">
+                      <span>Titel</span>
+                      <input name="title" defaultValue={topic.title} />
+                    </label>
+                    <label className="field">
+                      <span>Samenvatting</span>
+                      <textarea name="summary" defaultValue={topic.summary ?? ""} rows={3} />
+                    </label>
+                    <label className="field checkbox-field horizontal-field">
+                      <span>Verplicht topic</span>
+                      <input defaultChecked={topic.is_required} name="isRequired" type="checkbox" />
+                    </label>
+                    <button className="button button-secondary" type="submit">
+                      Topic opslaan
+                    </button>
+                  </form>
+
+                  <div className="topic-order-actions" aria-label={`${topic.title} volgorde`}>
+                    <form action={moveLearningTopic}>
+                      <input name="topicId" type="hidden" value={topic.id} />
+                      <input name="courseCode" type="hidden" value={course.course_code} />
+                      <input name="direction" type="hidden" value="up" />
+                      <button disabled={index === 0} type="submit">
+                        Omhoog
+                      </button>
+                    </form>
+                    <form action={moveLearningTopic}>
+                      <input name="topicId" type="hidden" value={topic.id} />
+                      <input name="courseCode" type="hidden" value={course.course_code} />
+                      <input name="direction" type="hidden" value="down" />
+                      <button disabled={index === course.topics.length - 1} type="submit">
+                        Omlaag
+                      </button>
+                    </form>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
 
           <section className="admin-side-panel">
             <h2>Statistieken</h2>

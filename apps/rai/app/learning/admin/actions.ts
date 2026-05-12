@@ -162,6 +162,148 @@ export async function updateLearningCourseDetails(formData: FormData) {
   revalidatePath(`/learning/${courseCode}`);
 }
 
+export async function createLearningTopic(formData: FormData) {
+  const supabase = await requireLearningAdmin();
+
+  const courseId = readRequired(formData, "courseId");
+  const courseCode = readRequired(formData, "courseCode");
+  const title = readRequired(formData, "title");
+  const rawTopicCode = String(formData.get("topicCode") ?? "").trim();
+  const summary = String(formData.get("summary") ?? "").trim() || null;
+
+  const { data: course, error: courseError } = await supabase
+    .from("learning_courses")
+    .select("id, org_id")
+    .eq("id", courseId)
+    .single<{ id: string; org_id: string | null }>();
+
+  if (courseError || !course) {
+    throw new Error(`Topic aanmaken is mislukt: ${courseError?.message ?? "cursus niet gevonden"}`);
+  }
+
+  const { data: topicRows } = await supabase
+    .from("learning_topics")
+    .select("topic_code")
+    .eq("course_id", courseId);
+
+  const existingCodes = new Set((topicRows ?? []).map((topic) => String(topic.topic_code)));
+  const topicCode = uniqueCode(slugify(rawTopicCode || title), existingCodes);
+  const sequenceOrder = await resolveTopicSequenceOrder(supabase, courseId, 1);
+
+  const { error } = await supabase.from("learning_topics").insert({
+    course_id: course.id,
+    org_id: course.org_id,
+    topic_code: topicCode,
+    title,
+    summary,
+    status: "published",
+    sequence_order: sequenceOrder,
+    is_required: true,
+  });
+
+  if (error) {
+    throw new Error(`Topic aanmaken is mislukt: ${error.message}`);
+  }
+
+  revalidateLearningCourse(courseCode);
+  redirect(`/learning/admin/courses/${courseCode}`);
+}
+
+export async function updateLearningTopicDetails(formData: FormData) {
+  const supabase = await requireLearningAdmin();
+
+  const topicId = readRequired(formData, "topicId");
+  const courseCode = readRequired(formData, "courseCode");
+  const title = readRequired(formData, "title");
+  const summary = String(formData.get("summary") ?? "").trim() || null;
+  const isRequired = String(formData.get("isRequired") ?? "") === "on";
+
+  const { error } = await supabase
+    .from("learning_topics")
+    .update({
+      title,
+      summary,
+      is_required: isRequired,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", topicId);
+
+  if (error) {
+    throw new Error(`Topic opslaan is mislukt: ${error.message}`);
+  }
+
+  revalidateLearningCourse(courseCode);
+  redirect(`/learning/admin/courses/${courseCode}`);
+}
+
+export async function moveLearningTopic(formData: FormData) {
+  const supabase = await requireLearningAdmin();
+
+  const topicId = readRequired(formData, "topicId");
+  const courseCode = readRequired(formData, "courseCode");
+  const direction = String(formData.get("direction") ?? "");
+
+  const { data: topic, error: topicError } = await supabase
+    .from("learning_topics")
+    .select("id, course_id, sequence_order")
+    .eq("id", topicId)
+    .single<{ id: string; course_id: string; sequence_order: number }>();
+
+  if (topicError || !topic) {
+    throw new Error(`Topicvolgorde aanpassen is mislukt: ${topicError?.message ?? "topic niet gevonden"}`);
+  }
+
+  const siblingQuery = supabase
+    .from("learning_topics")
+    .select("id, sequence_order")
+    .eq("course_id", topic.course_id)
+    .neq("status", "archived");
+
+  const { data: sibling, error: siblingError } =
+    direction === "up"
+      ? await siblingQuery
+          .lt("sequence_order", topic.sequence_order)
+          .order("sequence_order", { ascending: false })
+          .limit(1)
+          .maybeSingle<{ id: string; sequence_order: number }>()
+      : await siblingQuery
+          .gt("sequence_order", topic.sequence_order)
+          .order("sequence_order", { ascending: true })
+          .limit(1)
+          .maybeSingle<{ id: string; sequence_order: number }>();
+
+  if (siblingError) {
+    throw new Error(`Topicvolgorde aanpassen is mislukt: ${siblingError.message}`);
+  }
+
+  if (!sibling) {
+    redirect(`/learning/admin/courses/${courseCode}`);
+  }
+
+  const tempOrder = 100000 + topic.sequence_order;
+  const updates = [
+    supabase.from("learning_topics").update({ sequence_order: tempOrder }).eq("id", topic.id),
+    supabase
+      .from("learning_topics")
+      .update({ sequence_order: topic.sequence_order })
+      .eq("id", sibling.id),
+    supabase
+      .from("learning_topics")
+      .update({ sequence_order: sibling.sequence_order })
+      .eq("id", topic.id),
+  ];
+
+  for (const update of updates) {
+    const { error } = await update;
+    if (error) {
+      throw new Error(`Topicvolgorde aanpassen is mislukt: ${error.message}`);
+    }
+  }
+
+  revalidateLearningCourse(courseCode);
+  redirect(`/learning/admin/courses/${courseCode}`);
+}
+
 export async function moveLearningPage(formData: FormData) {
   const supabase = await requireLearningAdmin();
 
@@ -385,6 +527,28 @@ async function resolveSequenceOrder(
 
   const existingOrders = new Set(
     (pageRows ?? []).map((page) => Number(page.sequence_order)).filter(Number.isFinite),
+  );
+
+  if (requestedOrder > 0 && !existingOrders.has(requestedOrder)) {
+    return requestedOrder;
+  }
+
+  return Math.max(0, ...existingOrders) + 1;
+}
+
+async function resolveTopicSequenceOrder(
+  supabase: Awaited<ReturnType<typeof requireLearningAdmin>>,
+  courseId: string,
+  requestedOrder: number,
+) {
+  const { data: topicRows } = await supabase
+    .from("learning_topics")
+    .select("sequence_order")
+    .eq("course_id", courseId)
+    .neq("status", "archived");
+
+  const existingOrders = new Set(
+    (topicRows ?? []).map((topic) => Number(topic.sequence_order)).filter(Number.isFinite),
   );
 
   if (requestedOrder > 0 && !existingOrders.has(requestedOrder)) {

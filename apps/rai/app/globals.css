@@ -663,6 +663,11 @@ h3 {
   border-color: var(--brand);
 }
 
+.quiz-option[data-selected="true"] {
+  background: #eef9ff;
+  border-color: var(--brand);
+}
+
 .quiz-option input {
   accent-color: var(--brand);
   flex: 0 0 auto;
@@ -727,6 +732,59 @@ h3 {
 
 .answer-explanation p {
   margin-top: 10px;
+}
+
+.interaction-hint,
+.open-answer-status {
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.answer-feedback {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+}
+
+.answer-feedback.correct {
+  background: #edfdf4;
+  border-color: #9ee6bd;
+  color: #116335;
+}
+
+.answer-feedback.incorrect {
+  background: #fff8ed;
+  border-color: #f5c77c;
+  color: #854d0e;
+}
+
+.answer-feedback p {
+  margin: 0;
+}
+
+.open-answer-status.ready {
+  color: #116335;
+}
+
+.lesson-position {
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+}
+
+.lesson-position small {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.lesson-completion-bar .button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .media-frame {

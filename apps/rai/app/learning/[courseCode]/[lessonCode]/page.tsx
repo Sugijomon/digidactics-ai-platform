@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { completeAiLiteracyPage } from "@/app/learning/actions";
 import { CourseNavigator } from "@/components/learning/CourseNavigator";
-import { LessonBlockRenderer } from "@/components/learning/LessonBlockRenderer";
+import { LearningPageInteraction } from "@/components/learning/LearningPageInteraction";
 import { getAiLiteracyPage, getLearnerState } from "@/lib/learning-data";
 import { getCoursePages } from "@/lib/learning-preview-data";
 
@@ -77,53 +77,17 @@ export default async function LessonPage({
             ))}
           </nav>
 
-          <form action={completeAiLiteracyPage} className="lesson-player-form">
-            <input name="courseId" type="hidden" value={course.id} />
-            <input name="courseCode" type="hidden" value={course.course_code} />
-            <input name="pageId" type="hidden" value={page.id} />
-            <input name="pageCode" type="hidden" value={page.page_code} />
-            <input name="nextPageCode" type="hidden" value={nextPage?.page_code ?? ""} />
-
-            <article className="lesson-shell page-canvas">
-              {page.content.blocks.map((block) => (
-                <LessonBlockRenderer block={block} key={block.id} />
-              ))}
-            </article>
-
-            <nav className="lesson-completion-bar" aria-label="Pagina voortgang">
-              {previousPage ? (
-                <Link
-                  className="button button-secondary"
-                  href={`/learning/${course.course_code}/${previousPage.page_code}`}
-                >
-                  Vorige
-                </Link>
-              ) : (
-                <span />
-              )}
-              <span className="lesson-position">
-                Pagina {topicPageIndex + 1} van {topicPages.length}
-              </span>
-              {isCompleted && nextPage ? (
-                <Link
-                  className="button button-primary"
-                  href={`/learning/${course.course_code}/${nextPage.page_code}`}
-                >
-                  Volgende
-                </Link>
-              ) : isCompleted ? (
-                <Link className="button button-primary" href="/learning">
-                  Terug naar cursus
-                </Link>
-              ) : learnerState.isAuthenticated ? (
-                <button className="button button-primary" type="submit">
-                  {nextPage ? "Afronden" : "Cursus afronden"}
-                </button>
-              ) : (
-                <span className="button button-secondary">Login vereist</span>
-              )}
-            </nav>
-          </form>
+          <LearningPageInteraction
+            action={completeAiLiteracyPage}
+            course={course}
+            isAuthenticated={learnerState.isAuthenticated}
+            isCompleted={isCompleted}
+            nextPageCode={nextPage?.page_code ?? ""}
+            page={page}
+            previousPageCode={previousPage?.page_code ?? ""}
+            topicPageIndex={topicPageIndex}
+            topicPageTotal={topicPages.length}
+          />
         </section>
       </div>
     </main>

@@ -1,0 +1,17 @@
+export {
+  calculateExposureScore,
+  calculatePriorityScore,
+  calculateRiskScore,
+  calculateShadowScore,
+  deriveReviewTriggers,
+  getRiskBand,
+  type AccountTypeCode,
+  type DataTypeCode,
+  type FrequencyCode,
+  type OrgPolicyStatusCode,
+  type RiskBand,
+  type RiskScoreInput,
+  type RiskScoreResult,
+  type ReviewTriggerCode,
+  type UseCaseCode,
+} from "./risk-engine";

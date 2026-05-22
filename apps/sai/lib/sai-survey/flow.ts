@@ -3,10 +3,12 @@ import type { StoredSurveySession } from "@/lib/sai-rpc/session";
 export type SurveyStepId =
   | "profile"
   | "motivations"
-  | "data"
   | "tools"
   | "useCases"
+  | "data"
   | "accounts"
+  | "literacy"
+  | "future"
   | "complete";
 
 export type SurveyStep = {
@@ -16,12 +18,13 @@ export type SurveyStep = {
 };
 
 export const surveySteps = [
-  { id: "profile", label: "Profiel", href: "/survey/profile" },
-  { id: "motivations", label: "Motivatie", href: "/survey/motivations" },
-  { id: "data", label: "Data", href: "/survey/data" },
+  { id: "profile", label: "Werkplek", href: "/survey/profile" },
+  { id: "motivations", label: "Frequentie", href: "/survey/motivations" },
   { id: "tools", label: "Tools", href: "/survey/tools" },
-  { id: "useCases", label: "Toepassing", href: "/survey/use-cases" },
+  { id: "data", label: "Data", href: "/survey/data" },
   { id: "accounts", label: "Account", href: "/survey/accounts" },
+  { id: "literacy", label: "Spelregels", href: "/survey/literacy" },
+  { id: "future", label: "Toekomst", href: "/survey/future" },
   { id: "complete", label: "Afronden", href: "/survey/complete" },
 ] satisfies SurveyStep[];
 
@@ -37,13 +40,18 @@ export function canAccessSurveyStep(
     return true;
   }
 
-  if (stepId === "complete" && (session.savedTools?.length ?? 0) === 0) {
+  if (
+    (stepId === "literacy" ||
+      stepId === "future" ||
+      stepId === "complete") &&
+    (session.savedTools?.length ?? 0) === 0
+  ) {
     return false;
   }
 
   if (
     (stepId === "useCases" || stepId === "accounts") &&
-    !session.pendingTool
+    !hasPendingTool(session)
   ) {
     return false;
   }
@@ -70,15 +78,15 @@ export function getResumeStep(session: StoredSurveySession) {
     return getSurveyStep("tools");
   }
 
-  if (
-    (firstIncompleteStep.id === "useCases" ||
-      firstIncompleteStep.id === "accounts") &&
-    !session.pendingTool
-  ) {
+  if (firstIncompleteStep.id === "accounts" && !hasPendingTool(session)) {
     return getSurveyStep("tools");
   }
 
   return firstIncompleteStep;
+}
+
+function hasPendingTool(session: StoredSurveySession) {
+  return Boolean(session.pendingTool || (session.pendingTools?.length ?? 0) > 0);
 }
 
 function getStepIndex(stepId: SurveyStepId) {

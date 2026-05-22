@@ -185,7 +185,7 @@ export default function SurveyUseCasesPage() {
 
     markSurveyStepCompleted("useCases");
     updateSurveySession({
-      currentStep: "accounts",
+      currentStep: "data",
       pendingTool: {
         ...pendingTool,
         contextCodes,
@@ -195,7 +195,7 @@ export default function SurveyUseCasesPage() {
       surveyToolUseCaseId: useCaseIds[0],
     });
     setIsSaving(false);
-    router.push("/survey/accounts");
+    router.push("/survey/data");
   }
 
   async function runStep<T>(
@@ -243,8 +243,8 @@ export default function SurveyUseCasesPage() {
     <SurveyStepLayout
       completedSteps={completedSteps}
       currentStep="useCases"
-      eyebrow="Toepassingen"
-      intro="Kies waarvoor je deze tool gebruikt. Context vragen we alleen wanneer de toepassing daar om vraagt."
+      eyebrow="Tooltoepassing"
+      intro="Dit hoort bij de toolpicker uit het prototype: kies direct waarvoor je deze tool inzet."
       maxWidthClassName="max-w-4xl"
       title={`Waarvoor gebruik je ${pendingTool.toolName}?`}
     >
@@ -329,7 +329,7 @@ export default function SurveyUseCasesPage() {
             isBusy={isSaving}
             type="submit"
           >
-            {isSaving ? "Opslaan..." : "Verder naar account"}
+            {isSaving ? "Opslaan..." : "Verder naar datatypes"}
           </PrimarySurveyButton>
         </SurveyFooterActions>
       </form>

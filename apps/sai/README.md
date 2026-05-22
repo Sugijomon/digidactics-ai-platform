@@ -8,10 +8,11 @@ Create `apps/sai/.env.local` for local development:
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 ```
 
-Do not add a `service_role` key to frontend or client-visible environment files.
+Prefer `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` for new setup. `NEXT_PUBLIC_SUPABASE_ANON_KEY` remains supported for legacy/local compatibility. Do not add a `service_role` key to frontend or client-visible environment files.
 
 ## Local Development
 

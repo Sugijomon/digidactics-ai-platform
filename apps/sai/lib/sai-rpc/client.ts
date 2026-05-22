@@ -304,6 +304,25 @@ export async function completeSurveyRun(
   return error ? { ok: false, error: mapSupabaseError(error) } : successNull();
 }
 
+export async function setAmbassadorOptIn(
+  session: SurveySession,
+  email: string,
+): Promise<RpcResult<null>> {
+  const client = createRpcClient();
+
+  if (!client.ok) {
+    return client;
+  }
+
+  const { error } = await client.data.rpc("set_ambassador_optin", {
+    p_run_id: session.runId,
+    p_token: session.submissionToken,
+    p_email: email,
+  });
+
+  return error ? { ok: false, error: mapSupabaseError(error) } : successNull();
+}
+
 async function saveMultiChoiceCodes(
   rpcName: MultiChoiceRpcName,
   session: SurveySession,

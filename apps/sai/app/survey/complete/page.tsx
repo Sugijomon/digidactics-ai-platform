@@ -5,18 +5,15 @@ import { useRouter } from "next/navigation";
 import {
   EmptySurveyState,
   PrimarySurveyButton,
-  RpcStepRow,
-  RunIdCard,
   SecondarySurveyButton,
   SurveyFooterActions,
   SurveyPageShell,
   SurveyStepLayout,
   SurveySummaryGrid,
   SurveySummaryItem,
-  TechnicalStatus,
   ValidationMessage,
 } from "@/components/survey-ui";
-import { completeSurveyRun, saveProfile } from "@/lib/sai-rpc/client";
+import { completeSurveyRun, setAmbassadorOptIn } from "@/lib/sai-rpc/client";
 import {
   clearSurveySession,
   markSurveyStepCompleted,
@@ -31,27 +28,6 @@ import {
   getResumeStep,
   type SurveyStepId,
 } from "@/lib/sai-survey/flow";
-import {
-  accountTypeOptions,
-  contextOptions,
-  useCaseOptions,
-  type SurveyOption,
-} from "@/lib/sai-survey/options";
-
-type StepState = {
-  status: "idle" | "running" | "ok" | "error";
-  message: string;
-};
-
-const INITIAL_COMPLETE_STEP: StepState = {
-  status: "idle",
-  message: "Wacht op afronden",
-};
-
-const INITIAL_TOKEN_CHECK_STEP: StepState = {
-  status: "idle",
-  message: "Wacht op afronden",
-};
 
 export default function SurveyCompletePage() {
   const router = useRouter();
@@ -59,14 +35,13 @@ export default function SurveyCompletePage() {
     null,
   );
   const [runId, setRunId] = useState<string | null>(null);
-  const [completeStep, setCompleteStep] = useState<StepState>(
-    INITIAL_COMPLETE_STEP,
-  );
-  const [tokenCheckStep, setTokenCheckStep] = useState<StepState>(
-    INITIAL_TOKEN_CHECK_STEP,
-  );
   const [completedSteps, setCompletedSteps] = useState<SurveyStepId[]>([]);
   const [savedTools, setSavedTools] = useState<StoredSurveyTool[]>([]);
+  const [ambassadorChoice, setAmbassadorChoice] = useState<"ja" | "nee" | null>(
+    null,
+  );
+  const [ambassadorEmail, setAmbassadorEmail] = useState("");
+  const [emailSaved, setEmailSaved] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -109,69 +84,44 @@ export default function SurveyCompletePage() {
       return;
     }
 
+    if (!ambassadorChoice) {
+      setError("Kies of je wilt meedenken als AI-ambassadeur.");
+      return;
+    }
+
+    if (ambassadorChoice === "ja" && !isValidEmail(ambassadorEmail)) {
+      setError("Vul een geldig e-mailadres in voor de ambassadeur opt-in.");
+      return;
+    }
+
     setIsCompleting(true);
     setError(null);
-    setCompleteStep({ status: "running", message: "Scan afronden" });
-    setTokenCheckStep({
-      status: "idle",
-      message: "Wacht op afronden",
-    });
+
+    if (ambassadorChoice === "ja") {
+      const optInResult = await setAmbassadorOptIn(
+        surveySession,
+        ambassadorEmail,
+      );
+
+      if (!optInResult.ok) {
+        setError(formatRpcError(optInResult.error));
+        setIsCompleting(false);
+        return;
+      }
+    }
 
     const completeResult = await completeSurveyRun(surveySession);
 
     if (!completeResult.ok) {
-      setCompleteStep({
-        status: "error",
-        message: formatRpcError(completeResult.error),
-      });
       setError(formatRpcError(completeResult.error));
       setIsCompleting(false);
       return;
     }
 
-    setCompleteStep({
-      status: "ok",
-      message: "Scan afgerond; sessie wordt gesloten",
-    });
-    setTokenCheckStep({
-      status: "running",
-      message: "Controleert of de sessie gesloten is",
-    });
-
-    const burnCheckResult = await saveProfile(surveySession, {
-      department_code: "it_data_development",
-      ai_frequency_code: "weekly",
-      future_usecases_text: "Token burn check after completion",
-    });
-
-    if (!burnCheckResult.ok) {
-      if (burnCheckResult.error.code === "invalid_token_or_run_closed") {
-        setTokenCheckStep({
-          status: "ok",
-          message: "Sessie is gesloten na afronden",
-        });
-        markSurveyStepCompleted("complete");
-        clearSurveySession();
-        setSurveySession(null);
-        setIsFinished(true);
-        setIsCompleting(false);
-        return;
-      }
-
-      setTokenCheckStep({
-        status: "error",
-        message: formatRpcError(burnCheckResult.error),
-      });
-      setError(formatRpcError(burnCheckResult.error));
-      setIsCompleting(false);
-      return;
-    }
-
-    setTokenCheckStep({
-      status: "error",
-      message: "Onverwacht resultaat: sessie accepteerde nog wijzigingen.",
-    });
-    setError("De afsluitcontrole faalde: de sessie accepteerde nog wijzigingen.");
+    markSurveyStepCompleted("complete");
+    clearSurveySession();
+    setSurveySession(null);
+    setIsFinished(true);
     setIsCompleting(false);
   }
 
@@ -222,26 +172,33 @@ export default function SurveyCompletePage() {
     <SurveyStepLayout
       completedSteps={completedSteps}
       currentStep="complete"
-      eyebrow="Laatste stap"
-      intro="Rond je scan af. Daarna wordt deze sessie gesloten en kun je je antwoorden niet per ongeluk nog aanpassen."
-      maxWidthClassName="max-w-4xl"
-      title="Scan afronden"
+      eyebrow="Afronding"
+      intro="Je antwoorden zijn bijna klaar om veilig en anoniem opgeslagen te worden. Je kunt vrijwillig aangeven of je wilt meedenken over AI binnen de organisatie."
+      maxWidthClassName="max-w-3xl"
+      title="Bedankt voor je deelname"
     >
       <div className="grid min-w-0 gap-6">
         <CompletionOverview savedTools={savedTools} />
 
-        <SavedToolsSummary savedTools={savedTools} />
+        <AmbassadorOptIn
+          choice={ambassadorChoice}
+          email={ambassadorEmail}
+          emailSaved={emailSaved}
+          isDisabled={isCompleting}
+          onChoiceChange={(choice) => {
+            setAmbassadorChoice(choice);
+            setError(null);
+          }}
+          onEmailChange={(email) => {
+            setAmbassadorEmail(email);
+            setEmailSaved(false);
+          }}
+          onSaveEmail={() => setEmailSaved(isValidEmail(ambassadorEmail))}
+        />
 
         {error ? <ValidationMessage>{error}</ValidationMessage> : null}
 
-        <TechnicalStatus summary="Afsluitcontrole">
-          <RpcStepRow label="Scan afronden" state={completeStep} />
-          <RpcStepRow label="Sessie sluiten" state={tokenCheckStep} />
-        </TechnicalStatus>
-
-        <RunIdCard runId={runId} />
-
-        <SurveyFooterActions backHref="/survey/accounts">
+        <SurveyFooterActions backHref="/survey/future">
           <SecondarySurveyButton
             disabled={isCompleting}
             onClick={() => router.push("/survey/tools")}
@@ -318,6 +275,97 @@ function CompletionOverview({
   );
 }
 
+function AmbassadorOptIn({
+  choice,
+  email,
+  emailSaved,
+  isDisabled,
+  onChoiceChange,
+  onEmailChange,
+  onSaveEmail,
+}: {
+  choice: "ja" | "nee" | null;
+  email: string;
+  emailSaved: boolean;
+  isDisabled: boolean;
+  onChoiceChange: (choice: "ja" | "nee") => void;
+  onEmailChange: (email: string) => void;
+  onSaveEmail: () => void;
+}) {
+  return (
+    <section className="grid gap-4 rounded-[1.6rem] border border-[#c4e7ff] bg-[#f3fbff] p-5 text-sm">
+      <div>
+        <h2 className="text-xl font-extrabold text-[#00658b]">
+          Wil je meedenken als AI-ambassadeur?
+        </h2>
+        <p className="mt-2 leading-6 text-[#40484e]">
+          Dit is vrijwillig. Alleen als je ja kiest, bewaren we je e-mailadres
+          apart van de anonieme scanantwoorden.
+        </p>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <button
+          className={`h-12 rounded-full border px-5 text-sm font-extrabold transition ${
+            choice === "ja"
+              ? "border-[#00658b] bg-[#00658b] text-white"
+              : "border-[#cfe8f7] bg-white text-[#0b5f81] hover:bg-[#eef8ff]"
+          }`}
+          disabled={isDisabled}
+          onClick={() => onChoiceChange("ja")}
+          type="button"
+        >
+          Ja, lijkt me leuk
+        </button>
+        <button
+          className={`h-12 rounded-full border px-5 text-sm font-extrabold transition ${
+            choice === "nee"
+              ? "border-[#00658b] bg-[#00658b] text-white"
+              : "border-[#bfc7cf] bg-white text-[#40484e] hover:bg-[#f1f4f6]"
+          }`}
+          disabled={isDisabled}
+          onClick={() => onChoiceChange("nee")}
+          type="button"
+        >
+          Nee, liever niet
+        </button>
+      </div>
+
+      {choice === "ja" ? (
+        <div className="grid gap-2 rounded-2xl border border-white/80 bg-white p-4">
+          <label className="grid gap-2 font-semibold text-[#181c1e]">
+            E-mailadres
+            <div className="flex gap-2">
+              <input
+                className="h-11 min-w-0 flex-1 rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm font-normal outline-none transition focus:border-[#00658b] focus:ring-2 focus:ring-[#c4e7ff]"
+                disabled={isDisabled}
+                onChange={(event) => onEmailChange(event.target.value)}
+                placeholder="naam@organisatie.nl"
+                type="email"
+                value={email}
+              />
+              <button
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#00658b] text-sm font-black text-white disabled:opacity-50"
+                disabled={isDisabled || !isValidEmail(email)}
+                onClick={onSaveEmail}
+                type="button"
+                aria-label="E-mail opslaan"
+              >
+                OK
+              </button>
+            </div>
+          </label>
+          {emailSaved ? (
+            <p className="text-xs font-bold text-[#527a1b]">
+              E-mailadres opgeslagen voor opt-in.
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
 function CompletionAssurance() {
   return (
     <section className="grid min-w-0 gap-3 text-left text-sm md:grid-cols-3">
@@ -337,84 +385,14 @@ function AssuranceItem({ label, text }: { label: string; text: string }) {
   );
 }
 
-function SavedToolsSummary({
-  savedTools,
-}: {
-  savedTools: StoredSurveyTool[];
-}) {
-  return (
-    <section className="mb-6 grid min-w-0 max-w-full gap-3 rounded-2xl border border-[#bfc7cf]/50 bg-white/80 p-4 text-sm">
-      <div className="min-w-0">
-        <h2 className="break-words font-bold text-[#00658b]">Geregistreerde tools</h2>
-        <p className="mt-1 break-words text-[#40484e]">
-          Controleer kort of je minimaal je belangrijkste AI-tools hebt
-          toegevoegd.
-        </p>
-      </div>
-      {savedTools.length === 0 ? (
-        <p className="break-words rounded-xl border border-dashed border-[#bfc7cf] bg-white px-4 py-3 text-[#40484e]">
-          Er staat nog geen opgeslagen tool in deze scan.
-        </p>
-      ) : (
-        <div className="grid min-w-0 gap-2">
-          {savedTools.map((tool, index) => (
-            <article
-              className="grid min-w-0 gap-3 rounded-xl border border-[#bfc7cf]/60 bg-white px-4 py-3"
-              key={tool.surveyToolId}
-            >
-              <div className="min-w-0">
-                <p className="break-words font-bold text-[#181c1e]">
-                  {index + 1}. {tool.toolName}
-                </p>
-                <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-[#6993aa]">
-                  {getOptionLabel(accountTypeOptions, tool.accountTypeCode)}
-                </p>
-              </div>
-              <dl className="grid gap-2 md:grid-cols-2">
-                <SummaryPair
-                  label="Toepassingen"
-                  value={getOptionLabels(useCaseOptions, tool.useCaseCodes)}
-                />
-                <SummaryPair
-                  label="Context"
-                  value={
-                    tool.contextCodes.length
-                      ? getOptionLabels(contextOptions, tool.contextCodes)
-                      : "Niet van toepassing"
-                  }
-                />
-              </dl>
-            </article>
-          ))}
-        </div>
-      )}
-    </section>
-  );
-}
-
-function SummaryPair({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="min-w-0 rounded-xl bg-[#f7fafc] px-3 py-2">
-      <dt className="text-xs font-bold uppercase tracking-wide text-[#00658b]/70">
-        {label}
-      </dt>
-      <dd className="mt-1 break-words text-sm text-[#40484e]">{value}</dd>
-    </div>
-  );
-}
-
 function formatRpcError(error: RpcError) {
   return [error.code, error.message].filter(Boolean).join(": ");
 }
 
+function isValidEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+}
+
 function shortRunId(runId: string) {
   return `${runId.slice(0, 8)}...${runId.slice(-4)}`;
-}
-
-function getOptionLabels(options: SurveyOption[], codes: string[]) {
-  return codes.map((code) => getOptionLabel(options, code)).join(", ");
-}
-
-function getOptionLabel(options: SurveyOption[], code: string) {
-  return options.find((option) => option.code === code)?.label ?? code;
 }

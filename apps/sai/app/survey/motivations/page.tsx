@@ -2,18 +2,17 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { SurveyCheckboxGroup, SurveyRadioGroup } from "@/components/survey-choice-groups";
 import {
   EmptySurveyState,
   PrimarySurveyButton,
-  RequiredBadge,
   RunIdCard,
   SurveyFooterActions,
+  SurveyQuestionBlock,
   SurveyStepLayout,
-  SurveySummaryGrid,
-  SurveySummaryItem,
   ValidationMessage,
 } from "@/components/survey-ui";
-import { saveMotivations } from "@/lib/sai-rpc/client";
+import { saveMotivations, saveProfile } from "@/lib/sai-rpc/client";
 import {
   markSurveyStepCompleted,
   readSurveySession,
@@ -27,30 +26,22 @@ import {
   type SurveyStepId,
 } from "@/lib/sai-survey/flow";
 import {
+  aiFrequencyOptions,
   motivationOptions,
-  type SurveyOption,
+  noAiReasonOptions,
 } from "@/lib/sai-survey/options";
-
-type MotivationValidationErrors = Partial<
-  Record<"selectedMotivations" | "otherText", string>
->;
 
 export default function SurveyMotivationsPage() {
   const router = useRouter();
-  const [surveySession, setSurveySession] = useState<SurveySession | null>(
-    null,
-  );
+  const [surveySession, setSurveySession] = useState<SurveySession | null>(null);
   const [runId, setRunId] = useState<string | null>(null);
   const [completedSteps, setCompletedSteps] = useState<SurveyStepId[]>([]);
-  const [selectedMotivations, setSelectedMotivations] = useState([
-    "tijdswinst",
-    "kwaliteitsverbetering",
-  ]);
+  const [aiFrequencyCode, setAiFrequencyCode] = useState("");
+  const [noAiReasonCode, setNoAiReasonCode] = useState("");
+  const [selectedMotivations, setSelectedMotivations] = useState<string[]>([]);
   const [otherText, setOtherText] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [validationErrors, setValidationErrors] =
-    useState<MotivationValidationErrors>({});
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -84,46 +75,69 @@ export default function SurveyMotivationsPage() {
       return;
     }
 
-    setError(null);
-    setValidationErrors({});
+    if (!aiFrequencyCode) {
+      setError("Kies hoe vaak je AI-tools gebruikt.");
+      return;
+    }
 
-    const nextValidationErrors = validateMotivationsForm({
-      otherText,
-      selectedMotivations,
-    });
+    if (aiFrequencyCode === "never" && !noAiReasonCode) {
+      setError("Kies wat de belangrijkste reden is dat je nu geen AI gebruikt.");
+      return;
+    }
 
-    if (Object.keys(nextValidationErrors).length > 0) {
-      setValidationErrors(nextValidationErrors);
-      setError("Controleer de gemarkeerde motivatievragen voordat je doorgaat.");
+    if (aiFrequencyCode !== "never" && selectedMotivations.length === 0) {
+      setError("Kies minimaal een motivatie voordat je doorgaat.");
+      return;
+    }
+
+    if (selectedMotivations.includes("anders") && !otherText.trim()) {
+      setError("Vul kort in wat je andere motivatie is.");
       return;
     }
 
     setIsSaving(true);
+    setError(null);
 
-    const result = await saveMotivations(
-      surveySession,
-      selectedMotivations.map((code) => ({
-        code,
-        other_text: code === "anders" ? otherText : undefined,
-      })),
-    );
+    const profileResult = await saveProfile(surveySession, {
+      ai_frequency_code: aiFrequencyCode,
+      no_ai_reason_code: aiFrequencyCode === "never" ? noAiReasonCode : undefined,
+    });
 
-    if (!result.ok) {
-      setError(formatRpcError(result.error));
-      setIsSaving(false);
+    if (!profileResult.ok) {
+      finishWithError(profileResult.error);
       return;
     }
 
+    if (aiFrequencyCode !== "never") {
+      const motivationResult = await saveMotivations(
+        surveySession,
+        selectedMotivations.map((code) => ({
+          code,
+          other_text: code === "anders" ? otherText : undefined,
+        })),
+      );
+
+      if (!motivationResult.ok) {
+        finishWithError(motivationResult.error);
+        return;
+      }
+    }
+
     markSurveyStepCompleted("motivations");
-    updateSurveyCurrentStep("data");
-    router.push("/survey/data");
+    updateSurveyCurrentStep("tools");
+    setIsSaving(false);
+    router.push("/survey/tools");
+  }
+
+  function finishWithError(rpcError: RpcError) {
+    setError(formatRpcError(rpcError));
+    setIsSaving(false);
   }
 
   if (!runId) {
     return (
       <EmptySurveyState>
-        Start eerst een scan en sla de profielstap op voordat je motivaties
-        invult.
+        Start eerst een scan en kies je werkplek voordat je deze stap invult.
       </EmptySurveyState>
     );
   }
@@ -132,201 +146,83 @@ export default function SurveyMotivationsPage() {
     <SurveyStepLayout
       completedSteps={completedSteps}
       currentStep="motivations"
-      eyebrow="Gebruikssignaal"
-      intro="Kies een of meer redenen waarom AI voor jou waardevol is in je werk."
-      title="Waarom gebruik je AI-tools in je werk?"
+      eyebrow="Gebruik en frequentie"
+      intro="Ook incidenteel gebruik telt: een mail herschrijven, iets samenvatten of een tekst vertalen is al AI-gebruik."
+      title="Hoe vaak gebruik je AI-tools voor je werk?"
     >
+      <form
+        className="grid gap-6"
+        onSubmit={(event) => {
+          event.preventDefault();
+          void handleSaveMotivations();
+        }}
+      >
+        <SurveyRadioGroup
+          helpText="Kies wat het beste past bij je huidige werkpraktijk."
+          isDisabled={isSaving}
+          label="Hoe vaak gebruik je AI-tools voor je werk?"
+          name="ai_frequency"
+          onChange={setAiFrequencyCode}
+          options={aiFrequencyOptions}
+          selectedCode={aiFrequencyCode}
+          validationError={!aiFrequencyCode ? "Kies een antwoord." : undefined}
+        />
 
-          <MotivationAnswerSummary
-            selectedCount={selectedMotivations.length}
-            selectedLabels={getSelectedMotivationLabels(selectedMotivations)}
+        {aiFrequencyCode === "never" ? (
+          <SurveyRadioGroup
+            helpText="Wat is de belangrijkste reden?"
+            isDisabled={isSaving}
+            label="Wat is de belangrijkste reden?"
+            name="no_ai_reason"
+            onChange={setNoAiReasonCode}
+            options={noAiReasonOptions}
+            selectedCode={noAiReasonCode}
+            validationError={!noAiReasonCode ? "Kies een antwoord." : undefined}
           />
+        ) : null}
 
-          <form
-            className="grid gap-6"
-            onSubmit={(event) => {
-              event.preventDefault();
-              void handleSaveMotivations();
-            }}
-          >
-            <MotivationGroup
-              error={validationErrors.selectedMotivations}
+        {aiFrequencyCode && aiFrequencyCode !== "never" ? (
+          <>
+            <SurveyCheckboxGroup
+              helpText="Meerdere antwoorden mogelijk."
+              isDisabled={isSaving}
+              label="Waarom gebruik je AI-tools in je werk?"
               onChange={setSelectedMotivations}
               options={motivationOptions}
               selectedCodes={selectedMotivations}
+              validationError={
+                selectedMotivations.length === 0
+                  ? "Kies minimaal een motivatie."
+                  : undefined
+              }
             />
-
             {selectedMotivations.includes("anders") ? (
-              <label className="grid min-w-0 max-w-full gap-2 text-sm font-semibold text-[#181c1e]">
-                Andere motivatie
+              <SurveyQuestionBlock
+                helpText="Houd het kort en deel geen persoonsgegevens."
+                title="Andere motivatie"
+              >
                 <input
-                  className="h-11 w-full min-w-0 rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm font-normal outline-none transition focus:border-[#00658b] focus:ring-2 focus:ring-[#c4e7ff]"
+                  className="h-11 rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm outline-none transition focus:border-[#00658b] focus:ring-2 focus:ring-[#c4e7ff]"
                   onChange={(event) => setOtherText(event.target.value)}
-                  placeholder="Bijvoorbeeld: verplicht vanuit project of klantvraag"
-                  type="text"
+                  placeholder="Bijvoorbeeld: klantvraag of projectdruk"
                   value={otherText}
                 />
-                {validationErrors.otherText ? (
-                  <span className="text-xs font-medium text-red-700">
-                    {validationErrors.otherText}
-                  </span>
-                ) : null}
-              </label>
+              </SurveyQuestionBlock>
             ) : null}
+          </>
+        ) : null}
 
-            {error ? (
-              <ValidationMessage>{error}</ValidationMessage>
-            ) : null}
+        {error ? <ValidationMessage>{error}</ValidationMessage> : null}
 
-            <RunIdCard runId={runId} />
+        <RunIdCard runId={runId} />
 
-            <SurveyFooterActions backHref="/survey/profile">
-              <PrimarySurveyButton
-                disabled={isSaving}
-                isBusy={isSaving}
-                type="submit"
-              >
-                {isSaving ? "Opslaan..." : "Verder"}
-              </PrimarySurveyButton>
-            </SurveyFooterActions>
-          </form>
+        <SurveyFooterActions backHref="/survey/profile">
+          <PrimarySurveyButton disabled={isSaving} isBusy={isSaving} type="submit">
+            {isSaving ? "Opslaan..." : "Volgende stap"}
+          </PrimarySurveyButton>
+        </SurveyFooterActions>
+      </form>
     </SurveyStepLayout>
-  );
-}
-
-function MotivationGroup({
-  error,
-  onChange,
-  options,
-  selectedCodes,
-}: {
-  error?: string;
-  onChange: (codes: string[]) => void;
-  options: SurveyOption[];
-  selectedCodes: string[];
-}) {
-  function toggleCode(code: string) {
-    onChange(
-      selectedCodes.includes(code)
-        ? selectedCodes.filter((selectedCode) => selectedCode !== code)
-        : [...selectedCodes, code],
-    );
-  }
-
-  const helpId = "motivaties-help";
-  const errorId = error ? "motivaties-error" : undefined;
-
-  return (
-    <fieldset
-      aria-describedby={[helpId, errorId].filter(Boolean).join(" ")}
-      aria-invalid={error ? true : undefined}
-      className={`grid min-w-0 max-w-full gap-4 rounded-[1.35rem] border bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
-        error ? "border-red-300" : "border-white/80"
-      }`}
-    >
-      <legend className="sr-only">Keuzegroep</legend>
-      <div className="min-w-0">
-        <div className="flex flex-wrap items-center gap-2">
-          <h3 className="min-w-0 break-words font-bold text-[#00658b]">
-            Motivaties
-          </h3>
-          <RequiredBadge />
-        </div>
-        <p
-          className="mt-1 break-words text-sm leading-6 text-[#40484e]"
-          id={helpId}
-        >
-          Meerdere antwoorden zijn mogelijk.
-        </p>
-      </div>
-      {error ? (
-        <div id={errorId}>
-          <ValidationMessage>{error}</ValidationMessage>
-        </div>
-      ) : null}
-      <div className="grid min-w-0 gap-2 md:grid-cols-2">
-        {options.map((option) => (
-          <label
-            className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:shadow-[0_4px_12px_rgba(0,101,139,0.06)] ${
-              selectedCodes.includes(option.code)
-                ? "border-[#00658b] bg-[#f1f4f6]"
-                : "border-[#bfc7cf] bg-white"
-            }`}
-            key={option.code}
-          >
-            <input
-              checked={selectedCodes.includes(option.code)}
-              className="mt-0.5 h-5 w-5 accent-[#00658b]"
-              name="motivaties"
-              onChange={() => toggleCode(option.code)}
-              type="checkbox"
-              value={option.code}
-            />
-            <span className="min-w-0">
-              <span className="block text-sm font-semibold text-[#181c1e]">
-                {option.label}
-              </span>
-              {option.description ? (
-                <span className="mt-1 block break-words text-xs leading-5 text-[#40484e]">
-                  {option.description}
-                </span>
-              ) : null}
-            </span>
-          </label>
-        ))}
-      </div>
-    </fieldset>
-  );
-}
-
-function validateMotivationsForm({
-  otherText,
-  selectedMotivations,
-}: {
-  otherText: string;
-  selectedMotivations: string[];
-}): MotivationValidationErrors {
-  const errors: MotivationValidationErrors = {};
-
-  if (selectedMotivations.length === 0) {
-    errors.selectedMotivations =
-      "Kies minimaal een motivatie voordat je doorgaat.";
-  }
-
-  if (selectedMotivations.includes("anders") && !otherText.trim()) {
-    errors.otherText = "Vul kort in wat je andere motivatie is.";
-  }
-
-  return errors;
-}
-
-function getSelectedMotivationLabels(selectedCodes: string[]) {
-  return selectedCodes
-    .map(
-      (code) =>
-        motivationOptions.find((option) => option.code === code)?.label ?? code,
-    )
-    .join(", ");
-}
-
-function MotivationAnswerSummary({
-  selectedCount,
-  selectedLabels,
-}: {
-  selectedCount: number;
-  selectedLabels: string;
-}) {
-  return (
-    <SurveySummaryGrid
-      className="mb-6"
-      columnsClassName="md:grid-cols-[10rem_1fr]"
-    >
-      <SurveySummaryItem label="Selectie" value={`${selectedCount} gekozen`} />
-      <SurveySummaryItem
-        label="Motivaties"
-        value={selectedLabels || "Nog niets gekozen"}
-      />
-    </SurveySummaryGrid>
   );
 }
 

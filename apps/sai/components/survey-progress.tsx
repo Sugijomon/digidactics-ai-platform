@@ -13,7 +13,7 @@ export function SurveyProgress({
       aria-label="Survey voortgang"
       className="min-w-0 max-w-full rounded-2xl border border-[#bfc7cf]/50 bg-white/80 p-3 shadow-sm"
     >
-      <ol className="grid min-w-0 gap-2 sm:grid-cols-4 lg:grid-cols-7">
+      <ol className="grid min-w-0 gap-2 sm:grid-cols-4 lg:grid-cols-8">
         {surveySteps.map((step, index) => {
           const isCurrent = step.id === currentStep;
           const isCompleted = completedSteps.includes(step.id);

@@ -36,6 +36,7 @@ export type StoredSurveySession = SurveySession & {
   surveyToolId?: string;
   surveyToolUseCaseId?: string;
   pendingTool?: PendingSurveyTool;
+  pendingTools?: PendingSurveyTool[];
   savedTools?: StoredSurveyTool[];
 };
 
@@ -57,6 +58,8 @@ function isStoredSurveySession(value: unknown): value is StoredSurveySession {
       isSurveyStepIds(candidate.completedSteps)) &&
     (candidate.pendingTool === undefined ||
       isPendingSurveyTool(candidate.pendingTool)) &&
+    (candidate.pendingTools === undefined ||
+      isPendingSurveyTools(candidate.pendingTools)) &&
     (savedTools === undefined || isStoredSurveyTools(savedTools))
   );
 }
@@ -69,6 +72,8 @@ function isSurveyStepId(value: unknown): value is SurveyStepId {
     value === "tools" ||
     value === "useCases" ||
     value === "accounts" ||
+    value === "literacy" ||
+    value === "future" ||
     value === "complete"
   );
 }
@@ -119,6 +124,10 @@ function isPendingSurveyTool(value: unknown): value is PendingSurveyTool {
     (candidate.surveyToolUseCaseIds === undefined ||
       isStringArray(candidate.surveyToolUseCaseIds))
   );
+}
+
+function isPendingSurveyTools(value: unknown): value is PendingSurveyTool[] {
+  return Array.isArray(value) && value.every(isPendingSurveyTool);
 }
 
 function isStringArray(value: unknown): value is string[] {
@@ -188,6 +197,7 @@ export function updateSurveySession(
       | "completedSteps"
       | "currentStep"
       | "pendingTool"
+      | "pendingTools"
       | "surveyToolId"
       | "surveyToolUseCaseId"
       | "savedTools"

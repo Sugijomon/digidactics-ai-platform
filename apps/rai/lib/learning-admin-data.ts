@@ -1,12 +1,15 @@
 import "server-only";
 
 import { getCurrentUserContext } from "@digidactics/auth";
+import { isLessonContent } from "@digidactics/domain/learning";
 import { redirect } from "next/navigation";
 import {
   aiLiteracyPreviewCourse,
   aiLiteracyTopicSeeds,
   type LearningAttemptAnswerView,
   type LearningCourseView,
+  type LearningPageView,
+  type LearningTopicView,
 } from "./learning-preview-data";
 import { getAiLiteracyCourse } from "./learning-data";
 import { getSupabaseServerClient, hasSupabaseConfig } from "./supabase-server";
@@ -77,7 +80,9 @@ interface CourseRow {
   id: string;
   course_code: string;
   title: string;
+  subtitle?: string | null;
   description: string | null;
+  difficulty_level?: string;
   status: string;
   required_for_onboarding: boolean;
   unlocks_capability: string | null;
@@ -87,12 +92,25 @@ interface CourseRow {
 interface PageRow {
   id: string;
   course_id: string;
+  topic_id: string;
   page_code: string;
   title: string;
   summary: string | null;
+  page_type: string;
   status: string;
   estimated_duration_minutes: number | null;
+  sequence_order: number;
+  is_required: boolean;
   content: { blocks?: unknown[] } | null;
+}
+
+interface AdminTopicRow {
+  id: string;
+  topic_code: string;
+  title: string;
+  summary: string | null;
+  sequence_order: number;
+  is_required: boolean;
 }
 
 interface LessonRow {
@@ -228,6 +246,156 @@ export async function getLearningAdminOverview(): Promise<LearningAdminOverview>
   );
 
   return { courses, lessons, microLearnings };
+}
+
+export async function getAdminLearningPage(pageCode: string): Promise<{
+  course: LearningCourseView;
+  page: LearningPageView | null;
+}> {
+  if (!hasSupabaseConfig()) {
+    return previewAdminPage(pageCode);
+  }
+
+  const { supabase } = await requireContentEditor();
+
+  if (!supabase) {
+    return previewAdminPage(pageCode);
+  }
+
+  const { data: page, error: pageError } = await supabase
+    .from("learning_pages")
+    .select(
+      [
+        "id",
+        "course_id",
+        "topic_id",
+        "page_code",
+        "title",
+        "summary",
+        "page_type",
+        "status",
+        "estimated_duration_minutes",
+        "sequence_order",
+        "is_required",
+        "content",
+      ].join(", "),
+    )
+    .eq("page_code", pageCode)
+    .maybeSingle<PageRow>();
+
+  if (pageError || !page || !isLessonContent(page.content)) {
+    return { course: aiLiteracyPreviewCourse, page: null };
+  }
+
+  const [{ data: course }, { data: topic }] = await Promise.all([
+    supabase
+      .from("learning_courses")
+      .select(
+        [
+          "id",
+          "course_code",
+          "title",
+          "subtitle",
+          "description",
+          "difficulty_level",
+          "required_for_onboarding",
+          "passing_threshold",
+        ].join(", "),
+      )
+      .eq("id", page.course_id)
+      .single<CourseRow>(),
+    supabase
+      .from("learning_topics")
+      .select("id, topic_code, title, summary, sequence_order, is_required")
+      .eq("id", page.topic_id)
+      .maybeSingle<AdminTopicRow>(),
+  ]);
+
+  if (!course) {
+    return { course: aiLiteracyPreviewCourse, page: null };
+  }
+
+  const adminPage: LearningPageView = {
+    id: page.id,
+    page_code: page.page_code,
+    topic_id: page.topic_id,
+    title: page.title,
+    summary: page.summary,
+    page_type: page.page_type,
+    estimated_duration_minutes: page.estimated_duration_minutes,
+    sequence_order: page.sequence_order,
+    is_required: page.is_required,
+    content: page.content,
+  };
+  const adminTopic: LearningTopicView = {
+    id: topic?.id ?? page.topic_id,
+    topic_code: topic?.topic_code ?? "page",
+    title: topic?.title ?? "Pagina",
+    summary: topic?.summary ?? null,
+    sequence_order: topic?.sequence_order ?? 1,
+    is_required: topic?.is_required ?? true,
+    pages: [adminPage],
+  };
+
+  return {
+    course: {
+      id: course.id,
+      course_code: course.course_code,
+      title: course.title,
+      subtitle: course.subtitle ?? null,
+      description: course.description,
+      difficulty_level: course.difficulty_level ?? "foundation",
+      required_for_onboarding: course.required_for_onboarding,
+      passing_threshold: course.passing_threshold,
+      topics: [adminTopic],
+      pages: [adminPage],
+    },
+    page: adminPage,
+  };
+}
+
+export async function getAdminMicroLearning(lessonCode: string): Promise<{
+  course: LearningCourseView;
+  page: LearningPageView | null;
+}> {
+  if (!hasSupabaseConfig()) {
+    return { course: microLearningEditorCourse(null), page: null };
+  }
+
+  const { supabase } = await requireContentEditor();
+
+  if (!supabase) {
+    return { course: microLearningEditorCourse(null), page: null };
+  }
+
+  const { data: lesson, error } = await supabase
+    .from("learning_lessons")
+    .select("id, lesson_code, title, summary, lesson_type, estimated_duration_minutes, content")
+    .eq("lesson_code", lessonCode)
+    .eq("lesson_type", "microlearning")
+    .maybeSingle<LessonRow>();
+
+  if (error || !lesson || !isLessonContent(lesson.content)) {
+    return { course: microLearningEditorCourse(null), page: null };
+  }
+
+  const page: LearningPageView = {
+    id: lesson.id,
+    page_code: lesson.lesson_code,
+    topic_id: "microlearning-library",
+    title: lesson.title,
+    summary: lesson.summary,
+    page_type: "microlearning",
+    estimated_duration_minutes: lesson.estimated_duration_minutes,
+    sequence_order: 1,
+    is_required: false,
+    content: lesson.content,
+  };
+
+  return {
+    course: microLearningEditorCourse(page),
+    page,
+  };
 }
 
 export async function getAdminCourse(courseCode: string): Promise<LearningCourseView> {
@@ -429,6 +597,57 @@ function previewOverview(): LearningAdminOverview {
       block_count: page.content.blocks.length,
     })),
     microLearnings: [],
+  };
+}
+
+function previewAdminPage(pageCode: string): {
+  course: LearningCourseView;
+  page: LearningPageView | null;
+} {
+  const page = aiLiteracyPreviewCourse.pages.find((item) => item.page_code === pageCode) ?? null;
+  const topic =
+    aiLiteracyPreviewCourse.topics.find((item) =>
+      item.pages.some((topicPage) => topicPage.page_code === pageCode),
+    ) ?? null;
+
+  if (!page) {
+    return { course: aiLiteracyPreviewCourse, page: null };
+  }
+
+  return {
+    course: {
+      ...aiLiteracyPreviewCourse,
+      topics: topic ? [{ ...topic, pages: [page] }] : [],
+      pages: [page],
+    },
+    page,
+  };
+}
+
+function microLearningEditorCourse(page: LearningPageView | null): LearningCourseView {
+  const pages = page ? [page] : [];
+
+  return {
+    id: "microlearning-library",
+    course_code: "microlearning-library",
+    title: "Micro-learning library",
+    subtitle: null,
+    description: "Standalone micro-learnings voor RouteAI.",
+    difficulty_level: "foundation",
+    required_for_onboarding: false,
+    passing_threshold: 80,
+    pages,
+    topics: [
+      {
+        id: "microlearning-library",
+        topic_code: "microlearning-library",
+        title: "Micro-learning library",
+        summary: "Standalone modules",
+        sequence_order: 1,
+        is_required: false,
+        pages,
+      },
+    ],
   };
 }
 

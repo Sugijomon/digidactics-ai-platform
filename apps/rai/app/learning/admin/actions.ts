@@ -21,6 +21,17 @@ const defaultPageContent = {
   ],
 };
 
+const defaultMicroLearningContent = {
+  version: 1,
+  blocks: [
+    {
+      id: "intro",
+      type: "paragraph",
+      markdown: "Nieuwe micro-learning. Vervang deze tekst in de editor.",
+    },
+  ],
+};
+
 interface RequiredPageRow {
   id: string;
   content: unknown;
@@ -82,6 +93,89 @@ export async function createLearningPage(formData: FormData) {
   revalidatePath(`/learning/admin/courses/${courseCode}`);
   revalidatePath(`/learning/${courseCode}`);
   redirect(`/learning/admin/lessons/${pageCode}`);
+}
+
+export async function createLearningCourse(formData: FormData) {
+  const supabase = await requireLearningAdmin();
+
+  const courseCode = slugify(readRequired(formData, "courseCode"));
+  const title = readRequired(formData, "title");
+  const description = String(formData.get("description") ?? "").trim() || null;
+  const status = String(formData.get("status") ?? "draft");
+  const passingThreshold = Number(formData.get("passingThreshold") ?? 80);
+  const requiredForOnboarding = String(formData.get("requiredForOnboarding") ?? "") === "on";
+  const unlocksCapability = String(formData.get("unlocksCapability") ?? "").trim() || null;
+
+  const { data: course, error: courseError } = await supabase
+    .from("learning_courses")
+    .insert({
+      course_code: courseCode,
+      title,
+      description,
+      status,
+      difficulty_level: "foundation",
+      required_for_onboarding: requiredForOnboarding,
+      unlocks_capability: unlocksCapability,
+      passing_threshold: Number.isFinite(passingThreshold) ? passingThreshold : 80,
+      published_at: status === "published" ? new Date().toISOString() : null,
+    })
+    .select("id")
+    .single<{ id: string }>();
+
+  if (courseError || !course) {
+    throw new Error(`Cursus aanmaken is mislukt: ${courseError?.message ?? "geen cursus aangemaakt"}`);
+  }
+
+  const { error: topicError } = await supabase.from("learning_topics").insert({
+    course_id: course.id,
+    topic_code: "intro",
+    title: "Introductie",
+    summary: "Starttopic voor deze cursus.",
+    status: "published",
+    sequence_order: 1,
+    is_required: true,
+  });
+
+  if (topicError) {
+    throw new Error(`Cursus is aangemaakt, maar het starttopic niet: ${topicError.message}`);
+  }
+
+  revalidatePath("/learning");
+  revalidatePath("/learning/admin");
+  revalidatePath("/learning/admin/courses");
+  redirect(`/learning/admin/courses/${courseCode}`);
+}
+
+export async function createMicroLearning(formData: FormData) {
+  const supabase = await requireLearningAdmin();
+
+  const lessonCode = slugify(readRequired(formData, "lessonCode"));
+  const title = readRequired(formData, "title");
+  const summary = String(formData.get("summary") ?? "").trim() || null;
+  const status = String(formData.get("status") ?? "draft");
+  const estimatedMinutes = Number(formData.get("estimatedMinutes") ?? 8);
+
+  const { error } = await supabase.from("learning_lessons").insert({
+    lesson_code: lessonCode,
+    title,
+    summary,
+    lesson_type: "microlearning",
+    status,
+    difficulty_level: "foundation",
+    estimated_duration_minutes: Number.isFinite(estimatedMinutes) ? estimatedMinutes : 8,
+    content_schema_version: 1,
+    content: defaultMicroLearningContent,
+    published_at: status === "published" ? new Date().toISOString() : null,
+  });
+
+  if (error) {
+    throw new Error(`Micro-learning aanmaken is mislukt: ${error.message}`);
+  }
+
+  revalidatePath("/learning/admin");
+  revalidatePath("/learning/admin/courses");
+  revalidatePath("/learning/admin/lessons");
+  redirect(`/learning/admin/microlearnings/${lessonCode}`);
 }
 
 export async function addExistingLessonToCourse(formData: FormData) {
@@ -515,8 +609,44 @@ export async function updateLearningPageContent(formData: FormData) {
 
   revalidatePath("/learning");
   revalidatePath("/learning/admin");
+  revalidatePath("/learning/admin/lessons");
+  revalidatePath(`/learning/admin/lessons/${pageCode}`);
   revalidatePath(`/learning/${courseCode}`);
   revalidatePath(`/learning/${courseCode}/${pageCode}`);
+}
+
+export async function updateMicroLearningContent(formData: FormData) {
+  const supabase = await requireLearningAdmin();
+
+  const lessonId = readRequired(formData, "pageId");
+  const lessonCode = readRequired(formData, "pageCode");
+  const title = readRequired(formData, "title");
+  const summary = String(formData.get("summary") ?? "").trim() || null;
+  const estimatedMinutes = Number(formData.get("estimatedMinutes") ?? 8);
+  const contentText = readRequired(formData, "content");
+  const content = parseContentJson(contentText);
+
+  const { error } = await supabase
+    .from("learning_lessons")
+    .update({
+      title,
+      summary,
+      estimated_duration_minutes: Number.isFinite(estimatedMinutes) ? estimatedMinutes : 8,
+      content,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", lessonId)
+    .eq("lesson_type", "microlearning");
+
+  if (error) {
+    throw new Error(`Micro-learning opslaan is mislukt: ${error.message}`);
+  }
+
+  revalidatePath("/learning/admin");
+  revalidatePath("/learning/admin/courses");
+  revalidatePath("/learning/admin/courses?view=microlearnings");
+  revalidatePath("/learning/admin/lessons");
+  revalidatePath(`/learning/admin/microlearnings/${lessonCode}`);
 }
 
 export async function reviewLearningPageAttempt(formData: FormData) {

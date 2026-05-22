@@ -13,10 +13,14 @@ export default async function LearningAdminPage() {
 
   return (
     <ContentEditorShell active="dashboard">
-      <div className="admin-page-header">
+      <div className="admin-page-header dashboard-admin-header">
         <div>
           <p className="breadcrumb">Content Editor / Dashboard</p>
-          <h1>Learning content dashboard</h1>
+          <h1>Learning content editor</h1>
+          <p>
+            Beheer AI Literacy cursussen, microlearnings, reviews en contentkwaliteit vanuit een
+            RouteAI backend omgeving.
+          </p>
         </div>
         <div className="actions compact-actions">
           <Link className="button button-secondary" href="/learning">
@@ -28,11 +32,25 @@ export default async function LearningAdminPage() {
         </div>
       </div>
 
-      <section className="admin-stat-grid" aria-label="Contentstatistieken">
+      <section className="dashboard-status-panel" aria-label="Learning System status">
+        <div>
+          <span className="status-badge published">Backend</span>
+          <strong>RouteAI Learning System</strong>
+          <p>Contentstructuur staat los van SAI en is voorbereid op RouteAI toegang, reviews en certificering.</p>
+        </div>
+        <div className="dashboard-status-steps" aria-label="Actieve ontwikkelonderdelen">
+          <span>Content</span>
+          <span>Review gate</span>
+          <span>Certificaten later</span>
+        </div>
+      </section>
+
+      <section className="dashboard-kpi-panel" aria-label="Contentstatistieken">
         <StatCard label="Cursussen" value={String(overview.courses.length)} />
         <StatCard label="Cursuslessen" value={String(overview.lessons.length)} />
         <StatCard label="Microlearnings" value={String(overview.microLearnings.length)} />
         <StatCard label="Gepubliceerd" value={String(publishedCourses.length)} />
+        <StatCard label="Contentblokken" value={String(totalBlocks)} />
       </section>
 
       <section className="dashboard-workbench" aria-label="Werkgebieden">
@@ -103,8 +121,8 @@ export default async function LearningAdminPage() {
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
     <article className="admin-stat-card">
-      <span>{label}</span>
       <strong>{value}</strong>
+      <span>{label}</span>
     </article>
   );
 }

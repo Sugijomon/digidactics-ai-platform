@@ -2,9 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ContentEditorShell } from "@/components/learning/admin/ContentEditorShell";
 import { LearningAdminEditor } from "@/components/learning/LearningAdminEditor";
-import { requireContentEditor } from "@/lib/learning-admin-data";
-import { getAiLiteracyPage } from "@/lib/learning-data";
-import { createLearningPage, updateLearningPageContent } from "../../actions";
+import { getAdminLearningPage } from "@/lib/learning-admin-data";
+import { updateLearningPageContent } from "../../actions";
 
 export default async function AdminLessonEditorPage({
   params,
@@ -12,8 +11,7 @@ export default async function AdminLessonEditorPage({
   params: Promise<{ pageCode: string }>;
 }) {
   const { pageCode } = await params;
-  await requireContentEditor();
-  const { course, page } = await getAiLiteracyPage(pageCode);
+  const { course, page } = await getAdminLearningPage(pageCode);
 
   if (!page) {
     notFound();
@@ -33,7 +31,6 @@ export default async function AdminLessonEditorPage({
 
       <LearningAdminEditor
         course={course}
-        createAction={createLearningPage}
         initialPageCode={page.page_code}
         updateAction={updateLearningPageContent}
       />

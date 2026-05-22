@@ -5,10 +5,7 @@ import { useMemo, useState } from "react";
 import type { MouseEvent } from "react";
 import type { LessonBlock, LessonContent } from "@digidactics/domain/learning";
 import { LessonBlockRenderer } from "@/components/learning/LessonBlockRenderer";
-import type {
-  LearningCourseView,
-  LearningTopicView,
-} from "@/lib/learning-preview-data";
+import type { LearningCourseView } from "@/lib/learning-preview-data";
 
 type EditableBlock = Record<string, any> & { id: string; type: string };
 type ChoiceOption = { id: string; label: string };
@@ -59,54 +56,34 @@ const blockTypeDescriptions: Record<string, string> = {
 
 export function LearningAdminEditor({
   course,
-  createAction,
   initialPageCode,
+  mode = "page",
   updateAction,
 }: {
   course: LearningCourseView;
-  createAction: (formData: FormData) => void | Promise<void>;
   initialPageCode?: string;
+  mode?: "page" | "microlearning";
   updateAction: (formData: FormData) => void | Promise<void>;
 }) {
   const pages = useMemo(() => course.topics.flatMap((topic) => topic.pages), [course]);
-  const initialPageId =
-    pages.find((page) => page.page_code === initialPageCode)?.id ?? pages[0]?.id ?? "";
-  const [activePageId, setActivePageId] = useState(initialPageId);
   const [activePanel, setActivePanel] = useState<EditorPanel>("content");
   const [selectedBlockId, setSelectedBlockId] = useState("");
-  const activePage = pages.find((page) => page.id === activePageId) ?? pages[0];
+  const activePage = pages.find((page) => page.page_code === initialPageCode) ?? pages[0];
   const activeTopic =
     course.topics.find((topic) => topic.pages.some((page) => page.id === activePage?.id)) ??
     course.topics[0];
-  const activeTopicPages = activeTopic?.pages ?? [];
-  const [drafts, setDrafts] = useState<Record<string, PageDraft>>(() =>
-    Object.fromEntries(
-      pages.map((page) => [
-        page.id,
-        {
-          title: page.title,
-          summary: page.summary ?? "",
-          pageType: page.page_type,
-          estimatedMinutes: page.estimated_duration_minutes ?? 5,
-          isRequired: page.is_required,
-          content: page.content,
-        },
-      ]),
-    ),
-  );
+  const [draft, setDraft] = useState<PageDraft>(() => ({
+    title: activePage?.title ?? "",
+    summary: activePage?.summary ?? "",
+    pageType: activePage?.page_type ?? "content",
+    estimatedMinutes: activePage?.estimated_duration_minutes ?? 5,
+    isRequired: activePage?.is_required ?? true,
+    content: activePage?.content ?? { blocks: [] },
+  }));
 
   if (!activePage) {
     return <p className="empty-state">Geen pagina's gevonden.</p>;
   }
-
-  const draft = drafts[activePage.id] ?? {
-    title: activePage.title,
-    summary: activePage.summary ?? "",
-    pageType: activePage.page_type,
-    estimatedMinutes: activePage.estimated_duration_minutes ?? 5,
-    isRequired: activePage.is_required,
-    content: activePage.content,
-  };
   const blocks = draft.content.blocks as EditableBlock[];
   const selectedBlock =
     blocks.find((block) => block.id === selectedBlockId) ?? blocks[0] ?? null;
@@ -115,10 +92,7 @@ export function LearningAdminEditor({
     : -1;
 
   function updateDraft(patch: Partial<PageDraft>) {
-    setDrafts((current) => ({
-      ...current,
-      [activePage.id]: { ...draft, ...patch },
-    }));
+    setDraft((current) => ({ ...current, ...patch }));
   }
 
   function updateBlocks(nextBlocks: EditableBlock[]) {
@@ -165,38 +139,45 @@ export function LearningAdminEditor({
     setSelectedBlockId(nextBlocks[Math.max(0, index - 1)]?.id ?? "");
   }
 
-  function selectPage(pageId: string) {
-    setActivePageId(pageId);
-    setSelectedBlockId("");
-    setActivePanel("content");
-  }
-
   return (
     <section className="editor-shell lesson-editor-shell">
-      <aside className="editor-nav" aria-label="Cursusstructuur">
+      <aside className="editor-nav" aria-label="Pagina context">
         <div>
-          <p className="eyebrow">Structuur</p>
+          <p className="eyebrow">{mode === "microlearning" ? "Micro-learning editor" : "Pagina-editor"}</p>
           <h2>{course.title}</h2>
           <p className="muted">
-            {course.topics.length} topics / {pages.length} pagina's
+            {mode === "microlearning"
+              ? "Deze editor wijzigt een enkel record in learning_lessons."
+              : "Deze editor wijzigt een enkel record in learning_pages."}
           </p>
         </div>
-        <div className="editor-nav-progress" aria-label="Cursusopbouw">
-          <span style={{ width: `${Math.min(100, Math.round((pages.length / 14) * 100))}%` }} />
+
+        <div className="editor-page-facts">
+          <div>
+            <span>{mode === "microlearning" ? "Type" : "Topic"}</span>
+            <strong>{mode === "microlearning" ? "Micro-learning" : activeTopic?.title ?? "Niet gekoppeld"}</strong>
+          </div>
+          <div>
+            <span>{mode === "microlearning" ? "Lesson code" : "Page code"}</span>
+            <strong>{activePage.page_code}</strong>
+          </div>
+          <div>
+            <span>Contentbron</span>
+            <strong>content.blocks</strong>
+          </div>
+          <div>
+            <span>Blokken</span>
+            <strong>{blocks.length}</strong>
+          </div>
         </div>
-        <div className="editor-topic-list">
-          {course.topics.map((topic) => (
-            <TopicNavigation
-              activePageId={activePage.id}
-              key={topic.id}
-              onSelect={selectPage}
-              topic={topic}
-            />
-          ))}
-        </div>
+
         <div className="editor-nav-footer">
-          <strong>AI Rijbewijs</strong>
-          <span>{pages.length} pagina's</span>
+          <strong>{mode === "microlearning" ? "Library item" : "Topic- en volgordebeheer"}</strong>
+          <span>
+            {mode === "microlearning"
+              ? "Koppeling aan risico's volgt in de library sprint."
+              : "Beheer je in de cursus-editor."}
+          </span>
         </div>
       </aside>
 
@@ -213,11 +194,11 @@ export function LearningAdminEditor({
 
         <div className="editor-toolbar">
           <div>
-            <p className="eyebrow">Pagina</p>
+            <p className="eyebrow">{mode === "microlearning" ? "Micro-learning" : "Pagina"}</p>
             <div className="editor-breadcrumb">
-              <span>{activeTopic?.title ?? "Topic"}</span>
+              <span>{mode === "microlearning" ? "Library" : activeTopic?.title ?? "Topic"}</span>
               <span>{draft.pageType}</span>
-              <span>{blocks.length} blocks</span>
+              <span>{blocks.length} blokken</span>
             </div>
             <h1>{draft.title}</h1>
             <p className="muted">{draft.summary || "Geen samenvatting ingesteld."}</p>
@@ -230,31 +211,33 @@ export function LearningAdminEditor({
             >
               {activePanel === "preview" ? "Bewerken" : "Preview"}
             </button>
-            <Link
-              className="button button-secondary"
-              href={`/learning/${course.course_code}/${activePage.page_code}`}
-            >
-              Preview
-            </Link>
+            {mode === "page" ? (
+              <Link
+                className="button button-secondary"
+                href={`/learning/${course.course_code}/${activePage.page_code}`}
+              >
+                Preview
+              </Link>
+            ) : null}
             <button className="button button-primary" type="submit">
               Opslaan
             </button>
           </div>
         </div>
 
-        <div className="editor-page-tabs" role="tablist" aria-label="Pagina's in huidig topic">
-          {activeTopicPages.map((page, index) => (
-            <button
-              aria-selected={page.id === activePage.id}
-              key={page.id}
-              onClick={() => selectPage(page.id)}
-              role="tab"
-              type="button"
-            >
-              <span>{index + 1}</span>
-              {page.title}
-            </button>
-          ))}
+        <div className="editor-page-scope" aria-label="Editor scope">
+          <span>
+            {mode === "microlearning"
+              ? "Deze editor bewerkt alleen deze micro-learning template."
+              : "Deze editor bewerkt alleen deze pagina."}
+          </span>
+          {mode === "microlearning" ? (
+            <Link href="/learning/admin/courses?view=microlearnings">Terug naar micro-learnings</Link>
+          ) : (
+            <Link href={`/learning/admin/courses/${course.course_code}`}>
+              Cursusstructuur beheren
+            </Link>
+          )}
         </div>
 
         {activePanel === "content" ? (
@@ -288,7 +271,7 @@ export function LearningAdminEditor({
           <div className="editor-preview-frame">
             <div className="editor-preview-header">
               <span>Leerlingweergave</span>
-              <small>{blocks.length} blocks</small>
+              <small>{blocks.length} blokken</small>
             </div>
             <article className="lesson-shell page-canvas">
               {blocks.map((block) => (
@@ -310,8 +293,8 @@ export function LearningAdminEditor({
 
       <aside className="editor-properties">
         <div className="cardless-panel">
-          <p className="eyebrow">Les instellingen</p>
-          <PageSettings draft={draft} updateDraft={updateDraft} />
+          <p className="eyebrow">{mode === "microlearning" ? "Micro-learning instellingen" : "Pagina instellingen"}</p>
+          <PageSettings draft={draft} mode={mode} updateDraft={updateDraft} />
         </div>
 
         <div className="cardless-panel">
@@ -330,11 +313,6 @@ export function LearningAdminEditor({
         </div>
 
         <BlockAddTray onAddBlock={addBlock} />
-
-        <details className="cardless-panel editor-new-page-details">
-          <summary>Nieuwe pagina</summary>
-          <NewPageForm course={course} createAction={createAction} />
-        </details>
 
         <button
           className="button button-secondary editor-advanced-toggle"
@@ -383,9 +361,11 @@ function BlockAddTray({ onAddBlock }: { onAddBlock: (type: string) => void }) {
 
 function PageSettings({
   draft,
+  mode,
   updateDraft,
 }: {
   draft: PageDraft;
+  mode: "page" | "microlearning";
   updateDraft: (patch: Partial<PageDraft>) => void;
 }) {
   return (
@@ -396,20 +376,22 @@ function PageSettings({
         value={draft.summary}
         onChange={(summary) => updateDraft({ summary })}
       />
-      <label className="field">
-        <span>Type</span>
-        <select
-          value={draft.pageType}
-          onChange={(event) => updateDraft({ pageType: event.target.value })}
-        >
-          <option value="content">content</option>
-          <option value="question">question</option>
-          <option value="case">case</option>
-          <option value="video">video</option>
-          <option value="embed">embed</option>
-          <option value="assessment">assessment</option>
-        </select>
-      </label>
+      {mode === "page" ? (
+        <label className="field">
+          <span>Type</span>
+          <select
+            value={draft.pageType}
+            onChange={(event) => updateDraft({ pageType: event.target.value })}
+          >
+            <option value="content">content</option>
+            <option value="question">question</option>
+            <option value="case">case</option>
+            <option value="video">video</option>
+            <option value="embed">embed</option>
+            <option value="assessment">assessment</option>
+          </select>
+        </label>
+      ) : null}
       <div className="editor-two-column">
         <TextField
           label="Minuten"
@@ -427,41 +409,6 @@ function PageSettings({
         </label>
       </div>
     </div>
-  );
-}
-
-function TopicNavigation({
-  activePageId,
-  onSelect,
-  topic,
-}: {
-  activePageId: string;
-  onSelect: (pageId: string) => void;
-  topic: LearningTopicView;
-}) {
-  return (
-    <section className="editor-topic">
-      <div className="editor-topic-heading">
-        <h3>{topic.title}</h3>
-        <span>{topic.pages.length}</span>
-      </div>
-      <div className="editor-page-list">
-        {topic.pages.map((page) => (
-          <button
-            aria-current={activePageId === page.id ? "page" : undefined}
-            className="editor-page-button"
-            key={page.id}
-            onClick={() => onSelect(page.id)}
-            type="button"
-          >
-            <span>{page.title}</span>
-            <small>
-              {page.page_type} / {page.content.blocks.length} blocks
-            </small>
-          </button>
-        ))}
-      </div>
-    </section>
   );
 }
 
@@ -554,52 +501,6 @@ function stopAnd(action: () => void) {
     event.stopPropagation();
     action();
   };
-}
-
-function NewPageForm({
-  course,
-  createAction,
-}: {
-  course: LearningCourseView;
-  createAction: (formData: FormData) => void | Promise<void>;
-}) {
-  return (
-    <form action={createAction} className="form-stack compact-form">
-      <input name="courseId" type="hidden" value={course.id} />
-      <input name="courseCode" type="hidden" value={course.course_code} />
-      <label className="field">
-        <span>Topic</span>
-        <select name="topicId">
-          {course.topics.map((topic) => (
-            <option key={topic.id} value={topic.id}>
-              {topic.title}
-            </option>
-          ))}
-        </select>
-      </label>
-      <TextField label="Page code" name="pageCode" placeholder="aisa-nieuwe-pagina" />
-      <TextField label="Titel" name="title" placeholder="Nieuwe learningpagina" />
-      <TextField label="Samenvatting" name="summary" placeholder="Korte omschrijving" />
-      <label className="field">
-        <span>Type</span>
-        <select name="pageType" defaultValue="content">
-          <option value="content">content</option>
-          <option value="question">question</option>
-          <option value="case">case</option>
-          <option value="video">video</option>
-          <option value="embed">embed</option>
-          <option value="assessment">assessment</option>
-        </select>
-      </label>
-      <div className="editor-two-column">
-        <TextField label="Volgorde" name="sequenceOrder" type="number" defaultValue="1" />
-        <TextField label="Minuten" name="estimatedMinutes" type="number" defaultValue="5" />
-      </div>
-      <button className="button button-primary" type="submit">
-        Pagina maken
-      </button>
-    </form>
-  );
 }
 
 function BlockFields({

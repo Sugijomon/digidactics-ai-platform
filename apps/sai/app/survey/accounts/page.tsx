@@ -1,22 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   EmptySurveyState,
   PrimarySurveyButton,
-  RequiredBadge,
-  RpcStepRow,
-  RunIdCard,
-  SecondarySurveyButton,
   SurveyFooterActions,
   SurveyStepLayout,
-  SurveySummaryGrid,
-  SurveySummaryItem,
-  TechnicalStatus,
   ValidationMessage,
 } from "@/components/survey-ui";
-import { saveToolAccount } from "@/lib/sai-rpc/client";
+import { saveProfile, saveToolAccount } from "@/lib/sai-rpc/client";
 import {
   markSurveyStepCompleted,
   readSurveySession,
@@ -33,71 +26,39 @@ import {
   type SurveyStepId,
 } from "@/lib/sai-survey/flow";
 import {
-  accountTypeOptions,
-  contextOptions,
-  useCaseOptions,
+  automationUsageOptions,
+  browserExtensionUsageOptions,
   type SurveyOption,
 } from "@/lib/sai-survey/options";
 
-type StepState = {
-  status: "idle" | "running" | "ok" | "error";
-  message: string;
-};
-
-const INITIAL_ACCOUNT_STEP: StepState = {
-  status: "idle",
-  message: "Wacht op accountstatus",
-};
-
-const ACCOUNT_MATRIX_OPTIONS = [
-  {
-    code: "business_license",
-    eyebrow: "Beheerd",
-    label: "Zakelijke licentie",
-    description: "De organisatie heeft grip op contract, logging en beheer.",
-  },
-  {
-    code: "personal_free",
-    eyebrow: "Prive",
-    label: "Gratis account",
-    description: "Gebruik zonder zakelijke overeenkomst of centraal beheer.",
-  },
-  {
-    code: "personal_paid",
-    eyebrow: "Prive",
-    label: "Betaald account",
-    description: "Zelf betaald, maar meestal nog buiten organisatieregie.",
-  },
-  {
-    code: "both",
-    eyebrow: "Gemengd",
-    label: "Beide",
-    description: "Je gebruikt zowel een zakelijke als persoonlijke variant.",
-  },
-] satisfies SurveyOptionWithEyebrow[];
-
-type SurveyOptionWithEyebrow = SurveyOption & {
-  eyebrow: string;
-};
+const ACCOUNT_COLUMNS = [
+  { code: "business_license", label: "Zakelijke licentie" },
+  { code: "personal_free", label: "Priveaccount (gratis)" },
+  { code: "personal_paid", label: "Priveaccount (betaald)" },
+  { code: "both", label: "Beide" },
+];
 
 export default function SurveyAccountsPage() {
   const router = useRouter();
-  const [surveySession, setSurveySession] = useState<SurveySession | null>(
-    null,
-  );
-  const [pendingTool, setPendingTool] = useState<PendingSurveyTool | null>(
-    null,
-  );
+  const [surveySession, setSurveySession] = useState<SurveySession | null>(null);
+  const [pendingTools, setPendingTools] = useState<PendingSurveyTool[]>([]);
+  const [savedTools, setSavedTools] = useState<StoredSurveyTool[]>([]);
   const [runId, setRunId] = useState<string | null>(null);
   const [completedSteps, setCompletedSteps] = useState<SurveyStepId[]>([]);
-  const [savedTools, setSavedTools] = useState<StoredSurveyTool[]>([]);
-  const [selectedAccountType, setSelectedAccountType] =
-    useState("personal_free");
-  const [accountStep, setAccountStep] =
-    useState<StepState>(INITIAL_ACCOUNT_STEP);
-  const [isAccountSaved, setIsAccountSaved] = useState(false);
+  const [accountByToolId, setAccountByToolId] = useState<Record<string, string>>(
+    {},
+  );
+  const [browserExtensionUsageCode, setBrowserExtensionUsageCode] = useState("");
+  const [automationUsageCode, setAutomationUsageCode] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const allAccountRowsFilled = useMemo(
+    () =>
+      pendingTools.length > 0 &&
+      pendingTools.every((tool) => Boolean(accountByToolId[tool.surveyToolId])),
+    [accountByToolId, pendingTools],
+  );
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -115,11 +76,15 @@ export default function SurveyAccountsPage() {
         return;
       }
 
-      if (!storedSession.pendingTool?.useCaseCodes?.length) {
+      const nextPendingTools =
+        storedSession.pendingTools ??
+        (storedSession.pendingTool ? [storedSession.pendingTool] : []);
+
+      if (nextPendingTools.length === 0) {
         storeSurveyGuardNotice(
-          "Leg eerst de toepassing van je tool vast voordat je accountstatus kiest.",
+          "Kies eerst minimaal een tool voordat je accountstatus vastlegt.",
         );
-        router.replace("/survey/use-cases");
+        router.replace("/survey/tools");
         return;
       }
 
@@ -128,83 +93,85 @@ export default function SurveyAccountsPage() {
         runId: storedSession.runId,
         submissionToken: storedSession.submissionToken,
       });
-      setPendingTool(storedSession.pendingTool);
+      setPendingTools(nextPendingTools);
+      setSavedTools(storedSession.savedTools ?? []);
       setRunId(storedSession.runId);
       setCompletedSteps(storedSession.completedSteps ?? []);
-      setSavedTools(storedSession.savedTools ?? []);
+      setAccountByToolId({});
     });
   }, [router]);
 
-  async function handleSaveAccount() {
-    if (!surveySession || !pendingTool) {
-      setError("Geen actieve toolregistratie gevonden. Kies eerst een tool.");
+  async function handleSaveAccountMatrix() {
+    if (!surveySession) {
+      setError("Geen actieve scan gevonden. Start de scan opnieuw.");
       return;
     }
 
-    if (!selectedAccountType) {
-      setError("Kies een accounttype.");
+    if (!allAccountRowsFilled || !browserExtensionUsageCode || !automationUsageCode) {
+      setError("Vul alle account-, extensie- en automatiseringsvragen in.");
       return;
     }
 
-    setError(null);
     setIsSaving(true);
-    setAccountStep({ status: "running", message: "Accounttype opslaan" });
+    setError(null);
 
-    const accountResult = await saveToolAccount(
-      surveySession,
-      pendingTool.surveyToolId,
-      selectedAccountType,
-    );
+    const nextSavedTools: StoredSurveyTool[] = [...savedTools];
 
-    if (!accountResult.ok) {
-      finishWithError(accountResult.error);
+    for (const pendingTool of pendingTools) {
+      const accountTypeCode = accountByToolId[pendingTool.surveyToolId];
+      const accountResult = await saveToolAccount(
+        surveySession,
+        pendingTool.surveyToolId,
+        accountTypeCode,
+      );
+
+      if (!accountResult.ok) {
+        finishWithError(accountResult.error);
+        return;
+      }
+
+      nextSavedTools.push({
+        surveyToolId: pendingTool.surveyToolId,
+        toolName: pendingTool.toolName,
+        useCaseCodes: pendingTool.useCaseCodes ?? [],
+        contextCodes: pendingTool.contextCodes ?? [],
+        accountTypeCode,
+        savedAt: new Date().toISOString(),
+      });
+    }
+
+    const profileResult = await saveProfile(surveySession, {
+      browser_extension_usage_code: browserExtensionUsageCode,
+      automation_usage_code: automationUsageCode,
+    });
+
+    if (!profileResult.ok) {
+      finishWithError(profileResult.error);
       return;
     }
 
-    const savedTool: StoredSurveyTool = {
-      surveyToolId: pendingTool.surveyToolId,
-      toolName: pendingTool.toolName,
-      useCaseCodes: pendingTool.useCaseCodes ?? [],
-      contextCodes: pendingTool.contextCodes ?? [],
-      accountTypeCode: selectedAccountType,
-      savedAt: new Date().toISOString(),
-    };
-    const nextSavedTools = [...savedTools, savedTool];
-
-    setAccountStep({ status: "ok", message: "Accounttype opgeslagen" });
     markSurveyStepCompleted("accounts");
     updateSurveySession({
-      currentStep: "accounts",
+      currentStep: "literacy",
       pendingTool: undefined,
+      pendingTools: [],
       savedTools: nextSavedTools,
-      surveyToolId: pendingTool.surveyToolId,
-      surveyToolUseCaseId: pendingTool.surveyToolUseCaseIds?.[0],
     });
     setSavedTools(nextSavedTools);
-    setIsAccountSaved(true);
+    setPendingTools([]);
     setIsSaving(false);
-  }
-
-  function handleAddAnotherTool() {
-    updateSurveyCurrentStep("tools");
-    router.push("/survey/tools");
-  }
-
-  function handleContinueToComplete() {
-    updateSurveyCurrentStep("complete");
-    router.push("/survey/complete");
+    router.push("/survey/literacy");
   }
 
   function finishWithError(rpcError: RpcError) {
-    setAccountStep({ status: "error", message: formatRpcError(rpcError) });
     setError(formatRpcError(rpcError));
     setIsSaving(false);
   }
 
-  if (!runId || !pendingTool) {
+  if (!runId || pendingTools.length === 0) {
     return (
       <EmptySurveyState href="/survey/tools" linkLabel="Naar toolkeuze">
-        Kies eerst een tool en toepassing voordat je accountstatus vastlegt.
+        Kies eerst minimaal een tool voordat je accountstatus vastlegt.
       </EmptySurveyState>
     );
   }
@@ -213,244 +180,286 @@ export default function SurveyAccountsPage() {
     <SurveyStepLayout
       completedSteps={completedSteps}
       currentStep="accounts"
-      eyebrow="Accountstatus"
-      intro="Leg vast met welk type account deze tool gebruikt wordt. Dit staat nu los van de toolpicker, zoals in de V8-opzet."
-      maxWidthClassName="max-w-4xl"
-      title={`Met welk account gebruik je ${pendingTool.toolName}?`}
+      eyebrow="Toegang & automatisering"
+      intro="Geef per tool aan wie het account beheert. We gebruiken dit om te bepalen waar de organisatie al regie heeft en waar veilige bedrijfslicenties nodig zijn."
+      maxWidthClassName="max-w-3xl"
+      title="Hoe gebruik je deze tools: via een zakelijke licentie of een priveaccount?"
     >
       <form
         className="grid gap-6"
         onSubmit={(event) => {
           event.preventDefault();
-          void handleSaveAccount();
+          void handleSaveAccountMatrix();
         }}
       >
-        <AccountStepHeader
-          pendingTool={pendingTool}
-          selectedAccountLabel={getOptionLabel(
-            accountTypeOptions,
-            selectedAccountType,
-          )}
+        <AccountMatrix
+          accountByToolId={accountByToolId}
+          isDisabled={isSaving}
+          onChange={(toolId, accountTypeCode) =>
+            setAccountByToolId((current) => ({
+              ...current,
+              [toolId]: accountTypeCode,
+            }))
+          }
+          pendingTools={pendingTools}
         />
 
-        <AccountMatrix
+        <PrototypeRadioPanel
+          helpText="Denk aan extensies die in je browser meelezen of tekst voorstellen terwijl je werkt."
           isDisabled={isSaving}
-          onChange={setSelectedAccountType}
-          selectedCode={selectedAccountType}
-          validationError={!selectedAccountType ? "Kies een accounttype." : undefined}
+          label="Gebruik je AI-browserextensies die mogelijk meekijken tijdens je werk?"
+          name="browser_extensions"
+          onChange={setBrowserExtensionUsageCode}
+          options={browserExtensionUsageOptions}
+          selectedCode={browserExtensionUsageCode}
+        />
+
+        <PrototypeRadioPanel
+          helpText="Gebruik je tools die zelfstandig taken uitvoeren of gekoppeld zijn aan andere apps?"
+          isDisabled={isSaving}
+          label="Experimenteer je met AI-agents of automatisering?"
+          name="automation_usage"
+          onChange={setAutomationUsageCode}
+          options={automationUsageOptions}
+          selectedCode={automationUsageCode}
         />
 
         {error ? <ValidationMessage>{error}</ValidationMessage> : null}
 
-        {isAccountSaved ? (
-          <AccountSavedChoice
-            savedToolCount={savedTools.length}
-            toolName={pendingTool.toolName}
-          />
-        ) : null}
-
-        <TechnicalStatus>
-          <RpcStepRow label="save_tool_account" state={accountStep} />
-        </TechnicalStatus>
-
-        <RunIdCard runId={runId} />
-
-        <SurveyFooterActions backHref="/survey/use-cases">
-          {isAccountSaved ? (
-            <>
-              <SecondarySurveyButton onClick={handleAddAnotherTool}>
-                Nog een tool toevoegen
-              </SecondarySurveyButton>
-              <PrimarySurveyButton onClick={handleContinueToComplete}>
-                Naar afronden
-              </PrimarySurveyButton>
-            </>
-          ) : (
-            <PrimarySurveyButton
-              disabled={isSaving}
-              isBusy={isSaving}
-              type="submit"
-            >
-              {isSaving ? "Opslaan..." : "Account opslaan"}
-            </PrimarySurveyButton>
-          )}
+        <SurveyFooterActions backHref="/survey/data">
+          <PrimarySurveyButton disabled={isSaving} isBusy={isSaving} type="submit">
+            {isSaving ? "Opslaan..." : "Volgende stap"}
+          </PrimarySurveyButton>
         </SurveyFooterActions>
       </form>
     </SurveyStepLayout>
   );
 }
 
-function AccountSavedChoice({
-  savedToolCount,
-  toolName,
+function AccountMatrix({
+  accountByToolId,
+  isDisabled,
+  onChange,
+  pendingTools,
 }: {
-  savedToolCount: number;
-  toolName: string;
+  accountByToolId: Record<string, string>;
+  isDisabled: boolean;
+  onChange: (toolId: string, accountTypeCode: string) => void;
+  pendingTools: PendingSurveyTool[];
 }) {
   return (
-    <section className="min-w-0 max-w-full rounded-[1.35rem] border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm text-[#40484e]">
-      <p className="font-bold text-[#00658b]">{toolName} is opgeslagen</p>
-      <p className="mt-1 leading-6">
-        Je hebt nu {savedToolCount} tool
-        {savedToolCount === 1 ? "" : "s"} compleet geregistreerd. Voeg nog een
-        tool toe als je meerdere AI-tools gebruikt, of rond de scan af.
-      </p>
-    </section>
-  );
-}
-
-function AccountStepHeader({
-  pendingTool,
-  selectedAccountLabel,
-}: {
-  pendingTool: PendingSurveyTool;
-  selectedAccountLabel: string;
-}) {
-  return (
-    <section className="grid min-w-0 max-w-full gap-4 rounded-[1.6rem] border border-[#c4e7ff] bg-[#f3fbff] p-4 text-sm md:p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-xs font-bold uppercase tracking-wide text-[#00658b]/70">
-            Toegang en beheer
-          </p>
-          <h2 className="mt-1 break-words text-xl font-extrabold text-[#00658b]">
-            {pendingTool.toolName}
-          </h2>
-          <p className="mt-2 max-w-2xl leading-6 text-[#40484e]">
-            Het belangrijkste verschil is wie het account beheert. Bij
-            persoonlijke accounts heeft de organisatie minder grip op
-            contracten, logging en bewaartermijnen.
+    <section className="grid gap-6">
+      <details className="group rounded-[1.25rem] border border-[#bfc7cf]/30 bg-[#f1f4f6] p-1 shadow-sm">
+        <summary className="flex cursor-pointer items-center gap-2 rounded-xl p-3 transition hover:bg-[#ebeef0]">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white text-sm font-black text-[#00658b] shadow-sm">
+            i
+          </span>
+          <span className="flex-1 text-[13px] font-bold text-[#00658b]">
+            Jouw data is trainingsmateriaal voor AI
+          </span>
+          <span className="text-xl font-black text-[#40484e] transition group-open:rotate-180">
+            v
+          </span>
+        </summary>
+        <div className="px-4 pb-4 pt-2 text-[13.5px] leading-relaxed text-[#40484e]">
+          <p>
+            <strong>Let op:</strong> Het belangrijkste verschil is niet alleen
+            gratis versus betaald, maar vooral wie het account beheert. Bij een
+            priveaccount heeft de organisatie meestal geen grip op contracten,
+            logging of bewaartermijnen. Zeker bij gratis varianten is data vaak
+            onderdeel van het verdienmodel.
           </p>
         </div>
-        <span className="rounded-full border border-[#00658b]/20 bg-white px-3 py-1 text-xs font-extrabold text-[#00658b]">
-          {selectedAccountLabel}
-        </span>
-      </div>
+      </details>
 
-      <SurveySummaryGrid
-        className="border-white/70 bg-white/70"
-        columnsClassName="md:grid-cols-3"
-      >
-        <SurveySummaryItem
-          detail={getOptionLabels(useCaseOptions, pendingTool.useCaseCodes ?? [])}
-          label="Toepassingen"
-          value={`${pendingTool.useCaseCodes?.length ?? 0} gekozen`}
-        />
-        <SurveySummaryItem
-          detail={
-            pendingTool.contextCodes?.length
-              ? getOptionLabels(contextOptions, pendingTool.contextCodes)
-              : "Niet van toepassing"
-          }
-          label="Context"
-          value={
-            pendingTool.contextCodes?.length
-              ? `${pendingTool.contextCodes.length} opgeslagen`
-              : "Overgeslagen"
-          }
-        />
-        <SurveySummaryItem
-          label="Account"
-          value={selectedAccountLabel || "Nog kiezen"}
-        />
-      </SurveySummaryGrid>
+      <div className="overflow-x-auto rounded-[1.25rem] border border-[#bfc7cf] bg-white shadow-[0_4px_20px_rgba(0,101,139,0.03)]">
+        <table className="w-full min-w-[720px] table-fixed border-collapse text-left text-sm">
+          <thead className="bg-[#f1f4f6] text-[13px] font-semibold text-[#40484e]">
+            <tr>
+              <th className="w-[30%] border-b border-[#bfc7cf] px-3 py-3">
+                Geselecteerde Tool
+              </th>
+              {ACCOUNT_COLUMNS.map((column) => (
+                <th
+                  className="border-b border-[#bfc7cf] px-2.5 py-3 text-center leading-tight text-[#181c1e]"
+                  key={column.code}
+                >
+                  {column.label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {pendingTools.map((tool) => (
+              <tr className="transition hover:bg-[#c4e7ff]/15" key={tool.surveyToolId}>
+                <td className="border-b border-[#ebeef0] px-3 py-3 last:border-b-0">
+                  <div className="flex items-start gap-3">
+                    <span className="mt-px grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-[#f1f4f6] text-sm font-black text-[#40484e]">
+                      {tool.toolName.slice(0, 1)}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-[14.5px] font-bold text-[#181c1e]">
+                        {tool.toolName}
+                      </p>
+                      <p className="mt-1 break-words text-xs leading-5 text-[#40484e]">
+                        {getOptionLabels(useCaseLabelOptions, tool.useCaseCodes ?? [])}
+                      </p>
+                    </div>
+                  </div>
+                </td>
+                {ACCOUNT_COLUMNS.map((column) => {
+                  const isChecked =
+                    accountByToolId[tool.surveyToolId] === column.code;
+
+                  return (
+                    <td
+                      className="border-b border-[#ebeef0] px-2.5 py-3 text-center"
+                      key={column.code}
+                    >
+                      <label className="inline-grid cursor-pointer place-items-center gap-1">
+                        <input
+                          checked={isChecked}
+                          className="sr-only"
+                          disabled={isDisabled}
+                          name={`account-${tool.surveyToolId}`}
+                          onChange={() => onChange(tool.surveyToolId, column.code)}
+                          type="radio"
+                          value={column.code}
+                        />
+                        <span
+                          className={`grid h-7 w-7 place-items-center rounded-full border-[3px] bg-white transition ${
+                            isChecked
+                              ? "border-[#00658b]"
+                              : "border-[#c2c9d2] hover:border-[#00658b] hover:bg-[#f7fafc]"
+                          }`}
+                        >
+                          <span
+                            className={`h-3 w-3 rounded-full transition ${
+                              isChecked ? "bg-[#00658b]" : "bg-transparent"
+                            }`}
+                          />
+                        </span>
+                        <span className="sr-only">{column.label}</span>
+                      </label>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }
 
-function AccountMatrix({
-  isDisabled = false,
+function PrototypeRadioPanel({
+  helpText,
+  isDisabled,
+  label,
+  name,
   onChange,
+  options,
   selectedCode,
   validationError,
 }: {
-  isDisabled?: boolean;
+  helpText: string;
+  isDisabled: boolean;
+  label: string;
+  name: string;
   onChange: (code: string) => void;
+  options: SurveyOption[];
   selectedCode: string;
   validationError?: string;
 }) {
-  const helpId = "accountstatus-help";
-  const errorId = validationError ? "accountstatus-error" : undefined;
-
   return (
     <fieldset
-      aria-describedby={[helpId, errorId].filter(Boolean).join(" ")}
       aria-invalid={validationError ? true : undefined}
-      className={`grid min-w-0 max-w-full gap-4 rounded-[1.35rem] border bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
-        validationError ? "border-red-300" : "border-white/80"
+      className={`rounded-2xl border p-5 ${
+        validationError
+          ? "border-red-300 bg-red-50/45"
+          : "border-[#bfc7cf]/45 bg-[#f1f4f6]"
       }`}
     >
-      <legend className="sr-only">Keuzegroep</legend>
-      <div className="min-w-0">
-        <div className="flex flex-wrap items-center gap-2">
-          <h3 className="min-w-0 break-words font-bold text-[#00658b]">
-            Accountstatus
-          </h3>
-          <RequiredBadge />
-        </div>
-        <p
-          className="mt-1 break-words text-sm leading-6 text-[#40484e]"
-          id={helpId}
-        >
-          Kies de kolom die het best past bij hoe je deze tool gebruikt.
+      <legend className="sr-only">{label}</legend>
+      <h3 className="mb-1 text-[1.35rem] font-extrabold leading-tight text-[#00658b]">
+        {label}
+      </h3>
+      <p className="mb-3 text-sm leading-6 text-[#40484e]">{helpText}</p>
+      {validationError ? (
+        <p className="mb-3 text-sm font-semibold text-red-700">
+          {validationError}
         </p>
-        {validationError ? (
-          <p className="mt-2 text-sm font-semibold text-red-700" id={errorId}>
-            {validationError}
-          </p>
-        ) : null}
-      </div>
+      ) : null}
+      <div className="grid gap-2.5">
+        {options.map((option) => {
+          const isChecked = selectedCode === option.code;
 
-      <div className="grid min-w-0 gap-3 md:grid-cols-4">
-        {ACCOUNT_MATRIX_OPTIONS.map((option) => (
-          <label
-            className={`relative grid cursor-pointer gap-3 rounded-2xl border px-4 py-4 text-center transition hover:-translate-y-0.5 hover:border-[#00658b] hover:shadow-[0_4px_12px_rgba(0,101,139,0.06)] ${
-              selectedCode === option.code
-                ? "border-[#00658b] bg-[#f3fbff] shadow-[0_4px_18px_rgba(0,101,139,0.08)]"
-                : "border-[#bfc7cf] bg-white"
-            } ${isDisabled ? "cursor-not-allowed opacity-60" : ""}`}
-            key={option.code}
-          >
-            <span className="text-xs font-bold uppercase tracking-wide text-[#6993aa]">
-              {option.eyebrow}
-            </span>
-            <span className="mx-auto grid h-8 w-8 place-items-center rounded-full border-2 border-[#bfc7cf] bg-white">
-              <span
-                className={`h-3 w-3 rounded-full ${
-                  selectedCode === option.code ? "bg-[#00658b]" : "bg-transparent"
-                }`}
+          return (
+            <label
+              className={`flex cursor-pointer items-center gap-4 rounded-2xl border-[1.5px] px-5 py-4 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:bg-[#c4e7ff]/20 ${
+                isChecked
+                  ? "border-[#00658b] bg-[#c4e7ff]/35"
+                  : "border-[#bfc7cf] bg-white/70"
+              } ${isDisabled ? "cursor-not-allowed opacity-60" : ""}`}
+              key={option.code}
+            >
+              <input
+                checked={isChecked}
+                className="sr-only"
+                disabled={isDisabled}
+                name={name}
+                onChange={() => onChange(option.code)}
+                type="radio"
+                value={option.code}
               />
-            </span>
-            <span className="break-words text-sm font-extrabold text-[#181c1e]">
-              {option.label}
-            </span>
-            <span className="break-words text-xs leading-5 text-[#40484e]">
-              {option.description}
-            </span>
-            <input
-              checked={selectedCode === option.code}
-              className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-              disabled={isDisabled}
-              name="account_type"
-              onChange={() => onChange(option.code)}
-              type="radio"
-              value={option.code}
-            />
-          </label>
-        ))}
+              <span
+                className={`grid h-[22px] w-[22px] shrink-0 place-items-center rounded-full border-2 bg-white ${
+                  isChecked ? "border-[#00658b]" : "border-[#bfc7cf]"
+                }`}
+              >
+                <span
+                  className={`h-2.5 w-2.5 rounded-full ${
+                    isChecked ? "bg-[#00658b]" : "bg-transparent"
+                  }`}
+                />
+              </span>
+              <span className="min-w-0 text-base leading-snug text-[#181c1e]">
+                {option.label}
+              </span>
+            </label>
+          );
+        })}
       </div>
     </fieldset>
   );
 }
 
-function formatRpcError(error: RpcError) {
-  return [error.code, error.message].filter(Boolean).join(": ");
-}
-
-function getOptionLabel(options: SurveyOption[], code: string) {
-  return options.find((option) => option.code === code)?.label ?? code;
-}
+const useCaseLabelOptions: SurveyOption[] = [
+  { code: "drafting", label: "Teksten schrijven" },
+  { code: "teksten_schrijven", label: "Teksten schrijven of bewerken" },
+  { code: "samenvatten_redigeren", label: "Samenvatten en redigeren" },
+  { code: "brainstormen", label: "Brainstormen" },
+  { code: "informatie_opzoeken", label: "Informatie opzoeken" },
+  { code: "vertalen", label: "Vertalen" },
+  { code: "klantenservice", label: "Klantenservice" },
+  { code: "data_analyseren", label: "Data analyseren" },
+  { code: "code_schrijven", label: "Code schrijven" },
+  { code: "afbeeldingen_genereren", label: "Afbeeldingen genereren" },
+  { code: "presentaties_design", label: "Presentaties en design" },
+  { code: "automatisering", label: "Automatisering" },
+  { code: "audio_genereren", label: "Audio genereren" },
+  { code: "video_genereren", label: "Video genereren" },
+  { code: "vergaderingen_notuleren", label: "Vergaderingen notuleren" },
+  { code: "workflow_uitvoeren", label: "Workflows uitvoeren" },
+  { code: "systemen_aansturen", label: "Systemen aansturen" },
+  { code: "taken_automatisch_afhandelen", label: "Taken automatisch afhandelen" },
+];
 
 function getOptionLabels(options: SurveyOption[], codes: string[]) {
-  return codes.map((code) => getOptionLabel(options, code)).join(", ");
+  return codes.map((code) => options.find((option) => option.code === code)?.label ?? code).join(", ");
+}
+
+function formatRpcError(error: RpcError) {
+  return [error.code, error.message].filter(Boolean).join(": ");
 }

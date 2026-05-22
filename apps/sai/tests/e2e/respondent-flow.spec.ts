@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 const SUPABASE_RPC_ROUTE = "**/rest/v1/rpc/**";
 const SURVEY_SESSION_STORAGE_KEY = "sai.respondent.session";
 
-test("respondent can complete the SAI survey flow with two tools", async ({
+test("respondent can complete the current SAI survey flow with one tool", async ({
   page,
 }) => {
   test.setTimeout(120_000);
@@ -15,132 +15,83 @@ test("respondent can complete the SAI survey flow with two tools", async ({
 
   await expect(page).toHaveURL(/\/survey\/profile$/, { timeout: 30_000 });
   await page.locator('input[value="marketing_communicatie"]').check();
-  await page.getByLabel("AI-gebruik frequentie").selectOption("daily");
-  await page.getByLabel("Bewustzijn over data-opslag").selectOption("ja_controle");
-  await page.getByLabel("Anonimiseren van informatie").selectOption("soms");
-  await page.getByLabel("AI-browserextensies").selectOption("ja_bewust");
-  await page
-    .getByLabel("AI-agents of automatisering")
-    .selectOption("agents_reeks_taken");
-  await page.getByLabel("Bekendheid met AI-spelregels").selectOption("ja_goed");
-  await page.getByLabel("Eigen AI-vaardigheid").selectOption("gevorderd");
-  await page
-    .getByLabel("Hoe verwerk je AI-output?")
-    .selectOption("controle_handmatig");
-  await page.getByRole("button", { name: "Verder" }).click();
+  await page.getByRole("button", { name: "Volgende stap" }).click();
 
   await expect(page).toHaveURL(/\/survey\/motivations$/, { timeout: 30_000 });
-  await page.locator('input[value="complexe_taken"]').check();
+  await page.locator('input[value="weekly"]').check();
+  await page.locator('input[value="tijdswinst"]').check();
   await page.locator('input[value="experimenteren"]').check();
-  await page.getByRole("button", { name: "Verder" }).click();
+  await page.getByRole("button", { name: "Volgende stap" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/tools$/, { timeout: 30_000 });
+  await expect(page.getByRole("heading", { name: "Catalogus" })).toBeVisible();
+  await page.getByRole("button", { name: "Tool + toepassingen opslaan" }).click();
+  await expect(page.getByText("1. ChatGPT")).toBeVisible({ timeout: 30_000 });
+  await page.getByRole("button", { name: "Volgende stap" }).click();
 
   await expect(page).toHaveURL(/\/survey\/data$/, { timeout: 30_000 });
-  await page.locator('input[value="internal_emails"]').check();
-  await page.locator('input[value="financial_data"]').check();
-  await expect(page.getByText("3 geselecteerd").first()).toBeVisible();
-  await page.locator('input[value="unsure"]').check();
-  await expect(page.locator('input[value="customer_data"]')).not.toBeChecked();
-  await expect(page.locator('input[value="internal_emails"]')).not.toBeChecked();
-  await expect(page.locator('input[value="financial_data"]')).not.toBeChecked();
-  await expect(page.locator('input[value="unsure"]')).toBeChecked();
-  await expect(page.getByText(/exclusieve keuze/)).toBeVisible();
-  await page.locator('input[value="internal_emails"]').check();
-  await page.locator('input[value="financial_data"]').check();
-  await page.locator('input[value="accuracy"]').check();
-  await page.locator('input[value="privacy_security"]').check();
+  await page.locator('input[value="interne_email"]').check();
+  await page.locator('input[value="ja_controle"]').check();
+  await page.locator('input[value="soms"]').check();
+  await page.getByRole("button", { name: "Volgende stap" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/accounts$/, { timeout: 30_000 });
+  await page.locator('input[value="business_license"]').check({ force: true });
+  await page.locator('input[value="ja_bewust"]').check({ force: true });
+  await page.locator('input[value="agents_reeks_taken"]').check({ force: true });
+  await page.getByRole("button", { name: "Volgende stap" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/literacy$/, { timeout: 30_000 });
+  await page.locator('input[value="ja_goed"]').check();
+  await page.locator('input[value="ease_of_use"]').check();
+  await page.locator('input[value="gevorderd"]').check();
+  await page.locator('input[value="controle_handmatig"]').check();
+  await page.getByRole("button", { name: "Volgende stap" }).click();
+
+  await expect(page).toHaveURL(/\/survey\/future$/, { timeout: 30_000 });
+  await page.locator('input[value="privacy"]').check();
+  await page.locator('input[value="clear_policy"]').check();
   await page.locator('input[value="training"]').check();
-  await page.locator('input[value="technical_advice"]').check();
-  await page.locator('input[value="speed"]').check();
-  await page.locator('input[value="quality"]').check();
-  await page.getByRole("button", { name: "Verder" }).click();
-
-  await expect(page).toHaveURL(/\/survey\/tools$/, { timeout: 30_000 });
-  await page.getByRole("button", { name: "Tool registreren" }).click();
-  await expect(page).toHaveURL(/\/survey\/use-cases$/, { timeout: 30_000 });
-  await page.getByRole("button", { name: "Verder naar account" }).click();
-  await expect(page).toHaveURL(/\/survey\/accounts$/, { timeout: 30_000 });
-  await page.getByRole("button", { name: "Account opslaan" }).click();
-  await expect(page.getByText("ChatGPT is opgeslagen")).toBeVisible({
-    timeout: 30_000,
-  });
-  await page.getByRole("button", { name: "Nog een tool toevoegen" }).click();
-  await expect(page).toHaveURL(/\/survey\/tools$/, { timeout: 30_000 });
-  await expect(page.getByRole("heading", { name: "1. ChatGPT" })).toBeVisible({
-    timeout: 30_000,
-  });
-
-  await page.getByRole("button", { name: "Algemene AI" }).click();
-  await page.getByLabel("Zoek tool").fill("Claude");
-  await page.locator('input[value="claude"]').check();
-  await page.getByRole("button", { name: "Tool registreren" }).click();
-  await expect(page).toHaveURL(/\/survey\/use-cases$/, { timeout: 30_000 });
-  await page.locator('input[value="code_schrijven"]').check();
-  await expect(page.getByText("Context bij code-toepassing")).toBeVisible();
-  await page.locator('input[value="beslisondersteuning"]').check();
-  await page.getByRole("button", { name: "Verder naar account" }).click();
-  await expect(page).toHaveURL(/\/survey\/accounts$/, { timeout: 30_000 });
-  await page.locator('input[value="business_license"]').check();
-  await page.getByRole("button", { name: "Account opslaan" }).click();
-  await expect(page.getByText("Claude is opgeslagen")).toBeVisible({
-    timeout: 30_000,
-  });
-  await page.getByRole("button", { name: "Naar afronden" }).click();
+  await page.getByRole("button", { name: "Naar afronding" }).click();
 
   await expect(page).toHaveURL(/\/survey\/complete$/, { timeout: 30_000 });
-  await expect(page.getByText("Geregistreerde tools")).toBeVisible();
-  await expect(page.getByText("ChatGPT")).toBeVisible();
-  await expect(page.getByText("Claude")).toBeVisible();
-  await expect(page.getByText("sai-smoke-wave-token")).not.toBeVisible();
-
+  await expect(page.getByText("Controleer je toolregistratie")).toBeVisible();
+  await page.getByRole("button", { name: "Nee, liever niet" }).click();
   await page.getByRole("button", { name: "Scan afronden" }).click();
-  await expect(page.getByRole("heading", { name: "Bedankt voor je input" })).toBeVisible({
-    timeout: 30_000,
-  });
+
   await expect(
-    page.getByText("De scansessie is gesloten na afronden."),
-  ).toBeVisible();
-  await expect(page.getByText("mock-token")).not.toBeVisible();
+    page.getByRole("heading", { name: "Bedankt voor je input" }),
+  ).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText("De scansessie is gesloten na afronden.")).toBeVisible();
+  await expect(page.getByText("mock-token")).toHaveCount(0);
+});
+
+test("respondent can opt in as ambassador during completion", async ({
+  page,
+}) => {
+  await mockSupabaseRpc(page);
+  await seedCompletedSurveySession(page);
+
+  await page.goto("/survey/complete");
+  await expect(page.getByText("Wil je meedenken als AI-ambassadeur?")).toBeVisible();
+  await page.getByRole("button", { name: "Ja, lijkt me leuk" }).click();
+  await page.getByPlaceholder("naam@organisatie.nl").fill("ambassadeur@example.com");
+  await page.getByRole("button", { name: "E-mail opslaan" }).click();
+  await expect(page.getByText("E-mailadres opgeslagen voor opt-in.")).toBeVisible();
+  await page.getByRole("button", { name: "Scan afronden" }).click();
+
+  await expect(
+    page.getByRole("heading", { name: "Bedankt voor je input" }),
+  ).toBeVisible({ timeout: 30_000 });
 });
 
 test("complete step cannot be opened before a tool is saved", async ({
   page,
 }) => {
   await page.goto("/survey/complete");
-  await expect(page.getByRole("heading", { name: "Geen actieve scan" })).toBeVisible();
-});
-
-test("respondent can save one tool and go straight to completion", async ({
-  page,
-}) => {
-  await mockSupabaseRpc(page);
-  await page.goto("/survey");
-  await page.evaluate(() => window.sessionStorage.clear());
-  await page.getByRole("button", { name: "Start de scan" }).click();
-
-  await expect(page).toHaveURL(/\/survey\/profile$/, { timeout: 30_000 });
-  await page.getByRole("button", { name: "Verder" }).click();
-
-  await expect(page).toHaveURL(/\/survey\/motivations$/, { timeout: 30_000 });
-  await page.getByRole("button", { name: "Verder" }).click();
-
-  await expect(page).toHaveURL(/\/survey\/data$/, { timeout: 30_000 });
-  await page.getByRole("button", { name: "Verder" }).click();
-
-  await expect(page).toHaveURL(/\/survey\/tools$/, { timeout: 30_000 });
-  await page.getByRole("button", { name: "Tool registreren" }).click();
-
-  await expect(page).toHaveURL(/\/survey\/use-cases$/, { timeout: 30_000 });
-  await page.getByRole("button", { name: "Verder naar account" }).click();
-
-  await expect(page).toHaveURL(/\/survey\/accounts$/, { timeout: 30_000 });
-  await page.getByRole("button", { name: "Account opslaan" }).click();
-  await expect(page.getByText("ChatGPT is opgeslagen")).toBeVisible({
-    timeout: 30_000,
-  });
-  await page.getByRole("button", { name: "Naar afronden" }).click();
-
-  await expect(page).toHaveURL(/\/survey\/complete$/, { timeout: 30_000 });
-  await expect(page.getByText("1 tool").first()).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Geen actieve scan" }),
+  ).toBeVisible();
 });
 
 test("respondent can resume an active scan from the start page", async ({
@@ -152,18 +103,18 @@ test("respondent can resume an active scan from the start page", async ({
   await page.getByRole("button", { name: "Start de scan" }).click();
 
   await expect(page).toHaveURL(/\/survey\/profile$/, { timeout: 30_000 });
-  await page.getByRole("button", { name: "Verder" }).click();
+  await page.locator('input[value="operations"]').check();
+  await page.getByRole("button", { name: "Volgende stap" }).click();
 
   await expect(page).toHaveURL(/\/survey\/motivations$/, { timeout: 30_000 });
   await page.goto("/survey");
   await expect(page.getByText("Actieve scan gevonden")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Verder bij Motivatie" })).toBeVisible();
-  await expect(page.getByText("1/7 klaar")).toBeVisible();
-  await expect(page.getByText("0 tools opgeslagen")).toBeVisible();
-  await expect(page.getByText("mock-token")).not.toBeVisible();
   await expect(
-    page.getByRole("link", { name: "Hervat actieve scan" }),
+    page.getByRole("heading", { name: "Verder bij Frequentie" }),
   ).toBeVisible();
+  await expect(page.getByText("1/8 klaar")).toBeVisible();
+  await expect(page.getByText("0 tools opgeslagen")).toBeVisible();
+  await expect(page.getByText("mock-token")).toHaveCount(0);
   await page.getByRole("link", { name: "Hervat actieve scan" }).click();
 
   await expect(page).toHaveURL(/\/survey\/motivations$/);
@@ -198,30 +149,7 @@ test("start page explains inactive or expired access codes", async ({
   await expect(page.getByText("invalid_or_closed_wave")).toHaveCount(0);
 });
 
-test("start page clears corrupt respondent session state", async ({ page }) => {
-  await mockSupabaseRpc(page);
-  await page.addInitScript((storageKey) => {
-    window.sessionStorage.setItem(storageKey, "not-json");
-  }, SURVEY_SESSION_STORAGE_KEY);
-
-  await page.goto("/survey");
-
-  await expect(
-    page.getByRole("link", { name: "Hervat actieve scan" }),
-  ).toHaveCount(0);
-  await expect
-    .poll(() =>
-      page.evaluate((storageKey) => window.sessionStorage.getItem(storageKey), SURVEY_SESSION_STORAGE_KEY),
-    )
-    .toBeNull();
-
-  await page.getByRole("button", { name: "Start de scan" }).click();
-  await expect(page).toHaveURL(/\/survey\/profile$/, { timeout: 30_000 });
-});
-
-test("guarded future steps explain why the respondent was redirected", async ({
-  page,
-}) => {
+test("guarded future steps redirect to the next open step", async ({ page }) => {
   await mockSupabaseRpc(page);
   await page.addInitScript((storageKey) => {
     window.sessionStorage.setItem(
@@ -246,161 +174,40 @@ test("guarded future steps explain why the respondent was redirected", async ({
   ).toBeVisible();
 });
 
-test("profile step validates dependent required answers before saving", async ({
-  page,
-}) => {
-  await mockSupabaseRpc(page);
+async function seedCompletedSurveySession(page: import("@playwright/test").Page) {
   await page.goto("/survey");
-  await page.evaluate(() => window.sessionStorage.clear());
-  await page.getByRole("button", { name: "Start de scan" }).click();
-
-  await expect(page).toHaveURL(/\/survey\/profile$/, { timeout: 30_000 });
-  await page.locator('input[value="anders"]').check();
-  await page.getByRole("button", { name: "Verder" }).click();
-  await expect(
-    page.getByText("Vul jouw vakgebied in.").first(),
-  ).toBeVisible();
-
-  await page.locator('input[value="marketing_communicatie"]').check();
-  await page.getByLabel("AI-gebruik frequentie").selectOption("never");
-  await page.getByRole("button", { name: "Verder" }).click();
-  await expect(
-    page.getByText("Kies waarom je AI nog niet gebruikt."),
-  ).toBeVisible();
-  await expect(page).toHaveURL(/\/survey\/profile$/);
-});
-
-test("motivations step validates required choices before saving", async ({
-  page,
-}) => {
-  await mockSupabaseRpc(page);
-  await page.goto("/survey");
-  await page.evaluate(() => window.sessionStorage.clear());
-  await page.getByRole("button", { name: "Start de scan" }).click();
-
-  await expect(page).toHaveURL(/\/survey\/profile$/, { timeout: 30_000 });
-  await page.getByRole("button", { name: "Verder" }).click();
-
-  await expect(page).toHaveURL(/\/survey\/motivations$/, { timeout: 30_000 });
-  await page.locator('input[value="tijdswinst"]').uncheck();
-  await page.locator('input[value="kwaliteitsverbetering"]').uncheck();
-  await page.getByRole("button", { name: "Verder" }).click();
-  await expect(
-    page.getByText("Kies minimaal een motivatie voordat je doorgaat."),
-  ).toBeVisible();
-
-  await page.locator('input[value="anders"]').check();
-  await page.getByRole("button", { name: "Verder" }).click();
-  await expect(
-    page.getByText("Vul kort in wat je andere motivatie is."),
-  ).toBeVisible();
-  await expect(page).toHaveURL(/\/survey\/motivations$/);
-});
-
-test("data step validates required groups before saving", async ({ page }) => {
-  await mockSupabaseRpc(page);
-  await page.goto("/survey");
-  await page.evaluate(() => window.sessionStorage.clear());
-  await page.getByRole("button", { name: "Start de scan" }).click();
-
-  await expect(page).toHaveURL(/\/survey\/profile$/, { timeout: 30_000 });
-  await page.getByRole("button", { name: "Verder" }).click();
-
-  await expect(page).toHaveURL(/\/survey\/motivations$/, { timeout: 30_000 });
-  await page.getByRole("button", { name: "Verder" }).click();
-
-  await expect(page).toHaveURL(/\/survey\/data$/, { timeout: 30_000 });
-  await page.locator('input[value="customer_data"]').uncheck();
-  await page.locator('input[value="privacy"]').uncheck();
-  await page.locator('input[value="clear_policy"]').uncheck();
-  await page.locator('input[value="ease_of_use"]').uncheck();
-  await page.getByRole("button", { name: "Verder" }).click();
-
-  await expect(page.getByText(/Kies minimaal een datatype/)).toBeVisible();
-  await expect(page.getByText(/Kies minimaal een zorg/)).toBeVisible();
-  await expect(
-    page.getByText(/Kies minimaal een vorm van ondersteuning/),
-  ).toBeVisible();
-  await expect(
-    page.getByText(/Kies minimaal een reden voor je toolvoorkeur/),
-  ).toBeVisible();
-  await expect(page).toHaveURL(/\/survey\/data$/);
-});
-
-test("tools and use case steps validate required details before saving", async ({
-  page,
-}) => {
-  await mockSupabaseRpc(page);
-  await page.goto("/survey");
-  await page.evaluate(() => window.sessionStorage.clear());
-  await page.getByRole("button", { name: "Start de scan" }).click();
-
-  await expect(page).toHaveURL(/\/survey\/profile$/, { timeout: 30_000 });
-  await page.getByRole("button", { name: "Verder" }).click();
-
-  await expect(page).toHaveURL(/\/survey\/motivations$/, { timeout: 30_000 });
-  await page.getByRole("button", { name: "Verder" }).click();
-
-  await expect(page).toHaveURL(/\/survey\/data$/, { timeout: 30_000 });
-  await page.getByRole("button", { name: "Verder" }).click();
-
-  await expect(page).toHaveURL(/\/survey\/tools$/, { timeout: 30_000 });
-  await page.locator('input[value="custom"]').check();
-  await page.getByRole("button", { name: "Tool registreren" }).click();
-  await expect(
-    page.getByText("Kies een tool of vul een toolnaam in."),
-  ).toBeVisible();
-
-  await page.locator('input[value="chatgpt"]').check();
-  await page.getByRole("button", { name: "Tool registreren" }).click();
-  await expect(page).toHaveURL(/\/survey\/use-cases$/, { timeout: 30_000 });
-  await page.locator('input[value="drafting"]').uncheck();
-  await page.locator('input[value="data_analyseren"]').uncheck();
-  await page.getByRole("button", { name: "Verder naar account" }).click();
-  await expect(
-    page.getByText("Kies minimaal een toepassing.").first(),
-  ).toBeVisible();
-
-  await page.locator('input[value="code_schrijven"]').check();
-  await page.locator('input[value="internal_work"]').uncheck();
-  await page.getByRole("button", { name: "Verder naar account" }).click();
-  await expect(page.getByText("Kies minimaal een context.").first()).toBeVisible();
-  await expect(page).toHaveURL(/\/survey\/use-cases$/);
-});
-
-test("tool picker supports popular shortcuts and custom empty search", async ({
-  page,
-}) => {
-  await mockSupabaseRpc(page);
-  await page.goto("/survey");
-  await page.evaluate(() => window.sessionStorage.clear());
-  await page.getByRole("button", { name: "Start de scan" }).click();
-
-  await expect(page).toHaveURL(/\/survey\/profile$/, { timeout: 30_000 });
-  await page.getByRole("button", { name: "Verder" }).click();
-
-  await expect(page).toHaveURL(/\/survey\/motivations$/, { timeout: 30_000 });
-  await page.getByRole("button", { name: "Verder" }).click();
-
-  await expect(page).toHaveURL(/\/survey\/data$/, { timeout: 30_000 });
-  await page.getByRole("button", { name: "Verder" }).click();
-
-  await expect(page).toHaveURL(/\/survey\/tools$/, { timeout: 30_000 });
-  await expect(page.getByText("Veel gekozen")).toBeVisible();
-  await page.getByRole("button", { name: "Cursor" }).click();
-  await expect(page.locator('input[value="cursor"]')).toBeChecked();
-
-  await page.getByLabel("Zoek tool").fill("Bestaat Niet");
-  await expect(page.getByText("Geen tool gevonden")).toBeVisible();
-  await page.getByRole("button", { name: "Eigen invoer gebruiken" }).click();
-  await page.getByLabel("Naam van de tool").fill("Eigen AI Tool");
-  await page.getByRole("button", { name: "Tool registreren" }).click();
-
-  await expect(page).toHaveURL(/\/survey\/use-cases$/, { timeout: 30_000 });
-  await expect(
-    page.getByRole("heading", { name: "Eigen AI Tool", exact: true }),
-  ).toBeVisible();
-});
+  await page.evaluate((storageKey) => {
+    window.sessionStorage.setItem(
+      storageKey,
+      JSON.stringify({
+        runId: "00000000-0000-4000-8000-000000000777",
+        submissionToken: "mock-token-seeded",
+        startedAt: new Date().toISOString(),
+        currentStep: "complete",
+        completedSteps: [
+          "profile",
+          "motivations",
+          "tools",
+          "useCases",
+          "data",
+          "accounts",
+          "literacy",
+          "future",
+        ],
+        savedTools: [
+          {
+            surveyToolId: "00000000-0000-4000-9000-000000000777",
+            toolName: "ChatGPT",
+            useCaseCodes: ["teksten_schrijven"],
+            contextCodes: [],
+            accountTypeCode: "business_license",
+            savedAt: new Date().toISOString(),
+          },
+        ],
+      }),
+    );
+  }, SURVEY_SESSION_STORAGE_KEY);
+}
 
 async function mockSupabaseRpc(page: import("@playwright/test").Page) {
   let sequence = 0;

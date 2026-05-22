@@ -447,6 +447,10 @@ Notes:
 
 - Results must be idempotent by `survey_run_id` and `survey_tool_id`.
 - Thresholds used should be persisted for auditability.
+- `policy_snapshot_id` is nullable for custom/newly discovered tools that do not
+  have a `tools_library` row. In that case the scoring audit trail uses the
+  immutable `survey_tool.org_policy_status_code_snapshot` plus score breakdown
+  codes instead of creating a fake catalog entry.
 
 ## Audit Events
 

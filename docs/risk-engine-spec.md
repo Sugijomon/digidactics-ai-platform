@@ -280,6 +280,20 @@ Persist:
 
 Historical scores must not silently change when policy thresholds or tool statuses are later updated.
 
+Implementation note:
+
+- `public.calculate_v8_score(p_survey_run_id)` is the server-trusted scoring
+  boundary used after scan completion and for DPO rescoring.
+- Run-level aggregation uses the highest tool priority score plus 15% of the
+  remaining tool priority scores, capped at 100.
+- The shared `packages/domain` risk engine has regression tests for approved
+  sensitive-data use, prohibited high-exposure use, missing policy status,
+  no-tool exit path aggregation, and multi-tool hybrid aggregation.
+- Custom or newly discovered tools without a catalog-backed policy snapshot are
+  still scored from the `survey_tool` policy status snapshot. Their
+  `risk_result_tool.policy_snapshot_id` may be null, but their score breakdown
+  must still contain only codes, scores, thresholds, and aggregate metadata.
+
 ## Privacy And Small Groups
 
 SAI is an anonymous inventory and triage instrument, not an individual enforcement instrument.

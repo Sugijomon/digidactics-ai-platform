@@ -37,31 +37,31 @@ Goal: create a lean platform foundation with SAI as the first real app.
 
 Goal: connect SAI to Supabase with privacy-safe auth and roles.
 
-- [ ] Use `@supabase/ssr` for Next.js auth.
-- [ ] Add server and browser Supabase clients.
-- [ ] Add middleware/session refresh.
-- [ ] Add server-side role lookup.
+- [x] Use `@supabase/ssr` for Next.js auth.
+- [x] Add server and browser Supabase clients.
+- [x] Add middleware/session refresh.
+- [x] Add server-side role lookup.
 - [ ] Reuse/import existing users, organizations, profiles, and roles where possible.
 - [ ] Do not migrate old Lovable test scan data.
-- [ ] Draft RLS policy spec for:
+- [x] Draft RLS policy spec for:
   - `scan_campaign`
   - `survey_invite`
   - `survey_participation`
   - `survey_run`
-- [ ] Ensure DPO/admin views cannot join email addresses directly to content answers.
+- [x] Ensure DPO/admin views cannot join email addresses directly to content answers.
 
 ## Phase 3 - Database Model And Migrations
 
 Goal: turn the product-level database model into executable migrations.
 
 - [ ] Review `docs/database-model.md`.
-- [ ] Create initial Supabase migrations.
-- [ ] Add reference tables and stable answer codes.
-- [ ] Add survey run and child tables.
-- [ ] Add risk result tables.
+- [x] Create initial Supabase migrations.
+- [x] Add reference tables and stable answer codes.
+- [x] Add survey run and child tables.
+- [x] Add risk result tables.
 - [ ] Add campaign/invite/participation tables.
-- [ ] Add seed strategy for survey reference data.
-- [ ] Keep runtime survey data separate from maintenance/research content.
+- [x] Add seed strategy for survey reference data.
+- [x] Keep runtime survey data separate from maintenance/research content.
 
 ## Phase 4 - Toolpicker Runtime And Update Process
 
@@ -106,16 +106,16 @@ Goal: implement the respondent scan based on the approved HTML and survey spec.
 
 Goal: implement V8.1 scoring server-side or server-trusted in shared domain logic.
 
-- [ ] Implement scoring in `packages/domain`.
+- [x] Implement scoring in `packages/domain`.
 - [ ] Keep scoring independent from UI components.
-- [ ] Use approved V8.1 logic.
-- [ ] Preserve approved-tool exposure behavior:
+- [x] Use approved V8.1 logic.
+- [x] Preserve approved-tool exposure behavior:
   - approved tool can have `shadow_score = 0`
   - exposure still counts
   - sensitive data can trigger review
-- [ ] Handle exit path with `person_score = 0` and no tool result rows.
-- [ ] Store audit-friendly results.
-- [ ] Add focused tests for scoring edge cases.
+- [x] Handle exit path with `person_score = 0` and no tool result rows.
+- [x] Store audit-friendly results.
+- [x] Add focused tests for scoring edge cases.
 
 ## Phase 7 - DPO Dashboard Light
 
@@ -133,17 +133,21 @@ Goal: build the first dashboard set after the survey and scoring layers are stab
 
 Goal: validate the full flow before production.
 
-- [ ] Run local typecheck/build.
-- [ ] Run smoke tests for normal path and exit path.
-- [ ] Validate RLS behavior.
-- [ ] Validate scoring against V8.1 scenarios.
-- [ ] Validate dashboard aggregates.
+- [x] Run local typecheck/build.
+- [x] Run smoke tests for normal path and exit path.
+- [x] Validate RLS behavior.
+- [x] Validate scoring against V8.1 scenarios.
+- [x] Validate dashboard aggregates.
+- [x] Add GitHub CI workflow for SAI validation.
+- [x] Document Vercel preview setup and acceptance runbook.
 - [ ] Deploy SAI preview to Vercel.
 - [ ] Configure Supabase redirect URLs.
 - [ ] Only then decide final production route/domain.
 
 ## Current Focus
 
-The current focus is completing Phase 0 and then starting Phase 1.
+The current focus is pilot hardening: finish V8.1 scoring edge-case tests,
+validate DPO dashboard aggregates against live Supabase data, and prepare a
+Vercel preview.
 
 Do not start full RAI, Governance, or Rapportage implementation before the SAI foundation is working.

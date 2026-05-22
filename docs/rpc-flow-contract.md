@@ -1,6 +1,7 @@
 # SAI RPC Flow Contract
 
-Status: implemented as SQL migration, frontend not yet implemented.
+Status: implemented as SQL migration and live-validated against the connected
+Supabase project.
 
 This document records the client/server contract for the Shadow AI Scan
 respondent write flow.
@@ -35,6 +36,11 @@ Flow:
 
 The database derives `org_id` from `survey_run`. The client never sends `org_id`
 for respondent writes.
+
+As of the 2026-05-22 pilot hardening pass, the respondent-facing RPCs are still
+intentionally executable by `anon` and `authenticated`. Internal role and survey
+lookup helpers are not executable by `anon`, and direct table inserts into
+respondent survey tables remain blocked.
 
 ## Respondent RPCs
 
@@ -110,3 +116,13 @@ Minimum checks:
 - completion burns the token
 - direct `calculate_v8_score` remains blocked
 - DPO/admin reads remain governed by RLS
+
+Latest live validation confirmed:
+
+```txt
+anon direct survey_run insert: blocked
+anon direct survey_tool insert: blocked
+anon calculate_v8_score execute: blocked
+anon start_survey_run execute: allowed
+complete_survey_run: completes run, burns token, writes risk_result and risk_result_tool
+```

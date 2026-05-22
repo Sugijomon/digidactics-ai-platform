@@ -32,6 +32,29 @@ screen-08-toekomst.html
 screen-09-afronding.html
 ```
 
+These HTML screens are the canonical UX reference for the respondent flow. The
+production Next.js implementation should follow their screen order, visual
+hierarchy, question grouping, validation behavior, and respondent-facing copy as
+closely as possible.
+
+Canonical respondent order:
+
+```txt
+intro/access code
+werkplek
+frequentie + motivatie
+toolpicker with use-case selection
+datatype + data awareness + anonymization
+account matrix + browser extensions + agents/automation
+vaardigheid + spelregels + tool preference + output handling
+toekomst + concerns + support needs
+afronding + ambassador opt-in
+```
+
+Technical RPC checks, token-burn verification, and other implementation details
+must not be exposed as respondent steps. The respondent should complete the scan
+with a single final action.
+
 ## Terminology Decision: Vakgebied
 
 Use **Vakgebied** as the product term instead of **Afdeling** for Q2 and related dashboard labels where the survey asks about the respondent's organizational/work context.

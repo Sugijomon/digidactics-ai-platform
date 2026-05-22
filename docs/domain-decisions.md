@@ -1,5 +1,79 @@
 # Domain Decisions
 
+## 2026-05-22 - SAI Pilot Hardening And Live Supabase Validation
+
+The SAI Supabase pilot now treats respondent RPCs as the only anonymous write
+surface. `start_survey_run`, `complete_survey_run`, the `save_*` RPCs,
+`set_ambassador_optin`, and `register_tool_discovery` intentionally remain
+callable by `anon` because they validate a server-generated submission token and
+derive organization context from `survey_run`.
+
+Non-respondent helper functions are no longer callable by `anon`, and
+`user_roles` now has explicit RLS policies for self-read, same-organization
+DPO/admin read, and super-admin writes. The remaining Supabase advisor warnings
+for `SECURITY DEFINER` functions are accepted only as a short-term pilot shape;
+a later hardening sprint should move internal helpers and DPO/admin wrappers out
+of the exposed `public` API surface where feasible.
+
+Live validation against the Supabase project confirmed that anonymous direct
+table inserts remain blocked, direct scoring is not executable by `anon`, and a
+completed respondent run writes `risk_result` and `risk_result_tool` records via
+`complete_survey_run`.
+
+## 2026-05-22 - Dashboard Privacy And Scoring Regression Tests
+
+SAI dashboards now apply the configured `dashboard_min_cell_size` to operational
+clusters. Tool inventory rows below the minimum are merged into a small-cluster
+bucket, risk matrix cells below the minimum show only a qualitative small-cluster
+signal, and review queue rows for below-minimum tool clusters are suppressed.
+
+Completed runs that predate the live V8.1 scoring function are backfilled with
+`calculate_v8_score(...)` so dashboard aggregates use persisted scoring results
+consistently.
+
+The shared domain package now has focused regression tests for V8.1 scoring edge
+cases: approved tools with sensitive data, prohibited high-exposure use, unknown
+tool policy status, no-tool exit path aggregation, and hybrid multi-tool run
+aggregation.
+
+## 2026-05-22 - DPO Risk Profile Dashboard KPIs
+
+The first SAI DPO risk profile dashboard uses persisted V8.1 scoring results as
+its source of truth. The page reports aggregate scan and tool risk signals:
+scored runs, DPO-review runs, critical tools, average highest priority score,
+priority matrix counts, review trigger counts, and a tool-level review queue.
+
+These KPIs are operational triage indicators. They are not employee performance
+metrics and must not expose individual respondent profiles. Legal or formal
+governance conclusions remain a later DPO review workflow decision.
+
+## 2026-05-22 - Scan Completion Calculates V8.1 Risk Results
+
+`public.complete_survey_run(...)` remains the respondent-facing closing RPC and
+now relies on `public.calculate_v8_score(...)` to persist run-level and
+tool-level risk output immediately after token burn. The scoring function writes
+`risk_result`, `risk_result_tool`, `dpo_review_items`, and a `score.calculated`
+audit event using only codes, scores, thresholds, and aggregate metadata.
+
+Custom or newly discovered tools may not have an immutable policy snapshot
+because `org_tool_policy_snapshot.tool_code` must reference the curated
+`tools_library`. For those cases, `risk_result_tool.policy_snapshot_id` may be
+null while the policy status code snapshot remains persisted in
+`survey_tool.org_policy_status_code_snapshot` and repeated in the score
+breakdown. This keeps unknown tools scoreable without inventing catalog rows.
+
+## 2026-05-12 - Survey Profile RPC Supports Partial Updates
+
+The respondent flow now follows the canonical HTML prototype screens more
+closely, which means profile-like fields are collected across several screens
+instead of in one technical form. `public.save_profile(...)` preserves existing
+`survey_profile` values when a later payload omits a field, so screens such as
+datatype, skill level, and future needs can safely append their own answers
+without erasing earlier work context or frequency answers.
+
+Rationale: this keeps the respondent experience aligned with the high-fidelity
+SAI survey design while retaining a single profile row per survey run.
+
 This document records durable decisions for the Digidactics AI Platform. Codex and ChatGPT conversations are not durable project memory; decisions that affect product behavior, compliance logic, architecture, schema, RLS, scoring, or dashboard language must be captured here.
 
 ## Decision: GitHub Is The Source Of Truth

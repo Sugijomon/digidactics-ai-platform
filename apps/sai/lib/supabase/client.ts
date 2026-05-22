@@ -1,22 +1,15 @@
 import { createBrowserClient } from "@supabase/ssr";
+import { getRequiredSupabaseEnv, hasSupabaseEnv } from "./env";
 
 export function hasSupabaseBrowserEnv() {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  );
+  return hasSupabaseEnv();
 }
 
 export function createClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error("Missing public Supabase environment variables.");
-  }
+  const { supabaseKey, supabaseUrl } = getRequiredSupabaseEnv();
 
   return createBrowserClient(
     supabaseUrl,
-    supabaseAnonKey,
+    supabaseKey,
   );
 }

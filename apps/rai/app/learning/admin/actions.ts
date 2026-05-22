@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getCurrentUserContext } from "@digidactics/auth";
+import { isLessonContent, type LessonBlock } from "@digidactics/domain/learning";
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 
 const defaultPageContent = {
@@ -15,6 +16,23 @@ const defaultPageContent = {
     },
   ],
 };
+
+interface RequiredPageRow {
+  id: string;
+  content: unknown;
+}
+
+interface PageProgressRow {
+  page_id: string;
+}
+
+interface PageAttemptRow {
+  page_id: string;
+  attempt_number: number;
+  percentage: number | null;
+  passed: boolean | null;
+  manual_review_required: boolean;
+}
 
 export async function createLearningPage(formData: FormData) {
   const supabase = await requireLearningAdmin();
@@ -497,6 +515,46 @@ export async function updateLearningPageContent(formData: FormData) {
   revalidatePath(`/learning/${courseCode}/${pageCode}`);
 }
 
+export async function reviewLearningPageAttempt(formData: FormData) {
+  const supabase = await requireLearningAdmin();
+
+  const attemptId = readRequired(formData, "attemptId");
+  const courseId = readRequired(formData, "courseId");
+  const courseCode = readRequired(formData, "courseCode");
+  const userId = readRequired(formData, "userId");
+  const decision = readRequired(formData, "decision");
+  const reviewerNotes = String(formData.get("reviewerNotes") ?? "").trim() || null;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const passed = decision === "approve";
+  const { error } = await supabase
+    .from("learning_page_attempts")
+    .update({
+      status: "graded",
+      manual_review_required: false,
+      passed,
+      reviewer_id: user?.id ?? null,
+      reviewer_notes: reviewerNotes,
+      graded_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", attemptId);
+
+  if (error) {
+    throw new Error(`Review opslaan is mislukt: ${error.message}`);
+  }
+
+  await recomputeReviewedCourseProgress(supabase, courseId, userId);
+
+  revalidatePath("/learning");
+  revalidatePath("/learning/admin");
+  revalidatePath("/learning/admin/reviews");
+  revalidatePath(`/learning/${courseCode}`);
+  redirect("/learning/admin/reviews");
+}
+
 async function requireLearningAdmin() {
   const supabase = await getSupabaseServerClient();
   const context = await getCurrentUserContext(supabase);
@@ -513,6 +571,178 @@ async function requireLearningAdmin() {
   }
 
   return supabase;
+}
+
+async function recomputeReviewedCourseProgress(
+  supabase: Awaited<ReturnType<typeof requireLearningAdmin>>,
+  courseId: string,
+  learnerUserId: string,
+) {
+  const { data: requiredPages, error: pagesError } = await supabase
+    .from("learning_pages")
+    .select("id, content")
+    .eq("course_id", courseId)
+    .eq("is_required", true);
+
+  if (pagesError) {
+    throw new Error(`Cursusvoortgang herberekenen is mislukt: ${pagesError.message}`);
+  }
+
+  const pageRows = (requiredPages ?? []) as RequiredPageRow[];
+  const pageIds = pageRows.map((page) => page.id);
+  const requiredCount = pageIds.length;
+
+  const { data: completedProgress, error: progressError } = pageIds.length
+    ? await supabase
+        .from("learning_page_progress")
+        .select("page_id")
+        .eq("course_id", courseId)
+        .eq("user_id", learnerUserId)
+        .eq("status", "completed")
+        .in("page_id", pageIds)
+    : { data: [], error: null };
+
+  if (progressError) {
+    throw new Error(`Cursusvoortgang herberekenen is mislukt: ${progressError.message}`);
+  }
+
+  const completedPageIds = new Set(
+    ((completedProgress ?? []) as PageProgressRow[]).map((row) => row.page_id),
+  );
+  const latestAttemptsByPageId = await getLatestReviewAttemptsForPages(
+    supabase,
+    learnerUserId,
+    courseId,
+    pageIds,
+  );
+  const passingThreshold = await getAdminCoursePassingThreshold(supabase, courseId);
+  const assessmentReady = pageRows.every((page) =>
+    isReviewedPageAssessmentReady(
+      page,
+      completedPageIds,
+      latestAttemptsByPageId.get(page.id),
+      passingThreshold,
+    ),
+  );
+  const completedCount = completedPageIds.size;
+  const progressPercentage =
+    requiredCount === 0 ? 0 : Math.round((completedCount / requiredCount) * 100);
+  const isCompleted = requiredCount > 0 && completedCount === requiredCount && assessmentReady;
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("org_id")
+    .eq("id", learnerUserId)
+    .single<{ org_id: string | null }>();
+
+  if (profileError || !profile?.org_id) {
+    throw new Error("Learner profiel heeft geen organisatiekoppeling.");
+  }
+
+  const { error: enrollmentError } = await supabase
+    .from("learning_course_enrollments")
+    .upsert(
+      {
+        org_id: profile.org_id,
+        user_id: learnerUserId,
+        course_id: courseId,
+        status: isCompleted ? "completed" : "in_progress",
+        source: "onboarding",
+        progress_percentage: progressPercentage,
+        completed_at: isCompleted ? new Date().toISOString() : null,
+      },
+      { onConflict: "user_id,course_id" },
+    );
+
+  if (enrollmentError) {
+    throw new Error(`Cursusvoortgang herberekenen is mislukt: ${enrollmentError.message}`);
+  }
+}
+
+async function getLatestReviewAttemptsForPages(
+  supabase: Awaited<ReturnType<typeof requireLearningAdmin>>,
+  userId: string,
+  courseId: string,
+  pageIds: string[],
+) {
+  if (pageIds.length === 0) {
+    return new Map<string, PageAttemptRow>();
+  }
+
+  const { data: attemptRows, error } = await supabase
+    .from("learning_page_attempts")
+    .select("page_id, attempt_number, percentage, passed, manual_review_required")
+    .eq("course_id", courseId)
+    .eq("user_id", userId)
+    .in("page_id", pageIds)
+    .order("attempt_number", { ascending: false });
+
+  if (error) {
+    throw new Error(`Pogingen ophalen is mislukt: ${error.message}`);
+  }
+
+  return ((attemptRows ?? []) as PageAttemptRow[]).reduce((acc, attempt) => {
+    if (!acc.has(attempt.page_id)) {
+      acc.set(attempt.page_id, attempt);
+    }
+
+    return acc;
+  }, new Map<string, PageAttemptRow>());
+}
+
+function isReviewedPageAssessmentReady(
+  page: RequiredPageRow,
+  completedPageIds: Set<string>,
+  latestAttempt: PageAttemptRow | undefined,
+  passingThreshold: number,
+) {
+  if (!completedPageIds.has(page.id) || !isLessonContent(page.content)) {
+    return false;
+  }
+
+  const requiresManualReview = page.content.blocks.some(
+    (block) =>
+      block.type === "quiz_essay" ||
+      block.type === "short_answer" ||
+      block.type === "case_lab",
+  );
+
+  if (requiresManualReview) {
+    return latestAttempt?.manual_review_required === false && latestAttempt.passed === true;
+  }
+
+  const hasAutoGradableBlocks = page.content.blocks.some(isAdminAutoGradableBlock);
+
+  if (!hasAutoGradableBlocks) {
+    return true;
+  }
+
+  return (
+    latestAttempt?.manual_review_required === false &&
+    latestAttempt.passed === true &&
+    (latestAttempt.percentage ?? 0) >= passingThreshold
+  );
+}
+
+function isAdminAutoGradableBlock(block: LessonBlock) {
+  return (
+    block.type === "quiz_multiple_choice" ||
+    block.type === "quiz_multiple_select" ||
+    block.type === "quiz_true_false"
+  );
+}
+
+async function getAdminCoursePassingThreshold(
+  supabase: Awaited<ReturnType<typeof requireLearningAdmin>>,
+  courseId: string,
+) {
+  const { data } = await supabase
+    .from("learning_courses")
+    .select("passing_threshold")
+    .eq("id", courseId)
+    .maybeSingle<{ passing_threshold: number | null }>();
+
+  return data?.passing_threshold ?? 80;
 }
 
 async function resolveSequenceOrder(

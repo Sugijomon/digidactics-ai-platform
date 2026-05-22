@@ -2,7 +2,11 @@ import "server-only";
 
 import { getCurrentUserContext } from "@digidactics/auth";
 import { redirect } from "next/navigation";
-import { aiLiteracyPreviewCourse, type LearningCourseView } from "./learning-preview-data";
+import {
+  aiLiteracyPreviewCourse,
+  type LearningAttemptAnswerView,
+  type LearningCourseView,
+} from "./learning-preview-data";
 import { getAiLiteracyCourse } from "./learning-data";
 import { getSupabaseServerClient, hasSupabaseConfig } from "./supabase-server";
 
@@ -38,6 +42,26 @@ export interface LearningAdminOverview {
   microLearnings: LearningAdminLessonSummary[];
 }
 
+export interface LearningReviewAttempt {
+  id: string;
+  course_id: string;
+  course_code: string;
+  course_title: string;
+  page_id: string;
+  page_code: string;
+  page_title: string;
+  user_id: string;
+  learner_name: string;
+  learner_email: string | null;
+  attempt_number: number;
+  status: string;
+  answers: Record<string, LearningAttemptAnswerView>;
+  score: number | null;
+  max_score: number | null;
+  percentage: number | null;
+  submitted_at: string | null;
+}
+
 interface CourseRow {
   id: string;
   course_code: string;
@@ -69,6 +93,32 @@ interface LessonRow {
   status: string;
   estimated_duration_minutes: number | null;
   content: { blocks?: unknown[] } | null;
+}
+
+interface ReviewAttemptRow {
+  id: string;
+  course_id: string;
+  page_id: string;
+  user_id: string;
+  attempt_number: number;
+  status: string;
+  answers: unknown;
+  score: number | null;
+  max_score: number | null;
+  percentage: number | null;
+  submitted_at: string | null;
+}
+
+interface ReviewPageRow {
+  id: string;
+  page_code: string;
+  title: string;
+}
+
+interface ReviewProfileRow {
+  id: string;
+  email: string | null;
+  full_name: string | null;
 }
 
 export async function requireContentEditor() {
@@ -180,6 +230,88 @@ export async function getAdminCourse(courseCode: string): Promise<LearningCourse
   return course;
 }
 
+export async function getLearningReviewQueue(): Promise<LearningReviewAttempt[]> {
+  if (!hasSupabaseConfig()) {
+    return [];
+  }
+
+  const { supabase } = await requireContentEditor();
+
+  if (!supabase) {
+    return [];
+  }
+
+  const { data: attemptRows, error: attemptError } = await supabase
+    .from("learning_page_attempts")
+    .select(
+      "id, course_id, page_id, user_id, attempt_number, status, answers, score, max_score, percentage, submitted_at",
+    )
+    .eq("manual_review_required", true)
+    .order("submitted_at", { ascending: true });
+
+  if (attemptError || !attemptRows?.length) {
+    return [];
+  }
+
+  const attempts = attemptRows as ReviewAttemptRow[];
+  const courseIds = Array.from(new Set(attempts.map((attempt) => attempt.course_id)));
+  const pageIds = Array.from(new Set(attempts.map((attempt) => attempt.page_id)));
+  const userIds = Array.from(new Set(attempts.map((attempt) => attempt.user_id)));
+
+  const [{ data: courseRows }, { data: pageRows }, { data: profileRows }] = await Promise.all([
+    supabase
+      .from("learning_courses")
+      .select("id, course_code, title")
+      .in("id", courseIds),
+    supabase
+      .from("learning_pages")
+      .select("id, page_code, title")
+      .in("id", pageIds),
+    supabase
+      .from("profiles")
+      .select("id, email, full_name")
+      .in("id", userIds),
+  ]);
+
+  const courseById = new Map(
+    ((courseRows ?? []) as Array<{ id: string; course_code: string; title: string }>).map(
+      (course) => [course.id, course],
+    ),
+  );
+  const pageById = new Map(
+    ((pageRows ?? []) as ReviewPageRow[]).map((page) => [page.id, page]),
+  );
+  const profileById = new Map(
+    ((profileRows ?? []) as ReviewProfileRow[]).map((profile) => [profile.id, profile]),
+  );
+
+  return attempts.map((attempt) => {
+    const course = courseById.get(attempt.course_id);
+    const page = pageById.get(attempt.page_id);
+    const profile = profileById.get(attempt.user_id);
+
+    return {
+      id: attempt.id,
+      course_id: attempt.course_id,
+      course_code: course?.course_code ?? "ai-literacy-foundation",
+      course_title: course?.title ?? "Onbekende cursus",
+      page_id: attempt.page_id,
+      page_code: page?.page_code ?? "",
+      page_title: page?.title ?? "Onbekende pagina",
+      user_id: attempt.user_id,
+      learner_name: profile?.full_name ?? profile?.email ?? "Onbekende learner",
+      learner_email: profile?.email ?? null,
+      attempt_number: attempt.attempt_number,
+      status: attempt.status,
+      answers: normalizeAttemptAnswers(attempt.answers),
+      score: attempt.score,
+      max_score: attempt.max_score,
+      percentage: attempt.percentage,
+      submitted_at: attempt.submitted_at,
+    };
+  });
+}
+
 function previewOverview(): LearningAdminOverview {
   return {
     courses: [
@@ -210,4 +342,34 @@ function previewOverview(): LearningAdminOverview {
     })),
     microLearnings: [],
   };
+}
+
+function normalizeAttemptAnswers(value: unknown) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+
+  return Object.entries(value).reduce<Record<string, LearningAttemptAnswerView>>(
+    (acc, [blockId, answer]) => {
+      if (!answer || typeof answer !== "object" || Array.isArray(answer)) {
+        return acc;
+      }
+
+      const candidate = answer as Partial<LearningAttemptAnswerView>;
+      if (
+        typeof candidate.block_type === "string" &&
+        (typeof candidate.value === "string" ||
+          (Array.isArray(candidate.value) &&
+            candidate.value.every((item) => typeof item === "string")))
+      ) {
+        acc[blockId] = {
+          block_type: candidate.block_type,
+          value: candidate.value,
+        };
+      }
+
+      return acc;
+    },
+    {},
+  );
 }

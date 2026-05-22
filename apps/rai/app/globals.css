@@ -1923,6 +1923,96 @@ h3 {
   margin-bottom: 28px;
 }
 
+.review-queue {
+  display: grid;
+  gap: 18px;
+}
+
+.review-card {
+  display: grid;
+  gap: 18px;
+}
+
+.review-card-header {
+  align-items: start;
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+}
+
+.review-card-header h2 {
+  font-size: 1.35rem;
+  margin: 4px 0;
+}
+
+.review-card-header p {
+  color: #53627a;
+  margin: 0;
+}
+
+.review-meta {
+  align-items: end;
+  display: grid;
+  gap: 8px;
+  justify-items: end;
+}
+
+.review-meta strong {
+  font-size: 1.7rem;
+}
+
+.review-answer-list {
+  display: grid;
+  gap: 10px;
+}
+
+.review-answer {
+  background: #f8fafc;
+  border: 1px solid var(--editor-line);
+  border-radius: 8px;
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+}
+
+.review-answer div {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.review-answer span {
+  color: #53627a;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.review-answer p {
+  line-height: 1.55;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.review-form {
+  border-top: 1px solid var(--editor-line);
+  display: grid;
+  gap: 14px;
+  padding-top: 16px;
+}
+
+.review-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.empty-review-state {
+  display: grid;
+  gap: 8px;
+}
+
 .dashboard-workbench-card {
   background: white;
   border: 1px solid var(--editor-line);

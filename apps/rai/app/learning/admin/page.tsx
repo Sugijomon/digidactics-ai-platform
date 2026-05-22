@@ -54,6 +54,12 @@ export default async function LearningAdminPage() {
           label="Contentblokken"
           meta={`${totalBlocks} gebruikt`}
         />
+        <WorkbenchCard
+          description="Beoordeel open antwoorden en casusreflecties voordat certificering mogelijk wordt."
+          href="/learning/admin/reviews"
+          label="Reviews"
+          meta="Manual gate"
+        />
       </section>
 
       {primaryCourse ? (

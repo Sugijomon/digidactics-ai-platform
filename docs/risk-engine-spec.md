@@ -284,11 +284,17 @@ Implementation note:
 
 - `public.calculate_v8_score(p_survey_run_id)` is the server-trusted scoring
   boundary used after scan completion and for DPO rescoring.
+- `packages/domain/src/risk-engine.ts` is the TypeScript reference used for
+  focused regression tests. The SQL function and TypeScript engine must stay in
+  parity for shadow mappings, exposure boosts, priority calculation, review
+  triggers, banding, and run aggregation.
 - Run-level aggregation uses the highest tool priority score plus 15% of the
   remaining tool priority scores, capped at 100.
 - The shared `packages/domain` risk engine has regression tests for approved
   sensitive-data use, prohibited high-exposure use, missing policy status,
   no-tool exit path aggregation, and multi-tool hybrid aggregation.
+- Both implementations include the agentic behavior boost as an additive
+  exposure boost and persist it in the score breakdown.
 - Custom or newly discovered tools without a catalog-backed policy snapshot are
   still scored from the `survey_tool` policy status snapshot. Their
   `risk_result_tool.policy_snapshot_id` may be null, but their score breakdown

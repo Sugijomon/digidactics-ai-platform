@@ -8,17 +8,23 @@ production.
 
 ## Migration Order
 
-Apply migrations in this order:
+Apply migrations in timestamp order. The current SAI MVP migration set includes:
 
 ```txt
 supabase/migrations/20260504110000_v8_1_target_schema.sql
 supabase/migrations/20260504120000_rls_policies_v2_1.sql
 supabase/migrations/20260504130000_06_edge_rpcs.sql
+supabase/migrations/20260512100000_make_save_profile_partial.sql
+supabase/migrations/20260522100000_implement_v8_scoring.sql
+supabase/migrations/20260522113000_harden_rpc_grants_and_user_roles_rls.sql
+supabase/migrations/20260522123000_backfill_completed_v8_scores.sql
 ```
 
-The schema migration creates the V8.1 tables and scoring skeleton. The RLS
-migration closes direct table writes and exposes the token-based run lifecycle.
-The RPC migration adds the respondent-facing `save_*` write layer.
+The early schema migration creates the V8.1 tables and the original scoring
+stub. The later `20260522100000_implement_v8_scoring.sql` migration replaces
+that stub with the implemented server-trusted V8.1 scoring function. The RLS
+and hardening migrations close direct table writes, keep direct scoring blocked
+for clients, and expose the token-based respondent lifecycle.
 
 ## Validation Files
 
@@ -63,12 +69,16 @@ Suggested staging flow:
 5. Only after all checks pass, connect the future Next.js frontend to this
    staging project.
 
-## Known Current Limitation
+## Current Scoring Status
 
-`calculate_v8_score(uuid)` is still a skeleton in the target schema. The
-`complete_survey_run(...)` RPC catches scoring errors and logs them, so the
-respondent lifecycle can still be smoke-tested. Implementing the full scoring
-engine is a separate next step before production.
+`calculate_v8_score(uuid)` is implemented by
+`20260522100000_implement_v8_scoring.sql`. `complete_survey_run(...)` calls it
+after token validation, so completed runs persist `risk_result`,
+`risk_result_tool`, `dpo_review_items`, and a `score.calculated` audit event.
+
+The TypeScript engine in `packages/domain` remains the regression-testable
+reference implementation for the same V8.1 rules. Keep both layers aligned when
+changing score mappings, boosts, thresholds, triggers, or aggregation.
 
 ## Expected Outcome
 
@@ -78,4 +88,4 @@ foundation:
 - Supabase SSR auth foundation
 - survey client that calls the RPC flow
 - DPO/admin dashboard routes
-- full scoring engine implementation
+- implemented scoring engine and dashboard validation

@@ -16,6 +16,24 @@ interface LearnerContext {
   orgId: string;
 }
 
+interface RequiredPageRow {
+  id: string;
+  content: unknown;
+}
+
+interface PageProgressRow {
+  page_id: string;
+}
+
+interface PageAttemptRow {
+  page_id: string;
+  attempt_number: number;
+  max_score: number | null;
+  percentage: number | null;
+  passed: boolean | null;
+  manual_review_required: boolean;
+}
+
 export async function startAiLiteracyCourse(formData: FormData) {
   const courseId = String(formData.get("courseId") ?? "");
   const courseCode = String(formData.get("courseCode") ?? "ai-literacy-foundation");
@@ -320,12 +338,13 @@ async function upsertCourseProgress(
 ) {
   const { data: requiredPages, error: pagesError } = await supabase
     .from("learning_pages")
-    .select("id")
+    .select("id, content")
     .eq("course_id", courseId)
     .eq("is_required", true);
 
   if (!pagesError && requiredPages) {
-    const pageIds = requiredPages.map((row) => row.id as string);
+    const pageRows = requiredPages as RequiredPageRow[];
+    const pageIds = pageRows.map((row) => row.id);
     const requiredCount = pageIds.length;
 
     const { data: completedProgress, error: progressError } = pageIds.length
@@ -342,12 +361,33 @@ async function upsertCourseProgress(
       throw new Error(`Cursusvoortgang berekenen is mislukt: ${progressError.message}`);
     }
 
+    const completedPageIds = new Set(
+      ((completedProgress ?? []) as PageProgressRow[]).map((row) => row.page_id),
+    );
+    const completedCount = completedPageIds.size;
+    const latestAttemptsByPageId = await getLatestAttemptsForPages(
+      supabase,
+      learner.userId,
+      courseId,
+      pageIds,
+    );
+    const passingThreshold = await getCoursePassingThreshold(supabase, courseId);
+    const assessmentReady = pageRows.every((page) =>
+      isRequiredPageAssessmentReady(
+        page,
+        completedPageIds,
+        latestAttemptsByPageId.get(page.id),
+        passingThreshold,
+      ),
+    );
+
     await saveCourseProgress(
       supabase,
       learner,
       courseId,
       requiredCount,
-      completedProgress?.length ?? 0,
+      completedCount,
+      requiredCount > 0 && completedCount === requiredCount && assessmentReady,
     );
     return;
   }
@@ -385,6 +425,77 @@ async function upsertCourseProgress(
     courseId,
     requiredCount,
     completedProgress?.length ?? 0,
+    requiredCount > 0 && (completedProgress?.length ?? 0) === requiredCount,
+  );
+}
+
+async function getLatestAttemptsForPages(
+  supabase: SupabaseClient,
+  userId: string,
+  courseId: string,
+  pageIds: string[],
+) {
+  if (pageIds.length === 0) {
+    return new Map<string, PageAttemptRow>();
+  }
+
+  const { data: attemptRows, error } = await supabase
+    .from("learning_page_attempts")
+    .select("page_id, attempt_number, max_score, percentage, passed, manual_review_required")
+    .eq("course_id", courseId)
+    .eq("user_id", userId)
+    .in("page_id", pageIds)
+    .order("attempt_number", { ascending: false });
+
+  if (error) {
+    throw new Error(`Pogingen ophalen is mislukt: ${error.message}`);
+  }
+
+  return ((attemptRows ?? []) as PageAttemptRow[]).reduce((acc, attempt) => {
+    if (!acc.has(attempt.page_id)) {
+      acc.set(attempt.page_id, attempt);
+    }
+
+    return acc;
+  }, new Map<string, PageAttemptRow>());
+}
+
+function isRequiredPageAssessmentReady(
+  page: RequiredPageRow,
+  completedPageIds: Set<string>,
+  latestAttempt: PageAttemptRow | undefined,
+  passingThreshold: number,
+) {
+  if (!completedPageIds.has(page.id)) {
+    return false;
+  }
+
+  if (!isLessonContent(page.content)) {
+    return false;
+  }
+
+  const requiresManualReview = page.content.blocks.some(
+    (block) =>
+      block.type === "quiz_essay" ||
+      block.type === "short_answer" ||
+      block.type === "case_lab",
+  );
+
+  if (requiresManualReview) {
+    return latestAttempt?.manual_review_required === false && latestAttempt.passed !== false;
+  }
+
+  const hasAutoGradableBlocks = page.content.blocks.some(isAutoGradableBlock);
+
+  if (!hasAutoGradableBlocks) {
+    return true;
+  }
+
+  return (
+    Boolean(latestAttempt) &&
+    latestAttempt?.manual_review_required === false &&
+    latestAttempt?.passed === true &&
+    (latestAttempt.percentage ?? 0) >= passingThreshold
   );
 }
 
@@ -394,11 +505,11 @@ async function saveCourseProgress(
   courseId: string,
   requiredCount: number,
   completedCount: number,
+  isCompleted: boolean,
 ) {
   const progressPercentage =
     requiredCount === 0 ? 0 : Math.round((completedCount / requiredCount) * 100);
   const now = new Date().toISOString();
-  const isCompleted = requiredCount > 0 && completedCount === requiredCount;
 
   const { error: enrollmentError } = await supabase
     .from("learning_course_enrollments")

@@ -15,6 +15,7 @@ export function CourseStatusPanel({
 }) {
   const enrollment = learnerState.enrollment;
   const pages = getCoursePages(course);
+  const assessmentStatus = getCourseAssessmentStatus(course, learnerState);
   const firstIncompletePage =
     pages.find(
       (page) =>
@@ -40,6 +41,10 @@ export function CourseStatusPanel({
         <div className="meta-row">
           <span>Voortgang</span>
           <strong>{enrollment?.progress_percentage ?? 0}%</strong>
+        </div>
+        <div className="meta-row">
+          <span>Beoordeling</span>
+          <strong>{assessmentStatus}</strong>
         </div>
         <div className="meta-row">
           <span>Capability</span>
@@ -101,4 +106,47 @@ function getEnrollmentLabel(learnerState: LearnerStateView) {
     case undefined:
       return "Nog niet gestart";
   }
+}
+
+function getCourseAssessmentStatus(
+  course: LearningCourseView,
+  learnerState: LearnerStateView,
+) {
+  if (!learnerState.isAuthenticated) {
+    return "Preview";
+  }
+
+  const requiredPages = getCoursePages(course).filter((page) => page.is_required);
+
+  if (requiredPages.length === 0) {
+    return "Geen verplichte pagina's";
+  }
+
+  const incompletePage = requiredPages.find(
+    (page) =>
+      learnerState.progressByPageId[page.id]?.status !== "completed" &&
+      learnerState.progressByLessonId[page.id]?.status !== "completed",
+  );
+
+  if (incompletePage) {
+    return "Nog niet volledig";
+  }
+
+  const latestAttempts = requiredPages
+    .map((page) => learnerState.attemptsByPageId[page.id])
+    .filter(Boolean);
+
+  if (latestAttempts.some((attempt) => attempt.manual_review_required)) {
+    return "Review nodig";
+  }
+
+  if (latestAttempts.some((attempt) => attempt.passed === false)) {
+    return "Score onvoldoende";
+  }
+
+  if (learnerState.enrollment?.status === "completed") {
+    return "Behaald";
+  }
+
+  return "In beoordeling";
 }

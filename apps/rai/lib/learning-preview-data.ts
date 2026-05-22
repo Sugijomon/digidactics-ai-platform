@@ -30,12 +30,26 @@ export interface LearningProgressView {
   completed_at: string | null;
 }
 
+export interface LearningAttemptAnswerView {
+  block_type: string;
+  value: string | string[];
+}
+
+export interface LearningAttemptView {
+  page_id: string;
+  status: "started" | "submitted" | "graded";
+  attempt_number: number;
+  answers: Record<string, LearningAttemptAnswerView>;
+  submitted_at: string | null;
+}
+
 export interface LearnerStateView {
   isAuthenticated: boolean;
   orgId: string | null;
   enrollment: LearningEnrollmentView | null;
   progressByLessonId: Record<string, LearningProgressView>;
   progressByPageId: Record<string, LearningProgressView>;
+  attemptsByPageId: Record<string, LearningAttemptView>;
 }
 
 export interface LearningTopicView {

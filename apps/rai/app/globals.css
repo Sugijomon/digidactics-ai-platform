@@ -742,6 +742,24 @@ h3 {
   margin: 0;
 }
 
+.resume-notice {
+  align-items: center;
+  background: #eef9ff;
+  border: 1px solid #bde8fb;
+  border-radius: var(--radius);
+  color: #164e63;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 12px 14px;
+}
+
+.resume-notice span {
+  color: #53627a;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
 .answer-feedback {
   border: 1px solid var(--line);
   border-radius: var(--radius);

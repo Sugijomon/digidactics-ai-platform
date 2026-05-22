@@ -5,6 +5,8 @@ import {
   aiLiteracyPreviewCourse,
   getCoursePages,
   type LearnerStateView,
+  type LearningAttemptAnswerView,
+  type LearningAttemptView,
   type LearningCourseView,
   type LearningEnrollmentView,
   type LearningLessonView,
@@ -61,6 +63,14 @@ interface LessonRow {
   lesson_type: string;
   estimated_duration_minutes: number | null;
   content: unknown;
+}
+
+interface AttemptRow {
+  page_id: string;
+  status: "started" | "submitted" | "graded";
+  attempt_number: number;
+  answers: unknown;
+  submitted_at: string | null;
 }
 
 export async function getAiLiteracyCourse(): Promise<LearningCourseView> {
@@ -274,6 +284,8 @@ export async function getLearnerState(
         .in("page_id", pageIds)
     : { data: [] };
 
+  const attemptsByPageId = await getLatestPageAttempts(supabase, course.id, user.id, pageIds);
+
   if (pageProgressRows) {
     return {
       isAuthenticated: true,
@@ -281,6 +293,7 @@ export async function getLearnerState(
       enrollment: enrollment ?? null,
       progressByLessonId: {},
       progressByPageId: mapProgressRows(pageProgressRows ?? [], "page_id"),
+      attemptsByPageId,
     };
   }
 
@@ -301,7 +314,44 @@ export async function getLearnerState(
     enrollment: enrollment ?? null,
     progressByLessonId: mapProgressRows(progressRows ?? [], "lesson_id"),
     progressByPageId: {},
+    attemptsByPageId,
   };
+}
+
+async function getLatestPageAttempts(
+  supabase: Awaited<ReturnType<typeof getSupabaseServerClient>>,
+  courseId: string,
+  userId: string,
+  pageIds: string[],
+) {
+  if (!supabase || pageIds.length === 0) {
+    return {};
+  }
+
+  const { data: attemptRows } = await supabase
+    .from("learning_page_attempts")
+    .select("page_id, status, attempt_number, answers, submitted_at")
+    .eq("course_id", courseId)
+    .eq("user_id", userId)
+    .in("page_id", pageIds)
+    .order("attempt_number", { ascending: false });
+
+  return (attemptRows ?? []).reduce<Record<string, LearningAttemptView>>((acc, row) => {
+    const attempt = row as AttemptRow;
+    if (acc[attempt.page_id]) {
+      return acc;
+    }
+
+    acc[attempt.page_id] = {
+      page_id: attempt.page_id,
+      status: attempt.status,
+      attempt_number: attempt.attempt_number,
+      answers: normalizeAttemptAnswers(attempt.answers),
+      submitted_at: attempt.submitted_at,
+    };
+
+    return acc;
+  }, {});
 }
 
 function mapTopicPageRows(
@@ -406,6 +456,7 @@ function emptyLearnerState(isAuthenticated: boolean): LearnerStateView {
     enrollment: null,
     progressByLessonId: {},
     progressByPageId: {},
+    attemptsByPageId: {},
   };
 }
 
@@ -428,4 +479,38 @@ function mapProgressRows(
     };
     return acc;
   }, {});
+}
+
+function normalizeAttemptAnswers(value: unknown) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+
+  return Object.entries(value).reduce<Record<string, LearningAttemptAnswerView>>(
+    (acc, [blockId, answer]) => {
+      if (!answer || typeof answer !== "object" || Array.isArray(answer)) {
+        return acc;
+      }
+
+      const candidate = answer as Partial<LearningAttemptAnswerView>;
+      if (
+        typeof candidate.block_type !== "string" ||
+        !(
+          typeof candidate.value === "string" ||
+          (Array.isArray(candidate.value) &&
+            candidate.value.every((item) => typeof item === "string"))
+        )
+      ) {
+        return acc;
+      }
+
+      acc[blockId] = {
+        block_type: candidate.block_type,
+        value: candidate.value,
+      };
+
+      return acc;
+    },
+    {},
+  );
 }

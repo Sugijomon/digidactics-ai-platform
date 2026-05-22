@@ -4,7 +4,11 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { LessonBlock } from "@digidactics/domain/learning";
 import { LessonBlockRenderer } from "@/components/learning/LessonBlockRenderer";
-import type { LearningCourseView, LearningPageView } from "@/lib/learning-preview-data";
+import type {
+  LearningAttemptView,
+  LearningCourseView,
+  LearningPageView,
+} from "@/lib/learning-preview-data";
 
 type AnswerValue = string | string[];
 
@@ -13,6 +17,7 @@ export function LearningPageInteraction({
   course,
   isAuthenticated,
   isCompleted,
+  latestAttempt,
   nextPageCode,
   page,
   previousPageCode,
@@ -23,13 +28,16 @@ export function LearningPageInteraction({
   course: LearningCourseView;
   isAuthenticated: boolean;
   isCompleted: boolean;
+  latestAttempt: LearningAttemptView | null;
   nextPageCode: string;
   page: LearningPageView;
   previousPageCode: string;
   topicPageIndex: number;
   topicPageTotal: number;
 }) {
-  const [answers, setAnswers] = useState<Record<string, AnswerValue>>({});
+  const [answers, setAnswers] = useState<Record<string, AnswerValue>>(() =>
+    getInitialAnswers(latestAttempt),
+  );
   const interactiveBlocks = useMemo(
     () => page.content.blocks.filter(isInteractiveBlock),
     [page.content.blocks],
@@ -55,6 +63,15 @@ export function LearningPageInteraction({
       <input name="nextPageCode" type="hidden" value={nextPageCode} />
 
       <article className="lesson-shell page-canvas">
+        {latestAttempt ? (
+          <div className="resume-notice">
+            <strong>Hervat vanaf je laatste poging</strong>
+            <span>
+              Poging {latestAttempt.attempt_number}
+              {latestAttempt.submitted_at ? ` / ${formatDate(latestAttempt.submitted_at)}` : ""}
+            </span>
+          </div>
+        ) : null}
         {page.content.blocks.map((block) =>
           isInteractiveBlock(block) ? (
             <InteractiveBlock
@@ -368,6 +385,29 @@ function asText(value: AnswerValue | undefined) {
 function asArray(value: AnswerValue | undefined) {
   if (Array.isArray(value)) return value;
   return value ? [value] : [];
+}
+
+function getInitialAnswers(attempt: LearningAttemptView | null) {
+  if (!attempt) {
+    return {};
+  }
+
+  return Object.entries(attempt.answers).reduce<Record<string, AnswerValue>>(
+    (acc, [blockId, answer]) => {
+      acc[blockId] = answer.value;
+      return acc;
+    },
+    {},
+  );
+}
+
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("nl-NL", {
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    month: "2-digit",
+  }).format(new Date(value));
 }
 
 function sameStringSet(left: string[], right: string[]) {

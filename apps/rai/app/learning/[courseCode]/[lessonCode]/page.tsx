@@ -82,6 +82,7 @@ export default async function LessonPage({
             course={course}
             isAuthenticated={learnerState.isAuthenticated}
             isCompleted={isCompleted}
+            latestAttempt={learnerState.attemptsByPageId[page.id] ?? null}
             nextPageCode={nextPage?.page_code ?? ""}
             page={page}
             previousPageCode={previousPage?.page_code ?? ""}

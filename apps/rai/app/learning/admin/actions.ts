@@ -4,6 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getCurrentUserContext } from "@digidactics/auth";
 import { isLessonContent, type LessonBlock } from "@digidactics/domain/learning";
+import {
+  aiLiteracyPreviewCourse,
+  aiLiteracyTopicSeeds,
+} from "@/lib/learning-preview-data";
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 
 const defaultPageContent = {
@@ -553,6 +557,98 @@ export async function reviewLearningPageAttempt(formData: FormData) {
   revalidatePath("/learning/admin/reviews");
   revalidatePath(`/learning/${courseCode}`);
   redirect("/learning/admin/reviews");
+}
+
+export async function syncAiLiteracyContentFromSource() {
+  const supabase = await requireLearningAdmin();
+
+  const { data: course, error: courseError } = await supabase
+    .from("learning_courses")
+    .select("id, org_id")
+    .eq("course_code", aiLiteracyPreviewCourse.course_code)
+    .single<{ id: string; org_id: string | null }>();
+
+  if (courseError || !course) {
+    throw new Error(`AI Literacy cursus niet gevonden: ${courseError?.message ?? "geen cursus"}`);
+  }
+
+  const topicRows = aiLiteracyTopicSeeds.map((topic, index) => ({
+    course_id: course.id,
+    org_id: course.org_id,
+    topic_code: topic.code,
+    title: topic.title,
+    summary: topic.summary,
+    status: "published",
+    sequence_order: index + 1,
+    is_required: true,
+    updated_at: new Date().toISOString(),
+  }));
+
+  const { error: topicError } = await supabase
+    .from("learning_topics")
+    .upsert(topicRows, { onConflict: "course_id,topic_code" });
+
+  if (topicError) {
+    throw new Error(`Topics synchroniseren is mislukt: ${topicError.message}`);
+  }
+
+  const { data: topics, error: topicsError } = await supabase
+    .from("learning_topics")
+    .select("id, topic_code")
+    .eq("course_id", course.id)
+    .in("topic_code", aiLiteracyTopicSeeds.map((topic) => topic.code));
+
+  if (topicsError || !topics) {
+    throw new Error(`Topics ophalen is mislukt: ${topicsError?.message ?? "geen topics"}`);
+  }
+
+  const topicIdByCode = new Map(
+    (topics as Array<{ id: string; topic_code: string }>).map((topic) => [
+      topic.topic_code,
+      topic.id,
+    ]),
+  );
+
+  const pageRows = aiLiteracyTopicSeeds.flatMap((topic) =>
+    topic.pages.map((page, pageIndex) => {
+      const topicId = topicIdByCode.get(topic.code);
+      if (!topicId) {
+        throw new Error(`Topic ontbreekt voor ${topic.code}.`);
+      }
+
+      return {
+        course_id: course.id,
+        topic_id: topicId,
+        org_id: course.org_id,
+        page_code: page.code,
+        title: page.title,
+        summary: page.summary,
+        page_type: page.type,
+        status: "published",
+        estimated_duration_minutes: page.minutes,
+        sequence_order: pageIndex + 1,
+        is_required: true,
+        content_schema_version: 1,
+        content: {
+          version: 1,
+          blocks: page.blocks,
+        },
+        updated_at: new Date().toISOString(),
+      };
+    }),
+  );
+
+  const { error: pageError } = await supabase
+    .from("learning_pages")
+    .upsert(pageRows, { onConflict: "course_id,page_code" });
+
+  if (pageError) {
+    throw new Error(`Pagina's synchroniseren is mislukt: ${pageError.message}`);
+  }
+
+  revalidateLearningCourse(aiLiteracyPreviewCourse.course_code);
+  revalidatePath("/learning/admin/content-audit");
+  redirect("/learning/admin/content-audit");
 }
 
 async function requireLearningAdmin() {

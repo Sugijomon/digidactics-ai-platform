@@ -60,6 +60,12 @@ export default async function LearningAdminPage() {
           label="Reviews"
           meta="Manual gate"
         />
+        <WorkbenchCard
+          description="Controleer en herstel of Supabase dezelfde AISA contentblokken toont als de bron."
+          href="/learning/admin/content-audit"
+          label="Content audit"
+          meta="Sync"
+        />
       </section>
 
       {primaryCourse ? (

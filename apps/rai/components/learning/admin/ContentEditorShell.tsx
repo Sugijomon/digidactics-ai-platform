@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-type ContentEditorSection = "dashboard" | "courses" | "lessons" | "blocks" | "reviews";
+type ContentEditorSection = "dashboard" | "courses" | "lessons" | "blocks" | "reviews" | "audit";
 
 const navItems: Array<{
   href: string;
@@ -13,6 +13,7 @@ const navItems: Array<{
   { href: "/learning/admin/courses", id: "courses", label: "Cursussen", icon: "C" },
   { href: "/learning/admin/lessons", id: "lessons", label: "Lessen", icon: "L" },
   { href: "/learning/admin/reviews", id: "reviews", label: "Reviews", icon: "R" },
+  { href: "/learning/admin/content-audit", id: "audit", label: "Content audit", icon: "A" },
   { href: "/learning/admin/blocks", id: "blocks", label: "Contentblokken", icon: "+" },
 ];
 

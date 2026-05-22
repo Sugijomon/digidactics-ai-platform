@@ -2013,6 +2013,61 @@ h3 {
   gap: 8px;
 }
 
+.content-audit-list {
+  display: grid;
+  gap: 12px;
+}
+
+.content-audit-row {
+  border: 1px solid var(--editor-line);
+  border-radius: 8px;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(220px, 0.75fr) minmax(0, 1fr);
+  padding: 16px;
+}
+
+.content-audit-row.ok {
+  background: #f8fff9;
+}
+
+.content-audit-row.different_blocks,
+.content-audit-row.missing_live_page {
+  background: #fffaf0;
+  border-color: #f4c46f;
+}
+
+.content-audit-row h3 {
+  font-size: 1rem;
+  margin: 8px 0 4px;
+}
+
+.content-audit-row p {
+  color: #53627a;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.content-audit-blocks {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.content-audit-blocks div {
+  background: white;
+  border: 1px solid var(--editor-line);
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+}
+
+.content-audit-blocks strong {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
 .dashboard-workbench-card {
   background: white;
   border: 1px solid var(--editor-line);

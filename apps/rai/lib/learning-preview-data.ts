@@ -92,7 +92,14 @@ export interface LearningLessonView {
   content: LessonContent;
 }
 
-interface PageSeed {
+export interface AiLiteracyTopicSeed {
+  code: string;
+  title: string;
+  summary: string;
+  pages: PageSeed[];
+}
+
+export interface PageSeed {
   code: string;
   title: string;
   summary: string;
@@ -529,6 +536,8 @@ const topicSeeds: TopicSeed[] = [
     ],
   },
 ];
+
+export const aiLiteracyTopicSeeds: AiLiteracyTopicSeed[] = topicSeeds;
 
 export const aiLiteracyPreviewCourse: LearningCourseView = {
   id: "preview-ai-literacy-foundation",

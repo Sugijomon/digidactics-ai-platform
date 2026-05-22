@@ -4,6 +4,7 @@ import { getCurrentUserContext } from "@digidactics/auth";
 import { redirect } from "next/navigation";
 import {
   aiLiteracyPreviewCourse,
+  aiLiteracyTopicSeeds,
   type LearningAttemptAnswerView,
   type LearningCourseView,
 } from "./learning-preview-data";
@@ -60,6 +61,16 @@ export interface LearningReviewAttempt {
   max_score: number | null;
   percentage: number | null;
   submitted_at: string | null;
+}
+
+export interface LearningContentAuditRow {
+  topic_code: string;
+  topic_title: string;
+  page_code: string;
+  page_title: string;
+  desired_block_types: string[];
+  live_block_types: string[];
+  status: "ok" | "missing_live_page" | "different_blocks";
 }
 
 interface CourseRow {
@@ -312,6 +323,83 @@ export async function getLearningReviewQueue(): Promise<LearningReviewAttempt[]>
   });
 }
 
+export async function getLearningContentAudit(): Promise<LearningContentAuditRow[]> {
+  const desiredRows = aiLiteracyTopicSeeds.flatMap((topic) =>
+    topic.pages.map((page) => ({
+      topic_code: topic.code,
+      topic_title: topic.title,
+      page_code: page.code,
+      page_title: page.title,
+      desired_block_types: page.blocks.map((block) => block.type),
+    })),
+  );
+
+  if (!hasSupabaseConfig()) {
+    return desiredRows.map((row) => ({
+      ...row,
+      live_block_types: row.desired_block_types,
+      status: "ok",
+    }));
+  }
+
+  const { supabase } = await requireContentEditor();
+
+  if (!supabase) {
+    return desiredRows.map((row) => ({
+      ...row,
+      live_block_types: [],
+      status: "missing_live_page",
+    }));
+  }
+
+  const { data: course } = await supabase
+    .from("learning_courses")
+    .select("id")
+    .eq("course_code", aiLiteracyPreviewCourse.course_code)
+    .maybeSingle<{ id: string }>();
+
+  if (!course) {
+    return desiredRows.map((row) => ({
+      ...row,
+      live_block_types: [],
+      status: "missing_live_page",
+    }));
+  }
+
+  const { data: pageRows } = await supabase
+    .from("learning_pages")
+    .select("page_code, content")
+    .eq("course_id", course.id)
+    .neq("status", "archived");
+
+  const liveBlocksByPageCode = new Map(
+    ((pageRows ?? []) as Array<{ page_code: string; content: { blocks?: Array<{ type?: string }> } | null }>).map(
+      (page) => [
+        page.page_code,
+        Array.isArray(page.content?.blocks)
+          ? page.content.blocks.map((block) => String(block.type ?? "unknown"))
+          : [],
+      ],
+    ),
+  );
+
+  return desiredRows.map((row) => {
+    const liveBlockTypes = liveBlocksByPageCode.get(row.page_code);
+    const status =
+      liveBlockTypes === undefined
+        ? "missing_live_page"
+        : sameStringArray(liveBlockTypes, row.desired_block_types)
+          ? "ok"
+          : "different_blocks";
+
+    return {
+      ...row,
+      live_block_types: liveBlockTypes ?? [],
+      status,
+    };
+  });
+}
+
 function previewOverview(): LearningAdminOverview {
   return {
     courses: [
@@ -372,4 +460,8 @@ function normalizeAttemptAnswers(value: unknown) {
     },
     {},
   );
+}
+
+function sameStringArray(left: string[], right: string[]) {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
 }

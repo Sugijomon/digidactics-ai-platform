@@ -3,29 +3,18 @@
 Status: ready for first Vercel preview setup.
 
 This runbook describes the first SAI preview deployment for the Digidactics AI
-platform. It assumes the GitHub branch is already pushed and a pull request is
-opened against `main`.
+platform. It assumes the SAI pilot-hardening work is merged to `main`.
 
-## GitHub PR
+## GitHub Baseline
 
-Open a pull request from:
-
-```txt
-codex-sai-pilot-hardening -> main
-```
-
-The GitHub connector in Codex could not create the PR because the installed
-integration does not have pull-request write access for this repository. Use the
-GitHub web UI:
-
-```txt
-https://github.com/Sugijomon/digidactics-ai-platform/pull/new/codex-sai-pilot-hardening
-```
+PR `#1` (`codex-sai-pilot-hardening -> main`) has been merged. Before deploying
+or creating a new preview branch, confirm the latest `main` has a green
+`SAI CI` run.
 
 ## Required GitHub Secrets
 
-The `SAI CI` workflow uses these public Supabase client values during build and
-E2E checks:
+The `SAI CI` workflow accepts these public Supabase client values during build
+and E2E checks:
 
 ```txt
 NEXT_PUBLIC_SUPABASE_URL
@@ -37,6 +26,11 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
 supported for compatibility.
 
 Do not add a service-role key to GitHub Actions for the frontend CI job.
+
+For pull-request CI only, the workflow has safe public placeholder fallbacks so
+mocked E2E tests can run before staging secrets are configured. Real preview and
+production deployments must use the actual Supabase project URL and publishable
+browser key.
 
 ## Vercel Project
 
@@ -106,8 +100,7 @@ Run these checks on the Vercel preview:
 
 ## Known Blockers
 
-- Codex cannot currently create the GitHub PR through the installed GitHub
-  integration because the integration returned `403 Resource not accessible by
-  integration`.
-- The Vercel CLI is not installed locally in this workspace, and no Vercel
-  project/deployment connector tools are currently exposed to Codex.
+- No Vercel project currently exists for `digidactics-ai-platform` in the
+  connected `Digidactics' projects` team.
+- The Vercel project still needs to be created/linked and configured with
+  `apps/sai` as the root directory.

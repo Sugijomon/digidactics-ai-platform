@@ -1,5 +1,19 @@
 # Domain Decisions
 
+## 2026-05-22 - V8.1 SQL/TypeScript Scoring Parity
+
+The TypeScript risk engine in `packages/domain` and the Supabase
+`public.calculate_v8_score(...)` function must remain behaviorally aligned.
+During the pilot-hardening audit, the SQL function was aligned with the
+TypeScript/reference rule that agentic behavior is an additive exposure boost,
+not only a review trigger. The SQL score breakdown now persists
+`agentic_boost` alongside data, frequency, automation, extension, and toxic
+boosts.
+
+The persisted Supabase scoring output remains the source read by the DPO
+dashboard. `packages/domain` remains the regression-testable implementation
+reference for scoring edge cases.
+
 ## 2026-05-22 - SAI Pilot Hardening And Live Supabase Validation
 
 The SAI Supabase pilot now treats respondent RPCs as the only anonymous write

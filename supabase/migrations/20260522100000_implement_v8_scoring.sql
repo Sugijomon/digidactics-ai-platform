@@ -28,6 +28,7 @@ DECLARE
   v_frequency_boost numeric := 0;
   v_automation_boost numeric := 0;
   v_extension_boost numeric := 0;
+  v_agentic_boost numeric := 0;
   v_agentic_usage boolean := false;
   v_special_category_data boolean := false;
 
@@ -187,6 +188,7 @@ BEGIN
   END;
 
   v_agentic_usage := v_profile.automation_usage_code = 'agents_reeks_taken';
+  v_agentic_boost := CASE WHEN v_agentic_usage THEN 15 ELSE 0 END;
 
   DELETE FROM public.risk_result_tool
    WHERE survey_run_id = p_survey_run_id;
@@ -290,9 +292,10 @@ BEGIN
       + v_data_boost
       + v_frequency_boost
       + v_automation_boost
-      + v_extension_boost;
+      + v_extension_boost
+      + v_agentic_boost;
 
-    v_exposure_score := LEAST(100, ROUND(v_raw_exposure_score, 2));
+    v_exposure_score := LEAST(100, ROUND(v_raw_exposure_score, 0));
     v_toxic_boost := CASE
       WHEN v_shadow_score > v_toxic_shadow_threshold
        AND v_exposure_score > v_toxic_exposure_threshold
@@ -303,7 +306,7 @@ BEGIN
       (0.45 * v_shadow_score)
       + (0.45 * v_exposure_score)
       + v_toxic_boost;
-    v_priority_score := LEAST(100, ROUND(v_priority_score_raw, 2));
+    v_priority_score := LEAST(100, ROUND(v_priority_score_raw, 0));
 
     v_tool_tier := CASE
       WHEN v_priority_score >= 75 THEN 'critical'
@@ -384,6 +387,7 @@ BEGIN
         'frequency_boost', v_frequency_boost,
         'automation_boost', v_automation_boost,
         'extension_boost', v_extension_boost,
+        'agentic_boost', v_agentic_boost,
         'toxic_boost', v_toxic_boost
       ),
       now()
@@ -404,7 +408,7 @@ BEGIN
     FROM unnest(v_run_triggers) AS triggers(trigger_code);
 
   v_person_score_raw := v_highest_priority + (0.15 * v_other_priority_sum);
-  v_person_score := LEAST(100, ROUND(v_person_score_raw, 2));
+  v_person_score := LEAST(100, ROUND(v_person_score_raw, 0));
   v_score_tier := CASE
     WHEN v_person_score >= 75 THEN 'critical'
     WHEN v_person_score >= 50 THEN 'high'
@@ -460,6 +464,7 @@ BEGIN
       'frequency_boost', v_frequency_boost,
       'automation_boost', v_automation_boost,
       'extension_boost', v_extension_boost,
+      'agentic_boost', v_agentic_boost,
       'priority_review_threshold', v_priority_threshold,
       'toxic_shadow_threshold', v_toxic_shadow_threshold,
       'toxic_exposure_threshold', v_toxic_exposure_threshold

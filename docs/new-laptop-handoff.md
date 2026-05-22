@@ -1,6 +1,6 @@
 # New Laptop Handoff
 
-Laatste bijgewerkt: 2026-05-04
+Laatste bijgewerkt: 2026-05-22
 
 Dit document beschrijft hoe je op een nieuwe laptop verdergaat met de Digidactics AI Platform / Shadow AI Scan V8.1 repo.
 
@@ -58,8 +58,14 @@ Belangrijk gedrag dat getest is:
 - `submission_token` wordt na completion opgebrand.
 - Hergebruik van token faalt met `invalid_token_or_run_closed`.
 - Ambassador opt-in zet `survey_run.consent_ambassador = true`.
+- `complete_survey_run(run_id, token)` schrijft via `calculate_v8_score(...)`
+  run- en toolniveau score-output naar `risk_result` en `risk_result_tool`.
+- DPO/admin dashboards lezen organisatiebrede score- en toolpatronen via RLS,
+  zonder individuele respondentidentiteiten te tonen.
 
-Let op: `calculate_v8_score(uuid)` is nog een skeleton. Completion werkt, maar scoring zelf moet nog worden ingevuld.
+Let op: oudere lokale of referentiedocumenten kunnen nog naar een
+`calculate_v8_score` skeleton verwijzen. In deze repo is de functie inmiddels
+geimplementeerd in `supabase/migrations/20260522100000_implement_v8_scoring.sql`.
 
 ## Aanpak Op Nieuwe Laptop
 
@@ -102,32 +108,23 @@ Let op: `calculate_v8_score(uuid)` is nog een skeleton. Completion werkt, maar s
 
 4. Start niet met databasewijzigingen voordat Codex de live migration history heeft bevestigd.
 
-5. Volgende bouwfase: Next.js frontend refactor naar de RPC-flow.
+5. Volgende bouwfase: preview/staging-validatie met echte Supabase env vars en
+   DPO-testgebruikers.
 
 ## Volgende Ontwikkelstap
 
-De volgende stap is een verticale frontend slice:
+De verticale frontend slice bestaat inmiddels. De volgende stap is
+pilot-hardening op een echte preview/staging omgeving:
 
-1. Next.js/Supabase auth fundament met `@supabase/ssr`.
-2. Supabase browser/server clients.
-3. Middleware voor sessieverversing.
-4. Server-side role helper op basis van `user_roles`.
-5. Kleine survey RPC-client:
-   - `startSurveyRun`
-   - `saveProfile`
-   - `saveTool`
-   - `saveToolUseCase`
-   - `completeSurveyRun`
-6. Eén werkende end-to-end flow:
-   - wave token invoeren/openen
-   - survey run starten
-   - profiel opslaan
-   - tool opslaan
-   - use case/context/account opslaan
-   - afronden
-   - verifiëren dat token niet meer werkt
-
-Daarna pas alle schermen en dashboardflows aansluiten.
+1. Configureer GitHub/Vercel/Supabase public frontend env vars.
+2. Deploy SAI preview vanuit `apps/sai`.
+3. Doorloop de respondentflow met een pilot wave token.
+4. Controleer dat `risk_result`, `risk_result_tool`, `dpo_review_items` en
+   audit-events worden gevuld.
+5. Log in als DPO/admin en controleer `/dashboard/activatie`,
+   `/dashboard/tools` en `/dashboard/risicoprofiel`.
+6. Controleer dat kleine clusters worden onderdrukt volgens
+   `dashboard_min_cell_size`.
 
 ## Codex Startup Prompt Voor Nieuwe Laptop
 
@@ -159,7 +156,7 @@ Context:
   - supabase/migrations/
 
 Doel:
-We gaan de Next.js frontend bouwen/refactoren naar de veilige Supabase RPC-flow.
+We gaan de SAI preview/staging flow valideren op de veilige Supabase RPC-flow.
 Anonieme respondenten mogen niet direct naar tabellen schrijven. Alles loopt via RPC's:
 - start_survey_run
 - save_profile
@@ -178,17 +175,19 @@ Anonieme respondenten mogen niet direct naar tabellen schrijven. Alles loopt via
 Eerste opdracht:
 1. Inspecteer eerst de repo-structuur, package files en bestaande app/Next.js setup.
 2. Controleer via Supabase connector de live migration history van project `cfloqagsqwtrtkxdikec`.
-3. Lees `docs/auth-foundation.md` en `docs/rpc-flow-contract.md`.
-4. Maak daarna een korte implementatieplanning voor de verticale slice:
-   survey start -> profiel opslaan -> tool opslaan -> use case/context/account opslaan -> afronden.
-5. Pas nog niets aan voordat je hebt bevestigd welke app/package de Next.js frontend bevat of moet bevatten.
+3. Lees `docs/deployment-preview.md`, `docs/rpc-flow-contract.md` en `docs/risk-engine-spec.md`.
+4. Controleer dat de SAI CI workflow groen is.
+5. Maak daarna een korte validatieplanning voor:
+   survey start -> profiel opslaan -> tool opslaan -> use case/context/account opslaan -> afronden -> DPO dashboard check.
 
 Belangrijke randvoorwaarden:
 - Gebruik `@supabase/ssr` voor Next.js App Router.
 - Gebruik geen `service_role` in frontend/client code.
 - Gebruik geen directe inserts/updates vanuit anon naar survey-tabellen.
 - Bewaar `run_id` en `submission_token` alleen als respondent-flow state; token is na completion ongeldig.
-- Scoringfunctie `calculate_v8_score(uuid)` is nog een skeleton; bouw daar niet op alsof scoring al productie-af is.
+- Scoringfunctie `calculate_v8_score(uuid)` is geimplementeerd. Houd wijzigingen
+  in sync met `packages/domain/src/risk-engine.ts`, `docs/risk-engine-spec.md`
+  en de Supabase migraties.
 - Houd bronmateriaal in `references/` read-only; actieve besluiten horen in `docs/`.
 ```
 
@@ -202,4 +201,3 @@ Voordat je definitief overstapt:
 - Push naar GitHub.
 - Op nieuwe laptop `git pull` draaien.
 - In Codex op nieuwe laptop bovenstaande startup prompt gebruiken.
-

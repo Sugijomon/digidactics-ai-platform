@@ -21,17 +21,17 @@ Goal: make the repo useful as project memory before implementation starts.
 
 Goal: create a lean platform foundation with SAI as the first real app.
 
-- [ ] Initialize workspace package manager and root scripts.
-- [ ] Create `apps/sai` as the first Next.js App Router app.
-- [ ] Keep `apps/rai` and `apps/marketing` out until there is real implementation work.
-- [ ] Add shared package placeholders only where immediately useful:
+- [x] Initialize workspace package manager and root scripts.
+- [x] Create `apps/sai` as the first Next.js App Router app.
+- [x] Keep `apps/rai` and `apps/marketing` out until there is real implementation work.
+- [x] Add shared package placeholders only where immediately useful:
   - `packages/domain`
   - `packages/database`
   - `packages/auth`
   - `packages/ui`
   - `packages/config`
-- [ ] Add `.env.example`.
-- [ ] Verify local dev server and basic build.
+- [x] Add `.env.example`.
+- [x] Verify local dev server and basic build.
 
 ## Phase 2 - Supabase And Auth Foundation
 
@@ -122,11 +122,11 @@ Goal: implement V8.1 scoring server-side or server-trusted in shared domain logi
 Goal: build the first dashboard set after the survey and scoring layers are stable.
 
 - [ ] Use approved dashboard HTML as visual reference.
-- [ ] Build Activatie.
-- [ ] Build Tool Inventaris.
-- [ ] Build Risicoprofiel.
+- [x] Build Activatie.
+- [x] Build Tool Inventaris.
+- [x] Build Risicoprofiel.
 - [ ] Keep Governance and Rapportage as later modules unless explicitly pulled forward.
-- [ ] Do not show individual respondent identities in risk dashboards.
+- [x] Do not show individual respondent identities in risk dashboards.
 - [ ] Keep public/organization-wide scoreboard out of scope until Rapportage module.
 
 ## Phase 8 - Validation And Deployment
@@ -146,8 +146,8 @@ Goal: validate the full flow before production.
 
 ## Current Focus
 
-The current focus is pilot hardening: finish V8.1 scoring edge-case tests,
-validate DPO dashboard aggregates against live Supabase data, and prepare a
-Vercel preview.
+The current focus is preview readiness: create/link the Vercel project,
+configure real Supabase frontend env vars, run the pilot smoke test against a
+preview deployment, and verify DPO dashboards against live scoring output.
 
 Do not start full RAI, Governance, or Rapportage implementation before the SAI foundation is working.

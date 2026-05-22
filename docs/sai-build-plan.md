@@ -138,6 +138,8 @@ Goal: validate the full flow before production.
 - [x] Validate RLS behavior.
 - [x] Validate scoring against V8.1 scenarios.
 - [x] Validate dashboard aggregates.
+- [x] Add GitHub CI workflow for SAI validation.
+- [x] Document Vercel preview setup and acceptance runbook.
 - [ ] Deploy SAI preview to Vercel.
 - [ ] Configure Supabase redirect URLs.
 - [ ] Only then decide final production route/domain.

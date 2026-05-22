@@ -1,0 +1,71 @@
+name: SAI CI
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/sai-ci.yml"
+      - "apps/sai/**"
+      - "docs/**"
+      - "package.json"
+      - "packages/domain/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "supabase/**"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/sai-ci.yml"
+      - "apps/sai/**"
+      - "docs/**"
+      - "package.json"
+      - "packages/domain/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "supabase/**"
+
+jobs:
+  validate:
+    name: Validate SAI
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Enable pnpm
+        run: corepack enable pnpm
+
+      - name: Install dependencies
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Install Playwright browser
+        run: corepack pnpm --dir apps/sai exec playwright install --with-deps chromium
+
+      - name: Domain tests
+        run: corepack pnpm test:domain
+
+      - name: SAI lint
+        run: corepack pnpm lint:sai
+
+      - name: SAI build
+        run: corepack pnpm build:sai
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: SAI e2e
+        run: corepack pnpm test:e2e:sai
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}

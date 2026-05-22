@@ -35,8 +35,11 @@ type RiskSummary = {
   criticalTools: number;
   dpoRequiredRuns: number;
   matrixCells: MatrixCell[];
+  minCellSize: number;
   reviewQueue: ReviewQueueItem[];
   runs: RiskResultRow[];
+  suppressedMatrixCells: number;
+  suppressedReviewItems: number;
   tierCounts: Record<string, number>;
   toolRows: RiskResultToolRow[];
   topTriggers: [string, number][];
@@ -46,6 +49,7 @@ type MatrixCell = {
   count: number;
   exposureBand: ScoreBand;
   shadowBand: ScoreBand;
+  suppressed?: boolean;
 };
 
 type ReviewQueueItem = {
@@ -115,6 +119,13 @@ export default async function RiskProfileDashboardPage() {
               </p>
             </div>
             <PriorityMatrix cells={summary.matrixCells} />
+            {summary.suppressedMatrixCells > 0 ? (
+              <p className="text-xs font-semibold text-[#6993aa]">
+                {summary.suppressedMatrixCells} matrixcellen bevatten kleine
+                clusters onder de minimale celgrootte ({summary.minCellSize}) en
+                worden kwalitatief getoond.
+              </p>
+            ) : null}
           </section>
 
           <section className="grid gap-4 rounded-[1.5rem] border border-white/80 bg-white/85 p-5 shadow-[0_8px_30px_rgba(0,101,139,0.05)] md:p-6">
@@ -140,6 +151,12 @@ export default async function RiskProfileDashboardPage() {
               Hoogste prioriteit eerst. Dit is de basis voor de latere
               Governance-module.
             </p>
+            {summary.suppressedReviewItems > 0 ? (
+              <p className="mt-1 text-xs font-semibold text-[#6993aa]">
+                {summary.suppressedReviewItems} review-items zijn samengevoegd
+                of verborgen vanwege minimale celgrootte.
+              </p>
+            ) : null}
           </div>
           {summary.reviewQueue.length > 0 ? (
             <div className="grid gap-3">
@@ -158,7 +175,7 @@ export default async function RiskProfileDashboardPage() {
 
 async function getRiskSummary(orgId: string): Promise<RiskSummary> {
   const supabase = await createClient();
-  const [runsResult, toolsResult] = await Promise.all([
+  const [runsResult, toolsResult, minCellResult] = await Promise.all([
     supabase
       .from("risk_result")
       .select(
@@ -182,10 +199,23 @@ async function getRiskSummary(orgId: string): Promise<RiskSummary> {
       )
       .eq("org_id", orgId)
       .returns<RiskResultToolRow[]>(),
+    supabase
+      .from("scan_scoring_config")
+      .select("dashboard_min_cell_size")
+      .eq("org_id", orgId)
+      .eq("is_active", true)
+      .order("effective_from", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ]);
 
   const runs = runsResult.error || !runsResult.data ? [] : runsResult.data;
   const toolRows = toolsResult.error || !toolsResult.data ? [] : toolsResult.data;
+  const minCellSize =
+    minCellResult.error || !minCellResult.data
+      ? 5
+      : (minCellResult.data.dashboard_min_cell_size ?? 5);
+  const visibleToolNames = getVisibleToolNames(toolRows, minCellSize);
   const tierCounts = countTiers(runs);
   const topTriggers = countTriggers([
     ...runs.flatMap((row) => row.review_trigger_codes ?? []),
@@ -193,10 +223,17 @@ async function getRiskSummary(orgId: string): Promise<RiskSummary> {
   ]);
   const reviewQueue = toolRows
     .map(toReviewQueueItem)
+    .filter((item) => visibleToolNames.has(item.toolName))
     .filter((item) => item.priorityScore >= 40 || item.triggers.length > 0)
     .sort((a, b) => b.priorityScore - a.priorityScore)
     .slice(0, 8);
-  const matrixCells = buildMatrixCells(toolRows);
+  const matrixCells = buildMatrixCells(toolRows, minCellSize);
+  const suppressedReviewItems = toolRows
+    .map(toReviewQueueItem)
+    .filter((item) => !visibleToolNames.has(item.toolName))
+    .filter((item) => item.priorityScore >= 40 || item.triggers.length > 0)
+    .length;
+  const suppressedMatrixCells = matrixCells.filter((cell) => cell.suppressed).length;
   const dpoRequiredRuns = runs.filter((row) => row.dpo_review_required).length;
   const criticalTools = toolRows.filter(
     (row) => (row.score_tier_tool ?? "").toLowerCase() === "critical",
@@ -216,8 +253,11 @@ async function getRiskSummary(orgId: string): Promise<RiskSummary> {
     criticalTools,
     dpoRequiredRuns,
     matrixCells,
+    minCellSize,
     reviewQueue,
     runs,
+    suppressedMatrixCells,
+    suppressedReviewItems,
     tierCounts,
     toolRows,
     topTriggers,
@@ -259,7 +299,7 @@ function PriorityMatrix({ cells }: { cells: MatrixCell[] }) {
                   key={`${shadowBand}-${exposureBand}`}
                 >
                   <span className="grid h-12 w-12 place-items-center rounded-full bg-white text-sm font-extrabold text-[#181c1e] shadow-sm">
-                    {cell?.count ?? 0}
+                    {cell?.suppressed ? "<5" : (cell?.count ?? 0)}
                   </span>
                 </div>
               );
@@ -435,7 +475,7 @@ function countTriggers(triggers: string[]) {
   return Object.entries(counts).sort((a, b) => b[1] - a[1]);
 }
 
-function buildMatrixCells(rows: RiskResultToolRow[]): MatrixCell[] {
+function buildMatrixCells(rows: RiskResultToolRow[], minCellSize: number): MatrixCell[] {
   const counts = new Map<string, MatrixCell>();
 
   for (const row of rows) {
@@ -447,7 +487,10 @@ function buildMatrixCells(rows: RiskResultToolRow[]): MatrixCell[] {
     counts.set(key, cell);
   }
 
-  return Array.from(counts.values());
+  return Array.from(counts.values()).map((cell) => ({
+    ...cell,
+    suppressed: cell.count > 0 && cell.count < minCellSize,
+  }));
 }
 
 function toReviewQueueItem(row: RiskResultToolRow): ReviewQueueItem {
@@ -459,6 +502,20 @@ function toReviewQueueItem(row: RiskResultToolRow): ReviewQueueItem {
     toolName: row.survey_tool?.tool_name ?? "Onbekende tool",
     triggers: row.trigger_codes ?? [],
   };
+}
+
+function getVisibleToolNames(rows: RiskResultToolRow[], minCellSize: number) {
+  const counts = rows.reduce<Record<string, number>>((acc, row) => {
+    const toolName = row.survey_tool?.tool_name ?? "Onbekende tool";
+    acc[toolName] = (acc[toolName] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  return new Set(
+    Object.entries(counts)
+      .filter(([, count]) => count >= minCellSize)
+      .map(([toolName]) => toolName),
+  );
 }
 
 function toNumber(value: number | string | null | undefined) {

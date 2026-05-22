@@ -88,6 +88,16 @@ export type RiskScoreResult = {
   reviewTriggerCodes: ReviewTriggerCode[];
 };
 
+export type RunRiskAggregate = {
+  dpoReviewRequired: boolean;
+  highestPriorityScore: number;
+  personScore: number;
+  reviewClass: "standard" | "priority_review" | "toxic_shadow";
+  reviewTriggerCodes: ReviewTriggerCode[];
+  riskBand: RiskBand;
+  toolCount: number;
+};
+
 const DEFAULT_PRIORITY_REVIEW_THRESHOLD = 40;
 const DEFAULT_TOXIC_SHADOW_THRESHOLD = 50;
 const DEFAULT_TOXIC_EXPOSURE_THRESHOLD = 50;
@@ -240,6 +250,49 @@ export function calculateRiskScore(input: RiskScoreInput): RiskScoreResult {
     priorityScore,
     riskBand: getRiskBand(priorityScore),
     reviewTriggerCodes,
+  };
+}
+
+export function aggregateRiskResults(
+  toolResults: Pick<RiskScoreResult, "priorityScore" | "reviewTriggerCodes">[],
+): RunRiskAggregate {
+  if (toolResults.length === 0) {
+    return {
+      dpoReviewRequired: false,
+      highestPriorityScore: 0,
+      personScore: 0,
+      reviewClass: "standard",
+      reviewTriggerCodes: [],
+      riskBand: "low",
+      toolCount: 0,
+    };
+  }
+
+  const sortedPriorities = toolResults
+    .map((result) => result.priorityScore)
+    .sort((a, b) => b - a);
+  const highestPriorityScore = sortedPriorities[0] ?? 0;
+  const otherPrioritySum = sortedPriorities
+    .slice(1)
+    .reduce((sum, score) => sum + score, 0);
+  const personScore = clampScore(highestPriorityScore + 0.15 * otherPrioritySum);
+  const reviewTriggerCodes = Array.from(
+    new Set(toolResults.flatMap((result) => result.reviewTriggerCodes)),
+  );
+  const reviewClass = reviewTriggerCodes.includes("prohibited_tool") || personScore >= 75
+    ? "toxic_shadow"
+    : reviewTriggerCodes.length > 0
+      ? "priority_review"
+      : "standard";
+
+  return {
+    dpoReviewRequired: reviewClass !== "standard",
+    highestPriorityScore,
+    personScore,
+    reviewClass,
+    reviewTriggerCodes,
+    riskBand: getRiskBand(personScore),
+    toolCount: toolResults.length,
   };
 }
 

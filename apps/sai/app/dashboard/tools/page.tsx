@@ -23,6 +23,7 @@ type ToolInventoryRow = {
   euAiFlagCount: number;
   policyStatus: string;
   respondentCount: number;
+  suppressed?: boolean;
   toolName: string;
   totalUses: number;
   useCases: Record<string, number>;
@@ -116,23 +117,38 @@ export default async function ToolInventoryDashboardPage() {
 
 async function getToolInventory(orgId: string): Promise<ToolInventoryRow[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("survey_tool")
-    .select(
-      `
-        id,
-        survey_run_id,
-        tool_name,
-        is_custom,
-        org_policy_status_code_snapshot,
-        eu_ai_act_flag_code_snapshot,
-        survey_run!inner(org_id),
-        survey_tool_account(account_type_code),
-        survey_tool_use_case(use_case_code)
-      `,
-    )
-    .eq("survey_run.org_id", orgId)
-    .returns<SurveyToolRow[]>();
+  const [toolsResult, minCellResult] = await Promise.all([
+    supabase
+      .from("survey_tool")
+      .select(
+        `
+          id,
+          survey_run_id,
+          tool_name,
+          is_custom,
+          org_policy_status_code_snapshot,
+          eu_ai_act_flag_code_snapshot,
+          survey_run!inner(org_id),
+          survey_tool_account(account_type_code),
+          survey_tool_use_case(use_case_code)
+        `,
+      )
+      .eq("survey_run.org_id", orgId)
+      .returns<SurveyToolRow[]>(),
+    supabase
+      .from("scan_scoring_config")
+      .select("dashboard_min_cell_size")
+      .eq("org_id", orgId)
+      .eq("is_active", true)
+      .order("effective_from", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+  const { data, error } = toolsResult;
+  const minCellSize =
+    minCellResult.error || !minCellResult.data
+      ? 5
+      : (minCellResult.data.dashboard_min_cell_size ?? 5);
 
   if (error || !data) {
     return [];
@@ -181,12 +197,21 @@ async function getToolInventory(orgId: string): Promise<ToolInventoryRow[]> {
     byTool.set(key, existing);
   }
 
-  return Array.from(byTool.values())
+  const rows = Array.from(byTool.values())
     .map(({ respondentIds, ...row }) => ({
       ...row,
       respondentCount: respondentIds.size,
-    }))
+    }));
+  const visibleRows = rows.filter((row) => row.respondentCount >= minCellSize);
+  const suppressedRows = rows.filter((row) => row.respondentCount < minCellSize);
+
+  if (suppressedRows.length > 0) {
+    visibleRows.push(mergeSuppressedToolRows(suppressedRows));
+  }
+
+  return visibleRows
     .sort((a, b) => {
+      if (a.suppressed !== b.suppressed) return a.suppressed ? 1 : -1;
       const usageDiff = b.totalUses - a.totalUses;
       return usageDiff !== 0
         ? usageDiff
@@ -210,7 +235,11 @@ function ToolInventoryTableRow({ row }: { row: ToolInventoryRow }) {
       <td className="px-4 py-4">
         <p className="font-extrabold text-[#181c1e]">{row.toolName}</p>
         <p className="mt-1 text-xs font-semibold text-[#6993aa]">
-          {row.customCount > 0 ? `${row.customCount} eigen invoer` : "Catalogus/tool"}
+          {row.suppressed
+            ? "Samengevoegd vanwege minimale celgrootte"
+            : row.customCount > 0
+              ? `${row.customCount} eigen invoer`
+              : "Catalogus/tool"}
           {row.euAiFlagCount > 0 ? ` · ${row.euAiFlagCount} EU AI signaal` : ""}
         </p>
       </td>
@@ -241,7 +270,11 @@ function ToolInventoryTableRow({ row }: { row: ToolInventoryRow }) {
               {formatCode(code)} {count}
             </span>
           ))}
-          {Object.keys(row.useCases).length === 0 ? (
+          {row.suppressed ? (
+            <span className="text-xs font-semibold text-[#94a3b8]">
+              Details onderdrukt
+            </span>
+          ) : Object.keys(row.useCases).length === 0 ? (
             <span className="text-xs font-semibold text-[#94a3b8]">
               Geen use-case vastgelegd
             </span>
@@ -339,6 +372,35 @@ function getInventoryMetrics(inventory: ToolInventoryRow[]) {
     totalUses,
     uniqueTools: inventory.length,
   };
+}
+
+function mergeSuppressedToolRows(rows: ToolInventoryRow[]): ToolInventoryRow {
+  return rows.reduce<ToolInventoryRow>(
+    (merged, row) => {
+      merged.customCount += row.customCount;
+      merged.euAiFlagCount += row.euAiFlagCount;
+      merged.policyStatus = strongestPolicyStatus(merged.policyStatus, row.policyStatus);
+      merged.respondentCount += row.respondentCount;
+      merged.totalUses += row.totalUses;
+
+      for (const [code, count] of Object.entries(row.accountTypes)) {
+        merged.accountTypes[code] = (merged.accountTypes[code] ?? 0) + count;
+      }
+
+      return merged;
+    },
+    {
+      accountTypes: {},
+      customCount: 0,
+      euAiFlagCount: 0,
+      policyStatus: "newly_discovered",
+      respondentCount: 0,
+      suppressed: true,
+      toolName: "Kleine toolclusters",
+      totalUses: 0,
+      useCases: {},
+    },
+  );
 }
 
 function strongestPolicyStatus(current: string, candidate: string) {

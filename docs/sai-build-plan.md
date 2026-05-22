@@ -115,7 +115,7 @@ Goal: implement V8.1 scoring server-side or server-trusted in shared domain logi
   - sensitive data can trigger review
 - [x] Handle exit path with `person_score = 0` and no tool result rows.
 - [x] Store audit-friendly results.
-- [ ] Add focused tests for scoring edge cases.
+- [x] Add focused tests for scoring edge cases.
 
 ## Phase 7 - DPO Dashboard Light
 
@@ -136,8 +136,8 @@ Goal: validate the full flow before production.
 - [x] Run local typecheck/build.
 - [x] Run smoke tests for normal path and exit path.
 - [x] Validate RLS behavior.
-- [ ] Validate scoring against V8.1 scenarios.
-- [ ] Validate dashboard aggregates.
+- [x] Validate scoring against V8.1 scenarios.
+- [x] Validate dashboard aggregates.
 - [ ] Deploy SAI preview to Vercel.
 - [ ] Configure Supabase redirect URLs.
 - [ ] Only then decide final production route/domain.

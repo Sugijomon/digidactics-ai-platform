@@ -20,6 +20,22 @@ table inserts remain blocked, direct scoring is not executable by `anon`, and a
 completed respondent run writes `risk_result` and `risk_result_tool` records via
 `complete_survey_run`.
 
+## 2026-05-22 - Dashboard Privacy And Scoring Regression Tests
+
+SAI dashboards now apply the configured `dashboard_min_cell_size` to operational
+clusters. Tool inventory rows below the minimum are merged into a small-cluster
+bucket, risk matrix cells below the minimum show only a qualitative small-cluster
+signal, and review queue rows for below-minimum tool clusters are suppressed.
+
+Completed runs that predate the live V8.1 scoring function are backfilled with
+`calculate_v8_score(...)` so dashboard aggregates use persisted scoring results
+consistently.
+
+The shared domain package now has focused regression tests for V8.1 scoring edge
+cases: approved tools with sensitive data, prohibited high-exposure use, unknown
+tool policy status, no-tool exit path aggregation, and hybrid multi-tool run
+aggregation.
+
 ## 2026-05-22 - DPO Risk Profile Dashboard KPIs
 
 The first SAI DPO risk profile dashboard uses persisted V8.1 scoring results as

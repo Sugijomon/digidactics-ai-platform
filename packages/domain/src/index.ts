@@ -1,4 +1,5 @@
 export {
+  aggregateRiskResults,
   calculateExposureScore,
   calculatePriorityScore,
   calculateRiskScore,
@@ -10,8 +11,9 @@ export {
   type FrequencyCode,
   type OrgPolicyStatusCode,
   type RiskBand,
+  type RunRiskAggregate,
   type RiskScoreInput,
   type RiskScoreResult,
   type ReviewTriggerCode,
   type UseCaseCode,
-} from "./risk-engine";
+} from "./risk-engine.js";

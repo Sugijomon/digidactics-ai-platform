@@ -5,6 +5,7 @@
   "scripts": {
     "dev:sai": "pnpm --dir apps/sai dev",
     "build:sai": "pnpm --dir apps/sai build",
-    "lint:sai": "pnpm --dir apps/sai lint"
+    "lint:sai": "pnpm --dir apps/sai lint",
+    "test:domain": "pnpm --dir packages/domain test"
   }
 }

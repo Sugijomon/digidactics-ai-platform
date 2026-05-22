@@ -70,6 +70,11 @@ interface AttemptRow {
   status: "started" | "submitted" | "graded";
   attempt_number: number;
   answers: unknown;
+  score: number | null;
+  max_score: number | null;
+  percentage: number | null;
+  passed: boolean | null;
+  manual_review_required: boolean;
   submitted_at: string | null;
 }
 
@@ -330,7 +335,9 @@ async function getLatestPageAttempts(
 
   const { data: attemptRows } = await supabase
     .from("learning_page_attempts")
-    .select("page_id, status, attempt_number, answers, submitted_at")
+    .select(
+      "page_id, status, attempt_number, answers, score, max_score, percentage, passed, manual_review_required, submitted_at",
+    )
     .eq("course_id", courseId)
     .eq("user_id", userId)
     .in("page_id", pageIds)
@@ -347,6 +354,11 @@ async function getLatestPageAttempts(
       status: attempt.status,
       attempt_number: attempt.attempt_number,
       answers: normalizeAttemptAnswers(attempt.answers),
+      score: attempt.score,
+      max_score: attempt.max_score,
+      percentage: attempt.percentage,
+      passed: attempt.passed,
+      manual_review_required: attempt.manual_review_required,
       submitted_at: attempt.submitted_at,
     };
 

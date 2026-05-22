@@ -6,6 +6,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   estimateCompletionPercentage,
   isLessonContent,
+  type LessonBlock,
+  type LessonContent,
 } from "@digidactics/domain/learning";
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 
@@ -78,12 +80,18 @@ export async function completeAiLiteracyPage(formData: FormData) {
   }
 
   const answers = extractPageAnswers(formData, page.content);
+  const grading = gradePageAttempt(page.content, answers);
   const manualReviewRequired = page.content.blocks.some(
     (block) =>
       block.type === "quiz_essay" ||
       block.type === "short_answer" ||
       block.type === "case_lab",
   );
+  const passingThreshold = await getCoursePassingThreshold(supabase, courseId);
+  const passed =
+    grading.maxScore > 0 && !manualReviewRequired
+      ? grading.percentage >= passingThreshold
+      : null;
   const { count: attemptCount, error: attemptCountError } = await supabase
     .from("learning_page_attempts")
     .select("id", { count: "exact", head: true })
@@ -106,6 +114,10 @@ export async function completeAiLiteracyPage(formData: FormData) {
         attempt_number: (attemptCount ?? 0) + 1,
         status: "submitted",
         answers,
+        score: grading.maxScore > 0 ? grading.score : null,
+        max_score: grading.maxScore > 0 ? grading.maxScore : null,
+        percentage: grading.maxScore > 0 ? grading.percentage : null,
+        passed,
         manual_review_required: manualReviewRequired,
         submitted_at: new Date().toISOString(),
       });
@@ -157,7 +169,15 @@ export async function completeAiLiteracyPage(formData: FormData) {
   redirect(`/learning/${courseCode}`);
 }
 
-function extractPageAnswers(formData: FormData, content: { blocks: Array<{ id: string; type: string }> }) {
+type PageAnswers = Record<
+  string,
+  { block_type: string; value: string | string[] }
+>;
+
+function extractPageAnswers(
+  formData: FormData,
+  content: { blocks: Array<{ id: string; type: string }> },
+): PageAnswers {
   return Object.fromEntries(
     content.blocks
       .map((block) => {
@@ -182,6 +202,56 @@ function extractPageAnswers(formData: FormData, content: { blocks: Array<{ id: s
         Boolean(entry),
       ),
   );
+}
+
+function gradePageAttempt(content: LessonContent, answers: PageAnswers) {
+  const gradableBlocks = content.blocks.filter(isAutoGradableBlock);
+  const score = gradableBlocks.filter((block) => isCorrectAnswer(block, answers[block.id]?.value))
+    .length;
+  const maxScore = gradableBlocks.length;
+
+  return {
+    score,
+    maxScore,
+    percentage: maxScore === 0 ? 0 : Math.round((score / maxScore) * 100),
+  };
+}
+
+function isAutoGradableBlock(block: LessonBlock) {
+  return (
+    block.type === "quiz_multiple_choice" ||
+    block.type === "quiz_multiple_select" ||
+    block.type === "quiz_true_false"
+  );
+}
+
+function isCorrectAnswer(block: LessonBlock, value: string | string[] | undefined) {
+  switch (block.type) {
+    case "quiz_multiple_choice":
+      return typeof value === "string" && value === block.correct_option_id;
+    case "quiz_multiple_select":
+      return Array.isArray(value) && sameStringSet(value, block.correct_option_ids);
+    case "quiz_true_false":
+      return typeof value === "string" && (value === "true") === block.correct_answer;
+    default:
+      return false;
+  }
+}
+
+function sameStringSet(left: string[], right: string[]) {
+  if (left.length !== right.length) return false;
+  const rightSet = new Set(right);
+  return left.every((value) => rightSet.has(value));
+}
+
+async function getCoursePassingThreshold(supabase: SupabaseClient, courseId: string) {
+  const { data } = await supabase
+    .from("learning_courses")
+    .select("passing_threshold")
+    .eq("id", courseId)
+    .maybeSingle<{ passing_threshold: number | null }>();
+
+  return data?.passing_threshold ?? 80;
 }
 
 export async function completeAiLiteracyLesson(formData: FormData) {

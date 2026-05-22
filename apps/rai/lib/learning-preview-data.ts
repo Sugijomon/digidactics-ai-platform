@@ -40,6 +40,11 @@ export interface LearningAttemptView {
   status: "started" | "submitted" | "graded";
   attempt_number: number;
   answers: Record<string, LearningAttemptAnswerView>;
+  score: number | null;
+  max_score: number | null;
+  percentage: number | null;
+  passed: boolean | null;
+  manual_review_required: boolean;
   submitted_at: string | null;
 }
 

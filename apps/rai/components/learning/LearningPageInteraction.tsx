@@ -65,9 +65,12 @@ export function LearningPageInteraction({
       <article className="lesson-shell page-canvas">
         {latestAttempt ? (
           <div className="resume-notice">
-            <strong>Hervat vanaf je laatste poging</strong>
+            <strong>{getAttemptStatusLabel(latestAttempt)}</strong>
             <span>
               Poging {latestAttempt.attempt_number}
+              {typeof latestAttempt.percentage === "number"
+                ? ` / ${latestAttempt.percentage}%`
+                : ""}
               {latestAttempt.submitted_at ? ` / ${formatDate(latestAttempt.submitted_at)}` : ""}
             </span>
           </div>
@@ -408,6 +411,22 @@ function formatDate(value: string) {
     minute: "2-digit",
     month: "2-digit",
   }).format(new Date(value));
+}
+
+function getAttemptStatusLabel(attempt: LearningAttemptView) {
+  if (attempt.manual_review_required) {
+    return "Poging opgeslagen, review nodig";
+  }
+
+  if (attempt.passed === true) {
+    return "Poging behaald";
+  }
+
+  if (attempt.passed === false) {
+    return "Poging nog niet behaald";
+  }
+
+  return "Hervat vanaf je laatste poging";
 }
 
 function sameStringSet(left: string[], right: string[]) {

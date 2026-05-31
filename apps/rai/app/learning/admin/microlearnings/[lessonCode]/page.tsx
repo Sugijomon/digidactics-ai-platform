@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ContentEditorShell } from "@/components/learning/admin/ContentEditorShell";
 import { LearningAdminEditor } from "@/components/learning/LearningAdminEditor";
@@ -18,17 +17,12 @@ export default async function AdminMicroLearningEditorPage({
   }
 
   return (
-    <ContentEditorShell active="courses">
-      <div className="admin-page-header compact-header">
-        <div>
-          <p className="breadcrumb">Content Editor / Micro-learnings / {page.title}</p>
-          <h1>Micro-learning bewerken</h1>
-        </div>
-        <Link className="button button-secondary" href="/learning/admin/courses?view=microlearnings">
-          Terug
-        </Link>
-      </div>
-
+    <ContentEditorShell
+      active="courses"
+      focusBackHref="/learning/admin/courses?view=microlearnings"
+      focusBackLabel="Terug naar micro-learnings"
+      focusMode={true}
+    >
       <LearningAdminEditor
         course={course}
         initialPageCode={page.page_code}

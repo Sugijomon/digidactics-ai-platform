@@ -1,8 +1,16 @@
 import Link from "next/link";
+import { ArchiveCourseButton } from "@/components/learning/admin/ArchiveCourseButton";
+import { Breadcrumb } from "@/components/learning/admin/Breadcrumb";
 import { NewCourseDialog, NewMicroLearningDialog } from "@/components/learning/admin/CatalogCreateDialog";
 import { ContentEditorShell } from "@/components/learning/admin/ContentEditorShell";
+import {
+  getLearningCourseImage,
+  getLearningCourseLevelNumber,
+  getLearningMicroImage,
+  getLearningMicroVisualKey,
+} from "@/lib/learning-course-visuals";
 import { getLearningAdminOverview } from "@/lib/learning-admin-data";
-import { createLearningCourse, createMicroLearning } from "../actions";
+import { archiveLearningCourse, createLearningCourse, createMicroLearning } from "../actions";
 
 export default async function AdminCoursesPage({
   searchParams,
@@ -18,46 +26,92 @@ export default async function AdminCoursesPage({
     <ContentEditorShell active="courses">
       <div className="admin-page-header compact-header catalog-page-header">
         <div>
-          <p className="breadcrumb">Content Editor / Cursussen</p>
+          <Breadcrumb
+            items={[
+              { label: "Content Editor", href: "/learning/admin" },
+              { label: "Cursussen" },
+            ]}
+          />
           <h1>Content Editor</h1>
         </div>
-        {activeView === "courses" ? (
-          <NewCourseDialog action={createLearningCourse} />
-        ) : (
+        {activeView === "microlearnings" ? (
           <NewMicroLearningDialog action={createMicroLearning} />
-        )}
+        ) : null}
       </div>
 
       <CatalogTabs activeView={activeView} microLearningCount={overview.microLearnings.length} />
 
       {activeView === "courses" ? (
         <>
-          <section className="catalog-summary-grid" aria-label="Cursusstatistieken">
-            <StatCard label="Cursussen" value={String(overview.courses.length)} />
-            <StatCard label="Micro-learnings" value={String(overview.microLearnings.length)} />
-            <StatCard label="Gepubliceerd" value={String(publishedCourses.length)} />
+          <section className="admin-kpi-strip" aria-label="Cursusstatistieken">
+            <div className="admin-kpi">
+              <strong>{overview.courses.length}</strong>
+              <span>Cursussen</span>
+            </div>
+            <div className="admin-kpi">
+              <strong>{overview.microLearnings.length}</strong>
+              <span>Micro-learnings</span>
+            </div>
+            <div className="admin-kpi">
+              <strong>{publishedCourses.length}</strong>
+              <span>Gepubliceerd</span>
+            </div>
           </section>
-          <section className="admin-course-grid catalog-course-grid" aria-label="Cursussen">
-            {overview.courses.map((course) => (
-              <article className="admin-course-card" key={course.id}>
-                <div className="admin-card-title-row">
-                  <h2>{course.title}</h2>
-                  <StatusBadge status={course.status} />
-                </div>
-                <p>{course.description ?? "Geen beschrijving ingesteld."}</p>
-                <div className="admin-card-footer">
-                  <span>
-                    {course.page_count} {course.page_count === 1 ? "pagina" : "pagina's"}
-                  </span>
-                  <Link
-                    className="button button-secondary"
-                    href={`/learning/admin/courses/${course.course_code}`}
-                  >
-                    Cursus bewerken
-                  </Link>
-                </div>
-              </article>
-            ))}
+          <section className="admin-courses-grid" aria-label="Cursussen">
+            {overview.courses.map((course) => {
+              const plainDescription = stripMarkdownMarkers(course.description);
+              const level = getCourseLevel(course.course_code, course.title, course.difficulty_level);
+
+              return (
+                <article className="admin-course-card" key={course.id}>
+                  <div className="admin-course-image">
+                    <img
+                      alt=""
+                      src={getCourseImage(course.course_code, course.title, course.difficulty_level)}
+                    />
+                    <div className="admin-course-image-badges">
+                      <StatusBadge status={course.status} />
+                      <span>{getLevelBadge(level)}</span>
+                    </div>
+                  </div>
+                  <div className="admin-course-body">
+                    <small>{getLevelLabel(level)}</small>
+                    <div className="admin-course-title">{course.title}</div>
+                    <p className="admin-course-desc">
+                      {plainDescription ?? "Geen beschrijving ingesteld."}
+                    </p>
+                    <div className="admin-course-meta">
+                      {course.page_count} {course.page_count === 1 ? "pagina" : "pagina's"} ·{" "}
+                      {course.required_for_onboarding ? "Verplicht" : "Optioneel"}
+                    </div>
+                  </div>
+                  <div className="admin-course-foot">
+                    <Link
+                      className="button button-secondary button-compact"
+                      href={`/learning/admin/courses/${course.course_code}`}
+                    >
+                      Cursus bewerken
+                    </Link>
+                    <ArchiveCourseButton
+                      action={archiveLearningCourse}
+                      courseCode={course.course_code}
+                      courseId={course.id}
+                      courseTitle={course.title}
+                    />
+                  </div>
+                </article>
+              );
+            })}
+            <NewCourseDialog
+              action={createLearningCourse}
+              triggerClassName="admin-course-add"
+              triggerLabel={
+                <>
+                  <span>+</span>
+                  Nieuwe cursus
+                </>
+              }
+            />
           </section>
         </>
       ) : (
@@ -68,43 +122,51 @@ export default async function AdminCoursesPage({
               <p>Standalone modules voor RouteAI risico- en activatiebibliotheek.</p>
             </div>
           </div>
-          <div className="admin-table-card catalog-table-card">
-            <table className="admin-data-table catalog-data-table">
-              <thead>
-                <tr>
-                  <th>Titel</th>
-                  <th>Cluster</th>
-                  <th>Archetypen</th>
-                  <th>Activatie-eis</th>
-                  <th>Status</th>
-                  <th>Actie</th>
-                </tr>
-              </thead>
-              <tbody>
-                {overview.microLearnings.map((lesson) => (
-                  <tr key={lesson.id}>
-                    <td>
-                      <strong>{lesson.title}</strong>
-                      <span>{lesson.summary ?? "Geen samenvatting ingesteld."}</span>
-                    </td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>Nee</td>
-                    <td>
+          <div className="admin-micro-grid">
+            {overview.microLearnings.map((lesson) => {
+              const visualKey = getLearningMicroVisualKey({
+                code: lesson.code,
+                summary: lesson.summary,
+                title: lesson.title,
+              });
+
+              return (
+                <article className="admin-micro-card" key={lesson.id}>
+                  <div className="admin-micro-image">
+                    <img
+                      alt=""
+                      src={getLearningMicroImage({
+                        code: lesson.code,
+                        summary: lesson.summary,
+                        title: lesson.title,
+                      })}
+                    />
+                    <div className="admin-course-image-badges">
                       <StatusBadge status={lesson.status} />
-                    </td>
-                    <td>
-                      <Link
-                        className="button button-secondary"
-                        href={`/learning/admin/microlearnings/${lesson.code}`}
-                      >
-                        Bewerken
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      <span>{getMicroCategoryLabel(visualKey)}</span>
+                    </div>
+                  </div>
+                  <div className="admin-course-body">
+                    <small>Microlearning</small>
+                    <div className="admin-course-title">{lesson.title}</div>
+                    <p className="admin-course-desc">
+                      {lesson.summary ?? "Geen samenvatting ingesteld."}
+                    </p>
+                    <div className="admin-course-meta">
+                      {lesson.estimated_duration_minutes ?? 10} min · Standalone
+                    </div>
+                  </div>
+                  <div className="admin-course-foot">
+                    <Link
+                      className="button button-secondary button-compact"
+                      href={`/learning/admin/microlearnings/${lesson.code}`}
+                    >
+                      Bewerken
+                    </Link>
+                  </div>
+                </article>
+              );
+            })}
             {!overview.microLearnings.length ? (
               <p className="empty-state">Er zijn nog geen micro-learnings aangemaakt.</p>
             ) : null}
@@ -113,6 +175,13 @@ export default async function AdminCoursesPage({
       )}
     </ContentEditorShell>
   );
+}
+
+function stripMarkdownMarkers(description: string | null) {
+  return description
+    ?.replace(/\*\*(.*?)\*\*/g, "$1")
+    ?.replace(/\*(.*?)\*/g, "$1")
+    ?.replace(/__(.*?)__/g, "$1");
 }
 
 function CatalogTabs({
@@ -137,19 +206,40 @@ function CatalogTabs({
   );
 }
 
-function StatCard({ label, value }: { label: string; value: string }) {
-  return (
-    <article className="admin-stat-card">
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </article>
-  );
-}
-
 function StatusBadge({ status }: { status: string }) {
   return (
     <span className={`status-badge ${status === "published" ? "published" : ""}`}>
       {status === "published" ? "Gepubliceerd" : "Concept"}
     </span>
   );
+}
+
+function getCourseLevel(courseCode: string, title: string, difficultyLevel?: string | null) {
+  return getLearningCourseLevelNumber({ courseCode, difficultyLevel, title });
+}
+
+function getCourseImage(courseCode: string, title: string, difficultyLevel?: string | null) {
+  return getLearningCourseImage({ courseCode, difficultyLevel, title });
+}
+
+function getLevelLabel(level: number) {
+  if (level === 3) return "Advanced";
+  if (level === 2) return "Intermediate";
+  return "Foundation";
+}
+
+function getLevelBadge(level: number) {
+  return `Niveau ${level}`;
+}
+
+function getMicroCategoryLabel(key: string) {
+  const labels: Record<string, string> = {
+    client: "Klantcontact",
+    default: "Praktijk",
+    governance: "Governance",
+    privacy: "Privacy",
+    prompting: "Prompting",
+  };
+
+  return labels[key] ?? labels.default;
 }

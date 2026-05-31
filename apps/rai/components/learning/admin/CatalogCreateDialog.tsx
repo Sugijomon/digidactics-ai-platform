@@ -5,15 +5,19 @@ import { useState } from "react";
 
 export function NewCourseDialog({
   action,
+  triggerClassName = "button button-primary",
+  triggerLabel = "+ Nieuwe cursus",
 }: {
   action: (formData: FormData) => void | Promise<void>;
+  triggerClassName?: string;
+  triggerLabel?: ReactNode;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
-      <button className="button button-primary" onClick={() => setIsOpen(true)} type="button">
-        + Nieuwe cursus
+      <button className={triggerClassName} onClick={() => setIsOpen(true)} type="button">
+        {triggerLabel}
       </button>
       {isOpen ? (
         <CatalogDialog
@@ -43,9 +47,20 @@ export function NewCourseDialog({
                 </select>
               </label>
               <label className="field">
+                <span>Niveau</span>
+                <select name="difficultyLevel" defaultValue="foundation">
+                  <option value="foundation">Niveau 1 - Foundation</option>
+                  <option value="intermediate">Niveau 2 - Proficiency</option>
+                  <option value="advanced">Niveau 3 - Mastery</option>
+                </select>
+              </label>
+            </div>
+            <div className="editor-two-column">
+              <label className="field">
                 <span>Slagingsnorm (%)</span>
                 <input name="passingThreshold" defaultValue="80" min="0" max="100" type="number" />
               </label>
+              <span aria-hidden="true" />
             </div>
             <label className="field">
               <span>Ontgrendelt capability</span>

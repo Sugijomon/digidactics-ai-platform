@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Breadcrumb } from "@/components/learning/admin/Breadcrumb";
 import { ContentEditorShell } from "@/components/learning/admin/ContentEditorShell";
 import { getLearningReviewQueue } from "@/lib/learning-admin-data";
 import { reviewLearningPageAttempt } from "../actions";
@@ -10,7 +11,12 @@ export default async function LearningReviewsPage() {
     <ContentEditorShell active="reviews">
       <div className="admin-page-header">
         <div>
-          <p className="breadcrumb">Content Editor / Reviews</p>
+          <Breadcrumb
+            items={[
+              { label: "Content Editor", href: "/learning/admin" },
+              { label: "Reviews" },
+            ]}
+          />
           <h1>Manual Review</h1>
         </div>
         <div className="actions compact-actions">
@@ -45,7 +51,7 @@ export default async function LearningReviewsPage() {
             <article className="admin-table-card review-card" key={review.id}>
               <div className="review-card-header">
                 <div>
-                  <p className="breadcrumb">
+                  <p className="review-card-path">
                     {review.course_title} / {review.page_title}
                   </p>
                   <h2>{review.learner_name}</h2>
@@ -62,12 +68,51 @@ export default async function LearningReviewsPage() {
                   <section className="review-answer" key={blockId}>
                     <div>
                       <span>{answer.block_type}</span>
-                      <strong>{blockId}</strong>
+                      <strong>{review.answer_context[blockId]?.label ?? blockId}</strong>
                     </div>
                     <p>{Array.isArray(answer.value) ? answer.value.join(", ") : answer.value}</p>
+                    {review.answer_context[blockId]?.guidance ? (
+                      <p className="review-guidance">{review.answer_context[blockId]?.guidance}</p>
+                    ) : null}
                   </section>
                 ))}
               </div>
+
+              {review.page_evidence_items.length || review.page_review_rubric.length ? (
+                <section className="review-evidence-panel" aria-label="Rubric en evidence">
+                  {review.page_review_guidance ? (
+                    <div>
+                      <h3>Reviewer guidance</h3>
+                      <p>{review.page_review_guidance}</p>
+                    </div>
+                  ) : null}
+                  {review.page_evidence_items.length ? (
+                    <div>
+                      <h3>Evidence checklist</h3>
+                      <ul>
+                        {review.page_evidence_items.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                  {review.page_review_rubric.length ? (
+                    <div>
+                      <h3>Rubric</h3>
+                      <div className="review-rubric-grid">
+                        {review.page_review_rubric.map((criterion) => (
+                          <article key={criterion.id}>
+                            <strong>{criterion.title}</strong>
+                            <p>{criterion.sufficient}</p>
+                            {criterion.strong ? <p>Sterk: {criterion.strong}</p> : null}
+                            {criterion.hard_fail ? <p className="hard-fail">Hard fail: {criterion.hard_fail}</p> : null}
+                          </article>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                </section>
+              ) : null}
 
               <form action={reviewLearningPageAttempt} className="review-form">
                 <input name="attemptId" type="hidden" value={review.id} />

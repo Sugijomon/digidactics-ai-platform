@@ -4,12 +4,14 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
+  evaluateLearningCertificationEligibility,
   estimateCompletionPercentage,
   isLessonContent,
+  isManualReviewEvidenceBlock,
   type LessonBlock,
   type LessonContent,
 } from "@digidactics/domain/learning";
-import { getSupabaseServerClient } from "@/lib/supabase-server";
+import { getSupabaseAdminClient, getSupabaseServerClient } from "@/lib/supabase-server";
 
 interface LearnerContext {
   userId: string;
@@ -19,6 +21,7 @@ interface LearnerContext {
 interface RequiredPageRow {
   id: string;
   content: unknown;
+  is_required?: boolean;
 }
 
 interface PageProgressRow {
@@ -26,12 +29,35 @@ interface PageProgressRow {
 }
 
 interface PageAttemptRow {
+  answers: PageAnswers;
   page_id: string;
   attempt_number: number;
+  score: number | null;
   max_score: number | null;
   percentage: number | null;
   passed: boolean | null;
   manual_review_required: boolean;
+}
+
+interface LearningAccessRequirementRow {
+  id: string;
+  org_id: string | null;
+  required_certification_code: string;
+  validity_months: number | null;
+}
+
+interface LearningEnrollmentRow {
+  id: string;
+  status: "not_started" | "in_progress" | "completed" | "expired";
+  completed_at: string | null;
+}
+
+interface LearningCertificationIssueResult {
+  certification_id: string;
+  certification_code: string;
+  status: string;
+  issued_at: string;
+  expires_at: string | null;
 }
 
 export async function startAiLiteracyCourse(formData: FormData) {
@@ -99,12 +125,7 @@ export async function completeAiLiteracyPage(formData: FormData) {
 
   const answers = extractPageAnswers(formData, page.content);
   const grading = gradePageAttempt(page.content, answers);
-  const manualReviewRequired = page.content.blocks.some(
-    (block) =>
-      block.type === "quiz_essay" ||
-      block.type === "short_answer" ||
-      block.type === "case_lab",
-  );
+  const manualReviewRequired = page.content.blocks.some(isManualReviewEvidenceBlock);
   const passingThreshold = await getCoursePassingThreshold(supabase, courseId);
   const passed =
     grading.maxScore > 0 && !manualReviewRequired
@@ -122,7 +143,10 @@ export async function completeAiLiteracyPage(formData: FormData) {
   }
 
   if (Object.keys(answers).length > 0) {
-    const { error: attemptError } = await supabase
+    const adminAttemptWriter = getSupabaseAdminClient();
+    const attemptWriter = adminAttemptWriter ?? supabase;
+    const canPersistComputedGrading = Boolean(adminAttemptWriter);
+    const { error: attemptError } = await attemptWriter
       .from("learning_page_attempts")
       .insert({
         org_id: learner.orgId,
@@ -132,10 +156,10 @@ export async function completeAiLiteracyPage(formData: FormData) {
         attempt_number: (attemptCount ?? 0) + 1,
         status: "submitted",
         answers,
-        score: grading.maxScore > 0 ? grading.score : null,
-        max_score: grading.maxScore > 0 ? grading.maxScore : null,
-        percentage: grading.maxScore > 0 ? grading.percentage : null,
-        passed,
+        score: canPersistComputedGrading && grading.maxScore > 0 ? grading.score : null,
+        max_score: canPersistComputedGrading && grading.maxScore > 0 ? grading.maxScore : null,
+        percentage: canPersistComputedGrading && grading.maxScore > 0 ? grading.percentage : null,
+        passed: canPersistComputedGrading ? passed : null,
         manual_review_required: manualReviewRequired,
         submitted_at: new Date().toISOString(),
       });
@@ -184,6 +208,57 @@ export async function completeAiLiteracyPage(formData: FormData) {
     redirect(`/learning/${courseCode}/${nextPageCode}`);
   }
 
+  redirect(`/learning/${courseCode}`);
+}
+
+export async function issueAiLiteracyCertification(formData: FormData) {
+  const courseId = String(formData.get("courseId") ?? "");
+  const courseCode = String(formData.get("courseCode") ?? "ai-literacy-foundation");
+
+  if (!courseId) {
+    throw new Error("Cursus ontbreekt voor certificaatuitgifte.");
+  }
+
+  const supabase = await requireSupabaseClient();
+  const learner = await requireLearnerContext(supabase);
+  const { eligibility, requiredCount } = await getCourseCertificationEligibility(
+    supabase,
+    learner.userId,
+    courseId,
+  );
+
+  if (!eligibility.eligible) {
+    throw new Error(buildEligibilityErrorMessage(eligibility));
+  }
+
+  await saveCourseProgress(
+    supabase,
+    learner,
+    courseId,
+    requiredCount,
+    eligibility.completed_required_page_count,
+    true,
+  );
+
+  const { data: enrollment, error: enrollmentError } = await supabase
+    .from("learning_course_enrollments")
+    .select("id, status, completed_at")
+    .eq("course_id", courseId)
+    .eq("user_id", learner.userId)
+    .maybeSingle<LearningEnrollmentRow>();
+
+  if (enrollmentError || !enrollment?.id) {
+    throw new Error(`Enrollment voor certificaatuitgifte ontbreekt: ${enrollmentError?.message ?? "geen enrollment"}`);
+  }
+
+  await issueCertificationAfterEligibility({
+    courseId,
+    enrollmentId: enrollment.id,
+    learner,
+  });
+
+  revalidatePath("/learning");
+  revalidatePath(`/learning/${courseCode}`);
   redirect(`/learning/${courseCode}`);
 }
 
@@ -237,6 +312,7 @@ function gradePageAttempt(content: LessonContent, answers: PageAnswers) {
 
 function isAutoGradableBlock(block: LessonBlock) {
   return (
+    block.type === "scenario" ||
     block.type === "quiz_multiple_choice" ||
     block.type === "quiz_multiple_select" ||
     block.type === "quiz_true_false"
@@ -245,6 +321,12 @@ function isAutoGradableBlock(block: LessonBlock) {
 
 function isCorrectAnswer(block: LessonBlock, value: string | string[] | undefined) {
   switch (block.type) {
+    case "scenario": {
+      const selectedChoice = typeof value === "string"
+        ? block.choices.find((choice) => choice.id === value)
+        : null;
+      return selectedChoice?.is_recommended === true;
+    }
     case "quiz_multiple_choice":
       return typeof value === "string" && value === block.correct_option_id;
     case "quiz_multiple_select":
@@ -336,58 +418,22 @@ async function upsertCourseProgress(
   learner: LearnerContext,
   courseId: string,
 ) {
-  const { data: requiredPages, error: pagesError } = await supabase
-    .from("learning_pages")
-    .select("id, content")
-    .eq("course_id", courseId)
-    .eq("is_required", true);
+  const pageEligibility = await getCourseCertificationEligibility(
+    supabase,
+    learner.userId,
+    courseId,
+  );
 
-  if (!pagesError && requiredPages) {
-    const pageRows = requiredPages as RequiredPageRow[];
-    const pageIds = pageRows.map((row) => row.id);
-    const requiredCount = pageIds.length;
-
-    const { data: completedProgress, error: progressError } = pageIds.length
-      ? await supabase
-          .from("learning_page_progress")
-          .select("page_id")
-          .eq("course_id", courseId)
-          .eq("user_id", learner.userId)
-          .eq("status", "completed")
-          .in("page_id", pageIds)
-      : { data: [], error: null };
-
-    if (progressError) {
-      throw new Error(`Cursusvoortgang berekenen is mislukt: ${progressError.message}`);
-    }
-
-    const completedPageIds = new Set(
-      ((completedProgress ?? []) as PageProgressRow[]).map((row) => row.page_id),
-    );
-    const completedCount = completedPageIds.size;
-    const latestAttemptsByPageId = await getLatestAttemptsForPages(
-      supabase,
-      learner.userId,
-      courseId,
-      pageIds,
-    );
-    const passingThreshold = await getCoursePassingThreshold(supabase, courseId);
-    const assessmentReady = pageRows.every((page) =>
-      isRequiredPageAssessmentReady(
-        page,
-        completedPageIds,
-        latestAttemptsByPageId.get(page.id),
-        passingThreshold,
-      ),
-    );
+  if (pageEligibility.requiredCount > 0 || pageEligibility.hasPageRows) {
+    const { eligibility, requiredCount } = pageEligibility;
 
     await saveCourseProgress(
       supabase,
       learner,
       courseId,
       requiredCount,
-      completedCount,
-      requiredCount > 0 && completedCount === requiredCount && assessmentReady,
+      eligibility.completed_required_page_count,
+      eligibility.eligible && eligibility.required_page_count === requiredCount,
     );
     return;
   }
@@ -441,7 +487,7 @@ async function getLatestAttemptsForPages(
 
   const { data: attemptRows, error } = await supabase
     .from("learning_page_attempts")
-    .select("page_id, attempt_number, max_score, percentage, passed, manual_review_required")
+    .select("page_id, attempt_number, answers, score, max_score, percentage, passed, manual_review_required")
     .eq("course_id", courseId)
     .eq("user_id", userId)
     .in("page_id", pageIds)
@@ -451,52 +497,287 @@ async function getLatestAttemptsForPages(
     throw new Error(`Pogingen ophalen is mislukt: ${error.message}`);
   }
 
-  return ((attemptRows ?? []) as PageAttemptRow[]).reduce((acc, attempt) => {
+  return ((attemptRows ?? []) as Array<Omit<PageAttemptRow, "answers"> & { answers: unknown }>).reduce((acc, attempt) => {
     if (!acc.has(attempt.page_id)) {
-      acc.set(attempt.page_id, attempt);
+      acc.set(attempt.page_id, {
+        ...attempt,
+        answers: normalizeCertificationAnswers(attempt.answers),
+      });
     }
 
     return acc;
   }, new Map<string, PageAttemptRow>());
 }
 
-function isRequiredPageAssessmentReady(
-  page: RequiredPageRow,
-  completedPageIds: Set<string>,
-  latestAttempt: PageAttemptRow | undefined,
-  passingThreshold: number,
+async function getCourseCertificationEligibility(
+  supabase: SupabaseClient,
+  userId: string,
+  courseId: string,
 ) {
-  if (!completedPageIds.has(page.id)) {
-    return false;
+  const { data: requiredPages, error: pagesError } = await supabase
+    .from("learning_pages")
+    .select("id, content, is_required")
+    .eq("course_id", courseId)
+    .eq("is_required", true);
+
+  if (pagesError) {
+    throw new Error(`Cursusvoortgang berekenen is mislukt: ${pagesError.message}`);
   }
 
-  if (!isLessonContent(page.content)) {
-    return false;
+  const pageRows = (requiredPages ?? []) as RequiredPageRow[];
+  const pageIds = pageRows.map((row) => row.id);
+  const requiredCount = pageIds.length;
+
+  const { data: completedProgress, error: progressError } = pageIds.length
+    ? await supabase
+        .from("learning_page_progress")
+        .select("page_id")
+        .eq("course_id", courseId)
+        .eq("user_id", userId)
+        .eq("status", "completed")
+        .in("page_id", pageIds)
+    : { data: [], error: null };
+
+  if (progressError) {
+    throw new Error(`Cursusvoortgang berekenen is mislukt: ${progressError.message}`);
   }
 
-  const requiresManualReview = page.content.blocks.some(
-    (block) =>
-      block.type === "quiz_essay" ||
-      block.type === "short_answer" ||
-      block.type === "case_lab",
+  const completedPageIds = new Set(
+    ((completedProgress ?? []) as PageProgressRow[]).map((row) => row.page_id),
+  );
+  const latestAttemptsByPageId = await getLatestAttemptsForPages(
+    supabase,
+    userId,
+    courseId,
+    pageIds,
+  );
+  const passingThreshold = await getCoursePassingThreshold(supabase, courseId);
+  const eligibility = evaluateLearningCertificationEligibility(
+    pageRows
+      .map((page) => {
+        if (!isLessonContent(page.content)) {
+          return null;
+        }
+
+        return {
+          page_id: page.id,
+          is_required: true,
+          content: page.content,
+          is_completed: completedPageIds.has(page.id),
+          latest_attempt: enrichAttemptWithComputedGrading(
+            page.content,
+            latestAttemptsByPageId.get(page.id) ?? null,
+            passingThreshold,
+          ),
+        };
+      })
+      .filter((page): page is NonNullable<typeof page> => Boolean(page)),
+    passingThreshold,
   );
 
-  if (requiresManualReview) {
-    return latestAttempt?.manual_review_required === false && latestAttempt.passed !== false;
+  return {
+    eligibility,
+    hasPageRows: Boolean(requiredPages),
+    requiredCount,
+  };
+}
+
+function enrichAttemptWithComputedGrading(
+  content: LessonContent,
+  attempt: PageAttemptRow | null,
+  passingThreshold: number,
+): PageAttemptRow | null {
+  if (!attempt || attempt.manual_review_required || attempt.max_score !== null) {
+    return attempt;
   }
 
-  const hasAutoGradableBlocks = page.content.blocks.some(isAutoGradableBlock);
+  const grading = gradePageAttempt(content, attempt.answers);
 
-  if (!hasAutoGradableBlocks) {
-    return true;
+  if (grading.maxScore === 0) {
+    return attempt;
   }
 
-  return (
-    Boolean(latestAttempt) &&
-    latestAttempt?.manual_review_required === false &&
-    latestAttempt?.passed === true &&
-    (latestAttempt.percentage ?? 0) >= passingThreshold
-  );
+  return {
+    ...attempt,
+    score: grading.score,
+    max_score: grading.maxScore,
+    percentage: grading.percentage,
+    passed: grading.percentage >= passingThreshold,
+  };
+}
+
+async function issueCertificationAfterEligibility({
+  courseId,
+  enrollmentId,
+  learner,
+}: {
+  courseId: string;
+  enrollmentId: string;
+  learner: LearnerContext;
+}): Promise<LearningCertificationIssueResult> {
+  const admin = getSupabaseAdminClient();
+
+  if (!admin) {
+    throw new Error(
+      "Certificaatuitgifte vraagt een vertrouwde serverconfiguratie met SUPABASE_SERVICE_ROLE_KEY.",
+    );
+  }
+
+  const { data: requirements, error: requirementError } = await admin
+    .from("learning_access_requirements")
+    .select("id, org_id, required_certification_code, validity_months")
+    .eq("required_course_id", courseId)
+    .eq("is_active", true);
+
+  if (requirementError) {
+    throw new Error(`Toegangsvereiste ophalen is mislukt: ${requirementError.message}`);
+  }
+
+  const requirement = ((requirements ?? []) as LearningAccessRequirementRow[])
+    .filter((row) => row.org_id === learner.orgId || row.org_id === null)
+    .sort((left, right) => Number(left.org_id === null) - Number(right.org_id === null))[0];
+
+  if (!requirement) {
+    throw new Error("Er is nog geen actief RouteAI access requirement gekoppeld aan deze cursus.");
+  }
+
+  const issuedAt = new Date();
+  const expiresAt =
+    requirement.validity_months && requirement.validity_months > 0
+      ? addMonths(issuedAt, requirement.validity_months).toISOString()
+      : null;
+
+  const { data: existing, error: existingError } = await admin
+    .from("learning_certifications")
+    .select("id")
+    .eq("org_id", learner.orgId)
+    .eq("user_id", learner.userId)
+    .eq("certification_code", requirement.required_certification_code)
+    .eq("status", "active")
+    .maybeSingle<{ id: string }>();
+
+  if (existingError) {
+    throw new Error(`Bestaand certificaat ophalen is mislukt: ${existingError.message}`);
+  }
+
+  if (existing?.id) {
+    const { data, error } = await admin
+      .from("learning_certifications")
+      .update({
+        course_id: courseId,
+        enrollment_id: enrollmentId,
+        issued_at: issuedAt.toISOString(),
+        expires_at: expiresAt,
+        updated_at: issuedAt.toISOString(),
+      })
+      .eq("id", existing.id)
+      .select("id, certification_code, status, issued_at, expires_at")
+      .single();
+
+    if (error || !data) {
+      throw new Error(`Certificaat bijwerken is mislukt: ${error?.message ?? "geen resultaat"}`);
+    }
+
+    return mapCertificationIssueResult(data);
+  }
+
+  const { data, error } = await admin
+    .from("learning_certifications")
+    .insert({
+      org_id: learner.orgId,
+      user_id: learner.userId,
+      course_id: courseId,
+      enrollment_id: enrollmentId,
+      certification_code: requirement.required_certification_code,
+      status: "active",
+      issued_at: issuedAt.toISOString(),
+      expires_at: expiresAt,
+    })
+    .select("id, certification_code, status, issued_at, expires_at")
+    .single();
+
+  if (error || !data) {
+    throw new Error(`Certificaat uitgeven is mislukt: ${error?.message ?? "geen resultaat"}`);
+  }
+
+  return mapCertificationIssueResult(data);
+}
+
+function mapCertificationIssueResult(value: {
+  id: string;
+  certification_code: string;
+  status: string;
+  issued_at: string;
+  expires_at: string | null;
+}): LearningCertificationIssueResult {
+  return {
+    certification_id: value.id,
+    certification_code: value.certification_code,
+    status: value.status,
+    issued_at: value.issued_at,
+    expires_at: value.expires_at,
+  };
+}
+
+function buildEligibilityErrorMessage(
+  eligibility: ReturnType<typeof evaluateLearningCertificationEligibility>,
+) {
+  const reasons = [
+    eligibility.missing_page_ids.length ? `${eligibility.missing_page_ids.length} pagina's nog niet afgerond` : "",
+    eligibility.pending_review_page_ids.length ? `${eligibility.pending_review_page_ids.length} pagina's wachten op review` : "",
+    eligibility.failed_page_ids.length ? `${eligibility.failed_page_ids.length} pagina's onvoldoende` : "",
+    eligibility.insufficient_score_page_ids.length ? `${eligibility.insufficient_score_page_ids.length} pagina's onder de norm` : "",
+    eligibility.missing_competency_codes.length
+      ? `ontbrekende competenties: ${eligibility.missing_competency_codes.join(", ")}`
+      : "",
+  ].filter(Boolean);
+
+  return `Rijbewijs kan nog niet worden uitgegeven: ${reasons.join("; ") || "eligibility is nog niet compleet"}.`;
+}
+
+function addMonths(date: Date, months: number) {
+  const result = new Date(date);
+  result.setMonth(result.getMonth() + months);
+  return result;
+}
+
+function normalizeCertificationAnswers(value: unknown) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+
+  return Object.entries(value).reduce<PageAnswers>((acc, [blockId, answer]) => {
+    if (!answer || typeof answer !== "object" || Array.isArray(answer)) {
+      return acc;
+    }
+
+    const candidate = answer as { block_type?: unknown; value?: unknown };
+    const blockType = typeof candidate.block_type === "string" ? candidate.block_type : "";
+    const answerValue = normalizeCertificationAnswerValue(candidate.value);
+
+    if (!blockType || answerValue === null) {
+      return acc;
+    }
+
+    acc[blockId] = {
+      block_type: blockType,
+      value: answerValue,
+    };
+
+    return acc;
+  }, {});
+}
+
+function normalizeCertificationAnswerValue(value: unknown): string | string[] | null {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (Array.isArray(value) && value.every((item) => typeof item === "string")) {
+    return value;
+  }
+
+  return null;
 }
 
 async function saveCourseProgress(

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode, SVGProps } from "react";
+import { BackButton } from "@/components/learning/admin/BackButton";
 
 type ContentEditorSection = "dashboard" | "courses" | "lessons" | "blocks" | "reviews" | "audit";
 type NavIcon = "dashboard" | "courses" | "lessons" | "questions";
@@ -26,13 +27,26 @@ const navItems: Array<{
 export function ContentEditorShell({
   active,
   children,
+  focusBackHref,
+  focusBackLabel,
+  focusMode = false,
 }: {
   active: ContentEditorSection;
   children: ReactNode;
+  focusBackHref?: string;
+  focusBackLabel?: string;
+  focusMode?: boolean;
 }) {
+  const focusParent =
+    active === "lessons"
+      ? { href: "/learning/admin/lessons", label: "Terug naar lessen" }
+      : { href: "/learning/admin/courses", label: "Terug naar cursussen" };
+  const focusHref = focusBackHref ?? focusParent.href;
+  const focusLabel = focusBackLabel ?? focusParent.label;
+
   return (
     <main className="content-editor-shell">
-      <header className="content-editor-topbar">
+      <header className={focusMode ? "content-editor-topbar focus" : "content-editor-topbar"}>
         <Link className="content-editor-brand" href="/learning">
           <span className="content-editor-logo">R</span>
           <span>
@@ -40,47 +54,62 @@ export function ContentEditorShell({
             <small>AI Governance Platform</small>
           </span>
         </Link>
-        <div className="content-editor-context" aria-label="Actieve module">
-          <span>Learning System</span>
-          <strong>Content editor workspace</strong>
-        </div>
-        <div className="content-editor-user" aria-label="Ingelogde rol">
-          <span>J</span>
-          <div>
-            <strong>Johan</strong>
-            <small>Content Editor</small>
+        {focusMode ? (
+          <div className="content-editor-focus-actions">
+            <BackButton fallbackHref={focusHref} label={focusLabel} />
+            <UserBadge />
           </div>
-        </div>
+        ) : (
+          <div className="content-editor-context" aria-label="Actieve module">
+            <span>Learning System</span>
+            <strong>Content editor workspace</strong>
+          </div>
+        )}
+        {!focusMode ? <UserBadge /> : null}
       </header>
 
-      <div className="content-editor-layout">
-        <aside className="content-editor-sidebar" aria-label="Content editor navigatie">
-          <div className="content-editor-sidebar-heading">
-            <p>Content</p>
-          </div>
-          <nav>
-            {navItems.map((item) => {
-              const isActive = item.activeIds?.includes(active) ?? active === item.id;
+      <div className={focusMode ? "content-editor-layout focus" : "content-editor-layout"}>
+        {!focusMode ? (
+          <aside className="content-editor-sidebar" aria-label="Content editor navigatie">
+            <div className="content-editor-sidebar-heading">
+              <p>Content</p>
+            </div>
+            <nav>
+              {navItems.map((item) => {
+                const isActive = item.activeIds?.includes(active) ?? active === item.id;
 
-              return (
-                <Link
-                  aria-current={isActive ? "page" : undefined}
-                  className="content-editor-nav-link"
-                  href={item.href}
-                  key={item.id}
-                >
-                  <span>
-                    <NavIcon name={item.icon} />
-                  </span>
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
-        </aside>
+                return (
+                  <Link
+                    aria-current={isActive ? "page" : undefined}
+                    className="content-editor-nav-link"
+                    href={item.href}
+                    key={item.id}
+                  >
+                    <span>
+                      <NavIcon name={item.icon} />
+                    </span>
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          </aside>
+        ) : null}
         <div className="content-editor-main">{children}</div>
       </div>
     </main>
+  );
+}
+
+function UserBadge() {
+  return (
+    <div className="content-editor-user" aria-label="Ingelogde rol">
+      <span>J</span>
+      <div>
+        <strong>Johan</strong>
+        <small>Content Editor</small>
+      </div>
+    </div>
   );
 }
 

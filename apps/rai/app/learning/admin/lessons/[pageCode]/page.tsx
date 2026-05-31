@@ -1,34 +1,50 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ContentEditorShell } from "@/components/learning/admin/ContentEditorShell";
 import { LearningAdminEditor } from "@/components/learning/LearningAdminEditor";
 import { getAdminLearningPage } from "@/lib/learning-admin-data";
+import { aiLiteracyPreviewCourse, getCoursePages } from "@/lib/learning-preview-data";
 import { updateLearningPageContent } from "../../actions";
 
 export default async function AdminLessonEditorPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ pageCode: string }>;
+  searchParams?: Promise<{ courseCode?: string; pageId?: string }>;
 }) {
   const { pageCode } = await params;
-  const { course, page } = await getAdminLearningPage(pageCode);
+  const { courseCode, pageId } = (await searchParams) ?? {};
+  const adminPage = await getAdminLearningPage(pageCode, courseCode, pageId);
+  const previewPages = getCoursePages(aiLiteracyPreviewCourse);
+  const fallbackPage =
+    previewPages.find((previewPage) => previewPage.page_code === pageCode) ?? null;
+  const fallbackTopic =
+    aiLiteracyPreviewCourse.topics.find((topic) =>
+      topic.pages.some((previewPage) => previewPage.page_code === pageCode),
+    ) ?? null;
+  const page = adminPage.page ?? fallbackPage;
+  const course = adminPage.page
+    ? adminPage.course
+    : {
+        ...aiLiteracyPreviewCourse,
+        pages: fallbackPage ? [fallbackPage] : [],
+        topics:
+          fallbackTopic && fallbackPage
+            ? [{ ...fallbackTopic, pages: [fallbackPage] }]
+            : [],
+      };
 
   if (!page) {
     notFound();
   }
 
   return (
-    <ContentEditorShell active="lessons">
-      <div className="admin-page-header compact-header">
-        <div>
-          <p className="breadcrumb">Content Editor / Lessen / {page.title}</p>
-          <h1>Les Bewerken</h1>
-        </div>
-        <Link className="button button-secondary" href="/learning/admin/lessons">
-          Terug
-        </Link>
-      </div>
-
+    <ContentEditorShell
+      active="lessons"
+      focusBackHref={`/learning/admin/courses/${course.course_code}`}
+      focusBackLabel="Terug naar cursus"
+      focusMode={true}
+    >
       <LearningAdminEditor
         course={course}
         initialPageCode={page.page_code}

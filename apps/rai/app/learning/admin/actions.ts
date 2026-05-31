@@ -1,13 +1,22 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { getCurrentUserContext } from "@digidactics/auth";
-import { isLessonContent, type LessonBlock } from "@digidactics/domain/learning";
+import {
+  evaluateLearningCertificationEligibility,
+  isLessonContent,
+} from "@digidactics/domain/learning";
 import {
   aiLiteracyPreviewCourse,
-  aiLiteracyTopicSeeds,
+  aiMasteryPreviewCourse,
+  aiProficiencyPreviewCourse,
+  type LearningCourseView,
 } from "@/lib/learning-preview-data";
+import {
+  getDevContentEditorSupabaseClient,
+  isDevContentEditorBypassEnabled,
+} from "@/lib/dev-content-editor-bypass";
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 
 const defaultPageContent = {
@@ -42,6 +51,7 @@ interface PageProgressRow {
 }
 
 interface PageAttemptRow {
+  answers: PageAnswers;
   page_id: string;
   attempt_number: number;
   percentage: number | null;
@@ -49,13 +59,18 @@ interface PageAttemptRow {
   manual_review_required: boolean;
 }
 
+type PageAnswers = Record<
+  string,
+  { block_type: string; value: string | string[] }
+>;
+
 export async function createLearningPage(formData: FormData) {
   const supabase = await requireLearningAdmin();
 
   const target = readCourseTopicTarget(formData);
   const { courseId, courseCode, topicId } = target;
-  const pageCode = slugify(readRequired(formData, "pageCode"));
   const title = readRequired(formData, "title");
+  const pageCode = slugify(String(formData.get("pageCode") ?? "").trim() || title);
   const summary = String(formData.get("summary") ?? "").trim() || null;
   const pageType = String(formData.get("pageType") ?? "content");
   const estimatedMinutes = Number(formData.get("estimatedMinutes") ?? 5);
@@ -66,33 +81,38 @@ export async function createLearningPage(formData: FormData) {
     Number.isFinite(requestedSequenceOrder) ? requestedSequenceOrder : 1,
   );
 
-  const { error } = await supabase.from("learning_pages").insert({
-    course_id: courseId,
-    topic_id: topicId,
-    page_code: pageCode,
-    title,
-    summary,
-    page_type: pageType,
-    status: "published",
-    estimated_duration_minutes: Number.isFinite(estimatedMinutes)
-      ? estimatedMinutes
-      : 5,
-    sequence_order: sequenceOrder,
-    is_required: true,
-    content_schema_version: 1,
-    content: defaultPageContent,
-  });
+  const { data, error } = await supabase
+    .from("learning_pages")
+    .insert({
+      course_id: courseId,
+      topic_id: topicId,
+      page_code: pageCode,
+      title,
+      summary,
+      page_type: pageType,
+      status: "published",
+      estimated_duration_minutes: Number.isFinite(estimatedMinutes)
+        ? estimatedMinutes
+        : 5,
+      sequence_order: sequenceOrder,
+      is_required: true,
+      content_schema_version: 1,
+      content: defaultPageContent,
+    })
+    .select("id")
+    .single<{ id: string }>();
 
   if (error) {
     throw new Error(`Pagina aanmaken is mislukt: ${error.message}`);
   }
 
+  revalidateTag("learning-admin");
   revalidatePath("/learning");
   revalidatePath("/learning/admin");
   revalidatePath("/learning/admin/lessons");
   revalidatePath(`/learning/admin/courses/${courseCode}`);
   revalidatePath(`/learning/${courseCode}`);
-  redirect(`/learning/admin/lessons/${pageCode}`);
+  redirect(`/learning/admin/lessons/${pageCode}?courseCode=${courseCode}&pageId=${data?.id ?? ""}`);
 }
 
 export async function createLearningCourse(formData: FormData) {
@@ -105,6 +125,7 @@ export async function createLearningCourse(formData: FormData) {
   const passingThreshold = Number(formData.get("passingThreshold") ?? 80);
   const requiredForOnboarding = String(formData.get("requiredForOnboarding") ?? "") === "on";
   const unlocksCapability = String(formData.get("unlocksCapability") ?? "").trim() || null;
+  const difficultyLevel = normalizeDifficultyLevel(String(formData.get("difficultyLevel") ?? "foundation"));
 
   const { data: course, error: courseError } = await supabase
     .from("learning_courses")
@@ -113,7 +134,7 @@ export async function createLearningCourse(formData: FormData) {
       title,
       description,
       status,
-      difficulty_level: "foundation",
+      difficulty_level: difficultyLevel,
       required_for_onboarding: requiredForOnboarding,
       unlocks_capability: unlocksCapability,
       passing_threshold: Number.isFinite(passingThreshold) ? passingThreshold : 80,
@@ -140,6 +161,7 @@ export async function createLearningCourse(formData: FormData) {
     throw new Error(`Cursus is aangemaakt, maar het starttopic niet: ${topicError.message}`);
   }
 
+  revalidateTag("learning-admin");
   revalidatePath("/learning");
   revalidatePath("/learning/admin");
   revalidatePath("/learning/admin/courses");
@@ -172,10 +194,40 @@ export async function createMicroLearning(formData: FormData) {
     throw new Error(`Micro-learning aanmaken is mislukt: ${error.message}`);
   }
 
+  revalidateTag("learning-admin");
   revalidatePath("/learning/admin");
   revalidatePath("/learning/admin/courses");
   revalidatePath("/learning/admin/lessons");
   redirect(`/learning/admin/microlearnings/${lessonCode}`);
+}
+
+export async function archiveLearningCourse(formData: FormData) {
+  const supabase = await requireLearningAdmin();
+
+  const courseId = readRequired(formData, "courseId");
+  const courseCode = readRequired(formData, "courseCode");
+
+  const updateQuery = supabase
+    .from("learning_courses")
+    .update({
+      status: "archived",
+      updated_at: new Date().toISOString(),
+    });
+
+  const { error } = isUuid(courseId)
+    ? await updateQuery.eq("id", courseId)
+    : await updateQuery.eq("course_code", courseCode);
+
+  if (error) {
+    throw new Error(`Cursus archiveren is mislukt: ${error.message}`);
+  }
+
+  revalidateTag("learning-admin");
+  revalidatePath("/learning");
+  revalidatePath("/learning/admin");
+  revalidatePath("/learning/admin/courses");
+  revalidatePath(`/learning/admin/courses/${courseCode}`);
+  revalidatePath(`/learning/${courseCode}`);
 }
 
 export async function addExistingLessonToCourse(formData: FormData) {
@@ -185,24 +237,66 @@ export async function addExistingLessonToCourse(formData: FormData) {
   const courseCode = readRequired(formData, "courseCode");
   const topicId = readRequired(formData, "topicId");
   const lessonId = readRequired(formData, "lessonId");
+  const sourceKind = String(formData.get("sourceKind") ?? "microlearning");
 
-  const { data: lesson, error: lessonError } = await supabase
-    .from("learning_lessons")
-    .select(
-      "lesson_code, title, summary, lesson_type, estimated_duration_minutes, content",
-    )
-    .eq("id", lessonId)
-    .single<{
-      lesson_code: string;
-      title: string;
-      summary: string | null;
-      lesson_type: string;
-      estimated_duration_minutes: number | null;
-      content: unknown;
-    }>();
+  let lesson:
+    | {
+        lesson_code: string;
+        title: string;
+        summary: string | null;
+        lesson_type: string;
+        estimated_duration_minutes: number | null;
+        content: unknown;
+      }
+    | null = null;
 
-  if (lessonError || !lesson) {
-    throw new Error(`Les toevoegen is mislukt: ${lessonError?.message ?? "les niet gevonden"}`);
+  if (sourceKind === "course_page") {
+    const { data: page, error: pageError } = await supabase
+      .from("learning_pages")
+      .select("page_code, title, summary, page_type, estimated_duration_minutes, content")
+      .eq("id", lessonId)
+      .single<{
+        page_code: string;
+        title: string;
+        summary: string | null;
+        page_type: string;
+        estimated_duration_minutes: number | null;
+        content: unknown;
+      }>();
+
+    if (pageError || !page) {
+      throw new Error(`Les toevoegen is mislukt: ${pageError?.message ?? "les niet gevonden"}`);
+    }
+
+    lesson = {
+      lesson_code: page.page_code,
+      title: page.title,
+      summary: page.summary,
+      lesson_type: page.page_type,
+      estimated_duration_minutes: page.estimated_duration_minutes,
+      content: page.content,
+    };
+  } else {
+    const { data: microLesson, error: lessonError } = await supabase
+      .from("learning_lessons")
+      .select(
+        "lesson_code, title, summary, lesson_type, estimated_duration_minutes, content",
+      )
+      .eq("id", lessonId)
+      .single<{
+        lesson_code: string;
+        title: string;
+        summary: string | null;
+        lesson_type: string;
+        estimated_duration_minutes: number | null;
+        content: unknown;
+      }>();
+
+    if (lessonError || !microLesson) {
+      throw new Error(`Les toevoegen is mislukt: ${lessonError?.message ?? "les niet gevonden"}`);
+    }
+
+    lesson = microLesson;
   }
 
   const { data: existingPages } = await supabase
@@ -235,12 +329,12 @@ export async function addExistingLessonToCourse(formData: FormData) {
     throw new Error(`Les toevoegen is mislukt: ${error.message}`);
   }
 
+  revalidateTag("learning-admin");
   revalidatePath("/learning");
   revalidatePath("/learning/admin");
   revalidatePath("/learning/admin/lessons");
   revalidatePath(`/learning/admin/courses/${courseCode}`);
   revalidatePath(`/learning/${courseCode}`);
-  redirect(`/learning/admin/courses/${courseCode}`);
 }
 
 export async function updateLearningCourseDetails(formData: FormData) {
@@ -254,24 +348,30 @@ export async function updateLearningCourseDetails(formData: FormData) {
   const passingThreshold = Number(formData.get("passingThreshold") ?? 80);
   const requiredForOnboarding = String(formData.get("requiredForOnboarding") ?? "") === "on";
   const status = String(formData.get("status") ?? "draft");
+  const difficultyLevel = normalizeDifficultyLevel(String(formData.get("difficultyLevel") ?? "foundation"));
 
-  const { error } = await supabase
+  const updateQuery = supabase
     .from("learning_courses")
     .update({
       title,
       description,
       unlocks_capability: unlocksCapability,
+      difficulty_level: difficultyLevel,
       passing_threshold: Number.isFinite(passingThreshold) ? passingThreshold : 80,
       required_for_onboarding: requiredForOnboarding,
       status: status === "published" ? "published" : "draft",
       updated_at: new Date().toISOString(),
-    })
-    .eq("id", courseId);
+    });
+
+  const { error } = isUuid(courseId)
+    ? await updateQuery.eq("id", courseId)
+    : await updateQuery.eq("course_code", courseCode);
 
   if (error) {
     throw new Error(`Cursus opslaan is mislukt: ${error.message}`);
   }
 
+  revalidateTag("learning-admin");
   revalidatePath("/learning");
   revalidatePath("/learning/admin");
   revalidatePath(`/learning/admin/courses/${courseCode}`);
@@ -334,6 +434,11 @@ export async function updateLearningTopicDetails(formData: FormData) {
   const summary = String(formData.get("summary") ?? "").trim() || null;
   const isRequired = String(formData.get("isRequired") ?? "") === "on";
 
+  if (!isUuid(topicId)) {
+    revalidateLearningCourse(courseCode);
+    return;
+  }
+
   const { error } = await supabase
     .from("learning_topics")
     .update({
@@ -358,6 +463,11 @@ export async function moveLearningTopic(formData: FormData) {
   const topicId = readRequired(formData, "topicId");
   const courseCode = readRequired(formData, "courseCode");
   const direction = String(formData.get("direction") ?? "");
+
+  if (!isUuid(topicId)) {
+    revalidateLearningCourse(courseCode);
+    return;
+  }
 
   const { data: topic, error: topicError } = await supabase
     .from("learning_topics")
@@ -420,12 +530,41 @@ export async function moveLearningTopic(formData: FormData) {
   redirect(`/learning/admin/courses/${courseCode}`);
 }
 
+export async function deleteLearningTopic(formData: FormData) {
+  const supabase = await requireLearningAdmin();
+
+  const topicId = readRequired(formData, "topicId");
+  const courseCode = readRequired(formData, "courseCode");
+
+  if (!isUuid(topicId)) {
+    revalidateLearningCourse(courseCode);
+    return;
+  }
+
+  const { error } = await supabase
+    .from("learning_topics")
+    .delete()
+    .eq("id", topicId);
+
+  if (error) {
+    throw new Error(`Onderwerp verwijderen is mislukt: ${error.message}`);
+  }
+
+  revalidateLearningCourse(courseCode);
+  redirect(`/learning/admin/courses/${courseCode}`);
+}
+
 export async function moveLearningPage(formData: FormData) {
   const supabase = await requireLearningAdmin();
 
   const pageId = readRequired(formData, "pageId");
   const courseCode = readRequired(formData, "courseCode");
   const direction = String(formData.get("direction") ?? "");
+
+  if (!isUuid(pageId)) {
+    revalidateLearningCourse(courseCode);
+    return;
+  }
 
   const { data: page, error: pageError } = await supabase
     .from("learning_pages")
@@ -483,11 +622,11 @@ export async function moveLearningPage(formData: FormData) {
     }
   }
 
+  revalidateTag("learning-admin");
   revalidatePath("/learning");
   revalidatePath("/learning/admin/lessons");
   revalidatePath(`/learning/admin/courses/${courseCode}`);
   revalidatePath(`/learning/${courseCode}`);
-  redirect(`/learning/admin/courses/${courseCode}`);
 }
 
 export async function moveLearningPageToTopic(formData: FormData) {
@@ -496,6 +635,11 @@ export async function moveLearningPageToTopic(formData: FormData) {
   const pageId = readRequired(formData, "pageId");
   const courseCode = readRequired(formData, "courseCode");
   const targetTopicId = readRequired(formData, "targetTopicId");
+
+  if (!isUuid(pageId) || !isUuid(targetTopicId)) {
+    revalidateLearningCourse(courseCode);
+    return;
+  }
 
   const { data: page, error: pageError } = await supabase
     .from("learning_pages")
@@ -536,6 +680,11 @@ export async function toggleLearningPageRequired(formData: FormData) {
   const courseCode = readRequired(formData, "courseCode");
   const isRequired = String(formData.get("isRequired") ?? "") === "true";
 
+  if (!isUuid(pageId)) {
+    revalidateLearningCourse(courseCode);
+    return;
+  }
+
   const { error } = await supabase
     .from("learning_pages")
     .update({
@@ -558,6 +707,11 @@ export async function archiveLearningPage(formData: FormData) {
   const pageId = readRequired(formData, "pageId");
   const courseCode = readRequired(formData, "courseCode");
 
+  if (!isUuid(pageId)) {
+    revalidateLearningCourse(courseCode);
+    return;
+  }
+
   const { error } = await supabase
     .from("learning_pages")
     .update({ status: "archived", updated_at: new Date().toISOString() })
@@ -567,6 +721,7 @@ export async function archiveLearningPage(formData: FormData) {
     throw new Error(`Les verwijderen is mislukt: ${error.message}`);
   }
 
+  revalidateTag("learning-admin");
   revalidatePath("/learning");
   revalidatePath("/learning/admin");
   revalidatePath("/learning/admin/lessons");
@@ -585,6 +740,7 @@ export async function updateLearningPageContent(formData: FormData) {
   const pageType = String(formData.get("pageType") ?? "content");
   const estimatedMinutes = Number(formData.get("estimatedMinutes") ?? 5);
   const isRequired = String(formData.get("isRequired") ?? "true") === "true";
+  const status = String(formData.get("status") ?? "published");
   const contentText = readRequired(formData, "content");
   const content = parseContentJson(contentText);
 
@@ -598,6 +754,7 @@ export async function updateLearningPageContent(formData: FormData) {
         ? estimatedMinutes
         : 5,
       is_required: isRequired,
+      status,
       content,
       updated_at: new Date().toISOString(),
     })
@@ -607,6 +764,7 @@ export async function updateLearningPageContent(formData: FormData) {
     throw new Error(`Pagina opslaan is mislukt: ${error.message}`);
   }
 
+  revalidateTag("learning-admin");
   revalidatePath("/learning");
   revalidatePath("/learning/admin");
   revalidatePath("/learning/admin/lessons");
@@ -620,9 +778,10 @@ export async function updateMicroLearningContent(formData: FormData) {
 
   const lessonId = readRequired(formData, "pageId");
   const lessonCode = readRequired(formData, "pageCode");
-  const title = readRequired(formData, "title");
+  const title = await readMicroLearningTitle(supabase, lessonId, formData);
   const summary = String(formData.get("summary") ?? "").trim() || null;
   const estimatedMinutes = Number(formData.get("estimatedMinutes") ?? 8);
+  const status = String(formData.get("status") ?? "published");
   const contentText = readRequired(formData, "content");
   const content = parseContentJson(contentText);
 
@@ -632,6 +791,7 @@ export async function updateMicroLearningContent(formData: FormData) {
       title,
       summary,
       estimated_duration_minutes: Number.isFinite(estimatedMinutes) ? estimatedMinutes : 8,
+      status,
       content,
       updated_at: new Date().toISOString(),
     })
@@ -642,11 +802,44 @@ export async function updateMicroLearningContent(formData: FormData) {
     throw new Error(`Micro-learning opslaan is mislukt: ${error.message}`);
   }
 
+  revalidateTag("learning-admin");
   revalidatePath("/learning/admin");
   revalidatePath("/learning/admin/courses");
   revalidatePath("/learning/admin/courses?view=microlearnings");
   revalidatePath("/learning/admin/lessons");
   revalidatePath(`/learning/admin/microlearnings/${lessonCode}`);
+  revalidatePath("/learning");
+  revalidatePath("/learning?view=microlearnings");
+  revalidatePath(`/learning/lessons/${lessonCode}`);
+}
+
+async function readMicroLearningTitle(
+  supabase: Awaited<ReturnType<typeof requireLearningAdmin>>,
+  lessonId: string,
+  formData: FormData,
+) {
+  const submittedTitle = String(formData.get("title") ?? "").trim();
+  if (submittedTitle) {
+    return submittedTitle;
+  }
+
+  const { data, error } = await supabase
+    .from("learning_lessons")
+    .select("title")
+    .eq("id", lessonId)
+    .eq("lesson_type", "microlearning")
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Micro-learning titel ophalen is mislukt: ${error.message}`);
+  }
+
+  const existingTitle = String(data?.title ?? "").trim();
+  if (!existingTitle) {
+    throw new Error("title ontbreekt.");
+  }
+
+  return existingTitle;
 }
 
 export async function reviewLearningPageAttempt(formData: FormData) {
@@ -682,6 +875,7 @@ export async function reviewLearningPageAttempt(formData: FormData) {
 
   await recomputeReviewedCourseProgress(supabase, courseId, userId);
 
+  revalidateTag("learning-admin");
   revalidatePath("/learning");
   revalidatePath("/learning/admin");
   revalidatePath("/learning/admin/reviews");
@@ -692,22 +886,63 @@ export async function reviewLearningPageAttempt(formData: FormData) {
 export async function syncAiLiteracyContentFromSource() {
   const supabase = await requireLearningAdmin();
 
+  await syncCourseContentFromSource(supabase, aiLiteracyPreviewCourse, {
+    overwriteExistingContent: true,
+  });
+  await syncCourseContentFromSource(supabase, aiProficiencyPreviewCourse, {
+    overwriteExistingContent: true,
+  });
+  await syncCourseContentFromSource(supabase, aiMasteryPreviewCourse, {
+    overwriteExistingContent: true,
+  });
+
+  revalidateTag("learning-admin");
+  revalidateLearningCourse(aiLiteracyPreviewCourse.course_code);
+  revalidateLearningCourse(aiProficiencyPreviewCourse.course_code);
+  revalidateLearningCourse(aiMasteryPreviewCourse.course_code);
+  revalidatePath("/learning/admin/content-audit");
+  redirect("/learning/admin/content-audit");
+}
+
+async function syncCourseContentFromSource(
+  supabase: NonNullable<Awaited<ReturnType<typeof getSupabaseServerClient>>>,
+  sourceCourse: LearningCourseView,
+  options: { overwriteExistingContent?: boolean } = {},
+) {
   const { data: course, error: courseError } = await supabase
     .from("learning_courses")
     .select("id, org_id")
-    .eq("course_code", aiLiteracyPreviewCourse.course_code)
-    .single<{ id: string; org_id: string | null }>();
+    .eq("course_code", sourceCourse.course_code)
+    .neq("status", "archived")
+    .order("updated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle<{ id: string; org_id: string | null }>();
 
   if (courseError || !course) {
-    throw new Error(`AI Literacy cursus niet gevonden: ${courseError?.message ?? "geen cursus"}`);
+    throw new Error(`${sourceCourse.title} cursus niet gevonden: ${courseError?.message ?? "geen cursus"}`);
   }
 
-  const topicRows = aiLiteracyTopicSeeds.map((topic, index) => ({
+  const sourceTopicCodes = sourceCourse.topics.map((topic) => topic.topic_code);
+  const sourceTopicCodeSet = new Set(sourceTopicCodes);
+  const { data: existingTopics, error: existingTopicsError } = await supabase
+    .from("learning_topics")
+    .select("id, topic_code, sequence_order")
+    .eq("course_id", course.id)
+    .order("sequence_order", { ascending: true });
+
+  if (existingTopicsError || !existingTopics) {
+    throw new Error(`Bestaande topics ophalen is mislukt: ${existingTopicsError?.message ?? "geen topics"}`);
+  }
+
+  const existingTopicRows = existingTopics as Array<{ id: string; topic_code: string; sequence_order: number }>;
+  await moveTopicsToTemporaryOrder(supabase, existingTopicRows);
+
+  const topicRows = sourceCourse.topics.map((topic, index) => ({
     course_id: course.id,
     org_id: course.org_id,
-    topic_code: topic.code,
+    topic_code: topic.topic_code,
     title: topic.title,
-    summary: topic.summary,
+    summary: topic.summary ?? "",
     status: "published",
     sequence_order: index + 1,
     is_required: true,
@@ -722,11 +957,17 @@ export async function syncAiLiteracyContentFromSource() {
     throw new Error(`Topics synchroniseren is mislukt: ${topicError.message}`);
   }
 
+  await moveTopicsAfterSourceTopics(
+    supabase,
+    existingTopicRows.filter((topic) => !sourceTopicCodeSet.has(topic.topic_code)),
+    sourceCourse.topics.length,
+  );
+
   const { data: topics, error: topicsError } = await supabase
     .from("learning_topics")
     .select("id, topic_code")
     .eq("course_id", course.id)
-    .in("topic_code", aiLiteracyTopicSeeds.map((topic) => topic.code));
+    .in("topic_code", sourceCourse.topics.map((topic) => topic.topic_code));
 
   if (topicsError || !topics) {
     throw new Error(`Topics ophalen is mislukt: ${topicsError?.message ?? "geen topics"}`);
@@ -739,30 +980,64 @@ export async function syncAiLiteracyContentFromSource() {
     ]),
   );
 
-  const pageRows = aiLiteracyTopicSeeds.flatMap((topic) =>
+  const { data: existingPages, error: existingPagesError } = await supabase
+    .from("learning_pages")
+    .select("id, topic_id, page_code, sequence_order, content")
+    .eq("course_id", course.id)
+    .order("sequence_order", { ascending: true });
+
+  if (existingPagesError || !existingPages) {
+    throw new Error(`Bestaande pagina's ophalen is mislukt: ${existingPagesError?.message ?? "geen pagina's"}`);
+  }
+
+  await movePagesToTemporaryOrder(
+    supabase,
+    existingPages as Array<{ id: string; topic_id: string; sequence_order: number }>,
+  );
+
+  const existingPageByCode = new Map(
+    (existingPages as Array<{
+      id: string;
+      topic_id: string;
+      page_code: string;
+      sequence_order: number;
+      content: { blocks?: unknown[] } | null;
+    }>).map((page) => [page.page_code, page]),
+  );
+
+  const pageRows = sourceCourse.topics.flatMap((topic) =>
     topic.pages.map((page, pageIndex) => {
-      const topicId = topicIdByCode.get(topic.code);
+      const topicId = topicIdByCode.get(topic.topic_code);
       if (!topicId) {
-        throw new Error(`Topic ontbreekt voor ${topic.code}.`);
+        throw new Error(`Topic ontbreekt voor ${topic.topic_code}.`);
       }
+
+      const existingPage = existingPageByCode.get(page.page_code);
+      const existingBlocks = Array.isArray(existingPage?.content?.blocks)
+        ? existingPage.content.blocks
+        : [];
+      const shouldBackfillContent = !existingPage || existingBlocks.length === 0;
+      const shouldOverwriteContent = options.overwriteExistingContent || shouldBackfillContent;
 
       return {
         course_id: course.id,
         topic_id: topicId,
         org_id: course.org_id,
-        page_code: page.code,
+        page_code: page.page_code,
         title: page.title,
         summary: page.summary,
-        page_type: page.type,
+        page_type: page.page_type,
         status: "published",
-        estimated_duration_minutes: page.minutes,
+        estimated_duration_minutes: page.estimated_duration_minutes,
         sequence_order: pageIndex + 1,
-        is_required: true,
+        is_required: page.is_required,
         content_schema_version: 1,
-        content: {
-          version: 1,
-          blocks: page.blocks,
-        },
+        content: shouldOverwriteContent
+          ? {
+              version: 1,
+              blocks: page.content.blocks,
+            }
+          : existingPage.content,
         updated_at: new Date().toISOString(),
       };
     }),
@@ -776,12 +1051,145 @@ export async function syncAiLiteracyContentFromSource() {
     throw new Error(`Pagina's synchroniseren is mislukt: ${pageError.message}`);
   }
 
-  revalidateLearningCourse(aiLiteracyPreviewCourse.course_code);
-  revalidatePath("/learning/admin/content-audit");
-  redirect("/learning/admin/content-audit");
+  await moveExtraPagesAfterSourcePages(supabase, course.id, sourceCourse, topicIdByCode);
+}
+
+async function moveTopicsToTemporaryOrder(
+  supabase: NonNullable<Awaited<ReturnType<typeof getSupabaseServerClient>>>,
+  topics: Array<{ id: string; topic_code: string; sequence_order: number }>,
+) {
+  const tempBase = 10000;
+
+  for (const [index, topic] of topics.entries()) {
+    const { error } = await supabase
+      .from("learning_topics")
+      .update({ sequence_order: tempBase + index + 1, updated_at: new Date().toISOString() })
+      .eq("id", topic.id);
+
+    if (error) {
+      throw new Error(`Tijdelijke topicvolgorde instellen is mislukt: ${error.message}`);
+    }
+  }
+}
+
+async function moveTopicsAfterSourceTopics(
+  supabase: NonNullable<Awaited<ReturnType<typeof getSupabaseServerClient>>>,
+  topics: Array<{ id: string; topic_code: string; sequence_order: number }>,
+  sourceTopicCount: number,
+) {
+  for (const [index, topic] of topics.entries()) {
+    const { error } = await supabase
+      .from("learning_topics")
+      .update({
+        sequence_order: sourceTopicCount + index + 1,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", topic.id);
+
+    if (error) {
+      throw new Error(`Bestaande topicvolgorde herstellen is mislukt: ${error.message}`);
+    }
+  }
+}
+
+async function movePagesToTemporaryOrder(
+  supabase: NonNullable<Awaited<ReturnType<typeof getSupabaseServerClient>>>,
+  pages: Array<{ id: string; topic_id: string; sequence_order: number }>,
+) {
+  const seenByTopic = new Map<string, number>();
+
+  for (const page of pages) {
+    const index = seenByTopic.get(page.topic_id) ?? 0;
+    seenByTopic.set(page.topic_id, index + 1);
+
+    const { error } = await supabase
+      .from("learning_pages")
+      .update({ sequence_order: 10000 + index + 1, updated_at: new Date().toISOString() })
+      .eq("id", page.id);
+
+    if (error) {
+      throw new Error(`Tijdelijke paginavolgorde instellen is mislukt: ${error.message}`);
+    }
+  }
+}
+
+async function moveExtraPagesAfterSourcePages(
+  supabase: NonNullable<Awaited<ReturnType<typeof getSupabaseServerClient>>>,
+  courseId: string,
+  sourceCourse: LearningCourseView,
+  topicIdByCode: Map<string, string>,
+) {
+  const sourcePageCodesByTopicId = new Map<string, Set<string>>();
+
+  for (const topic of sourceCourse.topics) {
+    const topicId = topicIdByCode.get(topic.topic_code);
+
+    if (!topicId) {
+      continue;
+    }
+
+    sourcePageCodesByTopicId.set(
+      topicId,
+      new Set(topic.pages.map((page) => page.page_code)),
+    );
+  }
+
+  const { data: pages, error } = await supabase
+    .from("learning_pages")
+    .select("id, topic_id, page_code, sequence_order")
+    .eq("course_id", courseId)
+    .neq("status", "archived")
+    .order("sequence_order", { ascending: true });
+
+  if (error || !pages) {
+    throw new Error(`Extra paginavolgorde herstellen is mislukt: ${error?.message ?? "geen pagina's"}`);
+  }
+
+  const extraPagesByTopicId = new Map<
+    string,
+    Array<{ id: string; topic_id: string; page_code: string; sequence_order: number }>
+  >();
+
+  for (const page of pages as Array<{ id: string; topic_id: string; page_code: string; sequence_order: number }>) {
+    const sourcePageCodes = sourcePageCodesByTopicId.get(page.topic_id);
+
+    if (!sourcePageCodes || sourcePageCodes.has(page.page_code)) {
+      continue;
+    }
+
+    const topicPages = extraPagesByTopicId.get(page.topic_id) ?? [];
+    topicPages.push(page);
+    extraPagesByTopicId.set(page.topic_id, topicPages);
+  }
+
+  for (const [topicId, extraPages] of extraPagesByTopicId.entries()) {
+    const sourcePageCount = sourcePageCodesByTopicId.get(topicId)?.size ?? 0;
+
+    for (const [index, page] of extraPages.entries()) {
+      const { error: updateError } = await supabase
+        .from("learning_pages")
+        .update({
+          sequence_order: sourcePageCount + index + 1,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", page.id);
+
+      if (updateError) {
+        throw new Error(`Extra paginavolgorde herstellen is mislukt: ${updateError.message}`);
+      }
+    }
+  }
 }
 
 async function requireLearningAdmin() {
+  if (isDevContentEditorBypassEnabled()) {
+    const supabase = getDevContentEditorSupabaseClient();
+
+    if (supabase) {
+      return supabase;
+    }
+  }
+
   const supabase = await getSupabaseServerClient();
   const context = await getCurrentUserContext(supabase);
 
@@ -842,18 +1250,25 @@ async function recomputeReviewedCourseProgress(
     pageIds,
   );
   const passingThreshold = await getAdminCoursePassingThreshold(supabase, courseId);
-  const assessmentReady = pageRows.every((page) =>
-    isReviewedPageAssessmentReady(
-      page,
-      completedPageIds,
-      latestAttemptsByPageId.get(page.id),
-      passingThreshold,
-    ),
+  const eligibility = evaluateLearningCertificationEligibility(
+    pageRows
+      .map((page) =>
+        isLessonContent(page.content)
+          ? {
+              page_id: page.id,
+              is_required: true,
+              content: page.content,
+              is_completed: completedPageIds.has(page.id),
+              latest_attempt: latestAttemptsByPageId.get(page.id) ?? null,
+            }
+          : null,
+      )
+      .filter((page): page is NonNullable<typeof page> => Boolean(page)),
+    passingThreshold,
   );
-  const completedCount = completedPageIds.size;
   const progressPercentage =
-    requiredCount === 0 ? 0 : Math.round((completedCount / requiredCount) * 100);
-  const isCompleted = requiredCount > 0 && completedCount === requiredCount && assessmentReady;
+    requiredCount === 0 ? 0 : Math.round((eligibility.completed_required_page_count / requiredCount) * 100);
+  const isCompleted = eligibility.eligible && eligibility.required_page_count === requiredCount;
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
@@ -897,7 +1312,7 @@ async function getLatestReviewAttemptsForPages(
 
   const { data: attemptRows, error } = await supabase
     .from("learning_page_attempts")
-    .select("page_id, attempt_number, percentage, passed, manual_review_required")
+    .select("page_id, attempt_number, answers, percentage, passed, manual_review_required")
     .eq("course_id", courseId)
     .eq("user_id", userId)
     .in("page_id", pageIds)
@@ -907,55 +1322,55 @@ async function getLatestReviewAttemptsForPages(
     throw new Error(`Pogingen ophalen is mislukt: ${error.message}`);
   }
 
-  return ((attemptRows ?? []) as PageAttemptRow[]).reduce((acc, attempt) => {
+  return ((attemptRows ?? []) as Array<Omit<PageAttemptRow, "answers"> & { answers: unknown }>).reduce((acc, attempt) => {
     if (!acc.has(attempt.page_id)) {
-      acc.set(attempt.page_id, attempt);
+      acc.set(attempt.page_id, {
+        ...attempt,
+        answers: normalizeCertificationAnswers(attempt.answers),
+      });
     }
 
     return acc;
   }, new Map<string, PageAttemptRow>());
 }
 
-function isReviewedPageAssessmentReady(
-  page: RequiredPageRow,
-  completedPageIds: Set<string>,
-  latestAttempt: PageAttemptRow | undefined,
-  passingThreshold: number,
-) {
-  if (!completedPageIds.has(page.id) || !isLessonContent(page.content)) {
-    return false;
+function normalizeCertificationAnswers(value: unknown) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {};
   }
 
-  const requiresManualReview = page.content.blocks.some(
-    (block) =>
-      block.type === "quiz_essay" ||
-      block.type === "short_answer" ||
-      block.type === "case_lab",
-  );
+  return Object.entries(value).reduce<PageAnswers>((acc, [blockId, answer]) => {
+    if (!answer || typeof answer !== "object" || Array.isArray(answer)) {
+      return acc;
+    }
 
-  if (requiresManualReview) {
-    return latestAttempt?.manual_review_required === false && latestAttempt.passed === true;
-  }
+    const candidate = answer as { block_type?: unknown; value?: unknown };
+    const blockType = typeof candidate.block_type === "string" ? candidate.block_type : "";
+    const answerValue = normalizeCertificationAnswerValue(candidate.value);
 
-  const hasAutoGradableBlocks = page.content.blocks.some(isAdminAutoGradableBlock);
+    if (!blockType || answerValue === null) {
+      return acc;
+    }
 
-  if (!hasAutoGradableBlocks) {
-    return true;
-  }
+    acc[blockId] = {
+      block_type: blockType,
+      value: answerValue,
+    };
 
-  return (
-    latestAttempt?.manual_review_required === false &&
-    latestAttempt.passed === true &&
-    (latestAttempt.percentage ?? 0) >= passingThreshold
-  );
+    return acc;
+  }, {});
 }
 
-function isAdminAutoGradableBlock(block: LessonBlock) {
-  return (
-    block.type === "quiz_multiple_choice" ||
-    block.type === "quiz_multiple_select" ||
-    block.type === "quiz_true_false"
-  );
+function normalizeCertificationAnswerValue(value: unknown): string | string[] | null {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (Array.isArray(value) && value.every((item) => typeof item === "string")) {
+    return value;
+  }
+
+  return null;
 }
 
 async function getAdminCoursePassingThreshold(
@@ -1024,6 +1439,10 @@ function readRequired(formData: FormData, key: string) {
   return value;
 }
 
+function isUuid(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
 function readCourseTopicTarget(formData: FormData) {
   const rawTarget = String(formData.get("target") ?? "").trim();
 
@@ -1041,7 +1460,16 @@ function readCourseTopicTarget(formData: FormData) {
   };
 }
 
+function normalizeDifficultyLevel(value: string) {
+  if (value === "advanced" || value === "intermediate") {
+    return value;
+  }
+
+  return "foundation";
+}
+
 function revalidateLearningCourse(courseCode: string) {
+  revalidateTag("learning-admin");
   revalidatePath("/learning");
   revalidatePath("/learning/admin");
   revalidatePath("/learning/admin/courses");

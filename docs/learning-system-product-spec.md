@@ -42,6 +42,17 @@ The exact UX can be decided later, but the product rule is fixed.
 
 ## Learning Content Types
 
+Current architecture note:
+
+```txt
+Course -> Topic -> Page -> JSONB blocks
+```
+
+Full authored courses use `learning_topics`, `learning_pages`,
+`learning_page_progress`, and `learning_page_attempts`. Legacy
+`learning_lessons` tables remain available for microlearnings and compatibility
+until that path is deliberately retired.
+
 ### AI Literacy Foundation
 
 The foundation course is the baseline "rijbewijs".
@@ -230,6 +241,21 @@ learning_issue_certification_for_enrollment(p_enrollment_id uuid)
 ```
 
 Certification issue is deliberately restricted to learning admins/trusted server flows until objective grading and completion rules are fully enforced server-side.
+
+Current TypeScript completion gate:
+
+- all required `learning_pages` must be completed
+- pages with manual-review evidence must have a latest attempt with
+  `manual_review_required = false` and `passed = true`
+- auto-gradable pages must meet the course `passing_threshold`
+- certificate evidence must cover the critical competencies C4 data/privacy,
+  C6 human oversight, and C8 escalation/evidence
+
+The shared helper is `evaluateLearningCertificationEligibility(...)` in
+`packages/domain/learning.ts`. The SQL certificate issue RPC still only checks
+that the enrollment is completed, so direct RPC use should stay trusted/admin
+only until the SQL side mirrors this eligibility contract or calls a trusted
+server action that uses it.
 
 If blocked:
 

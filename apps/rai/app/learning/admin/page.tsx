@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Breadcrumb } from "@/components/learning/admin/Breadcrumb";
 import { ContentEditorShell } from "@/components/learning/admin/ContentEditorShell";
 import { getLearningAdminOverview } from "@/lib/learning-admin-data";
 
@@ -15,7 +16,11 @@ export default async function LearningAdminPage() {
     <ContentEditorShell active="dashboard">
       <div className="admin-page-header dashboard-admin-header">
         <div>
-          <p className="breadcrumb">Content Editor / Dashboard</p>
+          <Breadcrumb
+            items={[
+              { label: "Content Editor" },
+            ]}
+          />
           <h1>Learning content editor</h1>
           <p>
             Beheer AI Literacy cursussen, microlearnings, reviews en contentkwaliteit vanuit een
@@ -83,6 +88,12 @@ export default async function LearningAdminPage() {
           href="/learning/admin/content-audit"
           label="Content audit"
           meta="Sync"
+        />
+        <WorkbenchCard
+          description="Open alle cursussen, onderwerpen en lespagina's vanuit een centrale preview-index."
+          href="/learning/preview"
+          label="Preview index"
+          meta="Alle routes"
         />
       </section>
 

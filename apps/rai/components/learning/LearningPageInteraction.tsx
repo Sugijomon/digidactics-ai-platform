@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import type { LessonBlock } from "@digidactics/domain/learning";
+import { useCallback, useMemo, useState } from "react";
+import type { ChecklistBlock, LessonBlock } from "@digidactics/domain/learning";
+import { ChecklistBlockPlayer } from "@/components/learning/ChecklistBlockPlayer";
 import { LessonBlockRenderer } from "@/components/learning/LessonBlockRenderer";
+import { SlideDeckPlayer } from "@/components/learning/SlideDeckPlayer";
 import type {
   LearningAttemptView,
   LearningCourseView,
@@ -17,8 +19,11 @@ export function LearningPageInteraction({
   course,
   isAuthenticated,
   isCompleted,
+  isTopicTransition,
   latestAttempt,
   nextPageCode,
+  nextPageTitle,
+  nextTopicTitle,
   page,
   previousPageCode,
   topicPageIndex,
@@ -28,8 +33,11 @@ export function LearningPageInteraction({
   course: LearningCourseView;
   isAuthenticated: boolean;
   isCompleted: boolean;
+  isTopicTransition: boolean;
   latestAttempt: LearningAttemptView | null;
   nextPageCode: string;
+  nextPageTitle: string;
+  nextTopicTitle: string;
   page: LearningPageView;
   previousPageCode: string;
   topicPageIndex: number;
@@ -38,17 +46,40 @@ export function LearningPageInteraction({
   const [answers, setAnswers] = useState<Record<string, AnswerValue>>(() =>
     getInitialAnswers(latestAttempt),
   );
+  const [checklistProceedState, setChecklistProceedState] = useState<Record<string, boolean>>({});
   const interactiveBlocks = useMemo(
     () => page.content.blocks.filter(isInteractiveBlock),
+    [page.content.blocks],
+  );
+  const checklistBlocks = useMemo(
+    () => page.content.blocks.filter(isChecklistBlock),
     [page.content.blocks],
   );
   const completedInteractiveCount = interactiveBlocks.filter((block) =>
     isBlockSatisfied(block, answers[block.id]),
   ).length;
+  const canProceedChecklist = checklistBlocks.every(
+    (block) => !requiresChecklistCompletion(block) || checklistProceedState[block.id] === true,
+  );
   const canComplete =
     isCompleted ||
-    interactiveBlocks.length === 0 ||
-    completedInteractiveCount === interactiveBlocks.length;
+    ((interactiveBlocks.length === 0 ||
+      completedInteractiveCount === interactiveBlocks.length) &&
+      canProceedChecklist);
+  const nextActionLabel = nextPageCode
+    ? isTopicTransition
+      ? "Volgende onderwerp >"
+      : "Volgende >"
+    : "Afronden";
+
+  const updateChecklistProceed = useCallback((blockId: string, canProceed: boolean) => {
+    setChecklistProceedState((current) => {
+      if (current[blockId] === canProceed) {
+        return current;
+      }
+      return { ...current, [blockId]: canProceed };
+    });
+  }, []);
 
   function updateAnswer(blockId: string, value: AnswerValue) {
     setAnswers((current) => ({ ...current, [blockId]: value }));
@@ -62,7 +93,7 @@ export function LearningPageInteraction({
       <input name="pageCode" type="hidden" value={page.page_code} />
       <input name="nextPageCode" type="hidden" value={nextPageCode} />
 
-      <article className="lesson-shell page-canvas">
+      <article className="page-canvas">
         {latestAttempt ? (
           <div className="resume-notice">
             <strong>{getAttemptStatusLabel(latestAttempt)}</strong>
@@ -83,54 +114,68 @@ export function LearningPageInteraction({
               key={block.id}
               onAnswer={(value) => updateAnswer(block.id, value)}
             />
+          ) : isChecklistBlock(block) ? (
+            <ChecklistBlockPlayer
+              block={block}
+              key={block.id}
+              onCanProceed={(canProceed) => updateChecklistProceed(block.id, canProceed)}
+            />
           ) : (
             <LessonBlockRenderer block={block} key={block.id} />
           ),
         )}
       </article>
 
-      <nav className="lesson-completion-bar" aria-label="Pagina voortgang">
-        {previousPageCode ? (
-          <Link
-            className="button button-secondary"
-            href={`/learning/${course.course_code}/${previousPageCode}`}
-          >
-            Vorige
-          </Link>
-        ) : (
-          <span />
-        )}
-        <span className="lesson-position">
-          Pagina {topicPageIndex + 1} van {topicPageTotal}
-          {interactiveBlocks.length > 0 ? (
-            <small>
-              {completedInteractiveCount}/{interactiveBlocks.length} interacties ingevuld
-            </small>
+      <nav className="player-bottombar" aria-label="Pagina voortgang">
+        <div className="bottombar-left">
+          {previousPageCode ? (
+            <Link
+              className="nav-btn nav-prev"
+              href={`/learning/${course.course_code}/${previousPageCode}`}
+            >
+              ‹ Vorige
+            </Link>
           ) : null}
-        </span>
-        {isCompleted && nextPageCode ? (
-          <Link
-            className="button button-primary"
-            href={`/learning/${course.course_code}/${nextPageCode}`}
-          >
-            Volgende
-          </Link>
-        ) : isCompleted ? (
-          <Link className="button button-primary" href="/learning">
-            Terug naar cursus
-          </Link>
-        ) : isAuthenticated ? (
-          <button
-            className="button button-primary"
-            disabled={!canComplete}
-            title={canComplete ? undefined : "Beantwoord eerst de interacties op deze pagina."}
-            type="submit"
-          >
-            {nextPageCode ? "Afronden" : "Cursus afronden"}
-          </button>
-        ) : (
-          <span className="button button-secondary">Login vereist</span>
-        )}
+        </div>
+
+        <div className="bottombar-center">
+          <div className="bottombar-page-label">
+            Blok {topicPageIndex + 1} van {topicPageTotal}
+          </div>
+        </div>
+
+        <div className="bottombar-right">
+          {isCompleted && nextPageCode ? (
+            <div className="next-action-stack">
+              <Link
+                className="nav-btn nav-next"
+                href={`/learning/${course.course_code}/${nextPageCode}`}
+              >
+                {nextActionLabel}
+              </Link>
+              {isTopicTransition && nextTopicTitle ? (
+                <span className="next-action-context">{nextTopicTitle}</span>
+              ) : nextPageTitle ? (
+                <span className="next-action-context">{nextPageTitle}</span>
+              ) : null}
+            </div>
+          ) : isCompleted ? (
+            <Link className="nav-btn nav-finish" href="/learning">
+              Afronden
+            </Link>
+          ) : isAuthenticated ? (
+            <button
+              className={nextPageCode ? "nav-btn nav-next" : "nav-btn nav-finish"}
+              disabled={!canComplete}
+              title={canComplete ? undefined : "Rond eerst de verplichte interacties op deze pagina af."}
+              type="submit"
+            >
+              {nextActionLabel}
+            </button>
+          ) : (
+            <span className="nav-btn nav-prev">Login vereist</span>
+          )}
+        </div>
       </nav>
     </form>
   );
@@ -146,11 +191,66 @@ function InteractiveBlock({
   onAnswer: (value: AnswerValue) => void;
 }) {
   switch (block.type) {
+    case "scenario": {
+      const selected = asText(answer);
+      const selectedChoice = block.choices.find((choice) => choice.id === selected);
+
+      return (
+        <section className="block practice-block interactive-block">
+          <p className="eyebrow">Scenario</p>
+          <p>{block.situation}</p>
+          <h2>{block.question}</h2>
+          <div className="quiz-options">
+            {block.choices.map((choice) => (
+              <label className="quiz-option" data-selected={selected === choice.id} key={choice.id}>
+                <input
+                  checked={selected === choice.id}
+                  name={`answer:${block.id}`}
+                  onChange={() => onAnswer(choice.id)}
+                  type="radio"
+                  value={choice.id}
+                />
+                <span>{choice.label}</span>
+              </label>
+            ))}
+          </div>
+          {selectedChoice ? (
+            <div className={`answer-feedback ${selectedChoice.is_recommended ? "correct" : "incorrect"}`}>
+              <strong>{selectedChoice.is_recommended ? "Veilige keuze" : "Let op"}</strong>
+              <p>{selectedChoice.consequence}</p>
+            </div>
+          ) : (
+            <p className="interaction-hint">Kies een antwoord om het gevolg te zien.</p>
+          )}
+        </section>
+      );
+    }
+
+    case "reflection":
+      return (
+        <section className="block practice-block interactive-block">
+          <p className="eyebrow">Reflectie</p>
+          <h2>Reflectie</h2>
+          <p>{block.prompt}</p>
+          <div className="reflection-panel">
+            <textarea
+              aria-label="Reflectieantwoord"
+              name={`answer:${block.id}`}
+              onChange={(event) => onAnswer(event.target.value)}
+              placeholder={block.placeholder ?? "Schrijf hier je reflectie..."}
+              rows={4}
+              value={asText(answer)}
+            />
+            <OpenAnswerStatus answer={asText(answer)} minWords={block.min_words} />
+          </div>
+        </section>
+      );
+
     case "case_lab":
       return (
         <section className="block practice-block interactive-block">
           <p className="eyebrow">Casus</p>
-          <h2>{block.title}</h2>
+          {isMeaningfulTitle(block.title, "Casus") ? <h2>{block.title}</h2> : null}
           <p>{block.markdown}</p>
           {block.reflection_prompt ? (
             <div className="reflection-panel">
@@ -170,6 +270,21 @@ function InteractiveBlock({
         </section>
       );
 
+    case "paragraph": {
+      const imageUrl = (block as { image_url?: string }).image_url;
+
+      return (
+        <section className="block">
+          <p>{block.markdown}</p>
+          {imageUrl ? (
+            <figure className="lesson-image lesson-image-full paragraph-image">
+              <img alt="" src={imageUrl} />
+            </figure>
+          ) : null}
+        </section>
+      );
+    }
+
     case "quiz_multiple_choice": {
       const selected = asText(answer);
       const isAnswered = Boolean(selected);
@@ -178,8 +293,8 @@ function InteractiveBlock({
       return (
         <section className="block practice-block interactive-block">
           <p className="eyebrow">Checkvraag</p>
-          <h2>Checkvraag</h2>
-          <p>{block.question}</p>
+          <CheckQuestionIcon />
+          <p className="quiz-question">{block.question}</p>
           <div className="quiz-options">
             {block.options.map((option) => (
               <label className="quiz-option" data-selected={selected === option.id} key={option.id}>
@@ -207,8 +322,8 @@ function InteractiveBlock({
       return (
         <section className="block practice-block interactive-block">
           <p className="eyebrow">Checkvraag</p>
-          <h2>Checkvraag</h2>
-          <p>{block.question}</p>
+          <CheckQuestionIcon />
+          <p className="quiz-question">{block.question}</p>
           <div className="quiz-options">
             {block.options.map((option) => {
               const checked = selected.includes(option.id);
@@ -245,8 +360,8 @@ function InteractiveBlock({
       return (
         <section className="block practice-block interactive-block">
           <p className="eyebrow">Waar of niet waar</p>
-          <h2>Waar of niet waar</h2>
-          <p>{block.question}</p>
+          <CheckQuestionIcon />
+          <p className="true-false-question">{block.question}</p>
           <div className="quiz-options two-options">
             {[
               ["true", "Waar"],
@@ -296,8 +411,7 @@ function InteractiveBlock({
       return (
         <section className="block practice-block interactive-block">
           <p className="eyebrow">Open vraag</p>
-          <h2>Open vraag</h2>
-          <p>{block.question}</p>
+          <p className="open-question">{block.question}</p>
           <div className="answer-box">
             <textarea
               aria-label="Open antwoord"
@@ -311,6 +425,16 @@ function InteractiveBlock({
           </div>
           {block.guidance ? <p>{block.guidance}</p> : null}
         </section>
+      );
+
+    case "slide_deck":
+      return (
+        <SlideDeckPlayer
+          answerName={`answer:${block.id}`}
+          block={block}
+          initialAnswer={asText(answer)}
+          onAnswer={onAnswer}
+        />
       );
 
     default:
@@ -334,8 +458,24 @@ function QuizFeedback({
   return (
     <div className={`answer-feedback ${isCorrect ? "correct" : "incorrect"}`}>
       <strong>{isCorrect ? "Correct" : "Nog niet juist"}</strong>
-      {text ? <p>{text}</p> : null}
+      {isCorrect && text ? <p>{text}</p> : null}
     </div>
+  );
+}
+
+function CheckQuestionIcon() {
+  return (
+    <span aria-hidden="true" className="check-question-icon">
+      <svg fill="none" height="26" viewBox="0 0 24 24" width="26">
+        <path
+          d="m7.5 12.2 3 3 6-6.4"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2.7"
+        />
+      </svg>
+    </span>
   );
 }
 
@@ -360,25 +500,95 @@ function isInteractiveBlock(block: LessonBlock) {
     block.type === "quiz_true_false" ||
     block.type === "quiz_essay" ||
     block.type === "short_answer" ||
-    (block.type === "case_lab" && Boolean(block.reflection_prompt))
+    block.type === "scenario" ||
+    block.type === "reflection" ||
+    (block.type === "case_lab" && Boolean(block.reflection_prompt)) ||
+    (block.type === "slide_deck" &&
+      Array.isArray(block.slides) &&
+      block.slides.some((slide) => Boolean(slide?.interaction && slide.interaction.type !== "none")))
   );
+}
+
+function isChecklistBlock(block: LessonBlock): block is ChecklistBlock {
+  return block.type === "checklist";
+}
+
+function requiresChecklistCompletion(block: ChecklistBlock) {
+  if (block.require_all === false) {
+    return false;
+  }
+
+  return block.items.some((item) => {
+    if (typeof item === "string") {
+      return item.trim().length > 0;
+    }
+
+    return item.required && item.label.trim().length > 0;
+  });
 }
 
 function isBlockSatisfied(block: LessonBlock, answer: AnswerValue | undefined) {
   switch (block.type) {
     case "quiz_multiple_choice":
     case "quiz_true_false":
+    case "scenario":
       return Boolean(asText(answer));
     case "quiz_multiple_select":
       return asArray(answer).length > 0;
     case "quiz_essay":
     case "short_answer":
+    case "reflection":
       return countWords(asText(answer)) >= (block.min_words ?? 1);
     case "case_lab":
       return block.reflection_prompt ? countWords(asText(answer)) >= 20 : true;
+    case "slide_deck":
+      return isSlideDeckAnswerSatisfied(block, asText(answer));
     default:
       return true;
   }
+}
+
+function isSlideDeckAnswerSatisfied(block: LessonBlock, value: string) {
+  if (block.type !== "slide_deck") return true;
+
+  const slides = (block.slides ?? []).filter((slide) => slide?.url);
+  if (!slides.length) return false;
+
+  const answer = parseSlideDeckAnswer(value);
+
+  return slides.every((slide) => {
+    const interaction = slide.interaction;
+    if (!interaction || interaction.type === "none") {
+      return answer.visited.includes(slide.id);
+    }
+
+    if (interaction.type === "reflection") {
+      return countWords(answer.reflections[slide.id] ?? "") >= 1;
+    }
+
+    return Boolean(answer.choices[slide.id]);
+  });
+}
+
+function parseSlideDeckAnswer(value: string) {
+  try {
+    const parsed = JSON.parse(value) as {
+      choices?: Record<string, string>;
+      reflections?: Record<string, string>;
+      visited?: string[];
+    };
+    return {
+      choices: parsed.choices && typeof parsed.choices === "object" ? parsed.choices : {},
+      reflections: parsed.reflections && typeof parsed.reflections === "object" ? parsed.reflections : {},
+      visited: Array.isArray(parsed.visited) ? parsed.visited.filter((item): item is string => typeof item === "string") : [],
+    };
+  } catch {
+    return { choices: {}, reflections: {}, visited: [] };
+  }
+}
+
+function isMeaningfulTitle(title: string | undefined, fallback: string) {
+  return Boolean(title && title.trim().toLowerCase() !== fallback.toLowerCase());
 }
 
 function asText(value: AnswerValue | undefined) {

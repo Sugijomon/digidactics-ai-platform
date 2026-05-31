@@ -48,7 +48,15 @@ export function LessonsTable({
               </td>
               <td>
                 {lesson.kind === "course_page" ? (
-                  <Link href={`/learning/admin/lessons/${lesson.code}`}>Bewerken</Link>
+                  <Link
+                    href={
+                      lesson.course_code
+                        ? `/learning/admin/lessons/${lesson.code}?courseCode=${lesson.course_code}&pageId=${lesson.id}`
+                        : `/learning/admin/lessons/${lesson.code}`
+                    }
+                  >
+                    Bewerken
+                  </Link>
                 ) : (
                   <span className="muted">Template</span>
                 )}

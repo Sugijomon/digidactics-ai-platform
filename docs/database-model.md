@@ -484,8 +484,8 @@ Authoritative content:
 
 ```txt
 learning_courses
-learning_lessons
-learning_course_lessons
+learning_topics
+learning_pages
 learning_catalog
 ```
 
@@ -493,9 +493,18 @@ Learner state:
 
 ```txt
 learning_course_enrollments
+learning_page_progress
+learning_page_attempts
+learning_certifications
+```
+
+Legacy and microlearning compatibility:
+
+```txt
+learning_lessons
+learning_course_lessons
 learning_lesson_progress
 learning_lesson_attempts
-learning_certifications
 ```
 
 RouteAI learning rule bridge:
@@ -505,7 +514,7 @@ learning_access_requirements
 learning_recommendation_rules
 ```
 
-`learning_lessons.content` is JSONB by design. It stores versioned lesson blocks so regulatory updates, sector cases, and internal policy examples can evolve without schema changes.
+`learning_pages.content` is JSONB by design for full courses. It stores versioned page blocks so regulatory updates, sector cases, and internal policy examples can evolve without schema changes. `learning_lessons.content` keeps the same block model for legacy lessons and microlearnings.
 
 Platform content uses `org_id = NULL`. Organization-specific content and catalog enablement use `org_id`.
 

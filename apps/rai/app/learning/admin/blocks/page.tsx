@@ -1,3 +1,4 @@
+import { Breadcrumb } from "@/components/learning/admin/Breadcrumb";
 import { ContentEditorShell } from "@/components/learning/admin/ContentEditorShell";
 import { requireContentEditor } from "@/lib/learning-admin-data";
 
@@ -7,7 +8,8 @@ const blockGroups = [
     title: "Basis",
     blocks: [
       { label: "Hero", purpose: "Startpagina of hoofdstukopening" },
-      { label: "Sectietitel", purpose: "Nieuwe inhoudelijke sectie" },
+      { label: "Heading", purpose: "Kop H1-H6 op de pagina" },
+      { label: "Sectielijn", purpose: "Lijn met sectienaam" },
       { label: "Tekst", purpose: "Uitleg of context" },
       { label: "Quote", purpose: "Kernzin of normatieve formulering" },
       { label: "Callout", purpose: "Let op, tip of waarschuwing" },
@@ -55,7 +57,12 @@ export default async function AdminBlocksPage() {
     <ContentEditorShell active="blocks">
       <div className="admin-page-header compact-header">
         <div>
-          <p className="breadcrumb">Content Editor / Contentblokken</p>
+          <Breadcrumb
+            items={[
+              { label: "Content Editor", href: "/learning/admin" },
+              { label: "Contentblokken" },
+            ]}
+          />
           <h1>Contentblokken</h1>
         </div>
       </div>

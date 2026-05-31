@@ -19,38 +19,61 @@ It shares the platform foundation:
 
 It does not depend on SAI survey tables for its core operation.
 
+## Current Source Of Truth
+
+The current authored course model is:
+
+```txt
+Course -> Topic -> Page -> JSONB blocks
+```
+
+For full courses, the authoritative runtime tables are:
+
+- `learning_courses`
+- `learning_topics`
+- `learning_pages`
+- `learning_page_progress`
+- `learning_page_attempts`
+
+`learning_lessons`, `learning_course_lessons`, `learning_lesson_progress`,
+and `learning_lesson_attempts` remain for legacy compatibility and the
+microlearning library. They are not the preferred structure for the AI Literacy
+foundation course.
+
+The local development fallback for the current AI Literacy design is
+`apps/rai/lib/ai-literacy-foundation-content.ts`. That file is intentionally
+richer than the older AISA SQL seed at the moment and should be treated as the
+candidate product design until the seed is aligned.
+
+For review, `scripts/generate-ai-literacy-foundation-sql.mjs` can generate a
+draft SQL sync from that TypeScript source into `supabase/drafts/`. Drafts are
+not active migrations until explicitly promoted.
+
 ## Why JSONB Content Is Intentional
 
-Lesson content is stored as versioned JSONB. This is a deliberate product choice, not a temporary shortcut.
+Page and lesson content is stored as versioned JSONB. This is a deliberate product choice, not a temporary shortcut.
 
 Reasons:
 
 - AI Act interpretation, internal policy, sector examples, and training cases will evolve.
-- Lessons need to support different block types without schema churn.
-- Sector-specific cases can be added without rebuilding the lesson engine.
+- Pages need to support different block types without schema churn.
+- Sector-specific cases can be added without rebuilding the page renderer.
 - Content can be reviewed, superseded, and versioned while preserving learner history.
 
-The authoritative table is `learning_lessons`.
+Key fields on `learning_pages`:
 
-Key fields:
-
-- `lesson_code`
+- `page_code`
+- `topic_id`
+- `page_type`
 - `content_schema_version`
 - `content`
 - `version`
-- `supersedes_lesson_id`
-- `sector_tags`
-- `use_case_codes`
-- `context_codes`
-- `trigger_codes`
-- `regulatory_frameworks`
-- `ai_act_archetypes`
 
 The database validates that content is a JSON object with either `blocks[]` or `topics[]`.
 
 ## Content Model
 
-The authored RouteAI Learning shape is now:
+The authored RouteAI Learning shape is:
 
 ```txt
 Course -> Topic -> Page -> JSONB blocks
@@ -94,6 +117,9 @@ Authoritative content:
 - `learning_courses`
 - `learning_topics`
 - `learning_pages`
+
+Legacy and microlearning compatibility:
+
 - `learning_lessons`
 - `learning_course_lessons`
 - `learning_catalog`
@@ -102,6 +128,7 @@ Learner state:
 
 - `learning_course_enrollments`
 - `learning_page_progress`
+- `learning_page_attempts`
 - `learning_lesson_progress`
 - `learning_lesson_attempts`
 - `learning_certifications`
@@ -164,9 +191,20 @@ High-level access:
 - Org admin/DPO: can read org progress for governance dashboards.
 - Recommendation rules: platform or own-org readable; managed by learning admins.
 
-## Initial Seed
+## Current Seed Drift
 
-The seed adds:
+There are currently two AI Literacy content layers that need reconciliation:
+
+1. The SQL migrations seed an older AISA-oriented structure.
+2. The TypeScript preview content contains the newer 6-topic, 15-page AI
+   Literacy product design.
+
+Until this is reconciled, local preview mode and Supabase-backed mode can show
+different course content. The next content migration should align Supabase with
+the TypeScript design, or deliberately replace the TypeScript design with the
+SQL version after product review.
+
+The older SQL seed adds:
 
 - Course: `ai-literacy-foundation`
 - Topics:
@@ -195,7 +233,21 @@ The seed adds:
   - `ai-literacy-human-oversight`
 - Foundation recommendation rules and high-risk microlearning examples.
 
-The seed is deliberately clean and rewritten from the Lovable direction instead of copying old demo data.
+The newer TypeScript design adds:
+
+- 6 topics matching the GPT AI Literacy design:
+  - `basis-en-werkcontext`
+  - `wetgeving-en-risicodenken`
+  - `data-privacy-prompten`
+  - `betrouwbaarheid-outputcontrole`
+  - `menselijk-toezicht-toepassen`
+  - `assessment-rijbewijs`
+- 15 pages, including the previously identified high-value activities:
+  - `jouw-startpunt`
+  - `scenario-mag-dit-in-de-prompt`
+  - `mijn-controleprotocol`
+  - `praktijkvoorbeelden`
+  - `assessment-en-ai-rijbewijs`
 
 ## Next Implementation Steps
 

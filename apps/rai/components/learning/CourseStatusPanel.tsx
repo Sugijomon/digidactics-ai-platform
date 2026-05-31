@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { startAiLiteracyCourse } from "@/app/learning/actions";
+import { CompetencyStatusPanel } from "@/components/learning/CompetencyStatusPanel";
 import type {
   LearnerStateView,
   LearningCourseView,
@@ -82,6 +83,9 @@ export function CourseStatusPanel({
           <span className="button button-secondary">Login vereist</span>
         )}
       </div>
+      {course.course_code === "ai-literacy-foundation" ? (
+        <CompetencyStatusPanel course={course} learnerState={learnerState} />
+      ) : null}
     </aside>
   );
 }

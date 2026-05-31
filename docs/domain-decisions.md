@@ -231,7 +231,7 @@ The RouteAI Learning System may be built in parallel with the SAI migration.
 
 It shares the same Supabase database, organization model, profile model, role model, and audit principles as SAI. It does not depend on SAI survey tables for its core operation.
 
-Learning content is stored as versioned JSONB on `learning_lessons.content`. This is intentional because regulations, sector cases, policy examples, and training scenarios will change over time. The database validates the outer content shape, while detailed block rendering and validation live in shared TypeScript domain code.
+Learning content is stored as versioned JSONB. For authored courses, the current shape is `learning_courses -> learning_topics -> learning_pages -> content.blocks[]`. `learning_lessons.content` remains for legacy compatibility and microlearnings. This is intentional because regulations, sector cases, policy examples, and training scenarios will change over time. The database validates the outer content shape, while detailed block rendering and validation live in shared TypeScript domain code.
 
 Learning rules are kept separate from risk scoring. The first product role of the Learning System is AI Literacy as a hard access criterion for RouteAI usecase checks. RouteAI may later map its own medium and high risk classifications to additional microlearnings. SAI scan outputs are not part of the current Learning System runtime; any SAI-derived intervention intelligence is parked as a separate analysis flow.
 

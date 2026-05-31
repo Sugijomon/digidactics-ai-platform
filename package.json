@@ -8,6 +8,7 @@
   "scripts": {
     "dev:rai": "npm --workspace @digidactics/rai run dev",
     "build:rai": "npm --workspace @digidactics/rai run build",
+    "test:learning-governance": "npx tsx scripts/verify-learning-governance-metadata.ts && npx tsx scripts/verify-certificate-success-component.tsx && npx tsx scripts/learning-parity-tests.ts",
     "typecheck": "npm --workspaces --if-present run typecheck"
   }
 }

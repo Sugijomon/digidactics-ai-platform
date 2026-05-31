@@ -1,3 +1,4 @@
+import { Breadcrumb } from "@/components/learning/admin/Breadcrumb";
 import { ContentEditorShell } from "@/components/learning/admin/ContentEditorShell";
 import { LessonsTable } from "@/components/learning/admin/LessonsTable";
 import { NewLessonDialog } from "@/components/learning/admin/NewLessonDialog";
@@ -21,7 +22,12 @@ export default async function AdminLessonsPage() {
     <ContentEditorShell active="lessons">
       <div className="admin-page-header compact-header">
         <div>
-          <p className="breadcrumb">Admin / Lessen</p>
+          <Breadcrumb
+            items={[
+              { label: "Content Editor", href: "/learning/admin" },
+              { label: "Lessen" },
+            ]}
+          />
           <h1>Lessen</h1>
         </div>
         <NewLessonDialog

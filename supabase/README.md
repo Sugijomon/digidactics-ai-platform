@@ -2,7 +2,8 @@
 
 Status: ready for staging/local validation.
 
-This folder contains the database layer for the Shadow AI Scan V8.1 migration.
+This folder contains the database layer for the Shadow AI Scan V8.1 migration
+and the RouteAI Learning System integration.
 Run this first on a local or staging Supabase database, not directly on
 production.
 
@@ -20,11 +21,33 @@ supabase/migrations/20260522113000_harden_rpc_grants_and_user_roles_rls.sql
 supabase/migrations/20260522123000_backfill_completed_v8_scores.sql
 ```
 
+The current RAI Learning integration adds these migrations after the SAI/V8
+foundation:
+
+```txt
+supabase/migrations/20260507160000_learning_system_foundation.sql
+supabase/migrations/20260508100000_learning_certification_access_gate.sql
+supabase/migrations/20260508102000_learning_certification_issue_function_fix.sql
+supabase/migrations/20260508123000_auth_profile_role_bootstrap.sql
+supabase/migrations/20260510120000_learning_topics_pages.sql
+supabase/migrations/20260510143000_aisa_ai_literacy_foundations_content.sql
+supabase/migrations/20260511100000_learning_page_attempts.sql
+supabase/migrations/20260525120000_learning_lesson_files_bucket.sql
+supabase/migrations/20260529120000_learning_pilot_hardening.sql
+```
+
 The early schema migration creates the V8.1 tables and the original scoring
 stub. The later `20260522100000_implement_v8_scoring.sql` migration replaces
 that stub with the implemented server-trusted V8.1 scoring function. The RLS
 and hardening migrations close direct table writes, keep direct scoring blocked
 for clients, and expose the token-based respondent lifecycle.
+
+The learning migrations create the course/page/evidence model, the RouteAI
+access requirement, certificate issuance RPC, and pilot hardening that blocks
+learner-side grading/completion manipulation. The hardening migration seeds the
+three core course rows and the `routeai_usecase_check` access requirement, but
+the authored topics/pages are synced from Git after migration through the
+content editor audit page.
 
 ## Validation Files
 
@@ -103,6 +126,67 @@ Suggested staging flow:
    `risk_result`, `risk_result_tool`, and `dpo_review_items` exist.
 7. Only after all checks pass, connect the future Next.js frontend to this
    staging project.
+
+## RouteAI Learning Post-Migration Step
+
+After the learning migrations run, sign in as a content editor and open:
+
+```txt
+/learning/admin/content-audit
+```
+
+Tick the confirmation checkbox:
+
+```txt
+Git is bron van waarheid; overschrijf live editorcontent.
+```
+
+Then run:
+
+```txt
+Sync Literacy + Proficiency + Mastery
+```
+
+This step is required because the database migrations create the course rows
+and access gate, while the full authored course pages are synced from the Git
+source of truth. Verify afterwards:
+
+```sql
+select course_code, status from public.learning_courses order by course_code;
+select capability_code, required_certification_code, validity_months
+from public.learning_access_requirements
+where capability_code = 'routeai_usecase_check';
+select course_id, count(*) from public.learning_pages group by course_id;
+```
+
+For each pilot user, also verify that learning RLS resolves the same
+organization as the profile row:
+
+```sql
+select
+  p.id,
+  p.org_id as profile_org_id,
+  public.get_user_org_id(p.id) as resolved_org_id,
+  p.org_id = public.get_user_org_id(p.id) as matches
+from public.profiles p
+where p.id = '<pilot-user-id>';
+```
+
+## Live Migration Ledger Warning
+
+The current live project was observed with migration ledger versions that do
+not match these repository filenames. Do not run a naive `supabase db push`
+against live from this branch.
+
+Before live deployment:
+
+1. Apply the full chain on a fresh staging project.
+2. Compare the SAI/V8 surface against live.
+3. Mark the already-equivalent live baseline migrations as applied using
+   `supabase migration repair --status applied` or an approved ledger repair
+   procedure.
+4. Push only the remaining migrations during a quiet window.
+5. Run the RouteAI Learning content sync above.
 
 ## Current Scoring Status
 

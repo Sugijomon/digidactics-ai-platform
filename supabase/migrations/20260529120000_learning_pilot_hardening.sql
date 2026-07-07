@@ -340,7 +340,7 @@ BEGIN
     FROM public.learning_pages
     WHERE course_id = v_enrollment.course_id
       AND is_required = true
-      AND status = 'published'
+      AND learning_pages.status = 'published'
   LOOP
     v_required_page_count := v_required_page_count + 1;
 

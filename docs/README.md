@@ -20,6 +20,7 @@ Use these documents to transfer context between laptops, Codex sessions, ChatGPT
 - `learning-system.md` - current RouteAI Learning System architecture and integration notes.
 - `learning-system-ai-literacy-audit.md` - concept audit for AI Literacy source-of-truth, coverage, and cleanup decisions.
 - `learning-system-product-spec.md` - product logic for AI Literacy access gating, certification, and microlearning direction.
+- `supabase-staging-rehearsal.md` - safe staging checklist for merging RAI Learning with the live SAI Supabase database.
 
 ## Document Governance
 
@@ -41,6 +42,7 @@ Use this rule of thumb:
 - RouteAI Learning architecture: `learning-system.md`
 - AI Literacy content/source audit: `learning-system-ai-literacy-audit.md`
 - AI Literacy gate and certification product rules: `learning-system-product-spec.md`
+- Supabase staging rehearsal and live migration guards: `supabase-staging-rehearsal.md`
 
 Supabase migration and validation notes live in `supabase/README.md`.
 

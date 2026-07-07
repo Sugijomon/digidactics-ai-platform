@@ -3,9 +3,18 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
-  PrimarySurveyButton,
+  ChevronDown,
+  EyeOff,
+  Lightbulb,
+  ShieldCheck,
+  Timer,
+  UsersRound,
+  type LucideIcon,
+} from "lucide-react";
+import {
   SurveyGlassCard,
   SurveyPageShell,
+  PrimarySurveyButton,
   ValidationMessage,
 } from "@/components/survey-ui";
 import { startSurveyRun } from "@/lib/sai-rpc/client";
@@ -68,7 +77,7 @@ export default function SurveyStartPage() {
       <div className="flex min-h-[calc(100vh-9rem)] min-w-0 flex-col justify-center py-6">
         <div className="mx-auto mb-10 min-w-0 max-w-2xl text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#e5c687] bg-[#faf5e8] px-3.5 py-1.5 text-xs font-bold text-[#ca8a04] shadow-sm">
-            <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[#ca8a04]" />
+            <Timer aria-hidden="true" className="h-4 w-4" strokeWidth={2.2} />
             Scan is open
           </div>
 
@@ -90,16 +99,19 @@ export default function SurveyStartPage() {
         <div className="mb-10 grid min-w-0 grid-cols-1 gap-4 md:grid-cols-3">
           <IntroCard
             accent="primary"
+            icon={Lightbulb}
             title="Wat levert het op?"
             text="Gerichter investeren in zakelijke AI-licenties en passende trainingen."
           />
           <IntroCard
             accent="green"
+            icon={ShieldCheck}
             title="Privacy & Veiligheid"
             text="Inzicht in datastromen helpt datalekken via onbeveiligde tools voorkomen."
           />
           <IntroCard
             accent="secondary"
+            icon={UsersRound}
             title="Bouw mee"
             text="Jouw feedback bepaalt welke AI-tools en werkwijzen ondersteuning nodig hebben."
           />
@@ -108,9 +120,14 @@ export default function SurveyStartPage() {
         <details className="mx-auto mb-10 w-full max-w-full rounded-[1.25rem] border border-[#bfc7cf]/50 bg-white p-1 shadow-sm md:max-w-2xl">
           <summary className="flex cursor-pointer items-center gap-3 rounded-xl p-3 text-sm font-bold text-[#181c1e] hover:bg-[#f1f4f6]">
             <span className="grid h-8 w-8 place-items-center rounded-full bg-[#ebeef0] text-[#40484e]">
-              i
+              <EyeOff aria-hidden="true" className="h-[18px] w-[18px]" strokeWidth={2.2} />
             </span>
             Jouw privacy is gewaarborgd
+            <ChevronDown
+              aria-hidden="true"
+              className="ml-auto h-5 w-5 text-[#40484e]"
+              strokeWidth={2.2}
+            />
           </summary>
           <div className="space-y-3 px-4 pb-4 pt-2 text-sm leading-6 text-[#40484e]">
             <p>
@@ -161,10 +178,12 @@ export default function SurveyStartPage() {
 
 function IntroCard({
   accent,
+  icon,
   title,
   text,
 }: {
   accent: "primary" | "green" | "secondary";
+  icon: LucideIcon;
   title: string;
   text: string;
 }) {
@@ -172,19 +191,17 @@ function IntroCard({
     primary: {
       color: "#00658b",
       background: "#c4e7ff",
-      icon: "!",
     },
     green: {
       color: "#527a1b",
       background: "#eef7e1",
-      icon: "OK",
     },
     secondary: {
       color: "#396379",
       background: "#bae6ff",
-      icon: "+",
     },
   }[accent];
+  const Icon = icon;
 
   return (
     <article className="min-w-0 rounded-[1.25rem] border border-white/80 bg-white/85 p-5 shadow-[0_4px_20px_rgba(0,101,139,0.04)] backdrop-blur transition duration-300 hover:-translate-y-1">
@@ -192,7 +209,7 @@ function IntroCard({
         className="mb-3 grid h-10 w-10 place-items-center rounded-xl font-extrabold"
         style={{ backgroundColor: styles.background, color: styles.color }}
       >
-        {styles.icon}
+        <Icon aria-hidden="true" className="h-[22px] w-[22px]" strokeWidth={2.2} />
       </div>
       <h2 className="mb-1.5 font-bold" style={{ color: styles.color }}>
         {title}

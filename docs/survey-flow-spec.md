@@ -51,6 +51,13 @@ toekomst + concerns + support needs
 afronding + ambassador opt-in
 ```
 
+Exit path:
+
+If a respondent answers that they currently do not use AI tools, the flow asks
+for the main reason and then skips the toolpicker, datatype, account, and
+literacy screens. The respondent continues at `screen-08-toekomst.html`
+(`/survey/future`) and can complete the scan without registering a tool.
+
 Technical RPC checks, token-burn verification, and other implementation details
 must not be exposed as respondent steps. The respondent should complete the scan
 with a single final action.

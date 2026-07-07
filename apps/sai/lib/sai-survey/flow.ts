@@ -44,7 +44,8 @@ export function canAccessSurveyStep(
     (stepId === "literacy" ||
       stepId === "future" ||
       stepId === "complete") &&
-    (session.savedTools?.length ?? 0) === 0
+    (session.savedTools?.length ?? 0) === 0 &&
+    !session.noToolsExitPath
   ) {
     return false;
   }
@@ -57,7 +58,16 @@ export function canAccessSurveyStep(
   }
 
   const requestedIndex = getStepIndex(stepId);
-  const priorSteps = surveySteps.slice(0, requestedIndex);
+  const priorSteps = session.noToolsExitPath
+    ? surveySteps
+        .slice(0, requestedIndex)
+        .filter(
+          (step) =>
+            !["tools", "useCases", "data", "accounts", "literacy"].includes(
+              step.id,
+            ),
+        )
+    : surveySteps.slice(0, requestedIndex);
 
   return priorSteps.every((step) => session.completedSteps?.includes(step.id));
 }
@@ -73,9 +83,19 @@ export function getResumeStep(session: StoredSurveySession) {
 
   if (
     firstIncompleteStep.id === "complete" &&
-    (session.savedTools?.length ?? 0) === 0
+    (session.savedTools?.length ?? 0) === 0 &&
+    !session.noToolsExitPath
   ) {
     return getSurveyStep("tools");
+  }
+
+  if (
+    session.noToolsExitPath &&
+    ["tools", "useCases", "data", "accounts", "literacy"].includes(
+      firstIncompleteStep.id,
+    )
+  ) {
+    return getSurveyStep("future");
   }
 
   if (firstIncompleteStep.id === "accounts" && !hasPendingTool(session)) {

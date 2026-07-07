@@ -1,38 +1,57 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap");
 @import "tailwindcss";
 
 :root {
   --background: #f7fafc;
   --foreground: #181c1e;
+  --sai-primary: #00658b;
+  --sai-primary-container: #00a1da;
+  --sai-primary-fixed: #c4e7ff;
+  --sai-primary-fixed-dim: #7dd0ff;
+  --sai-ui-blue-grey: #6993aa;
+  --sai-brand-green: #93c942;
+  --sai-surface: #f7fafc;
+  --sai-surface-container-lowest: #ffffff;
+  --sai-surface-container-low: #f1f4f6;
+  --sai-surface-container: #ebeef0;
+  --sai-surface-container-high: #e5e9eb;
+  --sai-on-surface: #181c1e;
+  --sai-on-surface-variant: #40484e;
+  --sai-outline-variant: #bfc7cf;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans:
-    "Geist", "Inter", ui-sans-serif, system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono:
-    "Geist Mono", ui-monospace, "SFMono-Regular", Consolas,
+    "DM Mono", "Geist Mono", ui-monospace, "SFMono-Regular", Consolas,
     "Liberation Mono", monospace;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family:
-    Geist,
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+.font-headline {
+  font-family: "Manrope", "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+.sai-nebula-bg {
+  background:
+    radial-gradient(ellipse at 10% 0%, #c4e7ff 0%, #f7fafc 55%),
+    radial-gradient(ellipse at 90% 100%, #e5e9eb 0%, transparent 50%),
+    #f7fafc;
+}
+
+.sai-glass-card {
+  background: rgb(255 255 255 / 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }

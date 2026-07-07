@@ -9,6 +9,7 @@ import {
   SurveyStepLayout,
   ValidationMessage,
 } from "@/components/survey-ui";
+import { ToolLogo } from "@/components/tool-logo";
 import { saveProfile, saveToolAccount } from "@/lib/sai-rpc/client";
 import {
   markSurveyStepCompleted,
@@ -29,6 +30,7 @@ import {
   automationUsageOptions,
   browserExtensionUsageOptions,
   type SurveyOption,
+  toolOptions,
 } from "@/lib/sai-survey/options";
 
 const ACCOUNT_COLUMNS = [
@@ -180,7 +182,7 @@ export default function SurveyAccountsPage() {
     <SurveyStepLayout
       completedSteps={completedSteps}
       currentStep="accounts"
-      eyebrow="Toegang & automatisering"
+      eyebrow="Toegang & Automatisering"
       intro="Geef per tool aan wie het account beheert. We gebruiken dit om te bepalen waar de organisatie al regie heeft en waar veilige bedrijfslicenties nodig zijn."
       maxWidthClassName="max-w-3xl"
       title="Hoe gebruik je deze tools: via een zakelijke licentie of een priveaccount?"
@@ -205,7 +207,7 @@ export default function SurveyAccountsPage() {
         />
 
         <PrototypeRadioPanel
-          helpText="Denk aan extensies die in je browser meelezen of tekst voorstellen terwijl je werkt."
+          helpText=""
           isDisabled={isSaving}
           label="Gebruik je AI-browserextensies die mogelijk meekijken tijdens je werk?"
           name="browser_extensions"
@@ -215,7 +217,7 @@ export default function SurveyAccountsPage() {
         />
 
         <PrototypeRadioPanel
-          helpText="Gebruik je tools die zelfstandig taken uitvoeren of gekoppeld zijn aan andere apps?"
+          helpText="Gebruik je tools die zelfstandig taken voor je uitvoeren (zoals AutoGPT, agents in Poe, of gekoppelde AI-workflows via Zapier/Make)?"
           isDisabled={isSaving}
           label="Experimenteer je met AI-agents of automatisering?"
           name="automation_usage"
@@ -233,6 +235,25 @@ export default function SurveyAccountsPage() {
         </SurveyFooterActions>
       </form>
     </SurveyStepLayout>
+  );
+}
+
+function InlineChevron({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={`h-4 w-4 shrink-0 ${className ?? ""}`}
+      fill="none"
+      viewBox="0 0 16 16"
+    >
+      <path
+        d="M4 6l4 4 4-4"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </svg>
   );
 }
 
@@ -257,9 +278,7 @@ function AccountMatrix({
           <span className="flex-1 text-[13px] font-bold text-[#00658b]">
             Jouw data is trainingsmateriaal voor AI
           </span>
-          <span className="text-xl font-black text-[#40484e] transition group-open:rotate-180">
-            v
-          </span>
+          <InlineChevron className="text-[#94a3b8] transition group-open:rotate-180" />
         </summary>
         <div className="px-4 pb-4 pt-2 text-[13.5px] leading-relaxed text-[#40484e]">
           <p>
@@ -272,19 +291,21 @@ function AccountMatrix({
         </div>
       </details>
 
-      <div className="overflow-x-auto rounded-[1.25rem] border border-[#bfc7cf] bg-white shadow-[0_4px_20px_rgba(0,101,139,0.03)]">
-        <table className="w-full min-w-[720px] table-fixed border-collapse text-left text-sm">
-          <thead className="bg-[#f1f4f6] text-[13px] font-semibold text-[#40484e]">
+      <div className="overflow-hidden rounded-[1.25rem] border border-[#bfc7cf] bg-white shadow-[0_4px_20px_rgba(0,101,139,0.03)]">
+        <table className="w-full table-fixed border-collapse text-left text-sm">
+          <thead className="bg-[#f1f4f6] text-xs font-semibold text-[#40484e] sm:text-[13px]">
             <tr>
-              <th className="w-[30%] border-b border-[#bfc7cf] px-3 py-3">
+              <th className="w-[32%] border-b border-[#bfc7cf] px-3 py-3">
                 Geselecteerde Tool
               </th>
               {ACCOUNT_COLUMNS.map((column) => (
                 <th
-                  className="border-b border-[#bfc7cf] px-2.5 py-3 text-center leading-tight text-[#181c1e]"
+                  className="border-b border-[#bfc7cf] px-1.5 py-3 text-center leading-tight text-[#181c1e] sm:px-2"
                   key={column.code}
                 >
-                  {column.label}
+                  <span className="mx-auto block max-w-[8.5rem] whitespace-normal break-words">
+                    {column.label}
+                  </span>
                 </th>
               ))}
             </tr>
@@ -293,15 +314,16 @@ function AccountMatrix({
             {pendingTools.map((tool) => (
               <tr className="transition hover:bg-[#c4e7ff]/15" key={tool.surveyToolId}>
                 <td className="border-b border-[#ebeef0] px-3 py-3 last:border-b-0">
-                  <div className="flex items-start gap-3">
-                    <span className="mt-px grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-[#f1f4f6] text-sm font-black text-[#40484e]">
-                      {tool.toolName.slice(0, 1)}
-                    </span>
+                  <div className="flex min-w-0 items-start gap-2 sm:gap-3">
+                    <ToolLogo
+                      sizeClassName="mt-px h-8 w-8 sm:h-9 sm:w-9"
+                      tool={getCatalogTool(tool.toolName)}
+                    />
                     <div className="min-w-0">
-                      <p className="text-[14.5px] font-bold text-[#181c1e]">
+                      <p className="break-words text-[13px] font-bold text-[#181c1e] sm:text-[14.5px]">
                         {tool.toolName}
                       </p>
-                      <p className="mt-1 break-words text-xs leading-5 text-[#40484e]">
+                      <p className="mt-1 break-words text-[11px] leading-5 text-[#40484e] sm:text-xs">
                         {getOptionLabels(useCaseLabelOptions, tool.useCaseCodes ?? [])}
                       </p>
                     </div>
@@ -313,7 +335,7 @@ function AccountMatrix({
 
                   return (
                     <td
-                      className="border-b border-[#ebeef0] px-2.5 py-3 text-center"
+                      className="border-b border-[#ebeef0] px-1.5 py-3 text-center sm:px-2"
                       key={column.code}
                     >
                       <label className="inline-grid cursor-pointer place-items-center gap-1">
@@ -327,14 +349,14 @@ function AccountMatrix({
                           value={column.code}
                         />
                         <span
-                          className={`grid h-7 w-7 place-items-center rounded-full border-[3px] bg-white transition ${
+                          className={`grid h-6 w-6 place-items-center rounded-full border-[3px] bg-white transition sm:h-7 sm:w-7 ${
                             isChecked
                               ? "border-[#00658b]"
                               : "border-[#c2c9d2] hover:border-[#00658b] hover:bg-[#f7fafc]"
                           }`}
                         >
                           <span
-                            className={`h-3 w-3 rounded-full transition ${
+                            className={`h-2.5 w-2.5 rounded-full transition sm:h-3 sm:w-3 ${
                               isChecked ? "bg-[#00658b]" : "bg-transparent"
                             }`}
                           />
@@ -375,21 +397,14 @@ function PrototypeRadioPanel({
   return (
     <fieldset
       aria-invalid={validationError ? true : undefined}
-      className={`rounded-2xl border p-5 ${
-        validationError
-          ? "border-red-300 bg-red-50/45"
-          : "border-[#bfc7cf]/45 bg-[#f1f4f6]"
-      }`}
+      className="rounded-2xl border border-[#bfc7cf]/45 bg-[#f1f4f6] p-5"
     >
       <legend className="sr-only">{label}</legend>
       <h3 className="mb-1 text-[1.35rem] font-extrabold leading-tight text-[#00658b]">
         {label}
       </h3>
-      <p className="mb-3 text-sm leading-6 text-[#40484e]">{helpText}</p>
-      {validationError ? (
-        <p className="mb-3 text-sm font-semibold text-red-700">
-          {validationError}
-        </p>
+      {helpText ? (
+        <p className="mb-3 text-sm leading-6 text-[#40484e]">{helpText}</p>
       ) : null}
       <div className="grid gap-2.5">
         {options.map((option) => {
@@ -458,6 +473,16 @@ const useCaseLabelOptions: SurveyOption[] = [
 
 function getOptionLabels(options: SurveyOption[], codes: string[]) {
   return codes.map((code) => options.find((option) => option.code === code)?.label ?? code).join(", ");
+}
+
+function getCatalogTool(toolName: string) {
+  return (
+    toolOptions.find((tool) => tool.name === toolName) ?? {
+      id: "custom",
+      name: toolName,
+      category: "Zelf invullen",
+    }
+  );
 }
 
 function formatRpcError(error: RpcError) {

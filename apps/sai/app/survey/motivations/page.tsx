@@ -6,7 +6,6 @@ import { SurveyCheckboxGroup, SurveyRadioGroup } from "@/components/survey-choic
 import {
   EmptySurveyState,
   PrimarySurveyButton,
-  RunIdCard,
   SurveyFooterActions,
   SurveyQuestionBlock,
   SurveyStepLayout,
@@ -18,6 +17,7 @@ import {
   readSurveySession,
   storeSurveyGuardNotice,
   updateSurveyCurrentStep,
+  updateSurveySession,
 } from "@/lib/sai-rpc/session";
 import type { RpcError, SurveySession } from "@/lib/sai-rpc/types";
 import {
@@ -124,6 +124,21 @@ export default function SurveyMotivationsPage() {
     }
 
     markSurveyStepCompleted("motivations");
+
+    if (aiFrequencyCode === "never") {
+      updateSurveySession({
+        currentStep: "future",
+        noToolsExitPath: true,
+        pendingTool: undefined,
+        pendingTools: [],
+        savedTools: [],
+      });
+      setIsSaving(false);
+      router.push("/survey/future");
+      return;
+    }
+
+    updateSurveySession({ noToolsExitPath: false });
     updateSurveyCurrentStep("tools");
     setIsSaving(false);
     router.push("/survey/tools");
@@ -147,7 +162,7 @@ export default function SurveyMotivationsPage() {
       completedSteps={completedSteps}
       currentStep="motivations"
       eyebrow="Gebruik en frequentie"
-      intro="Ook incidenteel gebruik telt: een mail herschrijven, iets samenvatten of een tekst vertalen is al AI-gebruik."
+      intro="Onder AI-tools verstaan we slimme software die tekst, afbeeldingen, code of berekeningen voor je kan genereren of verbeteren. Ook het af en toe herschrijven van een e-mail, het samenvatten van een vergadering of het vertalen van een kort tekstblok telt als AI-gebruik."
       title="Hoe vaak gebruik je AI-tools voor je werk?"
     >
       <form
@@ -158,7 +173,7 @@ export default function SurveyMotivationsPage() {
         }}
       >
         <SurveyRadioGroup
-          helpText="Kies wat het beste past bij je huidige werkpraktijk."
+          helpText=""
           isDisabled={isSaving}
           label="Hoe vaak gebruik je AI-tools voor je werk?"
           name="ai_frequency"
@@ -213,8 +228,6 @@ export default function SurveyMotivationsPage() {
         ) : null}
 
         {error ? <ValidationMessage>{error}</ValidationMessage> : null}
-
-        <RunIdCard runId={runId} />
 
         <SurveyFooterActions backHref="/survey/profile">
           <PrimarySurveyButton disabled={isSaving} isBusy={isSaving} type="submit">

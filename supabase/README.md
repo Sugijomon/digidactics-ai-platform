@@ -30,11 +30,42 @@ for clients, and expose the token-based respondent lifecycle.
 
 ```txt
 supabase/seed/20260504141000_sai_smoke_seed.sql
+supabase/seed/20260527_sai_dashboard_mock_data.sql
 supabase/smoke-tests/20260504140000_sai_rpc_smoke_tests.sql
 ```
 
 The seed file creates a deterministic smoke-test organization, one active scan
 wave, and the minimum reference rows needed for the smoke-test RPC calls.
+
+`20260527_sai_dashboard_mock_data.sql` adds deterministic, persisted dashboard
+inspection data for the same smoke-test organization: survey runs, profiles,
+tools, account/use-case/context selections, V8 risk results, tool-level scores,
+DPO review items, audit events, and a report export row. It is mock/test data in
+the database, not hard-coded mock data in production dashboard components.
+
+The deterministic organization is also the default local/staging dashboard
+inspection org:
+
+```txt
+Organization: SAI Smoke Test Organisatie
+org_id:       00000000-0000-0000-0000-000000000101
+wave token:   sai-smoke-wave-token
+```
+
+To inspect the DPO dashboard with a real login, create a user in Supabase Auth
+and link it to this organization:
+
+```sql
+insert into public.user_roles (user_id, org_id, role)
+values (
+  '<auth.users.id>',
+  '00000000-0000-0000-0000-000000000101',
+  'dpo'
+);
+```
+
+Use persisted test rows in the V8 tables for dashboard mockup checks. Production
+dashboard components should not contain hard-coded mock data.
 
 The smoke-test file validates:
 
@@ -53,6 +84,7 @@ Suggested local flow:
 supabase start
 supabase db reset
 psql "<local-db-url>" -f supabase/seed/20260504141000_sai_smoke_seed.sql
+psql "<local-db-url>" -f supabase/seed/20260527_sai_dashboard_mock_data.sql
 psql "<local-db-url>" -f supabase/smoke-tests/20260504140000_sai_rpc_smoke_tests.sql
 ```
 
@@ -66,7 +98,10 @@ Suggested staging flow:
 2. Apply the three migration SQL files in order.
 3. Run the seed SQL.
 4. Run the smoke-test SQL.
-5. Only after all checks pass, connect the future Next.js frontend to this
+5. Create or link at least one `dpo` dashboard user in `public.user_roles`.
+6. Complete at least one survey through the Next.js UI or the RPC smoke test so
+   `risk_result`, `risk_result_tool`, and `dpo_review_items` exist.
+7. Only after all checks pass, connect the future Next.js frontend to this
    staging project.
 
 ## Current Scoring Status

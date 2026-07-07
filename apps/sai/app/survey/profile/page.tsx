@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import {
   EmptySurveyState,
   PrimarySurveyButton,
-  RunIdCard,
   SurveyFooterActions,
   SurveyQuestionBlock,
   SurveyStepLayout,
@@ -98,7 +97,7 @@ export default function SurveyProfilePage() {
       completedSteps={completedSteps}
       currentStep="profile"
       eyebrow="Jouw werkplek"
-      intro="We vragen naar je vakgebied om patronen op groepsniveau te kunnen duiden. Dit is geen controle op individuen."
+      intro="Kies het domein dat het beste aansluit bij jouw rol of expertise, ook als je in wisselende projectteams werkt."
       maxWidthClassName="max-w-2xl"
       title="Binnen welk vakgebied ben je voornamelijk actief?"
     >
@@ -111,8 +110,7 @@ export default function SurveyProfilePage() {
       >
         <SurveyQuestionBlock
           error={error ?? undefined}
-          helpText="Kies het domein dat het beste aansluit bij jouw rol of expertise."
-          required
+          helpText=""
           title="Jouw werkplek"
         >
           <div className="grid gap-2 md:grid-cols-2">
@@ -152,8 +150,6 @@ export default function SurveyProfilePage() {
             </label>
           ) : null}
         </SurveyQuestionBlock>
-
-        <RunIdCard runId={runId} />
 
         <SurveyFooterActions backHref="/survey">
           <PrimarySurveyButton disabled={isSaving} isBusy={isSaving} type="submit">

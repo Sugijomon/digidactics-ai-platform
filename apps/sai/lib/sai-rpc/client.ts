@@ -245,6 +245,33 @@ export async function saveToolUseCase(
     : { ok: false, error: DEFAULT_UNEXPECTED_ERROR };
 }
 
+export async function saveToolUseCases(
+  session: SurveySession,
+  surveyToolId: string,
+  useCaseCodes: string[],
+): Promise<RpcResult<string[]>> {
+  const client = createRpcClient();
+
+  if (!client.ok) {
+    return client;
+  }
+
+  const { data, error } = await client.data.rpc("save_tool_use_cases", {
+    p_run_id: session.runId,
+    p_token: session.submissionToken,
+    p_survey_tool_id: surveyToolId,
+    p_use_case_codes: toJsonValue(useCaseCodes),
+  });
+
+  if (error) {
+    return { ok: false, error: mapSupabaseError(error) };
+  }
+
+  return Array.isArray(data) && data.every((item) => typeof item === "string")
+    ? { ok: true, data }
+    : { ok: false, error: DEFAULT_UNEXPECTED_ERROR };
+}
+
 export async function saveToolUseCaseContext(
   session: SurveySession,
   surveyToolUseCaseId: string,
@@ -285,6 +312,33 @@ export async function saveToolAccount(
   });
 
   return error ? { ok: false, error: mapSupabaseError(error) } : successNull();
+}
+
+export async function registerToolDiscovery(
+  session: SurveySession,
+  surveyToolId: string,
+  rawToolName: string,
+): Promise<RpcResult<string>> {
+  const client = createRpcClient();
+
+  if (!client.ok) {
+    return client;
+  }
+
+  const { data, error } = await client.data.rpc("register_tool_discovery", {
+    p_run_id: session.runId,
+    p_token: session.submissionToken,
+    p_survey_tool_id: surveyToolId,
+    p_raw_tool_name: rawToolName,
+  });
+
+  if (error) {
+    return { ok: false, error: mapSupabaseError(error) };
+  }
+
+  return typeof data === "string"
+    ? { ok: true, data }
+    : { ok: false, error: DEFAULT_UNEXPECTED_ERROR };
 }
 
 export async function completeSurveyRun(

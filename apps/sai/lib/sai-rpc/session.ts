@@ -33,6 +33,7 @@ export type StoredSurveySession = SurveySession & {
   startedAt: string;
   currentStep: SurveyStepId;
   completedSteps?: SurveyStepId[];
+  noToolsExitPath?: boolean;
   surveyToolId?: string;
   surveyToolUseCaseId?: string;
   pendingTool?: PendingSurveyTool;
@@ -56,6 +57,8 @@ function isStoredSurveySession(value: unknown): value is StoredSurveySession {
     isSurveyStepId(candidate.currentStep) &&
     (candidate.completedSteps === undefined ||
       isSurveyStepIds(candidate.completedSteps)) &&
+    (candidate.noToolsExitPath === undefined ||
+      typeof candidate.noToolsExitPath === "boolean") &&
     (candidate.pendingTool === undefined ||
       isPendingSurveyTool(candidate.pendingTool)) &&
     (candidate.pendingTools === undefined ||
@@ -196,6 +199,7 @@ export function updateSurveySession(
       StoredSurveySession,
       | "completedSteps"
       | "currentStep"
+      | "noToolsExitPath"
       | "pendingTool"
       | "pendingTools"
       | "surveyToolId"

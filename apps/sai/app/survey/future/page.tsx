@@ -6,7 +6,6 @@ import { SurveyCheckboxGroup, SurveyRadioGroup } from "@/components/survey-choic
 import {
   EmptySurveyState,
   PrimarySurveyButton,
-  RunIdCard,
   SurveyFooterActions,
   SurveyQuestionBlock,
   SurveyStepLayout,
@@ -32,6 +31,7 @@ export default function SurveyFuturePage() {
   const [surveySession, setSurveySession] = useState<SurveySession | null>(null);
   const [runId, setRunId] = useState<string | null>(null);
   const [completedSteps, setCompletedSteps] = useState<SurveyStepId[]>([]);
+  const [noToolsExitPath, setNoToolsExitPath] = useState(false);
   const [concernCode, setConcernCode] = useState("");
   const [concernOtherText, setConcernOtherText] = useState("");
   const [futureUsecasesText, setFutureUsecasesText] = useState("");
@@ -62,6 +62,7 @@ export default function SurveyFuturePage() {
       });
       setRunId(storedSession.runId);
       setCompletedSteps(storedSession.completedSteps ?? []);
+      setNoToolsExitPath(Boolean(storedSession.noToolsExitPath));
     });
   }, [router]);
 
@@ -123,7 +124,8 @@ export default function SurveyFuturePage() {
   if (!runId) {
     return (
       <EmptySurveyState>
-        Registreer eerst minimaal een tool voordat je de toekomststap invult.
+        Start eerst een scan en beantwoord de eerdere vragen voordat je deze
+        stap invult.
       </EmptySurveyState>
     );
   }
@@ -133,8 +135,8 @@ export default function SurveyFuturePage() {
       completedSteps={completedSteps}
       currentStep="future"
       eyebrow="Toekomst & ambities"
-      intro="We verzamelen ideeen om te onderzoeken waar AI waarde kan toevoegen en welke ondersteuning medewerkers nodig hebben."
-      title="Wat heb je nodig om veilig met AI te werken?"
+      intro=""
+      title=""
     >
       <form
         className="grid gap-6"
@@ -144,9 +146,9 @@ export default function SurveyFuturePage() {
         }}
       >
         <SurveyRadioGroup
-          helpText="Wat is je belangrijkste zorg bij AI-gebruik in je werk?"
+          helpText="Selecteer een optie."
           isDisabled={isSaving}
-          label="Wat is je grootste zorg bij AI-gebruik?"
+          label="Wat is jouw grootste zorg bij AI-tools op het werk?"
           name="top_concern"
           onChange={setConcernCode}
           options={topConcernOptions}
@@ -167,7 +169,7 @@ export default function SurveyFuturePage() {
         ) : null}
 
         <SurveyQuestionBlock
-          helpText="Vul geen namen of gevoelige persoonsgegevens in."
+          helpText="We verzamelen ideeën om te onderzoeken waar AI de meeste waarde kan toevoegen aan onze dagelijkse processen."
           title="Welke werkzaamheden lenen zich volgens jou goed voor AI-ondersteuning?"
         >
           <textarea
@@ -183,12 +185,14 @@ export default function SurveyFuturePage() {
         </SurveyQuestionBlock>
 
         <SurveyCheckboxGroup
-          helpText="Meerdere antwoorden zijn mogelijk."
+          helpText="Wat heb jij nodig om AI op een veilige en effectieve manier in te zetten voor je werk?"
           isDisabled={isSaving}
-          label="Welke ondersteuning zou jou helpen?"
+          label="Hoe kunnen we je het beste ondersteunen?"
           onChange={setSupportNeedCodes}
           options={supportNeedOptions}
           selectedCodes={supportNeedCodes}
+          showSelectedCount={false}
+          supportingNote="Meerdere antwoorden mogelijk."
           validationError={
             supportNeedCodes.length === 0
               ? "Kies minimaal een vorm van ondersteuning."
@@ -198,9 +202,9 @@ export default function SurveyFuturePage() {
 
         {error ? <ValidationMessage>{error}</ValidationMessage> : null}
 
-        <RunIdCard runId={runId} />
-
-        <SurveyFooterActions backHref="/survey/literacy">
+        <SurveyFooterActions
+          backHref={noToolsExitPath ? "/survey/motivations" : "/survey/literacy"}
+        >
           <PrimarySurveyButton disabled={isSaving} isBusy={isSaving} type="submit">
             {isSaving ? "Opslaan..." : "Naar afronding"}
           </PrimarySurveyButton>

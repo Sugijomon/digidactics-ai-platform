@@ -110,7 +110,7 @@ export const automationUsageOptions = [
   { code: "alleen_chatbot", label: "Nee, ik gebruik AI alleen als chatbot" },
   {
     code: "agents_reeks_taken",
-    label: "Ja, ik experimenteer met agents die taken uitvoeren",
+    label: "Ja, ik experimenteer met agents die zelfstandig taken uitvoeren",
   },
   { code: "gekoppeld_apps", label: "Ja, ik heb AI gekoppeld aan andere apps" },
   {
@@ -153,7 +153,7 @@ export const dataTypeOptions = [
   },
   {
     code: "publiek",
-    label: "Publieke informatie (V8 alias)",
+    label: "Publieke informatie",
     description: "Alias uit de V8.1 ref-seed.",
   },
   {
@@ -163,7 +163,7 @@ export const dataTypeOptions = [
   },
   {
     code: "namen",
-    label: "Namen van personen (V8 alias)",
+    label: "Namen van personen",
     description: "Alias uit de V8.1 ref-seed.",
   },
   {
@@ -173,7 +173,7 @@ export const dataTypeOptions = [
   },
   {
     code: "interne_email",
-    label: "Interne e-mails (V8 alias)",
+    label: "Interne e-mails",
     description: "Alias uit de V8.1 ref-seed.",
   },
   {
@@ -183,7 +183,7 @@ export const dataTypeOptions = [
   },
   {
     code: "interne_documenten",
-    label: "Interne documenten (V8 alias)",
+    label: "Interne documenten",
     description: "Alias uit de V8.1 ref-seed.",
   },
   {
@@ -193,7 +193,7 @@ export const dataTypeOptions = [
   },
   {
     code: "notulen",
-    label: "Notulen of verslagen (V8 alias)",
+    label: "Notulen of verslagen",
     description: "Alias uit de V8.1 ref-seed.",
   },
   {
@@ -203,7 +203,7 @@ export const dataTypeOptions = [
   },
   {
     code: "broncode_logica",
-    label: "Broncode of bedrijfslogica (V8 alias)",
+    label: "Broncode of bedrijfslogica",
     description: "Alias uit de V8.1 ref-seed.",
   },
   {
@@ -213,7 +213,7 @@ export const dataTypeOptions = [
   },
   {
     code: "klantdata",
-    label: "Klantgegevens (V8 alias)",
+    label: "Klantgegevens",
     description: "Alias uit de V8.1 ref-seed.",
   },
   {
@@ -223,7 +223,7 @@ export const dataTypeOptions = [
   },
   {
     code: "financiele_data",
-    label: "Financiele gegevens (V8 alias)",
+    label: "Financiele gegevens",
     description: "Alias uit de V8.1 ref-seed.",
   },
   {
@@ -233,7 +233,7 @@ export const dataTypeOptions = [
   },
   {
     code: "gevoelig_persoonsgegeven",
-    label: "Bijzondere persoonsgegevens (V8 alias)",
+    label: "Bijzondere persoonsgegevens",
     description: "Alias uit de V8.1 ref-seed.",
   },
   {
@@ -248,7 +248,7 @@ export const dataTypeOptions = [
   },
   {
     code: "juridische_documenten",
-    label: "Juridische documenten (V8 alias)",
+    label: "Juridische documenten",
     description: "Alias uit de V8.1 ref-seed.",
   },
   {
@@ -268,7 +268,7 @@ export const dataTypeOptions = [
   },
   {
     code: "onzeker",
-    label: "Weet ik niet zeker (V8 alias)",
+    label: "Weet ik niet zeker",
     description: "Alias uit de V8.1 ref-seed.",
   },
 ] satisfies SurveyOption[];
@@ -669,22 +669,57 @@ export const useCaseOptions = [
 
 export const contextOptions = [
   { code: "internal_work", label: "Intern werk" },
-  { code: "intern_gebruik", label: "Intern gebruik" },
-  { code: "klantgerichte_toepassing", label: "Klantgerichte toepassing" },
-  { code: "beslisondersteuning", label: "Beslisondersteuning" },
-  { code: "besluiten_over_personen", label: "Besluiten over personen" },
+  {
+    code: "intern_gebruik",
+    label: "Intern gebruik",
+    description: "Voor interne dashboards, scripts, automatisering of developer-tooling.",
+  },
+  {
+    code: "klantgerichte_toepassing",
+    label: "Klantgerichte toepassing",
+    description:
+      "Voor software waar externe gebruikers direct mee werken, zoals portalen, apps of websites.",
+  },
+  {
+    code: "beslisondersteuning",
+    label: "Beslisondersteuning",
+    description:
+      "Voor code die helpt bij planning, voorspellingen of analyses als input voor een menselijke afweging.",
+  },
+  {
+    code: "besluiten_over_personen",
+    label: "Besluiten over personen",
+    description:
+      "Voor recruitment, personeelsbeheer of software die profielen opstelt voor individuele trajecten.",
+  },
+  {
+    code: "financieel_juridisch",
+    label: "Financieel en juridisch",
+    description:
+      "Voor contractverwerking, premieberekeningen, risico-inschattingen of financiele validatie.",
+  },
   { code: "hr_evaluatie", label: "HR en evaluatie" },
-  { code: "kritieke_systemen", label: "Kritieke systemen" },
-  { code: "nog_niet_duidelijk", label: "Nog niet duidelijk" },
+  {
+    code: "kritieke_systemen",
+    label: "Kritieke systemen",
+    description:
+      "Voor software in zorg, logistiek, energie of primaire veiligheidsprocessen.",
+  },
+  {
+    code: "nog_niet_duidelijk",
+    label: "Nog niet duidelijk",
+    description:
+      "Voor experimenten of projecten waarvan de uiteindelijke bestemming nog in verkenning is.",
+  },
 ] satisfies SurveyOption[];
 
 export const accountTypeOptions = [
   { code: "business_license", label: "Zakelijke licentie" },
-  { code: "zakelijke_licentie", label: "Zakelijke licentie (V8 alias)" },
+  { code: "zakelijke_licentie", label: "Zakelijke licentie" },
   { code: "personal_free", label: "Persoonlijk gratis account" },
   { code: "prive_gratis", label: "Priveaccount - gratis" },
   { code: "personal_paid", label: "Persoonlijk betaald account" },
   { code: "prive_betaald", label: "Priveaccount - betaald" },
   { code: "both", label: "Beide" },
-  { code: "beide", label: "Beide (V8 alias)" },
+  { code: "beide", label: "Beide" },
 ] satisfies SurveyOption[];

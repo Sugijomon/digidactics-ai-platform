@@ -214,9 +214,10 @@ VALUES
   ('klantgerichte_toepassing', 'Klantgerichte toepassing', 10, 0, ARRAY['context_multiplier_1_25']::text[], 20, true),
   ('beslisondersteuning', 'Beslisondersteuning', 15, 5, ARRAY['context_multiplier_1_4']::text[], 30, true),
   ('besluiten_over_personen', 'Besluiten over personen', 25, 10, ARRAY['context_multiplier_1_6', 'human_impact']::text[], 40, true),
-  ('hr_evaluatie', 'HR en evaluatie', 30, 15, ARRAY['context_multiplier_1_8', 'hr_evaluation']::text[], 50, true),
-  ('kritieke_systemen', 'Kritieke systemen', 35, 20, ARRAY['context_multiplier_2_0', 'critical_systems']::text[], 60, true),
-  ('nog_niet_duidelijk', 'Nog niet duidelijk', 10, 5, ARRAY['context_uncertain']::text[], 70, true)
+  ('financieel_juridisch', 'Financieel en juridisch', 20, 8, ARRAY['context_multiplier_1_5', 'human_review_required']::text[], 50, true),
+  ('hr_evaluatie', 'HR en evaluatie', 30, 15, ARRAY['context_multiplier_1_8', 'hr_evaluation']::text[], 60, true),
+  ('kritieke_systemen', 'Kritieke systemen', 35, 20, ARRAY['context_multiplier_2_0', 'critical_systems']::text[], 70, true),
+  ('nog_niet_duidelijk', 'Nog niet duidelijk', 10, 5, ARRAY['context_uncertain']::text[], 80, true)
 ON CONFLICT (code) DO UPDATE SET
   label_nl = EXCLUDED.label_nl,
   exposure_weight = EXCLUDED.exposure_weight,

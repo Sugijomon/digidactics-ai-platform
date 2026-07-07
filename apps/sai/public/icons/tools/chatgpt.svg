@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" role="img" aria-label="ChatGPT">
+  <rect width="40" height="40" rx="10" fill="#eef7f4"/>
+  <path d="M20 9.5a6.5 6.5 0 0 1 6.1 4.3 6.5 6.5 0 0 1 1.8 11.4 6.5 6.5 0 0 1-10.4 3.8 6.5 6.5 0 0 1-6.1-4.3 6.5 6.5 0 0 1-1.8-11.4A6.5 6.5 0 0 1 20 9.5Z" fill="none" stroke="#0f766e" stroke-width="2.2"/>
+  <path d="M15 17.2 20 14l5 3.2v5.6L20 26l-5-3.2v-5.6Z" fill="none" stroke="#0f766e" stroke-width="2.2" stroke-linejoin="round"/>
+</svg>

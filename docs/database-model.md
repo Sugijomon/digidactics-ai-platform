@@ -82,6 +82,26 @@ user
 
 For SAI MVP, active roles are `super_admin`, `dpo`, and `user`.
 
+Role interpretation:
+
+- `dpo` is the SAI customer-side scan owner role for DPO dashboard inspection,
+  review queue follow-up, and scan-result interpretation.
+- `org_admin` is reserved for the broader RouteAI organization administration
+  surface and may become the expanded version of the same customer-side owner.
+- The larger RouteAI shell should reuse `user_roles` and add permission checks
+  where needed instead of introducing a second identity model.
+
+Deterministic SAI validation organization:
+
+```txt
+id   = 00000000-0000-0000-0000-000000000101
+name = SAI Smoke Test Organisatie
+```
+
+Dashboard test users should be regular Supabase Auth users linked to this org
+through `user_roles`; dashboard demo data should be persisted in the real V8
+tables instead of embedded as mock data in production React components.
+
 ## Scan Campaigns And Runs
 
 ### `scan_campaigns`
@@ -479,6 +499,43 @@ risk_score_calculated
 dpo_review_opened
 tool_policy_status_changed
 ```
+
+## Dashboard Data Mapping Notes
+
+Audit date: 2026-05-28.
+
+The SAI DPO dashboards currently read the following production tables
+server-side:
+
+- Activatie: `survey_run`, `scan_wave`, `survey_profile`.
+- Tool Inventaris: `survey_tool`, `survey_tool_account`,
+  `survey_tool_use_case`, `survey_tool_use_case_context`,
+  `scan_scoring_config`.
+- Risicoprofiel: `risk_result`, `risk_result_tool`,
+  `dpo_review_items`, `scan_scoring_config`.
+- Governance: `survey_profile`, `survey_motivation`,
+  `survey_support_need`, `risk_result`, `risk_result_tool`,
+  `dpo_review_items`, `audit_events`.
+- Rapportage: `report_exports`, `survey_run`, `risk_result`,
+  `dpo_review_items`.
+- Voortgang: `scan_wave`, `survey_run`, `survey_profile`,
+  `survey_data_type`, `survey_support_need`, `survey_motivation`,
+  `survey_tool`, `risk_result`, `risk_result_tool`.
+
+Current data gaps for full production parity:
+
+- DPO review items are complete at run/trigger level, but tool-level linkage is
+  partial. If DPO workflow needs assigning or resolving a specific tool case,
+  persist `dpo_review_items.survey_tool_id` for each relevant
+  `risk_result_tool`, or introduce a child table for tool-level review cases.
+- Activatie still needs a durable invitation/roster model if invited employees,
+  names, e-mail status, reminder status, and invitation timing must be audited
+  separately from `survey_run` sessions.
+- Organisation dashboard context needs a durable settings/profile model for
+  sector, employee count, DPO phone, activation copy, and default reporting
+  metadata. These values should not remain page-local fallbacks in production.
+- True Voortgang t=1/t=2 comparisons require at least two completed
+  `scan_wave` groups or a durable wave snapshot table for historic KPI deltas.
 
 ## RLS Model Summary
 

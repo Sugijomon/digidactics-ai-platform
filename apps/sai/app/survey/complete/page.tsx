@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import {
   EmptySurveyState,
   PrimarySurveyButton,
-  SecondarySurveyButton,
   SurveyFooterActions,
   SurveyPageShell,
   SurveyStepLayout,
@@ -37,11 +36,13 @@ export default function SurveyCompletePage() {
   const [runId, setRunId] = useState<string | null>(null);
   const [completedSteps, setCompletedSteps] = useState<SurveyStepId[]>([]);
   const [savedTools, setSavedTools] = useState<StoredSurveyTool[]>([]);
+  const [noToolsExitPath, setNoToolsExitPath] = useState(false);
   const [ambassadorChoice, setAmbassadorChoice] = useState<"ja" | "nee" | null>(
     null,
   );
   const [ambassadorEmail, setAmbassadorEmail] = useState("");
   const [emailSaved, setEmailSaved] = useState(false);
+  const [emailSaveMessage, setEmailSaveMessage] = useState("");
   const [isCompleting, setIsCompleting] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +57,7 @@ export default function SurveyCompletePage() {
 
       if (!canAccessSurveyStep(storedSession, "complete")) {
         storeSurveyGuardNotice(
-          "Registreer minimaal een tool voordat je de scan afrondt.",
+          "We hebben je teruggezet naar de eerstvolgende open stap.",
         );
         router.replace(getResumeStep(storedSession).href);
         return;
@@ -70,6 +71,7 @@ export default function SurveyCompletePage() {
       setRunId(storedSession.runId);
       setCompletedSteps(storedSession.completedSteps ?? []);
       setSavedTools(storedSession.savedTools ?? []);
+      setNoToolsExitPath(Boolean(storedSession.noToolsExitPath));
     });
   }, [router]);
 
@@ -79,7 +81,7 @@ export default function SurveyCompletePage() {
       return;
     }
 
-    if (savedTools.length === 0) {
+    if (savedTools.length === 0 && !noToolsExitPath) {
       setError("Registreer minimaal een AI-tool voordat je de scan afrondt.");
       return;
     }
@@ -91,6 +93,11 @@ export default function SurveyCompletePage() {
 
     if (ambassadorChoice === "ja" && !isValidEmail(ambassadorEmail)) {
       setError("Vul een geldig e-mailadres in voor de ambassadeur opt-in.");
+      return;
+    }
+
+    if (ambassadorChoice === "ja" && !emailSaved) {
+      setError("Sla je e-mailadres eerst op voordat je de scan afrondt.");
       return;
     }
 
@@ -150,7 +157,11 @@ export default function SurveyCompletePage() {
             <SurveySummaryItem
               detail={savedTools.map((tool) => tool.toolName).join(", ")}
               label="Tools"
-              value={`${savedTools.length} geregistreerd`}
+              value={
+                noToolsExitPath
+                  ? "Geen tools gebruikt"
+                  : `${savedTools.length} geregistreerd`
+              }
             />
             <SurveySummaryItem label="Sessie" value="Gesloten" />
           </SurveySummaryGrid>
@@ -178,7 +189,10 @@ export default function SurveyCompletePage() {
       title="Bedankt voor je deelname"
     >
       <div className="grid min-w-0 gap-6">
-        <CompletionOverview savedTools={savedTools} />
+        <CompletionOverview
+          noToolsExitPath={noToolsExitPath}
+          savedTools={savedTools}
+        />
 
         <AmbassadorOptIn
           choice={ambassadorChoice}
@@ -192,21 +206,25 @@ export default function SurveyCompletePage() {
           onEmailChange={(email) => {
             setAmbassadorEmail(email);
             setEmailSaved(false);
+            setEmailSaveMessage("");
           }}
-          onSaveEmail={() => setEmailSaved(isValidEmail(ambassadorEmail))}
+          onSaveEmail={() => {
+            const isValid = isValidEmail(ambassadorEmail);
+            setEmailSaved(isValid);
+            setEmailSaveMessage(
+              isValid
+                ? "Fijn dat je wilt meedenken! Je e-mailadres is succesvol geregistreerd."
+                : "Vul een geldig e-mailadres in.",
+            );
+          }}
+          saveMessage={emailSaveMessage}
         />
 
         {error ? <ValidationMessage>{error}</ValidationMessage> : null}
 
         <SurveyFooterActions backHref="/survey/future">
-          <SecondarySurveyButton
-            disabled={isCompleting}
-            onClick={() => router.push("/survey/tools")}
-          >
-            Nog een tool toevoegen
-          </SecondarySurveyButton>
           <PrimarySurveyButton
-            disabled={isCompleting || savedTools.length === 0}
+            disabled={isCompleting || (savedTools.length === 0 && !noToolsExitPath)}
             isBusy={isCompleting}
             onClick={() => {
               void handleCompleteSurvey();
@@ -221,8 +239,10 @@ export default function SurveyCompletePage() {
 }
 
 function CompletionOverview({
+  noToolsExitPath,
   savedTools,
 }: {
+  noToolsExitPath: boolean;
   savedTools: StoredSurveyTool[];
 }) {
   const accountTypes = new Set(savedTools.map((tool) => tool.accountTypeCode));
@@ -238,15 +258,20 @@ function CompletionOverview({
             Klaar voor afsluiten
           </p>
           <h2 className="mt-1 break-words text-xl font-extrabold text-[#00658b]">
-            Controleer je toolregistratie
+            {noToolsExitPath
+              ? "Je hebt aangegeven dat je nu geen AI-tools gebruikt"
+              : "Controleer je toolregistratie"}
           </h2>
           <p className="mt-2 max-w-2xl break-words leading-6 text-[#40484e]">
-            Na afronden wordt de respondentensessie gesloten en verdwijnt de
-            lokale sessiesleutel uit deze browser.
+            {noToolsExitPath
+              ? "Na afronden wordt de respondentensessie gesloten en nemen we je antwoorden mee in het groepsbeeld."
+              : "Na afronden wordt de respondentensessie gesloten en verdwijnt de lokale sessiesleutel uit deze browser."}
           </p>
         </div>
         <span className="rounded-full border border-[#00658b]/20 bg-white px-3 py-1 text-xs font-extrabold text-[#00658b]">
-          {savedTools.length} tool{savedTools.length === 1 ? "" : "s"}
+          {noToolsExitPath
+            ? "Geen tools"
+            : `${savedTools.length} tool${savedTools.length === 1 ? "" : "s"}`}
         </span>
       </div>
 
@@ -256,11 +281,19 @@ function CompletionOverview({
       >
         <SurveySummaryItem
           label="Geregistreerd"
-          value={`${savedTools.length} tool${savedTools.length === 1 ? "" : "s"}`}
+          value={
+            noToolsExitPath
+              ? "Geen tools"
+              : `${savedTools.length} tool${savedTools.length === 1 ? "" : "s"}`
+          }
         />
         <SurveySummaryItem
           label="Accountstatus"
-          value={`${accountTypes.size} type${accountTypes.size === 1 ? "" : "s"}`}
+          value={
+            noToolsExitPath
+              ? "Niet van toepassing"
+              : `${accountTypes.size} type${accountTypes.size === 1 ? "" : "s"}`
+          }
         />
         <SurveySummaryItem
           label="Context"
@@ -283,6 +316,7 @@ function AmbassadorOptIn({
   onChoiceChange,
   onEmailChange,
   onSaveEmail,
+  saveMessage,
 }: {
   choice: "ja" | "nee" | null;
   email: string;
@@ -291,6 +325,7 @@ function AmbassadorOptIn({
   onChoiceChange: (choice: "ja" | "nee") => void;
   onEmailChange: (email: string) => void;
   onSaveEmail: () => void;
+  saveMessage: string;
 }) {
   return (
     <section className="grid gap-4 rounded-[1.6rem] border border-[#c4e7ff] bg-[#f3fbff] p-5 text-sm">
@@ -335,7 +370,7 @@ function AmbassadorOptIn({
         <div className="grid gap-2 rounded-2xl border border-white/80 bg-white p-4">
           <label className="grid gap-2 font-semibold text-[#181c1e]">
             E-mailadres
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <input
                 className="h-11 min-w-0 flex-1 rounded-xl border border-[#bfc7cf] bg-white px-3 text-sm font-normal outline-none transition focus:border-[#00658b] focus:ring-2 focus:ring-[#c4e7ff]"
                 disabled={isDisabled}
@@ -345,19 +380,22 @@ function AmbassadorOptIn({
                 value={email}
               />
               <button
-                className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#00658b] text-sm font-black text-white disabled:opacity-50"
+                className="inline-flex h-11 shrink-0 items-center justify-center rounded-xl bg-[#00658b] px-5 text-sm font-extrabold text-white disabled:opacity-50"
                 disabled={isDisabled || !isValidEmail(email)}
                 onClick={onSaveEmail}
                 type="button"
-                aria-label="E-mail opslaan"
               >
-                OK
+                Opslaan
               </button>
             </div>
           </label>
-          {emailSaved ? (
-            <p className="text-xs font-bold text-[#527a1b]">
-              E-mailadres opgeslagen voor opt-in.
+          {saveMessage ? (
+            <p
+              className={`text-xs font-bold ${
+                emailSaved ? "text-[#527a1b]" : "text-[#00658b]"
+              }`}
+            >
+              {saveMessage}
             </p>
           ) : null}
         </div>

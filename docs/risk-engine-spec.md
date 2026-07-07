@@ -292,7 +292,8 @@ Implementation note:
   remaining tool priority scores, capped at 100.
 - The shared `packages/domain` risk engine has regression tests for approved
   sensitive-data use, prohibited high-exposure use, missing policy status,
-  no-tool exit path aggregation, and multi-tool hybrid aggregation.
+  no-tool exit path aggregation, multi-tool hybrid aggregation, context
+  multiplier weighting, and agentic exposure boosting.
 - Both implementations include the agentic behavior boost as an additive
   exposure boost and persist it in the score breakdown.
 - Custom or newly discovered tools without a catalog-backed policy snapshot are

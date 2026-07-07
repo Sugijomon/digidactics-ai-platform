@@ -60,6 +60,59 @@ test("unknown or missing policy status is scoreable as newly discovered", () => 
   assert.deepEqual(result.reviewTriggerCodes, []);
 });
 
+test("context multiplier and agentic boost contribute to exposure", () => {
+  const result = calculateRiskScore({
+    accountTypeCode: "personal_free",
+    automationUsageCode: "agents_reeks_taken",
+    browserExtensionUsageCode: "nee",
+    contextCodes: ["kritieke_systemen"],
+    dataTypeCodes: ["public_information"],
+    frequencyCode: "never",
+    orgPolicyStatusCode: "newly_discovered",
+    useCaseCode: "code_schrijven",
+  });
+
+  assert.equal(result.shadowScore, 20);
+  assert.equal(result.exposureScore, 91);
+  assert.equal(result.priorityScore, 50);
+  assert.equal(result.riskBand, "high");
+  assert.deepEqual(result.reviewTriggerCodes, [
+    "agentic_usage",
+    "automation_unmanaged",
+    "priority_threshold",
+  ]);
+});
+
+test("highest context multiplier is used when multiple contexts are selected", () => {
+  const result = calculateRiskScore({
+    accountTypeCode: "business_license",
+    contextCodes: ["intern_gebruik", "besluiten_over_personen"],
+    dataTypeCodes: ["public_information"],
+    frequencyCode: "never",
+    orgPolicyStatusCode: "approved",
+    useCaseCode: "data_analyseren",
+  });
+
+  assert.equal(result.exposureScore, 38);
+  assert.equal(result.priorityScore, 17);
+  assert.deepEqual(result.reviewTriggerCodes, []);
+});
+
+test("hr evaluation context keeps its hard review trigger separate from scoring weight", () => {
+  const result = calculateRiskScore({
+    accountTypeCode: "business_license",
+    contextCodes: ["hr_evaluatie"],
+    dataTypeCodes: ["public_information"],
+    frequencyCode: "never",
+    orgPolicyStatusCode: "approved",
+    priorityReviewThreshold: 99,
+    useCaseCode: "drafting",
+  });
+
+  assert.equal(result.exposureScore, 14);
+  assert.deepEqual(result.reviewTriggerCodes, ["hr_evaluation_context"]);
+});
+
 test("no-tool exit path aggregates to standard zero-risk output", () => {
   const aggregate = aggregateRiskResults([]);
 

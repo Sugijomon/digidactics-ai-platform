@@ -119,3 +119,29 @@ Use migrations for schema and RLS.
 RLS is the security boundary. Client-side checks are for UX only.
 
 New product tables should be designed with SAI and RAI modularity in mind.
+
+## SAI Local/Staging Inspection Loop
+
+When checking the scan and DPO dashboard together, use the deterministic smoke
+test organization instead of hard-coded UI mock data:
+
+```txt
+SAI Smoke Test Organisatie
+00000000-0000-0000-0000-000000000101
+```
+
+Recommended loop:
+
+1. Create the DPO tester in Supabase Auth.
+2. Link the tester to the smoke-test organization in `public.user_roles` with
+   role `dpo`.
+3. Run or verify the SAI reference/smoke seed data.
+4. Complete the survey through `/survey` so the respondent RPCs write real
+   survey rows and `complete_survey_run(...)` writes V8 score output.
+5. Inspect `/dashboard/activatie`, `/dashboard/tools`,
+   `/dashboard/risicoprofiel`, `/dashboard/governance`,
+   `/dashboard/rapportage`, and `/dashboard/voortgang`.
+
+This keeps the first RouteAI-compatible shell honest: the same organization,
+roles, scan data, scoring tables, and learning/adoption signals are exercised
+without embedding mock dashboard data in production components.

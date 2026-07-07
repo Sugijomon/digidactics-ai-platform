@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { ArrowLeft, ArrowRight, ShieldCheck } from "lucide-react";
 import type { SurveyStepId } from "@/lib/sai-survey/flow";
 import { SurveyGuardNotice } from "@/components/survey-guard-notice";
 import { SurveyProgress } from "@/components/survey-progress";
@@ -9,11 +10,7 @@ export type RpcStepState = {
 };
 
 export function RequiredBadge() {
-  return (
-    <span className="rounded-full border border-[#bfc7cf]/60 bg-white px-2 py-0.5 text-[0.68rem] font-bold uppercase tracking-wide text-[#40484e]">
-      Verplicht
-    </span>
-  );
+  return null;
 }
 
 export function SurveyPageShell({
@@ -26,10 +23,10 @@ export function SurveyPageShell({
   maxWidthClassName?: string;
 }) {
   return (
-    <main className="relative min-h-screen overflow-x-hidden bg-[#f7fafc] text-[#181c1e]">
+    <main className="sai-nebula-bg relative min-h-screen overflow-x-hidden text-[#181c1e]">
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute -left-44 -top-44 h-[38rem] w-[38rem] rounded-full bg-[#7dd0ff]/30 blur-[80px]" />
-        <div className="absolute -bottom-48 -right-40 h-[34rem] w-[34rem] rounded-full bg-[#bae6ff]/35 blur-[90px]" />
+        <div className="absolute -left-44 -top-44 h-[38rem] w-[38rem] rounded-full bg-[#7dd0ff]/20 blur-[80px]" />
+        <div className="absolute -bottom-48 -right-40 h-[34rem] w-[34rem] rounded-full bg-[#bae6ff]/28 blur-[90px]" />
       </div>
       <section
         className={`mx-auto grid min-w-0 w-[calc(100vw-2rem)] ${maxWidthClassName} gap-6 py-6 sm:w-[calc(100vw-3rem)] md:py-8`}
@@ -46,10 +43,10 @@ export function SurveyBrandHeader({ badge }: { badge: string }) {
     <header className="flex items-center justify-between gap-4">
       <div className="flex min-w-0 items-center gap-3">
         <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#00658b] text-white shadow-sm">
-          <span className="text-2xl font-black leading-none">S</span>
+          <ShieldCheck aria-hidden="true" className="h-8 w-8" strokeWidth={2.2} />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-2xl font-extrabold leading-tight tracking-tight text-[#181c1e]">
+          <p className="font-headline truncate text-2xl font-extrabold leading-[1.1] tracking-tight text-[#181c1e]">
             Shadow AI Scan
           </p>
           <p className="text-[13px] font-medium tracking-wide text-[#6993aa]">
@@ -102,7 +99,7 @@ export function SurveyGlassCard({
 }) {
   return (
     <section
-      className={`min-w-0 rounded-[2rem] border border-white/70 bg-white/85 p-5 shadow-[0_8px_40px_rgba(0,101,139,0.06)] backdrop-blur md:p-8 ${className}`}
+      className={`sai-glass-card min-w-0 rounded-[2rem] border border-white/70 p-5 shadow-[0_8px_40px_rgba(0,101,139,0.08)] md:p-8 ${className}`}
     >
       {children}
     </section>
@@ -123,12 +120,16 @@ export function SurveyCardIntro({
       <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-[#00658b]/70">
         {eyebrow}
       </p>
-      <h1 className="text-2xl font-extrabold leading-tight text-[#00658b] md:text-[1.7rem]">
-        {title}
-      </h1>
-      <p className="mt-2 max-w-2xl text-sm leading-6 text-[#40484e]">
-        {intro}
-      </p>
+      {title ? (
+        <h1 className="font-headline text-[1.35rem] font-extrabold leading-[1.25] text-[#00658b] md:text-[1.7rem]">
+          {title}
+        </h1>
+      ) : null}
+      {intro ? (
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-[#40484e]">
+          {intro}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -141,14 +142,19 @@ export function SurveyFooterActions({
   children: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-3 border-t border-[#bfc7cf]/30 pt-6 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mt-2 flex items-center justify-between gap-4 border-t border-[#bfc7cf]/30 pt-8">
       <a
-        className="inline-flex h-11 items-center justify-center rounded-full border border-[#bfc7cf] px-6 text-sm font-bold text-[#40484e] transition hover:border-[#00658b] hover:text-[#00658b]"
+        className="group inline-flex min-h-11 items-center gap-2 text-sm font-bold text-[#40484e] transition hover:text-[#00658b]"
         href={backHref}
       >
+        <ArrowLeft
+          aria-hidden="true"
+          className="h-5 w-5 transition group-hover:-translate-x-0.5"
+          strokeWidth={2.2}
+        />
         Vorige
       </a>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div className="flex shrink-0 items-center gap-3">
         {children}
       </div>
     </div>
@@ -171,12 +177,19 @@ export function PrimarySurveyButton({
   return (
     <button
       aria-busy={isBusy}
-      className="inline-flex h-12 items-center justify-center rounded-full bg-[#00658b] px-8 text-sm font-extrabold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-[#004c6a] disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60"
+      className="font-headline group inline-flex h-14 min-w-[8.75rem] max-w-[70vw] items-center justify-center gap-3 rounded-full bg-[#00658b] px-6 text-sm font-bold text-white shadow-[0_10px_24px_rgba(0,101,139,0.22)] transition hover:-translate-y-0.5 hover:bg-[#004c6a] disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60 sm:min-w-[9.5rem] sm:px-8"
       disabled={disabled}
       onClick={onClick}
       type={type}
     >
-      {children}
+      <span className="min-w-0 leading-tight">{children}</span>
+      {!isBusy ? (
+        <ArrowRight
+          aria-hidden="true"
+          className="h-5 w-5 transition group-hover:translate-x-0.5"
+          strokeWidth={2.4}
+        />
+      ) : null}
     </button>
   );
 }
@@ -192,7 +205,7 @@ export function SecondarySurveyButton({
 }) {
   return (
     <button
-      className="inline-flex h-12 items-center justify-center rounded-full border border-[#00658b] bg-white px-8 text-sm font-extrabold text-[#00658b] transition hover:bg-[#c4e7ff]/30 disabled:cursor-not-allowed disabled:opacity-60"
+      className="font-headline inline-flex h-12 items-center justify-center rounded-full border border-[#00658b] bg-white px-8 text-sm font-bold text-[#00658b] transition hover:bg-[#c4e7ff]/30 disabled:cursor-not-allowed disabled:opacity-60"
       disabled={disabled}
       onClick={onClick}
       type="button"
@@ -213,10 +226,10 @@ export function OptionCard({
 }) {
   return (
     <label
-      className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:shadow-[0_4px_12px_rgba(0,101,139,0.06)] ${
+      className={`flex cursor-pointer items-start gap-3 rounded-2xl border-[1.5px] px-5 py-4 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:bg-[#c4e7ff]/20 hover:shadow-[0_4px_12px_rgba(0,101,139,0.06)] ${
         isSelected
-          ? "border-[#00658b] bg-[#f1f4f6] shadow-[0_4px_18px_rgba(0,101,139,0.08)]"
-          : "border-[#bfc7cf] bg-white"
+          ? "border-[#00658b] bg-[#c4e7ff]/35 shadow-[0_4px_18px_rgba(0,101,139,0.08)]"
+          : "border-[#bfc7cf] bg-white/70"
       } ${isDisabled ? "cursor-not-allowed opacity-55" : ""}`}
     >
       {children}
@@ -226,7 +239,7 @@ export function OptionCard({
 
 export function ValidationMessage({ children }: { children: ReactNode }) {
   return (
-    <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+    <p className="rounded-xl border border-[#c4e7ff] bg-[#f3fbff] px-3 py-2 text-sm font-semibold text-[#00658b]">
       {children}
     </p>
   );
@@ -236,33 +249,31 @@ export function SurveyQuestionBlock({
   children,
   error,
   helpText,
-  isInvalid = false,
   required = false,
   title,
 }: {
   children: ReactNode;
   error?: string;
   helpText: string;
-  isInvalid?: boolean;
   required?: boolean;
   title: string;
 }) {
   return (
     <section
-      className={`grid min-w-0 max-w-full gap-4 rounded-[1.35rem] border bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
-        isInvalid || error ? "border-red-300" : "border-white/80"
-      }`}
+      className="grid min-w-0 max-w-full gap-4 rounded-[1.35rem] border border-white/80 bg-white/80 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)]"
     >
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <h3 className="min-w-0 break-words font-bold text-[#00658b]">
+          <h3 className="font-headline min-w-0 break-words text-[1.35rem] font-extrabold leading-[1.25] text-[#00658b]">
             {title}
           </h3>
           {required ? <RequiredBadge /> : null}
         </div>
-        <p className="mt-1 break-words text-sm leading-6 text-[#40484e]">
-          {helpText}
-        </p>
+        {helpText ? (
+          <p className="mt-1 break-words text-[14.5px] leading-[1.5] text-[#40484e]">
+            {helpText}
+          </p>
+        ) : null}
       </div>
       {error ? <ValidationMessage>{error}</ValidationMessage> : null}
       {children}
@@ -381,7 +392,7 @@ export function EmptySurveyState({
   title?: string;
 }) {
   return (
-    <main className="relative grid min-h-screen place-items-center overflow-hidden bg-[#f7fafc] px-6 text-[#181c1e]">
+    <main className="sai-nebula-bg relative grid min-h-screen place-items-center overflow-hidden px-6 text-[#181c1e]">
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute -left-44 -top-44 h-[34rem] w-[34rem] rounded-full bg-[#7dd0ff]/30 blur-[80px]" />
         <div className="absolute -bottom-44 -right-36 h-[30rem] w-[30rem] rounded-full bg-[#bae6ff]/35 blur-[90px]" />

@@ -16,9 +16,13 @@ export type UseCaseCode =
   | "data_analyseren"
   | "code_schrijven"
   | "afbeeldingen_genereren"
+  | "audio_genereren"
   | "presentaties_design"
+  | "video_genereren"
+  | "vergaderingen_notuleren"
   | "automatisering"
   | "workflow_uitvoeren"
+  | "taken_automatisch_afhandelen"
   | "systemen_aansturen"
   | string;
 
@@ -122,11 +126,25 @@ const USE_CASE_BASE_BY_CODE: Record<string, number> = {
   data_analyseren: 30,
   code_schrijven: 25,
   afbeeldingen_genereren: 18,
+  audio_genereren: 18,
   presentaties_design: 14,
+  video_genereren: 20,
+  vergaderingen_notuleren: 26,
   automatisering: 35,
   workflow_uitvoeren: 40,
   systemen_aansturen: 45,
   taken_automatisch_afhandelen: 40,
+};
+
+const CONTEXT_MULTIPLIER_BY_CODE: Record<string, number> = {
+  internal_work: 1.0,
+  intern_gebruik: 1.0,
+  klantgerichte_toepassing: 1.2,
+  beslisondersteuning: 1.35,
+  besluiten_over_personen: 1.6,
+  hr_evaluatie: 1.7,
+  kritieke_systemen: 1.8,
+  nog_niet_duidelijk: 1.15,
 };
 
 const ACCOUNT_MULTIPLIER_BY_CODE: Record<string, number> = {
@@ -189,6 +207,10 @@ export function calculateExposureScore(input: RiskScoreInput) {
   const accountMultiplier = input.accountTypeCode
     ? (ACCOUNT_MULTIPLIER_BY_CODE[input.accountTypeCode] ?? 1.2)
     : 1.2;
+  const contextMultiplier = Math.max(
+    1,
+    ...(input.contextCodes ?? []).map((code) => CONTEXT_MULTIPLIER_BY_CODE[code] ?? 1),
+  );
   const dataBoost = Math.max(
     0,
     ...(input.dataTypeCodes ?? []).map((code) => DATA_BOOST_BY_CODE[code] ?? 8),
@@ -198,10 +220,11 @@ export function calculateExposureScore(input: RiskScoreInput) {
     : 0;
   const automationBoost = getAutomationBoost(input.automationUsageCode);
   const extensionBoost = getExtensionBoost(input.browserExtensionUsageCode);
-  const agenticBoost = input.agenticUsage ? 15 : 0;
+  const agenticBoost =
+    input.agenticUsage || isAgenticAutomation(input.automationUsageCode) ? 15 : 0;
 
   return clampScore(
-    useCaseBase * accountMultiplier +
+    useCaseBase * contextMultiplier * accountMultiplier +
       dataBoost +
       frequencyBoost +
       automationBoost +

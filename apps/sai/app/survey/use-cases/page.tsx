@@ -7,7 +7,6 @@ import {
   EmptySurveyState,
   PrimarySurveyButton,
   RpcStepRow,
-  RunIdCard,
   SurveyFooterActions,
   SurveyStepLayout,
   SurveySummaryGrid,
@@ -320,8 +319,6 @@ export default function SurveyUseCasesPage() {
             state={steps.context}
           />
         </TechnicalStatus>
-
-        <RunIdCard runId={runId} />
 
         <SurveyFooterActions backHref="/survey/tools">
           <PrimarySurveyButton

@@ -1,6 +1,6 @@
 # Authentication Foundation
 
-Status: prepared decision note, not yet implemented.
+Status: partially implemented for SAI MVP.
 
 This document records the authentication direction for the future Next.js App
 Router implementation of the Digidactics AI Platform and Shadow AI Scan.
@@ -77,6 +77,59 @@ Platform functionality and upgrade paths. Do not remove them.
 
 Do not add a legal/juridical role yet. Add it only when the role's permissions,
 visibility, and responsibility are fully specified.
+
+## SAI To RouteAI Role Bridge
+
+SAI uses `dpo` as the practical customer-side dashboard role for scan result
+inspection and DPO review follow-up. The broader RouteAI platform should not
+replace that identity model with a separate user store. It should expand the
+same `user_roles` foundation with route- or permission-level checks.
+
+Working interpretation:
+
+```txt
+SAI dpo       -> scan owner / DPO dashboard access
+RouteAI org_admin -> broader organization administrator and governance owner
+```
+
+In many customers these may be the same person. RouteAI can therefore treat a
+SAI `dpo` as eligible for an upgrade path to `org_admin`, or introduce a
+permission layer around the same membership record when the product needs finer
+control.
+
+Candidate future permissions:
+
+```txt
+scan:read
+scan:manage
+dashboard:read
+dpo_review:write
+learning:assign
+learning:read_progress
+policy:manage
+```
+
+Learning-system data should link to the same authenticated `user_id` and
+`org_id` as SAI. SAI survey answers can identify learning needs at organization
+or cohort level; assignment and progress workflows belong to the larger RouteAI
+shell.
+
+## Local/Test Dashboard Access
+
+For local or staging dashboard checks, create the test user in Supabase Auth
+first and then link the Auth user to the deterministic smoke-test organization:
+
+```sql
+insert into public.user_roles (user_id, org_id, role)
+values (
+  '<auth.users.id>',
+  '00000000-0000-0000-0000-000000000101',
+  'dpo'
+);
+```
+
+The current SAI dashboard routes allow `dpo`, `org_admin`, and `super_admin`.
+Respondent-only `user` accounts should not see DPO dashboard data.
 
 ## Role Loading
 

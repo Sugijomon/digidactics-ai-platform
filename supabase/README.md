@@ -9,22 +9,14 @@ production.
 
 ## Migration Order
 
-Apply migrations in timestamp order. The current SAI MVP migration set includes:
+Apply all migrations in timestamp order. The current integration migration set
+includes:
 
 ```txt
 supabase/migrations/20260504110000_v8_1_target_schema.sql
+supabase/migrations/20260504115000_pgcrypto_compat_wrappers.sql
 supabase/migrations/20260504120000_rls_policies_v2_1.sql
 supabase/migrations/20260504130000_06_edge_rpcs.sql
-supabase/migrations/20260512100000_make_save_profile_partial.sql
-supabase/migrations/20260522100000_implement_v8_scoring.sql
-supabase/migrations/20260522113000_harden_rpc_grants_and_user_roles_rls.sql
-supabase/migrations/20260522123000_backfill_completed_v8_scores.sql
-```
-
-The current RAI Learning integration adds these migrations after the SAI/V8
-foundation:
-
-```txt
 supabase/migrations/20260507160000_learning_system_foundation.sql
 supabase/migrations/20260508100000_learning_certification_access_gate.sql
 supabase/migrations/20260508102000_learning_certification_issue_function_fix.sql
@@ -32,7 +24,15 @@ supabase/migrations/20260508123000_auth_profile_role_bootstrap.sql
 supabase/migrations/20260510120000_learning_topics_pages.sql
 supabase/migrations/20260510143000_aisa_ai_literacy_foundations_content.sql
 supabase/migrations/20260511100000_learning_page_attempts.sql
+supabase/migrations/20260512100000_make_save_profile_partial.sql
+supabase/migrations/20260522100000_implement_v8_scoring.sql
+supabase/migrations/20260522113000_harden_rpc_grants_and_user_roles_rls.sql
+supabase/migrations/20260522123000_backfill_completed_v8_scores.sql
+supabase/migrations/20260524110000_seed_code_context_references.sql
 supabase/migrations/20260525120000_learning_lesson_files_bucket.sql
+supabase/migrations/20260527090000_grant_user_roles_select_to_authenticated.sql
+supabase/migrations/20260527093000_enable_dashboard_read_access.sql
+supabase/migrations/20260528143000_repair_v8_scoring_parity.sql
 supabase/migrations/20260529120000_learning_pilot_hardening.sql
 ```
 
@@ -44,7 +44,11 @@ for clients, and expose the token-based respondent lifecycle.
 
 The learning migrations create the course/page/evidence model, the RouteAI
 access requirement, certificate issuance RPC, and pilot hardening that blocks
-learner-side grading/completion manipulation. The hardening migration seeds the
+learner-side grading/completion manipulation. The auth bootstrap migration only
+assigns an organization and default `user` role when trusted
+`raw_app_meta_data.org_id` is present and points to an existing organization;
+without that invite metadata, new users intentionally land orgless and role-less
+until an admin/onboarding flow links them. The hardening migration seeds the
 three core course rows and the `routeai_usecase_check` access requirement, but
 the authored topics/pages are synced from Git after migration through the
 content editor audit page.
@@ -118,7 +122,8 @@ Use the DB URL from `supabase status`. Do not commit local database passwords.
 Suggested staging flow:
 
 1. Create or select a staging Supabase project.
-2. Apply the three migration SQL files in order.
+2. Apply all migrations in timestamp order; use the Migration Order list above
+   as the source of truth.
 3. Run the seed SQL.
 4. Run the smoke-test SQL.
 5. Create or link at least one `dpo` dashboard user in `public.user_roles`.

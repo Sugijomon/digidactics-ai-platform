@@ -5,8 +5,8 @@
 --
 -- This migration intentionally does not assign users to the oldest organization,
 -- does not reactivate existing profiles, and does not overwrite existing profile
--- e-mail/name values. Organization assignment must come from trusted invite or
--- onboarding metadata until a full invite workflow is available.
+-- e-mail/name values. Organization assignment must come from trusted
+-- app_metadata invite data until a full invite workflow is available.
 -- =============================================================================
 
 CREATE OR REPLACE FUNCTION public.try_parse_uuid(p_value text)
@@ -39,10 +39,7 @@ DECLARE
   v_org_id uuid;
   v_full_name text;
 BEGIN
-  v_org_id := COALESCE(
-    public.try_parse_uuid(NEW.raw_app_meta_data->>'org_id'),
-    public.try_parse_uuid(NEW.raw_user_meta_data->>'org_id')
-  );
+  v_org_id := public.try_parse_uuid(NEW.raw_app_meta_data->>'org_id');
   v_full_name := COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email);
 
   IF v_org_id IS NULL THEN
@@ -114,8 +111,7 @@ CREATE TRIGGER trg_handle_new_auth_user
 WITH auth_users_without_profile AS (
   SELECT
     u.id,
-    public.try_parse_uuid(u.raw_app_meta_data->>'org_id') AS app_org_id,
-    public.try_parse_uuid(u.raw_user_meta_data->>'org_id') AS user_org_id,
+    public.try_parse_uuid(u.raw_app_meta_data->>'org_id') AS org_id,
     u.email,
     COALESCE(u.raw_user_meta_data->>'full_name', u.email) AS full_name
   FROM auth.users u
@@ -132,16 +128,16 @@ inserted_profiles AS (
   )
   SELECT
     u.id,
-    COALESCE(u.app_org_id, u.user_org_id),
+    u.org_id,
     u.email,
     u.full_name,
     true
   FROM auth_users_without_profile u
-  WHERE COALESCE(u.app_org_id, u.user_org_id) IS NULL
+  WHERE u.org_id IS NULL
      OR EXISTS (
        SELECT 1
        FROM public.organizations o
-       WHERE o.id = COALESCE(u.app_org_id, u.user_org_id)
+       WHERE o.id = u.org_id
      )
   ON CONFLICT (id) DO NOTHING
   RETURNING id, org_id

@@ -280,12 +280,12 @@ Actions that still require explicit user approval:
 - Merging PR #3.
 - Any production Supabase migration.
 - Any production content sync.
-- Using a staging service role key to run the content sync through the RAI app.
 
 ## Open risks
 
-- Full Git-canonical content sync has not yet been executed on staging.
-- The connector-generated migration timestamps differ from repo timestamps, so the final live plan must not assume this staging ledger can be copied as-is.
+- The Git-canonical content sync has been executed and verified on staging, but has not been run on production.
+- The live SAI schema surface still needs an actual staging-vs-live schema diff before any production ledger repair.
+- A clean CLI-based rehearsal is still recommended because the connector-generated staging migration timestamps differ from repo timestamps; the final live plan must not assume this staging ledger can be copied as-is.
 - The full dashboard mock seed file was not executed literally through the connector because it is a large file and the connector has no "run SQL file" operation. The core SAI RPC/RLS/risk/DPO paths were validated with targeted staging SQL.
 - Supabase advisors report existing RLS/reference-table findings that should be triaged before live migration.
 - Raw `learning_pages.content` remains a post-pilot hardening topic; a sanitized RPC/view is still recommended before broader exposure.

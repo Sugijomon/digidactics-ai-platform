@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Output controleren - 6-stappen controlelus</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --font-heading:'Manrope',Inter,ui-sans-serif,system-ui,sans-serif;
+  --font-body:'Inter',ui-sans-serif,system-ui,sans-serif;
+  --primary:#00658b;
+  --primary-container:#00a1da;
+  --secondary:#396379;
+  --ui-blue-grey:#6993aa;
+  --brand-green:#93c942;
+  --brand-green-accent:#5c9e1a;
+  --surface-lowest:#ffffff;
+  --surface:#f7fafc;
+  --container-low:#f1f4f6;
+  --container:#ebeef0;
+  --container-high:#e5e9eb;
+  --on-surface:#181c1e;
+  --on-surface-variant:#3e484f;
+  --outline-variant:#bdc8d0;
+  --success-bg:#ecfdf5;
+  --success-text:#065f46;
+  --error-bg:#fee2e2;
+  --error-text:#b91c1c;
+  --radius-ui:8px;
+  --radius-badge:999px;
+  --space-xs:4px;
+  --space-s:8px;
+  --space-m:12px;
+  --space-l:16px;
+  --space-xl:24px;
+}
+html{overflow:hidden}
+body{
+  font-family:var(--font-body);
+  background-color:var(--surface);
+  color:var(--on-surface);
+  -webkit-font-smoothing:antialiased;
+  padding:var(--space-xl) var(--space-l);
+  overflow:hidden;
+}
+.embed-wrapper{
+  width:100%;
+  max-width:none;
+  margin:0 auto;
+  background-color:var(--surface-lowest);
+  border:1px solid var(--outline-variant);
+  border-radius:var(--radius-ui);
+  padding:var(--space-xl);
+}
+.header{margin-bottom:var(--space-l)}
+.badge{
+  display:inline-block;
+  font-size:11px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  padding:var(--space-xs) var(--space-s);
+  border-radius:var(--radius-badge);
+  background-color:var(--container-low);
+  color:var(--secondary);
+  margin-bottom:var(--space-s);
+}
+.header h1{
+  font-family:var(--font-heading);
+  font-size:26px;
+  font-weight:800;
+  color:var(--on-surface);
+  line-height:1.2;
+  margin-bottom:var(--space-s);
+  letter-spacing:0;
+}
+.header p{
+  font-size:14px;
+  color:var(--on-surface-variant);
+  line-height:1.5;
+}
+.nav-instruction{
+  color:var(--ui-blue-grey);
+  display:flex;
+  font-size:12px;
+  font-style:italic;
+  font-weight:600;
+  gap:var(--space-xs);
+  margin-bottom:var(--space-m);
+}
+.timeline-row{
+  align-items:flex-start;
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:var(--space-xl);
+  padding:0 var(--space-s);
+  position:relative;
+}
+.timeline-row::before{
+  background-color:var(--container-high);
+  content:"";
+  height:2px;
+  left:32px;
+  position:absolute;
+  right:32px;
+  top:18px;
+  z-index:0;
+}
+.progress-line{
+  background-color:var(--primary);
+  height:2px;
+  left:32px;
+  position:absolute;
+  top:18px;
+  transition:width .4s ease;
+  width:0;
+  z-index:1;
+}
+.step{
+  align-items:center;
+  cursor:pointer;
+  display:flex;
+  flex:1;
+  flex-direction:column;
+  position:relative;
+  z-index:2;
+}
+.step:focus-visible{outline:2px solid var(--primary);outline-offset:3px;border-radius:var(--radius-ui)}
+.step-dot{
+  align-items:center;
+  background-color:var(--surface-lowest);
+  border:2px solid var(--container-high);
+  border-radius:var(--radius-badge);
+  color:var(--ui-blue-grey);
+  display:flex;
+  font-family:var(--font-heading);
+  font-size:14px;
+  font-weight:700;
+  height:38px;
+  justify-content:center;
+  margin-bottom:var(--space-s);
+  transition:all .2s ease;
+  width:38px;
+}
+.step:hover .step-dot{border-color:var(--primary-container);color:var(--primary)}
+.step.active .step-dot{
+  background-color:var(--surface-lowest);
+  border-color:var(--primary);
+  box-shadow:0 0 0 4px var(--container-low);
+  color:var(--primary);
+}
+.step.done .step-dot{
+  background-color:var(--brand-green);
+  border-color:var(--brand-green);
+  color:var(--surface-lowest);
+}
+.step-label{
+  color:var(--ui-blue-grey);
+  font-size:12px;
+  font-weight:600;
+  line-height:1.3;
+  max-width:100px;
+  text-align:center;
+}
+.step.active .step-label{color:var(--primary)}
+.step.done .step-label{color:var(--brand-green-accent)}
+.detail-card{
+  background-color:var(--surface-lowest);
+  border:1px solid var(--outline-variant);
+  border-radius:var(--radius-ui);
+  overflow:hidden;
+}
+.detail-header{
+  align-items:center;
+  background-color:var(--surface);
+  border-bottom:1px solid var(--container-high);
+  display:flex;
+  gap:var(--space-l);
+  padding:var(--space-l) var(--space-xl);
+}
+.step-num-big{
+  align-items:center;
+  background-color:var(--container);
+  border-radius:var(--radius-ui);
+  color:var(--secondary);
+  display:flex;
+  flex-shrink:0;
+  font-family:var(--font-heading);
+  font-size:18px;
+  font-weight:800;
+  height:40px;
+  justify-content:center;
+  width:40px;
+}
+.detail-title{
+  color:var(--on-surface);
+  font-family:var(--font-heading);
+  font-size:18px;
+  font-weight:800;
+  margin-bottom:2px;
+}
+.detail-subtitle{
+  color:var(--ui-blue-grey);
+  font-size:13px;
+  font-style:italic;
+}
+.detail-body{
+  display:grid;
+  gap:var(--space-l);
+  grid-template-columns:1fr 1fr;
+  padding:var(--space-xl);
+}
+.detail-desc-block{
+  color:var(--on-surface-variant);
+  font-size:15px;
+  grid-column:1/-1;
+  line-height:1.6;
+  margin-bottom:var(--space-s);
+}
+.check-box,.red-box{
+  border-radius:var(--radius-ui);
+  padding:var(--space-l);
+}
+.check-box{background-color:var(--success-bg)}
+.red-box{background-color:var(--error-bg)}
+.box-label{
+  font-family:var(--font-heading);
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.05em;
+  margin-bottom:var(--space-m);
+  text-transform:uppercase;
+}
+.check-box .box-label{color:var(--success-text)}
+.red-box .box-label{color:var(--error-text)}
+.check-list{
+  display:flex;
+  flex-direction:column;
+  gap:var(--space-s);
+}
+.check-item{
+  align-items:flex-start;
+  display:flex;
+  font-size:13px;
+  gap:var(--space-s);
+  line-height:1.5;
+}
+.check-item-dot{
+  border-radius:var(--radius-badge);
+  flex-shrink:0;
+  height:6px;
+  margin-top:6px;
+  width:6px;
+}
+.check-box .check-item{color:var(--success-text)}
+.check-box .check-item-dot{background-color:var(--brand-green-accent)}
+.red-box .check-item{color:var(--error-text)}
+.red-box .check-item-dot{background-color:var(--error-text)}
+.example-box{
+  background-color:var(--surface);
+  border:1px solid var(--container-high);
+  border-radius:var(--radius-ui);
+  grid-column:1/-1;
+  padding:var(--space-l);
+}
+.example-box .box-label{
+  color:var(--ui-blue-grey);
+  margin-bottom:var(--space-s);
+}
+.example-box p{
+  color:var(--on-surface-variant);
+  font-size:13px;
+  font-style:italic;
+  line-height:1.6;
+}
+.done-banner{
+  align-items:center;
+  animation:fadeIn .3s ease;
+  background-color:var(--success-bg);
+  border:1px solid var(--brand-green);
+  border-radius:var(--radius-ui);
+  display:none;
+  gap:var(--space-l);
+  margin-top:var(--space-m);
+  padding:var(--space-l) var(--space-xl);
+}
+.done-banner.visible{display:flex}
+.done-banner-icon{
+  color:var(--brand-green-accent);
+  font-size:20px;
+  line-height:1;
+}
+.done-banner h3{
+  color:var(--success-text);
+  font-family:var(--font-heading);
+  font-size:15px;
+  font-weight:800;
+  margin-bottom:2px;
+}
+.done-banner p{
+  color:var(--success-text);
+  font-size:13px;
+  line-height:1.4;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:680px){
+  body{padding:var(--space-l) var(--space-m)}
+  .embed-wrapper{padding:var(--space-l)}
+  .timeline-row{
+    align-items:stretch;
+    display:grid;
+    gap:var(--space-s);
+    grid-template-columns:repeat(3,1fr);
+  }
+  .timeline-row::before,.progress-line{display:none}
+  .detail-body{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="embed-wrapper">
+  <header class="header">
+    <span class="badge">AI Literacy - P10 - Competentie C5</span>
+    <h1>Output controleren voor gebruik</h1>
+    <p>AI maakt fouten die er overtuigend uitzien. Doorloop deze zes stappen voordat je AI-output gebruikt, verstuurt of deelt.</p>
+  </header>
+  <div class="nav-instruction">
+    <span>Klik op de onderstaande bollen om de stappen handmatig te doorlopen.</span>
+  </div>
+  <div class="timeline-row" id="timeline-row">
+    <div class="progress-line" id="progress-line"></div>
+    <div class="step" data-step="0" onclick="goTo(0)" role="button" tabindex="0" onkeydown="onStepKey(event,0)">
+      <div class="step-dot">1</div>
+      <div class="step-label">Feiten checken</div>
+    </div>
+    <div class="step" data-step="1" onclick="goTo(1)" role="button" tabindex="0" onkeydown="onStepKey(event,1)">
+      <div class="step-dot">2</div>
+      <div class="step-label">Bronnen verifieren</div>
+    </div>
+    <div class="step" data-step="2" onclick="goTo(2)" role="button" tabindex="0" onkeydown="onStepKey(event,2)">
+      <div class="step-dot">3</div>
+      <div class="step-label">Toon beoordelen</div>
+    </div>
+    <div class="step" data-step="3" onclick="goTo(3)" role="button" tabindex="0" onkeydown="onStepKey(event,3)">
+      <div class="step-dot">4</div>
+      <div class="step-label">Bias scannen</div>
+    </div>
+    <div class="step" data-step="4" onclick="goTo(4)" role="button" tabindex="0" onkeydown="onStepKey(event,4)">
+      <div class="step-dot">5</div>
+      <div class="step-label">Actualiteit checken</div>
+    </div>
+    <div class="step" data-step="5" onclick="goTo(5)" role="button" tabindex="0" onkeydown="onStepKey(event,5)">
+      <div class="step-dot">6</div>
+      <div class="step-label">Oversight borgen</div>
+    </div>
+  </div>
+  <main class="detail-card" id="detail-card">
+    <div class="detail-header">
+      <div class="step-num-big" id="detail-num">1</div>
+      <div>
+        <div class="detail-title" id="detail-title">Feiten controleren</div>
+        <div class="detail-subtitle" id="detail-sub">Klopt de inhoud feitelijk?</div>
+      </div>
+    </div>
+    <div class="detail-body" id="detail-body"></div>
+  </main>
+  <div class="done-banner" id="done-banner">
+    <div class="done-banner-icon">✓</div>
+    <div>
+      <h3>Controlelus gecontroleerd</h3>
+      <p>Je hebt alle onderdelen bekeken. AI-output die deze zes checks succesvol doorstaat, is klaar voor operationeel gebruik of verzending.</p>
+    </div>
+  </div>
+</div>
+<script>
+const STEPS = [
+  {
+    num: 1,
+    title: "Feiten controleren",
+    sub: "Klopt de inhoud feitelijk?",
+    desc: "AI produceert informatie op basis van statistische patronen, niet op basis van werkelijke kennis. Feiten kunnen overtuigend klinken maar onjuist zijn. Verifieer altijd de kern van de boodschap.",
+    checks: ["Zijn de feiten te verifieren via een betrouwbare bron?", "Zijn namen, datums en cijfers correct?", "Zijn er claims die te stellig zijn voor het onderwerp?"],
+    reds: ["AI noemt een wet of regel die je niet herkent", "Specifieke cijfers of statistieken zonder bronvermelding", "AI is erg zeker over iets wat je niet kunt nalopen"],
+    example: "AI schrijft: 'Volgens de AVG moet je binnen 48 uur een datalek melden.' In werkelijkheid is dit 72 uur. Klinkt plausibel, maar is fout."
+  },
+  {
+    num: 2,
+    title: "Bronnen verifieren",
+    sub: "Bestaan de bronnen echt?",
+    desc: "AI hallucineert bronnen: het verzint titels, auteurs, artikelnummers en URL's die er betrouwbaar uitzien maar niet bestaan. Dit is een van de gevaarlijkste AI-fouten.",
+    checks: ["Is de genoemde bron terug te vinden?", "Bestaat het wetsartikel, het rapport of het boek echt?", "Staat het citaat ook werkelijk in de bron?"],
+    reds: ["Een bron die je niet kunt googelen", "Een officieel rapport met een vage instantienaam", "Een citaat dat je niet kunt verifieren"],
+    example: "AI verwijst naar 'Rapport van de ACM, 2024, pagina 47'. Na opzoeken blijkt dit rapport niet te bestaan. De AI heeft het verzonnen."
+  },
+  {
+    num: 3,
+    title: "Toon beoordelen",
+    sub: "Is de toon passend voor de context?",
+    desc: "AI calibreert toon op basis van instructies, maar kan de context missen. Formele documenten klinken soms te nonchalant, klantenberichten te stijf, of gevoelige boodschappen te neutraal.",
+    checks: ["Past de toon bij de ontvanger en het kanaal?", "Is de urgentie of ernst goed weergegeven?", "Zijn er zinnen die verkeerd begrepen kunnen worden?"],
+    reds: ["Luchtige toon bij een klacht of incident", "Juridisch jargon in een klantenmail", "Onpersoonlijk wanneer empathie gepast is"],
+    example: "AI schrijft een reactie op een klacht: 'Uw melding is ontvangen en wordt verwerkt.' Toon is correct maar koud. Een mens zou beginnen met empathie."
+  },
+  {
+    num: 4,
+    title: "Bias scannen",
+    sub: "Is de output eerlijk en evenwichtig?",
+    desc: "AI leert van data die menselijke vooroordelen bevat. Dit kan leiden tot output die bepaalde groepen benadeelt, bepaalde perspectieven mist of eenzijdige aannames bevat.",
+    checks: ["Zijn bepaalde groepen of perspectieven ondervertegenwoordigd?", "Bevat de output aannames over gender, leeftijd, achtergrond of functie?", "Is het taalgebruik inclusief?"],
+    reds: ["CV-samenvatting die bepaalde achtergronden benadeelt", "Aannames over wie een beslissing neemt of wie een taak uitvoert", "Stereotypen in rolbeschrijvingen of communicatie"],
+    example: "AI schrijft een vacaturetekst en gebruikt consequent 'hij' voor technische rollen en 'zij' voor ondersteunende functies. Dat is een aanname die selectie kan beinvloeden."
+  },
+  {
+    num: 5,
+    title: "Actualiteit checken",
+    sub: "Is de informatie nog geldig?",
+    desc: "AI-modellen hebben een trainings-cutoff: ze weten niets van recente wijzigingen in wetgeving, beleid, markten of de wereld. Informatie die vorig jaar klopte kan nu verouderd zijn.",
+    checks: ["Is er regelgeving of beleid dat recentelijk is veranderd?", "Zijn de genoemde tarieven, drempelwaarden of deadlines nog actueel?", "Zijn er actuele ontwikkelingen die de output beinvloeden?"],
+    reds: ["Wetsartikelen of besluiten op een datum nabij of na de training-cutoff", "Actuele markttarieven of prijzen", "Recente organisatiewijzigingen of fusies"],
+    example: "AI beschrijft de AI Act-tijdlijn met een verouderde datum. De informatie was ooit correct maar inmiddels achterhaald."
+  },
+  {
+    num: 6,
+    title: "Menselijk toezicht borgen",
+    sub: "Is er een mens eindverantwoordelijk?",
+    desc: "AI-output mag nooit zonder menselijke eindverantwoordelijkheid worden gebruikt bij beslissingen met impact op mensen. Dit is geen optionele stap; het is de kern van verantwoord AI-gebruik.",
+    checks: ["Is er een mens die deze output heeft goedgekeurd voor gebruik?", "Is duidelijk wie verantwoordelijk is als de output onjuist blijkt?", "Zijn de gevolgen overzienbaar als de output toch fout is?"],
+    reds: ["Output gaat direct naar klant zonder menselijke review", "Niemand weet wie de AI-output heeft geaccordeerd", "Bij fouten is onduidelijk wie aansprakelijk is"],
+    example: "Een klantenservicemedewerker laat AI automatisch antwoorden sturen. Een onjuist antwoord bereikt de klant en niemand weet wie verantwoordelijk is."
+  }
+];
+
+let current = 0;
+let maxReached = 0;
+let completionSent = false;
+
+function notifyResize() {
+  requestAnimationFrame(() => {
+    const wrapper = document.querySelector(".embed-wrapper");
+    const wrapperRect = wrapper?.getBoundingClientRect();
+    const bodyStyle = getComputedStyle(document.body);
+    const paddingTop = parseFloat(bodyStyle.paddingTop) || 0;
+    const paddingBottom = parseFloat(bodyStyle.paddingBottom) || 0;
+    const height = wrapperRect ? wrapperRect.height + paddingTop + paddingBottom : document.body.getBoundingClientRect().height;
+    window.parent?.postMessage({
+      type: "digidactics_resize",
+      blockId: "p10-rich-html-controlelus",
+      height: Math.ceil(height) + 10
+    }, "*");
+  });
+}
+
+function onStepKey(event, index) {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    goTo(index);
+  }
+}
+
+function render() {
+  const s = STEPS[current];
+  document.getElementById("detail-num").textContent = s.num;
+  document.getElementById("detail-title").textContent = s.title;
+  document.getElementById("detail-sub").textContent = s.sub;
+
+  const checks = s.checks.map((c) => `<div class="check-item"><div class="check-item-dot"></div><span>${c}</span></div>`).join("");
+  const reds = s.reds.map((r) => `<div class="check-item"><div class="check-item-dot"></div><span>${r}</span></div>`).join("");
+
+  document.getElementById("detail-body").innerHTML = `
+    <div class="detail-desc-block"><p>${s.desc}</p></div>
+    <div class="check-box">
+      <div class="box-label">Controleer dit</div>
+      <div class="check-list">${checks}</div>
+    </div>
+    <div class="red-box">
+      <div class="box-label">Rode vlaggen</div>
+      <div class="check-list">${reds}</div>
+    </div>
+    <div class="example-box">
+      <div class="box-label">Voorbeeld uit de praktijk</div>
+      <p>${s.example}</p>
+    </div>
+  `;
+
+  document.querySelectorAll(".step").forEach((el, index) => {
+    el.classList.remove("active", "done");
+    el.setAttribute("aria-current", index === current ? "step" : "false");
+    if (index < current) el.classList.add("done");
+    else if (index === current) el.classList.add("active");
+
+    const dot = el.querySelector(".step-dot");
+    dot.textContent = index < current ? "✓" : String(index + 1);
+  });
+
+  const totalSteps = 5;
+  const pct = current === 0 ? 0 : (current / totalSteps) * 100;
+  document.getElementById("progress-line").style.width = `calc(${pct}% - ${pct === 100 ? 32 : 0}px)`;
+
+  const completed = current === 5 || maxReached >= 5;
+  document.getElementById("done-banner").classList.toggle("visible", completed);
+
+  if (completed && !completionSent) {
+    completionSent = true;
+    window.parent?.postMessage({
+      type: "digidactics_event",
+      event: "block_complete",
+      blockId: "p10-rich-html-controlelus",
+      answer: "alle-stappen-bekeken"
+    }, "*");
+  }
+
+  notifyResize();
+}
+
+function goTo(index) {
+  current = index;
+  maxReached = Math.max(maxReached, index);
+  render();
+}
+
+window.addEventListener("load", () => {
+  render();
+  notifyResize();
+});
+document.fonts?.ready?.then(notifyResize);
+</script>
+</body>
+</html>

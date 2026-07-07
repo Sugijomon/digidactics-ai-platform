@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toolkeuze & promptsanering</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F5F0;--surface:#FFFFFF;--text:#1A1A18;--text2:#5A5A56;--text3:#9A9A96;
+  --border:rgba(0,0,0,0.08);--r:12px;
+  --accent:#1D9E75;--accent-l:#E1F5EE;--accent-d:#085041;
+  --red:#A32D2D;--red-l:#FCEBEB;--red-m:#F5C5BE;
+  --amber:#BA7517;--amber-l:#FAEEDA;--amber-d:#633806;
+  --purple:#534AB7;--purple-l:#EEEDFE;--purple-d:#3C3489;
+  --blue:#185FA5;--blue-l:#E6F1FB;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);padding:24px 16px 48px;display:flex;flex-direction:column;align-items:center}
+.meta{max-width:780px;width:100%;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.meta-l{font-size:11px;color:var(--text3)}.meta-l strong{color:var(--accent-d)}
+.gate-badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:99px;background:var(--purple-l);color:var(--purple-d)}
+
+.deck{max-width:780px;width:100%;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);overflow:hidden;min-height:490px}
+.pbar{height:3px;background:var(--border)}.pfill{height:3px;background:var(--accent);transition:width .35s ease}
+.strip{padding:12px 22px;border-bottom:.5px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:space-between}
+.slbl-s{font-size:11px;font-weight:500;color:var(--text3)}.slbl-s strong{color:var(--accent)}
+.dots{display:flex;gap:5px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--border);cursor:pointer;transition:all .2s}
+.dot.active{background:var(--accent);width:16px;border-radius:3px}.dot.done{background:var(--accent-d)}
+.slide{display:none;padding:26px 28px 20px;animation:fin .22s ease}.slide.visible{display:block}
+@keyframes fin{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.slbl{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+.sh{font-family:'DM Serif Display',serif;font-size:23px;color:var(--text);margin-bottom:8px;line-height:1.2}
+.sp{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:14px;max-width:580px}
+
+/* S1 — Tool tabel */
+.tool-table{width:100%;border-collapse:collapse;margin-top:6px;font-size:12px}
+.tool-table th{padding:8px 12px;background:var(--bg);font-weight:500;color:var(--text3);text-align:left;border-bottom:.5px solid var(--border);font-size:11px;letter-spacing:.05em}
+.tool-table td{padding:11px 12px;border-bottom:.5px solid var(--border);color:var(--text2);vertical-align:top}
+.tool-table tr:last-child td{border-bottom:none}
+.tool-table tr:hover td{background:var(--bg)}
+.status-badge{display:inline-block;font-size:10px;font-weight:500;padding:2px 8px;border-radius:4px}
+.ok{background:var(--accent-l);color:var(--accent-d)}
+.check{background:var(--amber-l);color:var(--amber-d)}
+.no{background:var(--red-l);color:var(--red)}
+.tool-name{font-weight:500;color:var(--text)}
+.tool-note{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* S2 — What is promptsanering */
+.steps{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.step{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border-radius:8px;background:var(--bg);border:.5px solid var(--border)}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--accent);color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0;margin-top:1px}
+.step-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px}
+.step-desc{font-size:12px;color:var(--text2);line-height:1.5}
+.step-example{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent-d);background:var(--accent-l);padding:5px 8px;border-radius:4px;margin-top:5px;line-height:1.5}
+
+/* S3 — Scenario A (gate) */
+.scenario{background:var(--bg);border:.5px solid var(--border);border-radius:8px;padding:16px 18px;margin-top:8px}
+.scenario-context{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:12px;padding-bottom:12px;border-bottom:.5px solid var(--border)}
+.scenario-mail{background:var(--surface);border:.5px solid var(--border);border-radius:6px;padding:12px 14px;font-size:12px;color:var(--text2);line-height:1.7;font-family:'JetBrains Mono',monospace;margin-bottom:14px}
+.scenario-q{font-size:14px;font-weight:500;color:var(--text);margin-bottom:14px}
+.options{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:flex-start;gap:11px;padding:12px 15px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;font-size:13px;color:var(--text);transition:all .12s;font-family:inherit;text-align:left}
+.opt:hover:not(.locked){border-color:var(--accent);background:var(--accent-l)}
+.opt.correct{border-color:var(--accent);background:var(--accent-l);color:var(--accent-d)}
+.opt.wrong{border-color:var(--red);background:var(--red-l);color:var(--red)}
+.opt.locked{cursor:default}
+.opt-l{width:22px;height:22px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+.feedback{margin-top:12px;padding:11px 15px;border-radius:8px;font-size:13px;line-height:1.55;display:none}
+.feedback.show{display:block}
+.feedback.ok{background:var(--accent-l);color:var(--accent-d);border:.5px solid var(--accent-d)}
+.feedback.nok{background:var(--red-l);color:var(--red)}
+
+/* S4 — Scenario B */
+.case-box{background:var(--amber-l);border:.5px solid #F5C875;border-radius:8px;padding:16px 18px;margin-top:8px}
+.case-context{font-size:13px;color:var(--amber-d);line-height:1.65;margin-bottom:12px;padding-bottom:12px;border-bottom:.5px solid #F5C875}
+.think-prompt{font-size:13px;font-weight:500;color:var(--amber-d);margin-bottom:10px}
+textarea{width:100%;min-height:80px;border:.5px solid var(--border);border-radius:8px;padding:10px 13px;font-family:inherit;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;outline:none;transition:border-color .15s;line-height:1.6}
+textarea:focus{border-color:var(--accent)}
+.model-answer{margin-top:10px;padding:12px 14px;border-radius:8px;background:var(--accent-l);border:.5px solid var(--accent-d);font-size:12px;color:var(--accent-d);line-height:1.6;display:none}
+.model-answer.show{display:block}
+.show-btn{font-size:12px;color:var(--accent-d);cursor:pointer;background:none;border:none;font-family:inherit;text-decoration:underline;margin-top:6px;display:block}
+
+.nav-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 22px;border-top:.5px solid var(--border);background:var(--bg)}
+.nbtn{display:flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;border:.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;transition:all .12s}
+.nbtn:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.nbtn:disabled{opacity:.3;cursor:default}
+.nbtn.p{background:var(--accent);border-color:var(--accent);color:white}
+.nbtn.p:hover{background:var(--accent-d)}
+.nav-info{font-size:12px;color:var(--text3)}
+</style>
+</head>
+<body>
+<div class="meta">
+  <div class="meta-l">AI Proficiency · P06 · <strong>Competentie P4 & P7</strong> · 4 slides</div>
+  <span class="gate-badge">🔒 Completion gate</span>
+</div>
+<div class="deck">
+  <div class="pbar"><div class="pfill" id="pf" style="width:25%"></div></div>
+  <div class="strip">
+    <span class="slbl-s">Toolkeuze &amp; promptsanering &nbsp;·&nbsp; <strong id="sc">Slide 1 van 4</strong></span>
+    <div class="dots">
+      <div class="dot active" onclick="goTo(0)"></div>
+      <div class="dot" onclick="goTo(1)"></div>
+      <div class="dot" onclick="goTo(2)"></div>
+      <div class="dot" onclick="goTo(3)"></div>
+    </div>
+  </div>
+
+  <!-- S1 -->
+  <div class="slide visible" id="s0">
+    <div class="slbl">Slide 1 — Toolkeuze</div>
+    <h2 class="sh">Welke tool voor welke data?</h2>
+    <p class="sp">Niet elke AI-tool is geschikt voor elke data. De goedkeuring hangt af van verwerkersovereenkomst, data-opslag en securityinstelling.</p>
+    <table class="tool-table">
+      <thead><tr><th>Tool-type</th><th>Goedgekeurd voor</th><th>Status</th><th>Aandachtspunt</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><div class="tool-name">Organisatie AI-workspace</div><div class="tool-note">Bijv. Microsoft 365 Copilot, Google Workspace AI</div></td>
+          <td>Interne documenten, klantdata (mits beleid), gevoelige data</td>
+          <td><span class="status-badge ok">✓ Goedgekeurd</span></td>
+          <td>Controleer welke modules zijn ingeschakeld en welke data-opslag geldt</td>
+        </tr>
+        <tr>
+          <td><div class="tool-name">Goedgekeurde zakelijke tools</div><div class="tool-note">Tools met verwerkersovereenkomst</div></td>
+          <td>Zakelijk gebruik zoals omschreven in de overeenkomst</td>
+          <td><span class="status-badge ok">✓ Goedgekeurd (mits scope)</span></td>
+          <td>Gebruik alleen voor het doel waarvoor de overeenkomst geldt</td>
+        </tr>
+        <tr>
+          <td><div class="tool-name">Publieke gratis tools</div><div class="tool-note">Bijv. gratis ChatGPT, Gemini, Claude zonder account</div></td>
+          <td>Publieke informatie, eigen conceptteksten (zonder PII)</td>
+          <td><span class="status-badge check">⚠ Beperkt</span></td>
+          <td>Geen persoonsgegevens, geen vertrouwelijke info. Data kan worden gebruikt voor training.</td>
+        </tr>
+        <tr>
+          <td><div class="tool-name">Niet-goedgekeurde tools</div><div class="tool-note">Tools buiten het organisatiebeleid</div></td>
+          <td>Niets</td>
+          <td><span class="status-badge no">✗ Niet gebruiken</span></td>
+          <td>Onbekende data-opslag, geen verwerkersovereenkomst, geen controle</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- S2 -->
+  <div class="slide" id="s1">
+    <div class="slbl">Slide 2 — Promptsanering</div>
+    <h2 class="sh">Wat is promptsanering?</h2>
+    <p class="sp">Promptsanering is het bewust verwijderen of vervangen van gevoelige informatie vóórdat je een prompt verstuurt — zodat de taak uitvoerbaar blijft zonder privacyrisico.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-title">Identificeer gevoelige elementen</div>
+          <div class="step-desc">Scan je prompt: namen, contactgegevens, bedrijfsgevoelige info, BSN, ordernummers met klantdata.</div>
+          <div class="step-example">❌ "Stuur een mail naar Jan Jansen, jan@bedrijf.nl, over bestelling #A48291."</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-title">Vervang door placeholders</div>
+          <div class="step-desc">Gebruik neutrale aanduidingen. De taak blijft uitvoerbaar, de data is veilig.</div>
+          <div class="step-example">✓ "Schrijf een reactie aan een klant over een vertraagde levering. Gebruik geen naam of bestelnummer."</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-title">Controleer indirect herleidbare data</div>
+          <div class="step-desc">Soms is een combinatie van gegevens ook herleidbaar: functie + afdeling + datum kan een persoon identificeren.</div>
+          <div class="step-example">⚠ "HR-manager, afdeling Sales, ziek gemeld op 3 mei" → alsnog herleidbaar in kleine organisatie.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3 — Gate scenario A -->
+  <div class="slide" id="s2">
+    <div class="slbl">Slide 3 — Gate scenario A</div>
+    <h2 class="sh">Scenario: klantmail met naam</h2>
+    <div class="scenario">
+      <div class="scenario-context">Je werkt bij klantenservice. Je ontvangt deze mail en wilt AI gebruiken om een conceptreactie te schrijven. Jouw organisatie heeft alleen een goedgekeurde Microsoft Copilot-workspace.</div>
+      <div class="scenario-mail">Van: sophie.bakker@gmail.com
+Onderwerp: Bestelling #KL-2024-8847 nog steeds niet ontvangen
+
+Hallo,
+
+Ik heb mijn bestelling van 8 mei nog steeds niet ontvangen.
+Kan iemand dit controleren?
+
+Met vriendelijke groet,
+Sophie Bakker</div>
+      <div class="scenario-q">Wat is de juiste aanpak?</div>
+      <div class="options" id="opts3">
+        <button class="opt" data-ok="false" onclick="ans3(this)"><span class="opt-l">A</span>De volledige mail inclusief naam en e-mail plakken in de Copilot-workspace — dat is immers goedgekeurd.</button>
+        <button class="opt" data-ok="false" onclick="ans3(this)"><span class="opt-l">B</span>Alleen de naam verwijderen en de rest intact laten in een publieke gratis tool.</button>
+        <button class="opt" data-ok="true" onclick="ans3(this)"><span class="opt-l">C</span>Naam, e-mail en bestelnummer verwijderen, daarna een prompt schrijven in de goedgekeurde Copilot-workspace met de geanonimiseerde situatie.</button>
+        <button class="opt" data-ok="false" onclick="ans3(this)"><span class="opt-l">D</span>Geen AI gebruiken — klantmails mogen nooit worden verwerkt met AI.</button>
+      </div>
+      <div class="feedback" id="fb3"></div>
+    </div>
+  </div>
+
+  <!-- S4 — Scenario B -->
+  <div class="slide" id="s3">
+    <div class="slbl">Slide 4 — Gate scenario B</div>
+    <h2 class="sh">Scenario: HR-tekst beoordeling</h2>
+    <div class="case-box">
+      <div class="case-context">Een leidinggevende wil AI gebruiken om een concept-beoordeling te schrijven voor een medewerker. Ze beschikt over de beoordelingsnotes uit het vorige gesprek. De organisatie heeft een goedgekeurde zakelijke AI-workspace — maar de verwerkersovereenkomst specificeert dat HR-data niet is toegestaan.</div>
+      <div class="think-prompt">Wat moet de leidinggevende doen? En waarom?</div>
+      <textarea id="ta4" placeholder="Schrijf je antwoord hier... (minstens 2 zinnen)"></textarea>
+      <button class="show-btn" onclick="showModel()">Toon modelantwoord ↓</button>
+      <div class="model-answer" id="model4">
+        <strong>Modelantwoord:</strong> De leidinggevende mag de beoordelingsnotes niet invoeren in de AI-workspace — ook niet de goedgekeurde — omdat HR-data expliciet is uitgesloten in de verwerkersovereenkomst. De juiste aanpak is: zelf de beoordeling schrijven op basis van de notes, eventueel AI inzetten voor taalverbetering van een tekst zonder persoonsgebonden inhoud, en voor twijfelgevallen de HR-afdeling raadplegen. Het feit dat een tool "goedgekeurd" is, betekent niet dat alle data erin mag — de scope van de goedkeuring bepaalt wat is toegestaan.
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-bar">
+    <button class="nbtn" id="pb" onclick="prev()" disabled>← Vorige</button>
+    <span class="nav-info" id="ni">Slide 1 van 4</span>
+    <button class="nbtn p" id="nb" onclick="next()">Volgende →</button>
+  </div>
+</div>
+
+<script>
+let c=0,t=4,d3=false;
+function goTo(i){
+  document.getElementById('s'+c).classList.remove('visible');
+  const ds=document.querySelectorAll('.dot');
+  ds[c].classList.remove('active');
+  if(i>c)ds[c].classList.add('done');
+  c=i;
+  document.getElementById('s'+c).classList.add('visible');
+  ds.forEach((d,idx)=>{d.classList.remove('active');if(idx===c)d.classList.add('active')});
+  document.getElementById('sc').textContent=`Slide ${c+1} van ${t}`;
+  document.getElementById('ni').textContent=`Slide ${c+1} van ${t}`;
+  document.getElementById('pb').disabled=c===0;
+  document.getElementById('nb').textContent=c===t-1?'✓ Afronden':'Volgende →';
+  document.getElementById('pf').style.width=`${((c+1)/t)*100}%`;
+}
+function next(){if(c<t-1)goTo(c+1);}
+function prev(){if(c>0)goTo(c-1);}
+function ans3(btn){
+  if(d3)return;d3=true;
+  document.querySelectorAll('#opts3 .opt').forEach(o=>o.classList.add('locked'));
+  const ok=btn.dataset.ok==='true';
+  document.querySelectorAll('#opts3 .opt').forEach(o=>{if(o.dataset.ok==='true')o.classList.add('correct')});
+  if(!ok)btn.classList.add('wrong');
+  const fb=document.getElementById('fb3');
+  fb.className='feedback show '+(ok?'ok':'nok');
+  fb.innerHTML=ok
+    ?'<strong>✓ Correct!</strong> C is de enige juiste aanpak: eerst volledig saneren (naam, e-mail, bestelnummer), dan pas invoeren in de goedgekeurde tool. Optie A is fout — goedgekeurde tool betekent niet dat alle data erin mag, de verwerkersovereenkomst bepaalt de scope. Optie D is te restrictief.'
+    :'<strong>✗ Niet correct.</strong> C is het enige juiste antwoord: saneer volledig (naam, e-mail, bestelnummer verwijderen) en gebruik daarna de goedgekeurde workspace. "Goedgekeurd" betekent niet ongelimiteerd — controleer altijd de scope van de overeenkomst.';
+}
+function showModel(){document.getElementById('model4').classList.add('show');}
+</script>
+</body>
+</html>

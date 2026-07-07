@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle-interventies — 4 mechanismen</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F5F0;--surface:#FFFFFF;--text:#1A1A18;--text2:#5A5A56;--text3:#9A9A96;
+  --border:rgba(0,0,0,0.08);--r:12px;
+  --purple:#534AB7;--purple-l:#EEEDFE;--purple-d:#3C3489;
+  --blue:#185FA5;--blue-l:#E6F1FB;--blue-d:#0C3D6B;
+  --amber:#BA7517;--amber-l:#FAEEDA;--amber-d:#633806;
+  --red:#A32D2D;--red-l:#FCEBEB;--red-d:#5C1818;
+  --green:#1D9E75;--green-l:#E1F5EE;--green-d:#085041;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);padding:32px 16px 48px;display:flex;flex-direction:column;align-items:center}
+.header{text-align:center;margin-bottom:28px;max-width:560px}
+.tag{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:99px;background:var(--purple-l);color:var(--purple-d);margin-bottom:10px;letter-spacing:0.06em}
+.header h1{font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:6px}
+.header p{font-size:13px;color:var(--text2);line-height:1.65}
+.wrap{max-width:820px;width:100%}
+
+/* Horizontal timeline */
+.tl-outer{position:relative;padding:0 10px;margin-bottom:14px}
+.tl-track{position:absolute;top:27px;left:44px;right:44px;height:3px;background:linear-gradient(to right,var(--blue),var(--amber),var(--red),var(--green));border-radius:2px;opacity:0.3}
+.tl-row{display:flex;align-items:flex-start;justify-content:space-between;position:relative;z-index:2}
+
+.tl-step{display:flex;flex-direction:column;align-items:center;flex:1;cursor:pointer;transition:transform 0.15s}
+.tl-step:hover .tl-dot{transform:scale(1.1)}
+.tl-dot{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid transparent;margin-bottom:10px;transition:all 0.2s;background:var(--surface);box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.tl-step.active .tl-dot{box-shadow:0 0 0 5px rgba(0,0,0,0.08)}
+.tl-lbl{font-size:12px;font-weight:500;text-align:center;margin-bottom:2px;line-height:1.3}
+.tl-sub{font-size:10px;color:var(--text3);text-align:center;max-width:80px}
+.tl-urgency{font-size:9px;font-weight:500;padding:2px 7px;border-radius:99px;margin-top:4px;letter-spacing:0.05em}
+
+.s0 .tl-dot{border-color:var(--blue);background:var(--blue-l)}
+.s0.active .tl-dot{background:var(--blue);color:white}
+.s0 .tl-lbl{color:var(--blue-d)}
+.s0 .tl-urgency{background:var(--blue-l);color:var(--blue-d)}
+
+.s1 .tl-dot{border-color:var(--amber);background:var(--amber-l)}
+.s1.active .tl-dot{background:var(--amber);color:white}
+.s1 .tl-lbl{color:var(--amber-d)}
+.s1 .tl-urgency{background:var(--amber-l);color:var(--amber-d)}
+
+.s2 .tl-dot{border-color:var(--red);background:var(--red-l)}
+.s2.active .tl-dot{background:var(--red);color:white}
+.s2 .tl-lbl{color:var(--red-d)}
+.s2 .tl-urgency{background:var(--red-l);color:var(--red-d)}
+
+.s3 .tl-dot{border-color:var(--green);background:var(--green-l)}
+.s3.active .tl-dot{background:var(--green);color:white}
+.s3 .tl-lbl{color:var(--green-d)}
+.s3 .tl-urgency{background:var(--green-l);color:var(--green-d)}
+
+/* Detail */
+.detail{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);overflow:hidden}
+.detail-top{padding:18px 24px 16px;border-bottom:0.5px solid var(--border);display:flex;gap:14px;align-items:flex-start;position:relative}
+.detail-top::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r) var(--r) 0 0;transition:background 0.3s}
+.d-num{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.d-title{font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:3px}
+.d-sub{font-size:12px;color:var(--text3);font-style:italic;margin-bottom:3px}
+.d-urgency-badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:99px;display:inline-block}
+
+.detail-body{padding:18px 24px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.detail-desc{grid-column:1/-1;font-size:14px;color:var(--text2);line-height:1.7}
+.d-sec-lbl{font-size:10px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.d-item{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--text2);margin-bottom:5px;line-height:1.4}
+.d-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.bias-box{grid-column:1/-1;padding:12px 14px;border-radius:8px;font-size:13px;line-height:1.55}
+
+.nav{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-top:0.5px solid var(--border);background:var(--bg)}
+.nbtn{display:flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;border:0.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;transition:all 0.12s}
+.nbtn:hover:not(:disabled){border-color:var(--purple);color:var(--purple)}
+.nbtn:disabled{opacity:0.3;cursor:default}
+.nbtn.p{background:var(--purple);border-color:var(--purple);color:white}
+.nbtn.p:hover{background:var(--purple-d)}
+.nav-info{font-size:12px;color:var(--text3)}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="tag">AI Mastery · M06 · Competentie M3 & M4</div>
+  <h1>Controle-interventies</h1>
+  <p>Vier mechanismen om AI-processen onder menselijke controle te houden. Van preventief tot reactief. Klik op een stap voor de aanpak.</p>
+</div>
+<div class="wrap">
+  <div class="tl-outer">
+    <div class="tl-track"></div>
+    <div class="tl-row">
+      <div class="tl-step s0 active" id="ts0" onclick="goTo(0)">
+        <div class="tl-dot">✋</div>
+        <div class="tl-lbl">Pre-approval</div>
+        <div class="tl-sub">Vóór gebruik</div>
+        <div class="tl-urgency">Preventief</div>
+      </div>
+      <div class="tl-step s1" id="ts1" onclick="goTo(1)">
+        <div class="tl-dot">🎲</div>
+        <div class="tl-lbl">Steekproef</div>
+        <div class="tl-sub">Periodiek</div>
+        <div class="tl-urgency">Controlerend</div>
+      </div>
+      <div class="tl-step s2" id="ts2" onclick="goTo(2)">
+        <div class="tl-dot">👥</div>
+        <div class="tl-lbl">Vier-ogen</div>
+        <div class="tl-sub">Bij impactvol besluit</div>
+        <div class="tl-urgency">Versterkend</div>
+      </div>
+      <div class="tl-step s3" id="ts3" onclick="goTo(3)">
+        <div class="tl-dot">🛑</div>
+        <div class="tl-lbl">Realtime override</div>
+        <div class="tl-sub">Bij afwijking</div>
+        <div class="tl-urgency">Reactief</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail">
+    <div class="detail-top" id="d-top">
+      <div class="d-num" id="d-num">✋</div>
+      <div>
+        <div class="d-title" id="d-title">Pre-approval</div>
+        <div class="d-sub" id="d-sub">Vóór AI-gebruik goedgekeurd worden</div>
+        <div class="d-urgency-badge" id="d-urg">Preventief</div>
+      </div>
+    </div>
+    <div class="detail-body" id="d-body"></div>
+    <div class="nav">
+      <button class="nbtn" id="pb" onclick="prev()" disabled>← Vorige</button>
+      <span class="nav-info" id="ni">Mechanisme 1 van 4</span>
+      <button class="nbtn p" id="nb" onclick="next()">Volgende →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STEPS=[
+  {icon:'✋',title:'Pre-approval',sub:'Vóór AI-gebruik goedgekeurd worden',urg:'Preventief',
+   nbg:'var(--blue-l)',nfg:'var(--blue-d)',dot:'var(--blue)',accentBar:'var(--blue)',
+   desc:'Pre-approval betekent dat AI-gebruik in een bepaald proces of voor een bepaald type beslissing pas mag starten nadat iemand met de juiste bevoegdheid dit heeft goedgekeurd. Dit is de zwaarste maar ook sterkste control.',
+   do:['Definieer welke use cases pre-approval vereisen (impact op mensen, vertrouwelijke data)','Stel een goedkeuringsformulier op: use case, toolkeuze, datatype, oversightmodel','Leg de goedkeuring vast in het governance-document','Evalueer periodiek of de goedkeuring nog actueel is'],
+   check:['Wie heeft de bevoegdheid om goed te keuren?','Wat is de responstijd voor een goedkeuringsverzoek?','Wordt de goedkeuring bijgehouden en doorzoekbaar?','Wat als iemand zonder goedkeuring begint?'],
+   bias:'Automation bias: "Het is goedgekeurd, dus het zal wel goed zijn." Pre-approval is een startpunt, geen garantie — toezicht blijft nodig tijdens gebruik.'},
+  {icon:'🎲',title:'Steekproef',sub:'Periodieke kwaliteitscheck op AI-output',urg:'Controlerend',
+   nbg:'var(--amber-l)',nfg:'var(--amber-d)',dot:'var(--amber)',accentBar:'var(--amber)',
+   desc:'Een steekproef is een geplande, aselecte controle van een deel van de AI-output. Effectief bij hoog volume en middel-hoog risico: je kunt niet alles reviewen, maar je maakt afwijkingen zichtbaar.',
+   do:['Bepaal het steekproefpercentage: 5–15% afhankelijk van volume en risico','Plan de steekproef op vaste momenten (wekelijks, dagelijks bij hoog volume)','Gebruik een reviewformulier met beoordelingscriteria','Sla de uitkomsten op — stijgende foutrate is een signaal'],
+   check:['Is de steekproef aselect (niet cherry-picking)?','Zijn de beoordelingscriteria helder voor de reviewer?','Wordt de steekproef gedocumenteerd?','Wie beslist wat er met bevindingen gebeurt?'],
+   bias:'Survivorship bias: "We hebben nog nooit een fout gevonden." Dat kan betekenen dat de steekproef te klein is, of dat de criteria niet scherp genoeg zijn.'},
+  {icon:'👥',title:'Vier-ogen principe',sub:'Een tweede mens beoordeelt de output',urg:'Versterkend',
+   nbg:'var(--red-l)',nfg:'var(--red-d)',dot:'var(--red)',accentBar:'var(--red)',
+   desc:'Het vier-ogen principe vereist dat twee mensen — onafhankelijk van elkaar — de AI-output of beslissing beoordelen vóór actie. Effectief bij hoog-impact beslissingen: contracten, HR-besluiten, klantcommunicatie met financiële gevolgen.',
+   do:['Definieer voor welke beslissingen het vier-ogen principe geldt','Zorg dat de tweede reviewer onafhankelijk is (geen hiërarchische druk)','Leg beide beoordelingen vast (datum, naam, conclusie)','Beschrijf wat er gebeurt bij een meningsverschil tussen de twee reviewers'],
+   check:['Is de tweede reviewer bevoegd en voldoende geïnformeerd?','Is er geen druk om automatisch mee te gaan met de eerste reviewer?','Wordt het vier-ogen principe consequent toegepast?','Is er een mechanisme voor escalatie bij onenigheid?'],
+   bias:'Conformiteitsbias: de tweede reviewer gaat automatisch mee met de eerste. Bouw in dat beide reviewers onafhankelijk oordelen vóór ze met elkaar communiceren.'},
+  {icon:'🛑',title:'Realtime override',sub:'Direct ingrijpen bij afwijking',urg:'Reactief',
+   nbg:'var(--green-l)',nfg:'var(--green-d)',dot:'var(--green)',accentBar:'var(--green)',
+   desc:'Een realtime override stopt of corrigeert een AI-actie terwijl het proces loopt. Dit vereist dat de override-optie technisch beschikbaar is, de override-persoon aangewezen én bereikbaar is, en dat de drempelwaarden duidelijk zijn.',
+   do:['Wijs een override-persoon aan per AI-toepassing (naam + plaatsvervanger)','Definieer stopcriteria: wanneer activeer je de override?','Test de override-functie vóór productiegebruik','Log elke override met tijdstip, reden en wie het uitvoerde'],
+   check:['Werkt de override technisch — ook buiten kantooruren?','Kent iedereen de override-persoon en de drempelwaarden?','Is er een plaatsvervanger als de override-persoon niet beschikbaar is?','Worden overrides geanalyseerd in de periodieke review?'],
+   bias:'Automation complacency: "Het systeem werkt altijd goed, dus ik hoef niet te letten." Override werkt alleen als iemand actief monitort en niet slaapt achter het dashboard.'},
+];
+
+let cur=0;
+function goTo(i){
+  document.querySelectorAll('.tl-step').forEach((s,idx)=>{s.classList.remove('active');if(idx===i)s.classList.add('active')});
+  cur=i;const s=STEPS[i];
+  document.getElementById('d-num').textContent=s.icon;
+  document.getElementById('d-num').style.background=s.nbg;
+  document.getElementById('d-title').textContent=s.title;
+  document.getElementById('d-title').style.color=s.nfg;
+  document.getElementById('d-sub').textContent=s.sub;
+  document.getElementById('d-urg').style.cssText=`background:${s.nbg};color:${s.nfg}`;
+  document.getElementById('d-urg').textContent=s.urg;
+  document.getElementById('d-top').style.borderTop=`3px solid ${s.dot}`;
+  const doI=s.do.map(d=>`<div class="d-item"><div class="d-dot" style="background:${s.dot}"></div><span>${d}</span></div>`).join('');
+  const chI=s.check.map(c=>`<div class="d-item"><div class="d-dot" style="background:${s.dot}"></div><span>${c}</span></div>`).join('');
+  document.getElementById('d-body').innerHTML=`
+    <div class="detail-desc">${s.desc}</div>
+    <div><div class="d-sec-lbl">Aanpak en inrichting</div>${doI}</div>
+    <div><div class="d-sec-lbl">Controleer</div>${chI}</div>
+    <div class="bias-box" style="background:${s.nbg};color:${s.nfg};grid-column:1/-1"><strong>Valkuil:</strong> ${s.bias}</div>
+  `;
+  document.getElementById('ni').textContent=`Mechanisme ${cur+1} van 4`;
+  document.getElementById('pb').disabled=cur===0;
+  document.getElementById('nb').textContent=cur===3?'✓ Afronden':'Volgende →';
+}
+function next(){if(cur<3)goTo(cur+1);}
+function prev(){if(cur>0)goTo(cur-1);}
+goTo(0);
+</script>
+</body>
+</html>

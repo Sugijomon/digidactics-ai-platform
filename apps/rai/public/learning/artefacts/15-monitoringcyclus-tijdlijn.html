@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitoringcyclus — logs, signalen, incidenten, review</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F5F0;--surface:#FFFFFF;--text:#1A1A18;--text2:#5A5A56;--text3:#9A9A96;
+  --border:rgba(0,0,0,0.08);--r:12px;
+  --purple:#534AB7;--purple-l:#EEEDFE;--purple-d:#3C3489;
+  --blue:#185FA5;--blue-l:#E6F1FB;--blue-d:#0C3D6B;
+  --amber:#BA7517;--amber-l:#FAEEDA;--amber-d:#633806;
+  --red:#A32D2D;--red-l:#FCEBEB;--red-d:#5C1818;
+  --green:#1D9E75;--green-l:#E1F5EE;--green-d:#085041;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);padding:32px 16px 48px;display:flex;flex-direction:column;align-items:center}
+.header{text-align:center;margin-bottom:28px;max-width:540px}
+.tag{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:99px;background:var(--purple-l);color:var(--purple-d);margin-bottom:10px;letter-spacing:0.06em}
+.header h1{font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:6px}
+.header p{font-size:13px;color:var(--text2);line-height:1.65}
+
+.wrap{max-width:820px;width:100%}
+
+/* Cycle visual */
+.cycle-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;position:relative}
+.cycle-row::before{
+  content:'';position:absolute;
+  top:28px;left:36px;right:36px;height:2px;
+  background:linear-gradient(to right,var(--blue),var(--amber),var(--red),var(--green));
+  z-index:0;opacity:0.25;
+}
+
+.c-step{
+  display:flex;flex-direction:column;align-items:center;
+  cursor:pointer;position:relative;z-index:2;
+  transition:transform 0.15s;
+}
+.c-step:hover .c-dot{transform:scale(1.1)}
+.c-dot{
+  width:54px;height:54px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;border:2px solid transparent;
+  margin-bottom:10px;transition:all 0.2s;
+  box-shadow:0 2px 8px rgba(0,0,0,0.08);
+}
+.c-step.active .c-dot{box-shadow:0 0 0 5px rgba(0,0,0,0.06)}
+.c-label{font-size:12px;font-weight:500;text-align:center;line-height:1.3;margin-bottom:3px}
+.c-sub{font-size:10px;color:var(--text3);text-align:center}
+
+.s-log .c-dot{background:var(--blue-l);border-color:var(--blue)}
+.s-log .c-label{color:var(--blue-d)}
+.s-log.active .c-dot{background:var(--blue);color:white}
+.s-signal .c-dot{background:var(--amber-l);border-color:var(--amber)}
+.s-signal .c-label{color:var(--amber-d)}
+.s-signal.active .c-dot{background:var(--amber);color:white}
+.s-incident .c-dot{background:var(--red-l);border-color:var(--red)}
+.s-incident .c-label{color:var(--red-d)}
+.s-incident.active .c-dot{background:var(--red);color:white}
+.s-review .c-dot{background:var(--green-l);border-color:var(--green)}
+.s-review .c-label{color:var(--green-d)}
+.s-review.active .c-dot{background:var(--green);color:white}
+
+/* Return arrow */
+.return-arrow{text-align:center;font-size:12px;color:var(--text3);margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:8px}
+.return-line{flex:1;height:1px;background:var(--border)}
+
+/* Detail */
+.detail{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);overflow:hidden}
+.detail-top{padding:18px 24px 16px;border-bottom:0.5px solid var(--border);display:flex;gap:14px;align-items:flex-start}
+.detail-num{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.detail-title{font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);margin-bottom:3px}
+.detail-sub{font-size:12px;color:var(--text3);font-style:italic}
+.detail-body{padding:18px 24px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.detail-desc{grid-column:1/-1;font-size:14px;color:var(--text2);line-height:1.7}
+.d-sec-lbl{font-size:10px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.d-item{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--text2);margin-bottom:5px;line-height:1.4}
+.d-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.detail-freq{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}
+.freq-chip{font-size:11px;padding:4px 12px;border-radius:99px;background:var(--bg);border:0.5px solid var(--border);color:var(--text2)}
+.freq-chip strong{font-weight:500}
+.detail-dl{grid-column:1/-1;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:8px;border:0.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:12px;color:var(--text2)}
+.dl-icon{font-size:18px}
+
+/* Nav */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-top:0.5px solid var(--border);background:var(--bg)}
+.nbtn{display:flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;border:0.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;transition:all 0.12s}
+.nbtn:hover:not(:disabled){border-color:var(--purple);color:var(--purple)}
+.nbtn:disabled{opacity:0.3;cursor:default}
+.nbtn.p{background:var(--purple);border-color:var(--purple);color:white}
+.nbtn.p:hover{background:var(--purple-d)}
+.nav-info{font-size:12px;color:var(--text3)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="tag">AI Mastery · M08 · Competentie M5 & M8</div>
+  <h1>Monitoringcyclus</h1>
+  <p>AI-gebruik monitoren is geen eenmalige actie — het is een cyclisch proces. Klik op een stap voor aanpak, frequentie en wat je vastlegt.</p>
+</div>
+
+<div class="wrap">
+  <div class="cycle-row">
+    <div class="c-step s-log active" id="cs-0" onclick="goTo(0)">
+      <div class="c-dot">📋</div>
+      <div class="c-label">Loggen</div>
+      <div class="c-sub">Elke interactie</div>
+    </div>
+    <div class="c-step s-signal" id="cs-1" onclick="goTo(1)">
+      <div class="c-dot">📡</div>
+      <div class="c-label">Signaleren</div>
+      <div class="c-sub">Bij drempelwaarde</div>
+    </div>
+    <div class="c-step s-incident" id="cs-2" onclick="goTo(2)">
+      <div class="c-dot">🚨</div>
+      <div class="c-label">Incident</div>
+      <div class="c-sub">Bij overtreding</div>
+    </div>
+    <div class="c-step s-review" id="cs-3" onclick="goTo(3)">
+      <div class="c-dot">🔄</div>
+      <div class="c-label">Review</div>
+      <div class="c-sub">Periodiek</div>
+    </div>
+  </div>
+
+  <div class="return-arrow">
+    <div class="return-line"></div>
+    <span>cyclus herhaalt → bevindingen uit review leiden tot aanpassing van logcriteria en drempelwaarden</span>
+    <div class="return-line"></div>
+  </div>
+
+  <div class="detail">
+    <div class="detail-top">
+      <div class="detail-num" id="d-num">📋</div>
+      <div>
+        <div class="detail-title" id="d-title">Loggen</div>
+        <div class="detail-sub" id="d-sub">Wat leg je vast per AI-interactie?</div>
+      </div>
+    </div>
+    <div class="detail-body" id="d-body"></div>
+    <div class="nav">
+      <button class="nbtn" id="pb" onclick="prev()" disabled>← Vorige</button>
+      <span class="nav-info" id="ni">Stap 1 van 4</span>
+      <button class="nbtn p" id="nb" onclick="next()">Volgende →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STEPS=[
+  {icon:'📋',title:'Loggen',sub:'Wat leg je vast per AI-interactie?',
+   bg:'var(--blue-l)',fg:'var(--blue-d)',dot:'var(--blue)',
+   desc:'Logging is de basis van aantoonbaar toezicht. Zonder log is er geen bewijs dat het oversightmodel werkt, geen basis voor incidentonderzoek en geen grondslag voor periodieke review. Leg altijd genoeg vast — maar niet meer dan noodzakelijk (dataminimalisatie).',
+   do:['Tijdstip van de AI-interactie','Wie de interactie uitvoerde (rol, niet noodzakelijk naam)','Welk AI-systeem of model is gebruikt','Type taak of use case','Of de output is gereviewed en door wie','Eventuele afwijking of override'],
+   check:['Is de log beschermd tegen aanpassing achteraf?','Voldoet de log-opslag aan AVG-bewaartermijnen?','Is duidelijk wie toegang heeft tot de logs?','Worden loggegevens zelf niet als trainingsdata gebruikt?'],
+   freq:[{label:'Frequentie',val:'Per interactie — automatisch'},{label:'Bewaartermijn',val:'Minimaal de AVG-bewaartermijn voor het doel'},{label:'Verantwoordelijke',val:'Proceseigenaar + IT'}],
+   dl:false},
+  {icon:'📡',title:'Signaleren',sub:'Wanneer triggert een alert?',
+   bg:'var(--amber-l)',fg:'var(--amber-d)',dot:'var(--amber)',
+   desc:'Signalering vertaalt ruwe logs in actie-triggers. Je stelt drempelwaarden in die automatisch een alert genereren of een steekproef activeren. Zonder drempelwaarden blijft logging nutteloos data.',
+   do:['Stel drempelwaarden in: bijv. >X overrides per week, >Y klachten over AI-output','Activeer alert bij afwijkend patroon (bijv. stijgende foutmelding-rate)','Plan wekelijkse steekproef van 5-10% van interacties','Koppel alert aan proceseigenaar of AI-ambassador'],
+   check:['Zijn drempelwaarden realistisch voor jouw volume?','Is er iemand die de alerts actief monitort?','Wat is de responstijd bij een alert?','Worden drempelwaarden periodiek herijkt?'],
+   freq:[{label:'Frequentie',val:'Continu (alert) + wekelijkse steekproef'},{label:'Drempelwaarden',val:'Per use case bepalen'},{label:'Verantwoordelijke',val:'Proceseigenaar'}],
+   dl:false},
+  {icon:'🚨',title:'Incident',sub:'Wat is een incident en hoe reageer je?',
+   bg:'var(--red-l)',fg:'var(--red-d)',dot:'var(--red)',
+   desc:'Een incident is elke situatie waarbij AI-output heeft geleid tot of dreigt te leiden tot schade, naleving-overtreding of reputatieschade. Niet elke fout is een incident — maar elke incident verdient een gestructureerde respons.',
+   do:['Definieer wat een incident is in jouw context (drempelwaarden + type schade)','Stop het gebruik van de AI-toepassing indien nodig (HIC-bevoegdheid)','Documenteer: wat is er gebeurd, wanneer, wie, welk systeem, wat is de impact','Informeer betrokkenen indien AVG-meldplicht van toepassing (72 uur)','Analyseer oorzaak en pas het proces aan'],
+   check:['Is er een duidelijke definitie van "incident" voor dit AI-gebruik?','Weet iedereen aan wie ze een incident melden?','Is de AP-meldplicht (72 uur) bekend bij de privacy-officer?','Worden incidenten geregistreerd in een incidentenregister?'],
+   freq:[{label:'Frequentie',val:'Ad hoc — bij optreden'},{label:'AVG-meldplicht',val:'72 uur na ontdekking bij datalek'},{label:'Verantwoordelijke',val:'Proceseigenaar + privacy-officer'}],
+   dl:true},
+  {icon:'🔄',title:'Review',sub:'Periodieke evaluatie van het AI-gebruik',
+   bg:'var(--green-l)',fg:'var(--green-d)',dot:'var(--green)',
+   desc:'De periodieke review evalueert of het AI-gebruik nog werkt zoals bedoeld: klopt het oversightmodel nog, zijn de drempelwaarden juist, is de output-kwaliteit goed, zijn er nieuwe risico\'s? Bevindingen leiden direct terug naar het loggen en signaleren.',
+   do:['Evalueer de logdata: patronen, anomalieën, kwaliteit van reviews','Controleer of drempelwaarden nog kloppen met het actuele volume','Beoordeel of het oversightmodel nog past bij de use case','Bespreek bevindingen met het team','Pas het beleid aan en documenteer de beslissing'],
+   check:['Is er iemand aangewezen om de review te leiden?','Zijn alle betrokkenen aanwezig (proceseigenaar, AI-gebruikers)?','Worden beslissingen uit de review vastgelegd?','Is het systeem nog up-to-date (provider-updates, wetswijzigingen)?'],
+   freq:[{label:'Frequentie',val:'Maandelijks (eerste jaar) → kwartaal'},{label:'Minimumfrequentie',val:'Elk jaar, of bij grote wijziging'},{label:'Verantwoordelijke',val:'Proceseigenaar + eventueel DPO'}],
+   dl:true},
+];
+
+let cur=0;
+function goTo(i){
+  document.querySelectorAll('.c-step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('cs-'+i).classList.add('active');
+  cur=i;
+  const s=STEPS[i];
+  document.getElementById('d-num').textContent=s.icon;
+  document.getElementById('d-title').textContent=s.title;
+  document.getElementById('d-sub').textContent=s.sub;
+  document.getElementById('d-num').style.background=s.bg;
+  const doI=s.do.map(d=>`<div class="d-item"><div class="d-dot" style="background:${s.dot}"></div><span>${d}</span></div>`).join('');
+  const chI=s.check.map(c=>`<div class="d-item"><div class="d-dot" style="background:${s.dot}"></div><span>${c}</span></div>`).join('');
+  const freqC=s.freq.map(f=>`<div class="freq-chip"><strong>${f.label}:</strong> ${f.val}</div>`).join('');
+  const dl=s.dl?`<div class="detail-dl"><span class="dl-icon">📥</span><span>Download: <strong>${s.title === 'Incident' ? 'Incidentenregister' : 'Review-template'}</strong> — gebruik dit als basis voor jouw organisatie</span></div>`:'';
+  document.getElementById('d-body').innerHTML=`
+    <div class="detail-desc">${s.desc}</div>
+    <div><div class="d-sec-lbl">Wat vastleggen / aanpak</div>${doI}</div>
+    <div><div class="d-sec-lbl">Controleer</div>${chI}</div>
+    <div class="detail-freq">${freqC}</div>
+    ${dl}
+  `;
+  document.getElementById('ni').textContent=`Stap ${cur+1} van 4`;
+  document.getElementById('pb').disabled=cur===0;
+  document.getElementById('nb').textContent=cur===3?'✓ Afronden':'Volgende →';
+}
+function next(){if(cur<3)goTo(cur+1);}
+function prev(){if(cur>0)goTo(cur-1);}
+goTo(0);
+</script>
+</body>
+</html>

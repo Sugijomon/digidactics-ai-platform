@@ -41,6 +41,7 @@ Expected structure:
 ```txt
 apps/
   sai/
+  rai/
 packages/
   auth/
   database/
@@ -55,9 +56,9 @@ design-html/
 references/
 ```
 
-Start with `apps/sai`, `packages/domain`, `packages/database`, `packages/auth`, `packages/ui`, `supabase/migrations`, `docs`, `design-html/sai`, and `references`.
+Start with `apps/sai`, `apps/rai` for the Learning System, `packages/domain`, `packages/database`, `packages/auth`, `packages/ui`, `supabase/migrations`, `docs`, `design-html/sai`, and `references`.
 
-Do not scaffold `apps/rai` or `apps/marketing` as full applications in phase 1. They are future app surfaces and should be added when there is real implementation work.
+Do not scaffold `apps/marketing` as a full application in phase 1. `apps/rai` is allowed when there is real RouteAI implementation work. The Learning System is RouteAI work and belongs in `apps/rai`, not `apps/sai`.
 
 ## Development Rules
 
@@ -66,7 +67,7 @@ Do not scaffold `apps/rai` or `apps/marketing` as full applications in phase 1. 
 - Shared Supabase clients, generated types, query helpers, and repository functions belong in `packages/database`.
 - Shared auth helpers, role definitions, permission checks, and session helpers belong in `packages/auth`.
 - Shared UI primitives belong in `packages/ui`.
-- App-specific pages and composed experiences live under the relevant app, starting with `apps/sai`.
+- App-specific pages and composed experiences live under the relevant app: SAI scan work in `apps/sai`, RouteAI Learning System work in `apps/rai`.
 - Keep SAI commercially simple, but build it on the same technical foundation as RAI.
 - Keep phase 1 lean. Do not build the full RAI governance suite before SAI works.
 - Keep Next.js, React, TypeScript, Tailwind, shadcn/ui, and related tooling on the same major versions across apps unless a documented decision says otherwise.

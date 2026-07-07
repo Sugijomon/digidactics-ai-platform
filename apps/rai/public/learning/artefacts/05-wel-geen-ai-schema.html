@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wat telt als AI?</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F5F0; --surface:#FFFFFF; --text:#1A1A18; --text2:#5A5A56; --text3:#9A9A96;
+  --border:rgba(0,0,0,0.08); --r:12px;
+  --green:#1A7A52; --green-l:#E8F7F1; --green-m:#8FD4B6;
+  --red:#A32D2D; --red-l:#FCEBEB; --red-m:#F5C5BE;
+  --accent:#534AB7; --accent-l:#EEEDFE;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);padding:32px 16px 48px;display:flex;flex-direction:column;align-items:center}
+.header{text-align:center;margin-bottom:28px;max-width:560px}
+.tag{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:99px;background:var(--accent-l);color:#3C3489;margin-bottom:10px;letter-spacing:0.06em}
+.header h1{font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:6px}
+.header p{font-size:13px;color:var(--text2);line-height:1.65}
+
+.wrap{max-width:780px;width:100%}
+
+/* Column headers */
+.col-heads{display:grid;grid-template-columns:180px 1fr 1fr;gap:0;margin-bottom:3px}
+.col-head{padding:10px 16px;border-radius:8px 8px 0 0;font-size:12px;font-weight:500;text-align:center}
+.col-head.left{background:transparent}
+.col-head.no-ai{background:var(--green-l);color:var(--green)}
+.col-head.yes-ai{background:var(--red-l);color:var(--red)}
+
+/* Table */
+.table{background:var(--surface);border:0.5px solid var(--border);border-radius:0 0 var(--r) var(--r);overflow:hidden}
+.row{display:grid;grid-template-columns:180px 1fr 1fr;border-bottom:0.5px solid var(--border);transition:background 0.1s;cursor:pointer}
+.row:last-child{border-bottom:none}
+.row:hover{background:var(--bg)}
+.row.active{background:var(--bg)}
+
+.cell{padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.5;display:flex;align-items:flex-start;gap:8px}
+.cell.category{font-size:12px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;align-items:center;border-right:0.5px solid var(--border)}
+.cell-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.cell-text{}
+.cell-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
+.cell-why{font-size:11px;color:var(--text3);line-height:1.4}
+
+.badge-no{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;color:var(--green);background:var(--green-l);padding:2px 8px;border-radius:4px;white-space:nowrap}
+.badge-yes{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;color:var(--red);background:var(--red-l);padding:2px 8px;border-radius:4px;white-space:nowrap}
+
+/* Detail panel */
+.detail{
+  background:var(--surface);border:0.5px solid var(--border);
+  border-radius:var(--r);margin-top:12px;overflow:hidden;
+  display:none;
+}
+.detail.visible{display:block;animation:fadeIn 0.2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.detail-inner{padding:18px 20px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.detail-col{}
+.detail-col-label{font-size:11px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:8px}
+.detail-col.no .detail-col-label{color:var(--green)}
+.detail-col.yes .detail-col-label{color:var(--red)}
+.detail-item{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--text2);margin-bottom:5px;line-height:1.5}
+.detail-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.detail-col.no .detail-dot{background:var(--green)}
+.detail-col.yes .detail-dot{background:var(--red)}
+.detail-close{padding:10px 20px;border-top:0.5px solid var(--border);text-align:right}
+.close-btn{font-size:12px;color:var(--text3);cursor:pointer;background:none;border:none;font-family:inherit}
+.close-btn:hover{color:var(--text)}
+
+/* Legend */
+.legend{max-width:780px;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.legend-card{background:var(--surface);border:0.5px solid var(--border);border-radius:8px;padding:12px 16px;display:flex;gap:10px}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.legend-text{font-size:12px;color:var(--text2);line-height:1.5}
+
+/* AI indicator */
+.ai-test{background:var(--accent-l);border:0.5px solid rgba(83,74,183,0.2);border-radius:8px;padding:14px 18px;margin-top:14px;max-width:780px;width:100%}
+.ai-test h3{font-size:13px;font-weight:500;color:#3C3489;margin-bottom:6px}
+.ai-test p{font-size:12px;color:var(--text2);line-height:1.6}
+.test-q{margin-top:8px;display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--text2)}
+.test-q-num{font-weight:500;color:var(--accent);flex-shrink:0}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="tag">AI Literacy · P2 · Competentie C1 & C2</div>
+  <h1>Wat telt als AI?</h1>
+  <p>Niet alle slimme software is AI. Klik op een rij om te zien waarom een tool wél of niet onder de AI Act valt.</p>
+</div>
+
+<div class="wrap">
+  <div class="col-heads">
+    <div class="col-head left"></div>
+    <div class="col-head no-ai">✓ Geen AI-systeem</div>
+    <div class="col-head yes-ai">⚠ Wél een AI-systeem</div>
+  </div>
+
+  <div class="table">
+    <div class="row" onclick="toggle('communicatie')">
+      <div class="cell category">Communicatie</div>
+      <div class="cell">
+        <div class="cell-icon">✉️</div>
+        <div>
+          <div class="cell-title">Spellingscorrectie</div>
+          <div class="cell-why">Vaste regels, geen leren</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-icon">🤖</div>
+        <div>
+          <div class="cell-title">AI-schrijfassistent (Copilot, ChatGPT)</div>
+          <div class="cell-why">Genereert inhoud op basis van context</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" onclick="toggle('zoeken')">
+      <div class="cell category">Zoeken</div>
+      <div class="cell">
+        <div class="cell-icon">🔍</div>
+        <div>
+          <div class="cell-title">Zoekfunctie op trefwoord</div>
+          <div class="cell-why">Matcht exacte woorden, geen redeneren</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-icon">🧠</div>
+        <div>
+          <div class="cell-title">Semantische zoekmachine / RAG</div>
+          <div class="cell-why">Begrijpt betekenis, geeft gegenereerde antwoorden</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" onclick="toggle('planning')">
+      <div class="cell category">Planning</div>
+      <div class="cell">
+        <div class="cell-icon">📅</div>
+        <div>
+          <div class="cell-title">Agenda-app met blokkering</div>
+          <div class="cell-why">Vaste logica, geen voorspelling</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-icon">📊</div>
+        <div>
+          <div class="cell-title">AI-planningssysteem (bezetting voorspellen)</div>
+          <div class="cell-why">Leert van patronen, geeft aanbevelingen</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" onclick="toggle('hr')">
+      <div class="cell category">HR</div>
+      <div class="cell">
+        <div class="cell-icon">📝</div>
+        <div>
+          <div class="cell-title">Gestandaardiseerde vragenlijst</div>
+          <div class="cell-why">Vaste vragen, geen analyse</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-icon">👔</div>
+        <div>
+          <div class="cell-title">AI CV-screening of scoringssysteem</div>
+          <div class="cell-why">Analyseert en rangschikt kandidaten — hoog risico</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" onclick="toggle('klantenservice')">
+      <div class="cell category">Klantenservice</div>
+      <div class="cell">
+        <div class="cell-icon">📋</div>
+        <div>
+          <div class="cell-title">FAQ-pagina met vaste antwoorden</div>
+          <div class="cell-why">Statische content, geen generatie</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-icon">💬</div>
+        <div>
+          <div class="cell-title">AI-chatbot die antwoorden genereert</div>
+          <div class="cell-why">Genereert antwoorden op basis van context — transparantieplicht</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" onclick="toggle('finance')">
+      <div class="cell category">Finance</div>
+      <div class="cell">
+        <div class="cell-icon">📉</div>
+        <div>
+          <div class="cell-title">Excel-formule voor berekeningen</div>
+          <div class="cell-why">Deterministische regels</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-icon">💳</div>
+        <div>
+          <div class="cell-title">AI kredietbeoordeling of fraudedetectie</div>
+          <div class="cell-why">Voorspellend model op persoonsgegevens — hoog risico</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail panel -->
+  <div class="detail" id="detail-panel">
+    <div class="detail-inner" id="detail-inner"></div>
+    <div class="detail-close">
+      <button class="close-btn" onclick="closeDetail()">Sluiten ×</button>
+    </div>
+  </div>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-card">
+    <div class="legend-dot" style="background:var(--green)"></div>
+    <div class="legend-text"><strong>Geen AI-systeem:</strong> Werkt op basis van vaste regels of logica. Geen leren, geen autonome redenering, geen gegenereerde output.</div>
+  </div>
+  <div class="legend-card">
+    <div class="legend-dot" style="background:var(--red)"></div>
+    <div class="legend-text"><strong>AI-systeem:</strong> Leert van data, genereert output of doet voorspellingen. Valt onder de EU AI Act — verplichtingen hangen af van het risiconiveau.</div>
+  </div>
+</div>
+
+<!-- AI test -->
+<div class="ai-test">
+  <h3>Hoe herken je een AI-systeem? Drie vragen</h3>
+  <p>De EU AI Act definieert AI als een systeem dat output produceert zoals voorspellingen, aanbevelingen of beslissingen die de omgeving beïnvloeden — met een zekere mate van autonomie.</p>
+  <div class="test-q"><span class="test-q-num">1.</span><span>Leert of verbetert het systeem op basis van data?</span></div>
+  <div class="test-q"><span class="test-q-num">2.</span><span>Genereert het output die verder gaat dan vaste regels?</span></div>
+  <div class="test-q"><span class="test-q-num">3.</span><span>Ondersteunt of neemt het beslissingen die impact hebben op mensen?</span></div>
+  <div style="margin-top:8px;font-size:12px;color:var(--text3)">Drie keer ja → hoogstwaarschijnlijk een AI-systeem. Neem de AI Act-verplichtingen in overweging.</div>
+</div>
+
+<script>
+const DETAILS = {
+  communicatie:{
+    no:["Spellingscorrectie werkt op basis van vastgelegde woordenboeken en grammaticaregels","Geen leren van gebruikersgedrag","Geen gegenereerde of nieuwe inhoud","Output is altijd dezelfde bij dezelfde input"],
+    yes:["AI-schrijfassistenten genereren nieuwe tekst op basis van context en intentie","Leren van trainingsdata met miljarden voorbeelden","Output kan bij dezelfde input anders zijn","Valt onder AI Act — bij externe communicatie: transparantieplicht (Article 50)"]
+  },
+  zoeken:{
+    no:["Zoekfuncties op trefwoord matchen letters en woorden","Geen begrip van betekenis of context","Geen gegenereerde antwoorden — alleen verwijzingen naar bestaande content","Output volledig deterministisch"],
+    yes:["Semantische zoekmachines begrijpen de intentie van een vraag","Geven samengevatte of gegenereerde antwoorden (RAG-systemen)","Kunnen informatie uit meerdere bronnen synthetiseren","Transparantieplicht als het lijkt op menselijke communicatie"]
+  },
+  planning:{
+    no:["Agenda-apps volgen vaste logica: blokkeer tijdslot, stuur herinnering","Geen voorspelling of optimalisatie","Output is direct afleidbaar uit de ingevoerde regels"],
+    yes:["AI-planningssystemen leren van historische bezettingsdata en externe factoren","Geven aanbevelingen die afwijken van eenvoudige regels","Bij impact op arbeidsomstandigheden of werkroosters: potentieel hoog risico"]
+  },
+  hr:{
+    no:["Vragenlijst met vaste antwoorden — geen analyse of scoring","Geen leren of patroonherkenning","Geen automatische rangschikking van personen"],
+    yes:["CV-screening met AI rangschikt kandidaten op basis van geleerde patronen","Directe impact op kansen van mensen → hoog-risico AI (Annex III)","Verplichtingen: conformiteitsbeoordeling, menselijk toezicht, transparantie richting sollicitanten","Discriminatierisico door biases in trainingsdata"]
+  },
+  klantenservice:{
+    no:["FAQ geeft vooraf geschreven antwoorden op specifieke vragen","Geen generatie — alleen weergave van statische content","Geen begrip van context of nieuwe vragen"],
+    yes:["AI-chatbots genereren antwoorden op basis van context — elke keer anders","Transparantieplicht: gebruiker moet weten dat ze met AI praten (Article 50)","Bij aanbevelingen of beslissingen met klantimpact: extra overwegingen"]
+  },
+  finance:{
+    no:["Excel-formules voeren altijd dezelfde berekening uit op basis van ingevoerde waarden","Volledig transparant en deterministisch","Geen leren, geen voorspelling"],
+    yes:["Kredietbeoordelings-AI leert van historische data en persoonsgegevens → hoog risico","Fraudedetectie-AI maakt voorspellingen op basis van gedragspatronen","Verplichtingen: conformiteitsbeoordeling, uitlegbaarheid, menselijk toezicht","Koppeling aan GDPR: recht op uitleg bij geautomatiseerde besluitvorming (Article 22)"]
+  }
+};
+
+let openRow = null;
+
+function toggle(key) {
+  if (openRow === key) { closeDetail(); return; }
+  openRow = key;
+  const d = DETAILS[key];
+  const noItems = d.no.map(i => `<div class="detail-item"><div class="detail-dot"></div><span>${i}</span></div>`).join('');
+  const yesItems = d.yes.map(i => `<div class="detail-item"><div class="detail-dot"></div><span>${i}</span></div>`).join('');
+  document.getElementById('detail-inner').innerHTML = `
+    <div class="detail-col no">
+      <div class="detail-col-label">Waarom géén AI-systeem</div>
+      ${noItems}
+    </div>
+    <div class="detail-col yes">
+      <div class="detail-col-label">Waarom wél een AI-systeem</div>
+      ${yesItems}
+    </div>
+  `;
+  document.getElementById('detail-panel').classList.add('visible');
+}
+
+function closeDetail() {
+  openRow = null;
+  document.getElementById('detail-panel').classList.remove('visible');
+}
+</script>
+</body>
+</html>

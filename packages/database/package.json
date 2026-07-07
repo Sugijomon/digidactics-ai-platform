@@ -1,0 +1,8 @@
+{
+  "name": "@digidactics/database",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./learning": "./learning.ts"
+  }
+}

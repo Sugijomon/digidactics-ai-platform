@@ -205,9 +205,17 @@ Content sync status:
 - Not executed.
 - Reason: requires explicit UI/service-role step and a staging service role key.
 - Current staging content state:
-  - AI Literacy: 3 topics, 6 pages
-  - AI Proficiency: 0 topics, 0 pages
-  - AI Mastery: 0 topics, 0 pages
+  - AI Literacy: 3 topics, 6 pages, 7 blocks
+  - AI Proficiency: 0 topics, 0 pages, 0 blocks
+  - AI Mastery: 0 topics, 0 pages, 0 blocks
+- Git-canonical source content expected after sync:
+  - AI Literacy: 6 topics, 15 pages, 119 blocks
+  - AI Proficiency: 6 topics, 12 pages, 58 blocks
+  - AI Mastery: 6 topics, 12 pages, 55 blocks
+- UI sync path:
+  - open `/learning/admin/content-audit`
+  - tick the explicit overwrite checkbox with value `git-canonical-overwrite-core-courses`
+  - submit `POST /learning/admin/content-audit/sync`
 
 ## Live migration preparation note
 

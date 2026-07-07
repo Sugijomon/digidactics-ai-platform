@@ -15,6 +15,7 @@
     "test:all": "corepack pnpm test:domain && corepack pnpm lint:sai && corepack pnpm build:sai && corepack pnpm test:e2e:sai",
     "dev:rai": "npm --workspace @digidactics/rai run dev",
     "build:rai": "npm --workspace @digidactics/rai run build",
+    "sync:learning-content:staging": "node scripts/sync-learning-content-staging.cjs",
     "test:learning-governance": "npx tsx scripts/verify-learning-governance-metadata.ts && npx tsx scripts/verify-certificate-success-component.tsx && npx tsx scripts/learning-parity-tests.ts",
     "typecheck": "npm --workspaces --if-present run typecheck"
   }

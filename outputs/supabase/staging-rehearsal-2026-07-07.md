@@ -216,6 +216,24 @@ Content sync status:
   - open `/learning/admin/content-audit`
   - tick the explicit overwrite checkbox with value `git-canonical-overwrite-core-courses`
   - submit `POST /learning/admin/content-audit/sync`
+- CLI helper added for a controlled staging-only sync:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://gpptjkwxqxxdsjgwzhzl.supabase.co \
+SUPABASE_SERVICE_ROLE_KEY=<staging service role key> \
+npm run sync:learning-content:staging -- --execute --confirm git-canonical-overwrite-core-courses
+```
+
+Helper guardrails:
+
+- defaults to dry-run and prints Git-canonical source counts only
+- requires `--execute`
+- requires exact confirmation `git-canonical-overwrite-core-courses`
+- requires exact staging URL `https://gpptjkwxqxxdsjgwzhzl.supabase.co`
+- rejects the production ref `cfloqagsqwtrtkxdikec`
+- rejects publishable/anon keys
+- validates JWT service role keys against staging ref when the key format exposes a `ref`
+- verifies post-sync topic/page/block counts against the Git source counts
 
 ## Live migration preparation note
 

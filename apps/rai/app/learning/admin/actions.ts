@@ -898,6 +898,7 @@ export async function reviewLearningPageAttempt(formData: FormData) {
       passed,
       reviewer_id: user?.id ?? null,
       reviewer_notes: reviewerNotes,
+      decision_rationale: reviewerNotes,
       graded_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })

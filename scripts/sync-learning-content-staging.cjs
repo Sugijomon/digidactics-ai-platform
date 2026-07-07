@@ -154,41 +154,52 @@ function summarizeCourse(course) {
 }
 
 async function readLiveCounts(supabase) {
-  const { data, error } = await supabase
+  const { data: courses, error: coursesError } = await supabase
     .from("learning_courses")
-    .select(
-      `
-        course_code,
-        learning_topics (
-          id,
-          learning_pages (
-            id,
-            content
-          )
-        )
-      `,
-    )
+    .select("id, course_code")
     .in("course_code", [
       "ai-literacy-foundation",
       "ai-proficiency",
       "ai-mastery",
     ])
+    .neq("status", "archived")
     .order("course_code", { ascending: true });
 
-  if (error) {
-    throw new Error(`Could not read staging Learning content counts: ${error.message}`);
+  if (coursesError) {
+    throw new Error(`Could not read staging Learning courses: ${coursesError.message}`);
   }
 
-  return (data ?? [])
+  const courseIds = (courses ?? []).map((course) => course.id);
+  const { data: topics, error: topicsError } = await supabase
+    .from("learning_topics")
+    .select("id, course_id")
+    .in("course_id", courseIds)
+    .neq("status", "archived");
+
+  if (topicsError) {
+    throw new Error(`Could not read staging Learning topics: ${topicsError.message}`);
+  }
+
+  const { data: pages, error: pagesError } = await supabase
+    .from("learning_pages")
+    .select("course_id, topic_id, content")
+    .in("course_id", courseIds)
+    .neq("status", "archived");
+
+  if (pagesError) {
+    throw new Error(`Could not read staging Learning pages: ${pagesError.message}`);
+  }
+
+  return (courses ?? [])
     .map((course) => {
-      const topics = course.learning_topics ?? [];
-      const pages = topics.flatMap((topic) => topic.learning_pages ?? []);
+      const courseTopics = (topics ?? []).filter((topic) => topic.course_id === course.id);
+      const coursePages = (pages ?? []).filter((page) => page.course_id === course.id);
 
       return {
         course_code: course.course_code,
-        topics: topics.length,
-        pages: pages.length,
-        blocks: pages.reduce(
+        topics: courseTopics.length,
+        pages: coursePages.length,
+        blocks: coursePages.reduce(
           (sum, page) => sum + (Array.isArray(page.content?.blocks) ? page.content.blocks.length : 0),
           0,
         ),

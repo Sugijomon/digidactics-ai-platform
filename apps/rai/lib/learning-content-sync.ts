@@ -86,10 +86,9 @@ async function syncCourseContentFromSource(
     throw new Error(`Topics synchroniseren is mislukt: ${topicError.message}`);
   }
 
-  await moveTopicsAfterSourceTopics(
+  await archiveExtraTopics(
     supabase,
     existingTopicRows.filter((topic) => !sourceTopicCodeSet.has(topic.topic_code)),
-    sourceCourse.topics.length,
   );
 
   const { data: topics, error: topicsError } = await supabase
@@ -180,7 +179,7 @@ async function syncCourseContentFromSource(
     throw new Error(`Pagina's synchroniseren is mislukt: ${pageError.message}`);
   }
 
-  await moveExtraPagesAfterSourcePages(supabase, course.id, sourceCourse, topicIdByCode);
+  await archiveExtraPages(supabase, course.id, sourceCourse);
 }
 
 async function moveTopicsToTemporaryOrder(
@@ -201,22 +200,21 @@ async function moveTopicsToTemporaryOrder(
   }
 }
 
-async function moveTopicsAfterSourceTopics(
+async function archiveExtraTopics(
   supabase: LearningSyncClient,
   topics: Array<{ id: string; topic_code: string; sequence_order: number }>,
-  sourceTopicCount: number,
 ) {
-  for (const [index, topic] of topics.entries()) {
+  for (const topic of topics) {
     const { error } = await supabase
       .from("learning_topics")
       .update({
-        sequence_order: sourceTopicCount + index + 1,
+        status: "archived",
         updated_at: new Date().toISOString(),
       })
       .eq("id", topic.id);
 
     if (error) {
-      throw new Error(`Bestaande topicvolgorde herstellen is mislukt: ${error.message}`);
+      throw new Error(`Extra topic archiveren is mislukt: ${error.message}`);
     }
   }
 }
@@ -239,24 +237,17 @@ async function movePagesToTemporaryOrder(
   }
 }
 
-async function moveExtraPagesAfterSourcePages(
+async function archiveExtraPages(
   supabase: LearningSyncClient,
   courseId: string,
   sourceCourse: LearningCourseView,
-  topicIdByCode: Map<string, string>,
 ) {
   const sourcePageCodes = new Set(
     sourceCourse.topics.flatMap((topic) => topic.pages.map((page) => page.page_code)),
   );
-  const sourcePagesByTopicId = new Map(
-    sourceCourse.topics.map((topic) => [
-      topicIdByCode.get(topic.topic_code),
-      topic.pages.length,
-    ]),
-  );
   const { data: extraPages, error } = await supabase
     .from("learning_pages")
-    .select("id, topic_id, page_code, sequence_order")
+    .select("id, page_code")
     .eq("course_id", courseId)
     .order("sequence_order", { ascending: true });
 
@@ -264,30 +255,16 @@ async function moveExtraPagesAfterSourcePages(
     throw new Error(`Extra pagina's ophalen is mislukt: ${error?.message ?? "geen pagina's"}`);
   }
 
-  const grouped = new Map<string, Array<{ id: string; topic_id: string; page_code: string; sequence_order: number }>>();
-  for (const page of extraPages as Array<{ id: string; topic_id: string; page_code: string; sequence_order: number }>) {
+  for (const page of extraPages as Array<{ id: string; page_code: string }>) {
     if (sourcePageCodes.has(page.page_code)) continue;
 
-    const list = grouped.get(page.topic_id) ?? [];
-    list.push(page);
-    grouped.set(page.topic_id, list);
-  }
+    const { error: updateError } = await supabase
+      .from("learning_pages")
+      .update({ status: "archived", updated_at: new Date().toISOString() })
+      .eq("id", page.id);
 
-  for (const [topicId, pages] of grouped.entries()) {
-    const sourcePageCount = sourcePagesByTopicId.get(topicId) ?? 0;
-
-    for (const [index, page] of pages.entries()) {
-      const { error: updateError } = await supabase
-        .from("learning_pages")
-        .update({
-          sequence_order: sourcePageCount + index + 1,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", page.id);
-
-      if (updateError) {
-        throw new Error(`Extra paginavolgorde herstellen is mislukt: ${updateError.message}`);
-      }
+    if (updateError) {
+      throw new Error(`Extra pagina archiveren is mislukt: ${updateError.message}`);
     }
   }
 }

@@ -202,12 +202,17 @@ Without `SUPABASE_SERVICE_ROLE_KEY`, `/learning/admin/content-audit` can be prep
 
 Content sync status:
 
-- Not executed.
-- Reason: requires explicit UI/service-role step and a staging service role key.
-- Current staging content state:
-  - AI Literacy: 3 topics, 6 pages, 7 blocks
-  - AI Proficiency: 0 topics, 0 pages, 0 blocks
-  - AI Mastery: 0 topics, 0 pages, 0 blocks
+- Executed on staging with staging service role key.
+- First run filled Proficiency/Mastery but revealed that old AI Literacy seed topics/pages were still active alongside the Git source:
+  - AI Literacy after first run: 9 topics, 21 pages, 126 blocks
+  - Root cause: the sync function moved extra live topics/pages after source content instead of archiving them.
+- Staging repair archived the old AI Literacy seed rows:
+  - archived topics: `ai-basics`, `data-care`, `human-oversight`
+  - archived pages: `ai-literacy-approved-tools`, `ai-literacy-data-and-confidentiality`, `ai-literacy-human-oversight`, `ai-literacy-output-check`, `ai-literacy-routeai-readiness`, `ai-literacy-what-is-ai`
+- Current active staging content state:
+  - AI Literacy: 6 topics, 15 pages, 119 blocks
+  - AI Proficiency: 6 topics, 12 pages, 58 blocks
+  - AI Mastery: 6 topics, 12 pages, 55 blocks
 - Git-canonical source content expected after sync:
   - AI Literacy: 6 topics, 15 pages, 119 blocks
   - AI Proficiency: 6 topics, 12 pages, 58 blocks
@@ -233,7 +238,8 @@ Helper guardrails:
 - rejects the production ref `cfloqagsqwtrtkxdikec`
 - rejects publishable/anon keys
 - validates JWT service role keys against staging ref when the key format exposes a `ref`
-- verifies post-sync topic/page/block counts against the Git source counts
+- archives extra live topics/pages during overwrite sync
+- verifies post-sync active topic/page/block counts against the Git source counts
 
 ## Live migration preparation note
 

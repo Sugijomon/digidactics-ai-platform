@@ -1,7 +1,8 @@
 import type { AiLiteracyTopicSeed } from "./learning-preview-data";
 import { FRIA_QMS_RUBRIC } from "./learning-governance-config";
+import { aiMasteryRichHtmlPlacements, withRichHtmlArtefacts } from "./learning-rich-html-artefacts";
 
-export const aiMasteryCourseTopicSeeds: AiLiteracyTopicSeed[] = [
+const aiMasteryCourseTopicSeedsBase: AiLiteracyTopicSeed[] = [
   {
     code: "aimas-portfolio-triage",
     title: "Portfolio en triage",
@@ -1115,3 +1116,8 @@ export const aiMasteryCourseTopicSeeds: AiLiteracyTopicSeed[] = [
     ],
   },
 ];
+
+export const aiMasteryCourseTopicSeeds = withRichHtmlArtefacts(
+  aiMasteryCourseTopicSeedsBase,
+  aiMasteryRichHtmlPlacements,
+);

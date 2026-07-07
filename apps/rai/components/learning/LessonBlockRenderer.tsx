@@ -2,8 +2,10 @@ import type { ReactNode } from "react";
 import type { LessonBlock } from "@digidactics/domain/learning";
 import { AudioBlockPlayer } from "@/components/learning/AudioBlockPlayer";
 import { DownloadBlockPlayer } from "@/components/learning/DownloadBlockPlayer";
+import { IframeBlockPlayer } from "@/components/learning/IframeBlockPlayer";
 import { LessonAccordionPlayer } from "@/components/learning/LessonAccordionPlayer";
 import { SlideDeckPlayer } from "@/components/learning/SlideDeckPlayer";
+import { VideoBlockPlayer } from "@/components/learning/VideoBlockPlayer";
 
 export function LessonBlockRenderer({ block }: { block: LessonBlock }) {
   switch (block.type) {
@@ -203,25 +205,21 @@ export function LessonBlockRenderer({ block }: { block: LessonBlock }) {
 
     case "comparison":
       return (
-        <section className="block">
-          {block.title ? <h2>{block.title}</h2> : null}
-          <div className="lesson-comparison">
-            <article>
-              <h3>{block.left_label}</h3>
-              <ul>
-                {block.left_items.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </article>
-            <article>
-              <h3>{block.right_label}</h3>
-              <ul>
-                {block.right_items.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </article>
+        <section className="block lesson-comparison-block">
+          <div className="lesson-comparison-card">
+            {block.title ? <header className="lesson-comparison-title">{block.title}</header> : null}
+            <div className="lesson-comparison">
+              <ComparisonColumn
+                color={block.left_color}
+                items={block.left_items}
+                label={block.left_label}
+              />
+              <ComparisonColumn
+                color={block.right_color}
+                items={block.right_items}
+                label={block.right_label}
+              />
+            </div>
           </div>
         </section>
       );
@@ -472,50 +470,10 @@ export function LessonBlockRenderer({ block }: { block: LessonBlock }) {
       );
 
     case "video":
-      {
-        const embedUrl = toVideoEmbedUrl(block.url);
-
-        return (
-          <section className="block lesson-video-block">
-            {embedUrl ? (
-              <iframe
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                className="lesson-video-frame"
-                loading="lazy"
-                src={embedUrl}
-                title={block.title ?? "Video"}
-              />
-            ) : (
-              <div className="media-frame">
-                <span>Video</span>
-                <small>{block.url}</small>
-              </div>
-            )}
-            {block.transcript_markdown ? (
-              <div className="lesson-markdown">{renderMarkdown(block.transcript_markdown)}</div>
-            ) : null}
-          </section>
-        );
-      }
+      return <VideoBlockPlayer block={block} />;
 
     case "iframe":
-      return (
-        <section className="block">
-          <h2>{block.title}</h2>
-          <iframe
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture; web-share"
-            className="embed-frame"
-            height={block.height ?? 360}
-            loading="lazy"
-            allowFullScreen={block.allow_fullscreen ?? true}
-            sandbox="allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts"
-            src={block.url}
-            title={block.title}
-          />
-          {block.caption ? <p>{block.caption}</p> : null}
-        </section>
-      );
+      return <IframeBlockPlayer block={block} />;
 
     case "embed_h5p":
       return (
@@ -564,6 +522,38 @@ function Heading({ children, level }: { children: ReactNode; level: 1 | 2 | 3 | 
   }
 }
 
+function ComparisonColumn({
+  color,
+  items,
+  label,
+}: {
+  color: string;
+  items: string[];
+  label: string;
+}) {
+  return (
+    <article className={`lesson-comparison-col lesson-comparison-${normalizeComparisonColor(color)}`}>
+      <h3>{label}</h3>
+      <ul>
+        {items.map((item) => (
+          <li key={item}>
+            <span aria-hidden="true" className="lesson-comparison-dot" />
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </article>
+  );
+}
+
+function normalizeComparisonColor(value: string) {
+  if (value === "green" || value === "red" || value === "blue") {
+    return value;
+  }
+
+  return "neutral";
+}
+
 function normalizeHeroColor(value?: string) {
   if (value === "primary" || value === "dark" || value === "bright" || value === "soft" || value === "muted") {
     return value;
@@ -572,37 +562,6 @@ function normalizeHeroColor(value?: string) {
   if (value === "green" || value === "blue") return "primary";
   if (value === "purple" || value === "amber") return "bright";
   return "dark";
-}
-
-function toVideoEmbedUrl(url: string) {
-  try {
-    const parsed = new URL(url);
-    const host = parsed.hostname.replace(/^www\./, "");
-
-    if (host === "youtu.be") {
-      const id = parsed.pathname.split("/").filter(Boolean)[0];
-      return id ? `https://www.youtube.com/embed/${id}` : "";
-    }
-
-    if (host === "youtube.com" || host === "m.youtube.com") {
-      const id = parsed.searchParams.get("v");
-      if (id) return `https://www.youtube.com/embed/${id}`;
-      if (parsed.pathname.startsWith("/embed/")) return url;
-    }
-
-    if (host === "vimeo.com") {
-      const id = parsed.pathname.split("/").filter(Boolean)[0];
-      return id ? `https://player.vimeo.com/video/${id}` : "";
-    }
-
-    if (host === "player.vimeo.com" || parsed.pathname.endsWith(".mp4")) {
-      return url;
-    }
-  } catch {
-    return "";
-  }
-
-  return "";
 }
 
 function Explanation({ text }: { text?: string }) {
@@ -715,12 +674,12 @@ function renderMarkdownBlocks(value: string, keyPrefix: string) {
       return <h2 key={`${keyPrefix}-${index}`}>{renderInlineMarkdown(block.slice(2))}</h2>;
     }
 
-    if (/^[-*]\s+/m.test(block)) {
+    if (/^\s*[-*•]\s+/m.test(block)) {
       return (
         <ul key={`${keyPrefix}-${index}`}>
           {block
             .split("\n")
-            .map((line) => line.replace(/^[-*]\s+/, "").trim())
+            .map((line) => line.replace(/^\s*[-*•]\s+/, "").trim())
             .filter(Boolean)
             .map((item, itemIndex) => (
               <li key={itemIndex}>{renderInlineMarkdown(item)}</li>

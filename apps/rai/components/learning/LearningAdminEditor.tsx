@@ -1037,7 +1037,9 @@ function BlockEditDialog({
     return (
       <IframeBlockModal
         blockNumber={blockIndex + 1}
+        initialAllowFullscreen={block.allow_fullscreen !== false}
         initialHeight={typeof block.height === "number" ? block.height : 500}
+        initialEvidenceKind={block.evidence_kind === "none" ? "none" : s(block.evidence_kind) ? block.evidence_kind : "none"}
         initialProvider={s(block.provider)}
         initialTitle={s(block.title)}
         initialUrl={s(block.url)}
@@ -1050,6 +1052,7 @@ function BlockEditDialog({
             height: data.height,
             provider: data.provider,
             allow_fullscreen: data.allow_fullscreen,
+            evidence_kind: data.evidence_kind,
           });
           window.requestAnimationFrame(() => onSave());
         }}

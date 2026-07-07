@@ -1,7 +1,8 @@
 import type { AiLiteracyTopicSeed } from "./learning-preview-data";
 import { EVIDENCE_DOSSIER_FIELDS } from "./learning-governance-config";
+import { aiLiteracyRichHtmlPlacements, withRichHtmlArtefacts } from "./learning-rich-html-artefacts";
 
-export const aiLiteracyFoundationTopicSeeds: AiLiteracyTopicSeed[] = [
+const aiLiteracyFoundationTopicSeedsBase: AiLiteracyTopicSeed[] = [
   {
     code: "basis-en-werkcontext",
     title: "Basis en werkcontext",
@@ -400,14 +401,6 @@ export const aiLiteracyFoundationTopicSeeds: AiLiteracyTopicSeed[] = [
                 highlight: false,
               },
             ],
-          },
-          {
-            id: "p4-image",
-            type: "image",
-            url: "/learning/ai-act-risk-pyramid.svg",
-            alt: "Risicopiramide met verboden, hoog-risico, transparantie en laag risico",
-            caption: "Hoe hoger de impact, hoe zwaarder toezicht en controle.",
-            width: "full",
           },
           {
             id: "p4-risk-pyramid-layers",
@@ -1093,52 +1086,15 @@ export const aiLiteracyFoundationTopicSeeds: AiLiteracyTopicSeed[] = [
             subtitle: "AI levert concepten; jij levert kwaliteit.",
           },
           {
-            id: "p10-timeline",
-            type: "timeline",
-            title: "De vijfstaps controlelus",
-            items: [
-              {
-                id: "task",
-                date: "1",
-                title: "Taak klopt",
-                description: "Past de output bij de vraag en het doel?",
-                highlight: true,
-              },
-              {
-                id: "data",
-                date: "2",
-                title: "Data klopt",
-                description: "Was de input toegestaan, minimaal en niet herleidbaar waar dat nodig is?",
-                highlight: true,
-              },
-              {
-                id: "facts",
-                date: "3",
-                title: "Feiten kloppen",
-                description: "Zijn claims, cijfers en bronnen gecontroleerd?",
-                highlight: true,
-              },
-              {
-                id: "policy",
-                date: "4",
-                title: "Beleid klopt",
-                description: "Past dit bij interne afspraken, toon en grenzen?",
-                highlight: true,
-              },
-              {
-                id: "impact",
-                date: "5",
-                title: "Impact klopt",
-                description: "Raakt dit klanten, medewerkers, geld, HR of juridische kwesties?",
-                highlight: true,
-              },
-              {
-                id: "review",
-                date: "6",
-                title: "Review klopt",
-                description: "Is een tweede paar ogen of escalatie nodig?",
-                highlight: true,
-              },
+            id: "p10-control-loop-snapshot",
+            type: "knowledge_cards",
+            cards: [
+              { id: "task", title: "1. Taak", text: "Past de output bij de vraag en het doel?" },
+              { id: "data", title: "2. Data", text: "Was de input toegestaan, minimaal en niet herleidbaar waar nodig?" },
+              { id: "facts", title: "3. Feiten", text: "Kloppen claims, cijfers en bronnen?" },
+              { id: "policy", title: "4. Beleid", text: "Past toon, beleid en context?" },
+              { id: "impact", title: "5. Impact", text: "Raakt dit klanten, HR, geld of juridische kwesties?" },
+              { id: "review", title: "6. Review", text: "Is een tweede paar ogen of escalatie nodig?" },
             ],
           },
           {
@@ -1669,3 +1625,8 @@ export const aiLiteracyFoundationTopicSeeds: AiLiteracyTopicSeed[] = [
     ],
   },
 ];
+
+export const aiLiteracyFoundationTopicSeeds = withRichHtmlArtefacts(
+  aiLiteracyFoundationTopicSeedsBase,
+  aiLiteracyRichHtmlPlacements,
+);

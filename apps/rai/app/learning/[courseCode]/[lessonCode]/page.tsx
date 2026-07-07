@@ -54,6 +54,8 @@ export default async function LessonPage({
   );
   const topicPages = activeTopic?.pages ?? [];
   const topicPageIndex = topicPages.findIndex((topicPage) => topicPage.id === page.id);
+  const modulePageIndex = currentIndex >= 0 ? currentIndex : 0;
+  const modulePageTotal = orderedPageEntries.length;
   const pageProgress =
     learnerState.progressByPageId[page.id] ??
     learnerState.progressByLessonId[page.id] ??
@@ -124,8 +126,8 @@ export default async function LessonPage({
           page={page}
           previousPageCode={previousPage?.page_code ?? ""}
           isTopicTransition={isTopicTransition}
-          topicPageIndex={topicPageIndex}
-          topicPageTotal={topicPages.length}
+          topicPageIndex={modulePageIndex}
+          topicPageTotal={modulePageTotal}
         />
       </section>
     </main>

@@ -31,6 +31,10 @@ export function CourseTopicGrid({
   const activeTopicId = getActiveTopicId(course.topics, learnerState);
   const [openTopicId, setOpenTopicId] = useState<string | null>(activeTopicId);
   const rows = useMemo(() => chunk(course.topics, 3), [course.topics]);
+  const pageNumberById = useMemo(
+    () => new Map(course.topics.flatMap((topic) => topic.pages).map((page, index) => [page.id, index + 1])),
+    [course.topics],
+  );
 
   function toggleTopic(topicId: string) {
     setOpenTopicId((current) => (current === topicId ? null : topicId));
@@ -60,6 +64,7 @@ export function CourseTopicGrid({
                   courseCode={course.course_code}
                   icon={getTopicIcon(openTopic)}
                   learnerState={learnerState}
+                  pageNumberById={pageNumberById}
                   topic={openTopic}
                 />
               ) : null}
@@ -146,11 +151,13 @@ function TopicExpand({
   courseCode,
   icon,
   learnerState,
+  pageNumberById,
   topic,
 }: {
   courseCode: string;
   icon: string;
   learnerState: LearnerStateView;
+  pageNumberById: Map<string, number>;
   topic: LearningTopicView;
 }) {
   return (
@@ -167,6 +174,7 @@ function TopicExpand({
       <div className="expand-lessons">
         {topic.pages.map((page) => {
           const pageStatus = getPageStatus(page, learnerState);
+          const pageNumber = pageNumberById.get(page.id) ?? page.sequence_order;
 
           return (
             <Link
@@ -176,7 +184,7 @@ function TopicExpand({
             >
               <span className={`lesson-dot ld-${pageStatus}`} />
               <span className={`lesson-title ${pageStatus === "done" ? "dimmed" : ""}`}>
-                {page.title}
+                {pageNumber}. {page.title}
               </span>
               <span className="lesson-time">{page.estimated_duration_minutes ?? 0} min</span>
               <span className={`lesson-pill lp-${pageStatus}`}>

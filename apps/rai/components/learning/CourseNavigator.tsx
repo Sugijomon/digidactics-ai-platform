@@ -20,6 +20,7 @@ export function CourseNavigator({
   learnerState: LearnerStateView;
 }) {
   const pages = course.topics.flatMap((topic) => topic.pages);
+  const pageNumberById = new Map(pages.map((page, index) => [page.id, index + 1]));
   const completedCount = pages.filter((page) => getPageStatus(page, learnerState) === "completed")
     .length;
   const progress = pages.length === 0 ? 0 : Math.round((completedCount / pages.length) * 100);
@@ -121,10 +122,11 @@ export function CourseNavigator({
               </button>
 
               {isOpen
-                ? topic.pages.map((page, pageIndex) => {
+                ? topic.pages.map((page) => {
                     const status = getPageStatus(page, learnerState);
                     const isActive = page.id === activePage.id;
                     const isDone = status === "completed";
+                    const pageNumber = pageNumberById.get(page.id) ?? page.sequence_order;
 
                     return (
                       <Link
@@ -141,9 +143,9 @@ export function CourseNavigator({
                               </svg>
                             </span>
                           ) : isActive ? (
-                            <span className="dot-num">{pageIndex + 1}</span>
+                            <span className="dot-num">{pageNumber}</span>
                           ) : (
-                            <span className="dot-num">{pageIndex + 1}</span>
+                            <span className="dot-num">{pageNumber}</span>
                           )}
                         </span>
                         <span className="sidebar-lesson-title">{page.title}</span>

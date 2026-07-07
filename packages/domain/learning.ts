@@ -405,6 +405,10 @@ export interface VideoBlock extends BaseBlock {
   type: "video";
   title?: string;
   url: string;
+  caption?: string;
+  duration_seconds?: number;
+  require_full_watch?: boolean;
+  transcript?: string;
   transcript_markdown?: string;
 }
 

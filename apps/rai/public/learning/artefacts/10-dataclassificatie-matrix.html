@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data classificeren — 2×2 matrix</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F5F0;--surface:#FFFFFF;--text:#1A1A18;--text2:#5A5A56;--text3:#9A9A96;
+  --border:rgba(0,0,0,0.08);--r:12px;
+  --green:#1A7A52;--green-l:#E8F7F1;--green-d:#0A3D28;
+  --amber:#BA7517;--amber-l:#FAEEDA;--amber-d:#633806;
+  --red:#A32D2D;--red-l:#FCEBEB;--red-d:#5C1818;
+  --accent:#1D9E75;--accent-l:#E1F5EE;--accent-d:#085041;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);padding:32px 16px 48px;display:flex;flex-direction:column;align-items:center}
+.header{text-align:center;margin-bottom:26px;max-width:540px}
+.tag{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:99px;background:var(--accent-l);color:var(--accent-d);margin-bottom:10px;letter-spacing:0.06em}
+.header h1{font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:6px}
+.header p{font-size:13px;color:var(--text2);line-height:1.65}
+.wrap{max-width:760px;width:100%}
+
+/* Axis labels */
+.matrix-outer{position:relative;padding:0 0 0 40px}
+.axis-y{position:absolute;left:0;top:50%;transform:translateY(-50%) rotate(-90deg);font-size:11px;font-weight:500;color:var(--text3);letter-spacing:0.06em;white-space:nowrap;text-transform:uppercase}
+.axis-x-row{display:flex;justify-content:space-around;padding:0 2px;margin-bottom:6px}
+.axis-x-label{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;text-align:center;flex:1}
+
+/* 2×2 grid */
+.matrix{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.quad{
+  border-radius:10px;padding:18px;cursor:pointer;
+  transition:transform 0.15s,filter 0.15s;
+  border:2px solid transparent;
+}
+.quad:hover{transform:translateY(-2px);filter:brightness(0.97)}
+.quad.active{transform:translateY(-2px);filter:brightness(0.94)}
+.quad-q1{background:var(--green-l);border-color:#8FD4B6}
+.quad-q2{background:var(--amber-l);border-color:#F5C875}
+.quad-q3{background:var(--amber-l);border-color:#F5C875}
+.quad-q4{background:var(--red-l);border-color:#F5C5BE}
+
+.quad-signal{font-size:20px;margin-bottom:8px}
+.quad-verdict{font-size:11px;font-weight:500;padding:3px 10px;border-radius:99px;display:inline-block;margin-bottom:8px}
+.quad-q1 .quad-verdict{background:#8FD4B6;color:var(--green-d)}
+.quad-q2 .quad-verdict,.quad-q3 .quad-verdict{background:#F5C875;color:var(--amber-d)}
+.quad-q4 .quad-verdict{background:#F5C5BE;color:var(--red-d)}
+.quad-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:5px}
+.quad-desc{font-size:12px;line-height:1.5;color:var(--text2);margin-bottom:10px}
+.quad-examples{display:flex;flex-wrap:wrap;gap:4px}
+.quad-ex{font-size:11px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,0.6);border:0.5px solid rgba(0,0,0,0.08);color:var(--text2)}
+
+/* Detail panel */
+.detail{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:18px 22px;margin-top:12px;display:none}
+.detail.visible{display:block;animation:fadeIn 0.2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.detail-col{}
+.detail-col-lbl{font-size:10px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.detail-item{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--text2);margin-bottom:5px;line-height:1.4}
+.dd{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.rule-box{margin-top:14px;padding:12px 14px;border-radius:8px;font-size:13px;line-height:1.55}
+.detail-close{display:flex;justify-content:flex-end;margin-top:12px}
+.close-btn{font-size:12px;color:var(--text3);cursor:pointer;background:none;border:none;font-family:inherit}
+
+/* Decision aid */
+.decision{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:16px 20px;margin-top:12px}
+.decision h3{font-size:13px;font-weight:500;color:var(--text);margin-bottom:10px}
+.decision-steps{display:flex;flex-direction:column;gap:6px}
+.decision-step{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--text2);line-height:1.5}
+.ds-num{font-size:11px;font-weight:500;color:var(--accent-d);background:var(--accent-l);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="tag">AI Proficiency · P05 · Competentie P4</div>
+  <h1>Data classificeren en minimaliseren</h1>
+  <p>Vier kwadranten: vertrouwelijkheid × persoonsgegevens. Klik op een kwadrant voor de aanpak en voorbeelden.</p>
+</div>
+
+<div class="wrap">
+  <div class="matrix-outer">
+    <div class="axis-y">Vertrouwelijkheid →</div>
+    <div class="axis-x-row">
+      <div class="axis-x-label">Geen persoonsgegevens</div>
+      <div class="axis-x-label">Persoonsgegevens aanwezig</div>
+    </div>
+    <div class="matrix">
+      <!-- Q1: Openbaar + geen PII → groen -->
+      <div class="quad quad-q1" id="q1" onclick="showQ('q1')">
+        <div class="quad-signal">✓</div>
+        <div class="quad-verdict">Mag in publieke AI</div>
+        <div class="quad-title">Openbaar + geen PII</div>
+        <div class="quad-desc">Geen restricties vanuit AVG. Mag in goedgekeurde publieke tools.</div>
+        <div class="quad-examples">
+          <span class="quad-ex">Publiek nieuws</span>
+          <span class="quad-ex">Wetgeving</span>
+          <span class="quad-ex">Productinfo</span>
+          <span class="quad-ex">Jouw eigen concepttekst</span>
+        </div>
+      </div>
+      <!-- Q2: Openbaar + PII → amber -->
+      <div class="quad quad-q2" id="q2" onclick="showQ('q2')">
+        <div class="quad-signal">⚠</div>
+        <div class="quad-verdict">Eerst anonimiseren</div>
+        <div class="quad-title">Openbaar + PII</div>
+        <div class="quad-desc">Bevat persoonsgegevens, ook al is de context openbaar. Anonimiseren vóór gebruik in AI.</div>
+        <div class="quad-examples">
+          <span class="quad-ex">Klantvraag met naam</span>
+          <span class="quad-ex">Review met contact</span>
+          <span class="quad-ex">Openbare klacht</span>
+        </div>
+      </div>
+      <!-- Q3: Vertrouwelijk + geen PII → amber -->
+      <div class="quad quad-q3" id="q3" onclick="showQ('q3')">
+        <div class="quad-signal">⚠</div>
+        <div class="quad-verdict">Alleen goedgekeurde tool</div>
+        <div class="quad-title">Vertrouwelijk + geen PII</div>
+        <div class="quad-desc">Bedrijfsgevoelig maar geen persoonsgegevens. Alleen in goedgekeurde omgeving met verwerkersovereenkomst.</div>
+        <div class="quad-examples">
+          <span class="quad-ex">Interne strategie</span>
+          <span class="quad-ex">Offerte (anoniem)</span>
+          <span class="quad-ex">Productiedata</span>
+        </div>
+      </div>
+      <!-- Q4: Vertrouwelijk + PII → rood -->
+      <div class="quad quad-q4" id="q4" onclick="showQ('q4')">
+        <div class="quad-signal">✗</div>
+        <div class="quad-verdict">Niet in AI zonder grondslag</div>
+        <div class="quad-title">Vertrouwelijk + PII</div>
+        <div class="quad-desc">Maximaal risico. Alleen na expliciete goedkeuring, verwerkersovereenkomst en vastgelegde grondslag.</div>
+        <div class="quad-examples">
+          <span class="quad-ex">HR-dossier</span>
+          <span class="quad-ex">Klantcontract met data</span>
+          <span class="quad-ex">Medische info</span>
+          <span class="quad-ex">Salarisgegevens</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail panel -->
+  <div class="detail" id="detail-panel">
+    <div class="detail-grid" id="detail-grid"></div>
+    <div id="rule-box"></div>
+    <div class="detail-close"><button class="close-btn" onclick="closeQ()">Sluiten ×</button></div>
+  </div>
+
+  <!-- Decision aid -->
+  <div class="decision">
+    <h3>Beslishulp: mag deze data in een AI-tool?</h3>
+    <div class="decision-steps">
+      <div class="decision-step"><div class="ds-num">1</div><span>Bevat het persoonsgegevens? (naam, e-mail, BSN, functie+naam) → Ja: kwadrant 2 of 4</span></div>
+      <div class="decision-step"><div class="ds-num">2</div><span>Is het vertrouwelijk? (niet-openbare bedrijfsinfo, NDA) → Ja: kwadrant 3 of 4</span></div>
+      <div class="decision-step"><div class="ds-num">3</div><span>Kwadrant 1: gebruik goedgekeurde tool. Kwadrant 4: vraag eerst toestemming.</span></div>
+      <div class="decision-step"><div class="ds-num">4</div><span>Bij twijfel: minimaliseer eerst. Verwijder alles wat niet noodzakelijk is voor de taak.</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const QUADS={
+  q1:{
+    title:'Openbaar + geen persoonsgegevens',
+    steps_ok:['Mag worden ingevoerd in een goedgekeurde publieke AI-tool','Geen AVG-verplichtingen van toepassing op de data zelf','Controleer wel op auteursrecht bij externe content'],
+    steps_check:['Controleer of output feitelijk correct is — ook bij openbare info','Controleer actualiteit (AI-kennis heeft een cutoff)','Controleer op bias in de output'],
+    rule:'Geen specifieke datarestrictions — gebruik altijd wél een goedgekeurde tool en controleer output.',
+    rule_type:'green'
+  },
+  q2:{
+    title:'Openbaar + persoonsgegevens',
+    steps_ok:['Anonimiseer volledig: naam → [naam], e-mail → [e-mail], telefoon verwijderen','Na volledige anonimisering: behandel als kwadrant 1','Controleer of ook indirecte identifiers zijn verwijderd (combinatie van kenmerken)'],
+    steps_check:['Let op: pseudonimisering (code in plaats van naam) is niet genoeg','Controleer of het bestand nog herleidbaar is na anonimisering','Bij twijfel: gebruik de data niet in AI'],
+    rule:'Anonimiseer volledig vóór gebruik. Pseudonimisering is onvoldoende — de data moet echt niet meer herleidbaar zijn.',
+    rule_type:'amber'
+  },
+  q3:{
+    title:'Vertrouwelijk + geen persoonsgegevens',
+    steps_ok:['Gebruik alleen in een tool met verwerkersovereenkomst','Controleer of de tool data gebruikt voor training','Controleer of de tool data buiten de EU opslaat'],
+    steps_check:['Gebruik nooit een publiek gratis AI-tool voor vertrouwelijke bedrijfsinfo','Controleer NDA en contractuele verplichtingen richting derden','Overleg met leidinggevende of compliance bij twijfel'],
+    rule:'Alleen in goedgekeurde tool met verwerkersovereenkomst. Vraag je IT- of complianceafdeling welke tools zijn goedgekeurd.',
+    rule_type:'amber'
+  },
+  q4:{
+    title:'Vertrouwelijk + persoonsgegevens',
+    steps_ok:['Vereist: expliciete goedkeuring van leidinggevende of privacy-officer','Vereist: verwerkersovereenkomst met de tool-aanbieder','Vereist: vastgelegde grondslag (toestemming, contract, wettelijke verplichting)'],
+    steps_check:['Nooit in publieke AI-tool — ook niet tijdelijk of "even snel"','Controleer of er een DPIA nodig is','Vastleggen welke data is verwerkt, door wie en waarvoor'],
+    rule:'Niet in AI-tools zonder expliciete grondslag, goedkeuring en verwerkersovereenkomst. Bij twijfel: niet doen.',
+    rule_type:'red'
+  }
+};
+
+const ruleStyle={
+  green:'background:var(--green-l);color:var(--green-d)',
+  amber:'background:var(--amber-l);color:var(--amber-d)',
+  red:'background:var(--red-l);color:var(--red)'
+};
+
+let open=null;
+function showQ(key){
+  if(open===key){closeQ();return;}
+  open=key;
+  document.querySelectorAll('.quad').forEach(q=>q.classList.remove('active'));
+  document.getElementById(key).classList.add('active');
+  const d=QUADS[key];
+  const ok=d.steps_ok.map(s=>`<div class="detail-item"><div class="dd" style="background:var(--green)"></div><span>${s}</span></div>`).join('');
+  const ch=d.steps_check.map(s=>`<div class="detail-item"><div class="dd" style="background:var(--amber)"></div><span>${s}</span></div>`).join('');
+  document.getElementById('detail-grid').innerHTML=`
+    <div class="detail-col">
+      <div class="detail-col-lbl">Aanpak en vereisten</div>${ok}
+    </div>
+    <div class="detail-col">
+      <div class="detail-col-lbl">Let op / risico's</div>${ch}
+    </div>
+  `;
+  document.getElementById('rule-box').innerHTML=`<div class="rule-box" style="${ruleStyle[d.rule_type]};margin-top:12px">${d.rule}</div>`;
+  document.getElementById('detail-panel').classList.add('visible');
+}
+function closeQ(){
+  open=null;
+  document.querySelectorAll('.quad').forEach(q=>q.classList.remove('active'));
+  document.getElementById('detail-panel').classList.remove('visible');
+}
+</script>
+</body>
+</html>

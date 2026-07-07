@@ -26,31 +26,37 @@ export function LessonList({
                 <h3>{topic.title}</h3>
                 {topic.summary ? <p>{topic.summary}</p> : null}
               </div>
-              <span className="pill">{topic.pages.length} pagina's</span>
+              <span className="pill">{topic.pages.length} pagina&apos;s</span>
             </div>
             <div className="lesson-list compact">
-              {topic.pages.map((page) => (
-                <Link
-                  className="page-row"
-                  href={`/learning/${course.course_code}/${page.page_code}`}
-                  key={page.id}
-                >
-                  <span>{page.title}</span>
-                  <span className="muted">
-                    {page.estimated_duration_minutes ?? 0} min ·{" "}
-                    {getLessonProgressLabel(
-                      learnerState.progressByPageId[page.id]?.status ??
-                        learnerState.progressByLessonId[page.id]?.status,
-                    )}
-                  </span>
-                </Link>
-              ))}
+              {topic.pages.map((page) => {
+                const pageNumber = pages.findIndex((item) => item.id === page.id) + 1;
+
+                return (
+                  <Link
+                    className="page-row"
+                    href={`/learning/${course.course_code}/${page.page_code}`}
+                    key={page.id}
+                  >
+                    <span>
+                      {pageNumber}. {page.title}
+                    </span>
+                    <span className="muted">
+                      {page.estimated_duration_minutes ?? 0} min -{" "}
+                      {getLessonProgressLabel(
+                        learnerState.progressByPageId[page.id]?.status ??
+                          learnerState.progressByLessonId[page.id]?.status,
+                      )}
+                    </span>
+                  </Link>
+                );
+              })}
             </div>
           </article>
         ))}
       </div>
       {pages.length === 0 ? (
-        <p className="empty-state">Er zijn nog geen learning pagina's ingericht.</p>
+        <p className="empty-state">Er zijn nog geen learning pagina&apos;s ingericht.</p>
       ) : null}
     </section>
   );

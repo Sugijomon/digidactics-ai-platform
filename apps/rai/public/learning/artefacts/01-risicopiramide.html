@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EU AI Act - Risicopiramide (RAI Learning Style)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f7fafc;
+  --surface:#ffffff;
+  --text-primary:#181c1e;
+  --text-secondary:#3e484f;
+  --text-muted:#6993aa;
+  --border-color:#bdc8d0;
+  --radius-ui:8px;
+  --radius-card:12px;
+  --radius-pill:999px;
+  --c-red:#C23B2A;--c-red-bg:#FDF0EE;--c-red-brd:#F5C5BE;
+  --c-orange:#C26B1A;--c-orange-bg:#FDF4E7;--c-orange-brd:#F5D9A8;
+  --c-blue:#00658b;--c-blue-bg:#c4e7ff;--c-blue-brd:#a2d4f2;
+  --c-green:#1A7A52;--c-green-bg:#E8F7F1;--c-green-brd:#8FD4B6;
+}
+html{overflow:hidden}
+body{
+  font-family:'Inter',ui-sans-serif,system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text-primary);
+  padding:16px;
+  max-width:none;
+  margin:0 auto;
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+.header{text-align:center;margin-bottom:20px}
+.header h1{
+  font-family:'Manrope',sans-serif;
+  font-size:20px;
+  font-weight:700;
+  color:var(--text-primary);
+  margin-bottom:4px;
+  letter-spacing:0;
+}
+.header p{font-size:13px;color:var(--text-secondary)}
+.main{
+  display:grid;
+  grid-template-columns:minmax(250px,.95fr) minmax(330px,1.55fr);
+  gap:20px;
+  width:100%;
+  align-items:start;
+}
+.pyramid-wrap{
+  display:flex;
+  justify-content:center;
+  width:100%;
+  padding-top:2px;
+}
+.pyramid{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  width:258px;
+  max-width:100%;
+}
+.layer{width:100%;cursor:pointer;position:relative;transition:transform .15s,filter .15s}
+.layer:hover{transform:translateY(-1px);filter:brightness(.98)}
+.layer.active{filter:brightness(.96)}
+.layer:focus{outline:none}
+.layer:focus-visible .layer-inner{box-shadow:inset 0 0 0 2px var(--active-color)}
+.layer-inner{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:52px;
+  text-align:center;
+  border:1px solid transparent;
+  transition:border-color .15s,box-shadow .15s,background .15s;
+}
+.layer.active .layer-inner{box-shadow:inset 0 0 0 2px var(--active-color)}
+.layer-label{
+  font-family:'Manrope',sans-serif;
+  font-size:12px;
+  font-weight:600;
+  line-height:1.2;
+}
+.l-verboden .layer-inner{
+  --active-color:var(--c-red);
+  background:var(--c-red-bg);
+  border-color:var(--c-red-brd);
+  clip-path:polygon(24% 0%,76% 0%,84% 100%,16% 100%);
+}
+.l-verboden .layer-label{color:var(--c-red);margin-top:4px}
+.l-hoog .layer-inner{
+  --active-color:var(--c-orange);
+  background:var(--c-orange-bg);
+  border-color:var(--c-orange-brd);
+  clip-path:polygon(16% 0%,84% 0%,91% 100%,9% 100%);
+}
+.l-hoog .layer-label{color:var(--c-orange)}
+.l-beperkt .layer-inner{
+  --active-color:var(--c-blue);
+  background:var(--c-blue-bg);
+  border-color:var(--c-blue-brd);
+  clip-path:polygon(9% 0%,91% 0%,98% 100%,2% 100%);
+}
+.l-beperkt .layer-label{color:#004d6a}
+.l-minimaal .layer-inner{
+  --active-color:var(--c-green);
+  background:var(--c-green-bg);
+  border-color:var(--c-green-brd);
+  border-radius:0 0 var(--radius-ui) var(--radius-ui);
+  clip-path:polygon(2% 0%,98% 0%,100% 100%,0% 100%);
+}
+.l-minimaal .layer-label{color:var(--c-green)}
+.detail{flex-grow:1;min-width:0}
+.detail-card{
+  background:var(--surface);
+  border:1px solid var(--border-color);
+  border-radius:var(--radius-card);
+  padding:16px;
+  min-height:226px;
+  position:relative;
+}
+.detail-empty{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  height:190px;
+  text-align:center;
+  color:var(--text-muted);
+  gap:10px;
+}
+.detail-empty svg{opacity:.4;color:var(--text-muted)}
+.detail-head{animation:fadeIn .2s ease-out}
+.detail-badge{
+  display:inline-block;
+  font-size:10px;
+  font-weight:500;
+  padding:2px 8px;
+  border-radius:var(--radius-pill);
+  margin-bottom:8px;
+  letter-spacing:0;
+}
+.detail-title{
+  font-family:'Manrope',sans-serif;
+  font-size:17px;
+  font-weight:700;
+  color:var(--text-primary);
+  margin-bottom:6px;
+  line-height:1.25;
+}
+.detail-desc{font-size:12.5px;color:var(--text-secondary);line-height:1.5;margin-bottom:12px}
+.section-title{
+  font-family:'Manrope',sans-serif;
+  font-size:11px;
+  font-weight:600;
+  color:var(--text-muted);
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  margin-bottom:6px;
+}
+.obligations-label{margin-top:14px}
+.examples{display:flex;flex-wrap:wrap;gap:4px}
+.example-chip{
+  font-size:11px;
+  padding:3px 8px;
+  border-radius:var(--radius-pill);
+  border:1px solid var(--border-color);
+  background:var(--bg);
+  color:var(--text-secondary);
+}
+.obligations{display:flex;flex-direction:column;gap:5px}
+.obligation{
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  font-size:11.5px;
+  color:var(--text-secondary);
+  line-height:1.4;
+}
+.obligation-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:6px}
+.article-tag{
+  display:inline-block;
+  font-size:10px;
+  font-weight:500;
+  padding:2px 6px;
+  border-radius:4px;
+  background:var(--bg);
+  color:var(--text-muted);
+  border:1px solid var(--border-color);
+  margin-top:14px;
+  font-family:monospace,system-mono;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateX(3px)}to{opacity:1;transform:translateX(0)}}
+@media(max-width:560px){
+  body{padding:12px}
+  .main{display:flex;flex-direction:column;gap:14px}
+  .pyramid-wrap{width:100%;max-width:260px;margin:0 auto 8px}
+  .pyramid{width:100%}
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Risicopiramide EU AI Act</h1>
+  <p>Selecteer een niveau om de verplichtingen te bekijken.</p>
+</div>
+<div class="main">
+  <div class="pyramid-wrap">
+    <div class="pyramid" aria-label="Risiconiveaus van de EU AI Act">
+      <div class="layer l-verboden" data-layer="verboden" role="button" tabindex="0" aria-pressed="false" onclick="selectLayer('verboden')" onkeydown="onLayerKey(event,'verboden')">
+        <div class="layer-inner"><div class="layer-label">Verboden</div></div>
+      </div>
+      <div class="layer l-hoog" data-layer="hoog" role="button" tabindex="0" aria-pressed="false" onclick="selectLayer('hoog')" onkeydown="onLayerKey(event,'hoog')">
+        <div class="layer-inner"><div class="layer-label">Hoog risico</div></div>
+      </div>
+      <div class="layer l-beperkt" data-layer="beperkt" role="button" tabindex="0" aria-pressed="false" onclick="selectLayer('beperkt')" onkeydown="onLayerKey(event,'beperkt')">
+        <div class="layer-inner"><div class="layer-label">Beperkt risico</div></div>
+      </div>
+      <div class="layer l-minimaal" data-layer="minimaal" role="button" tabindex="0" aria-pressed="false" onclick="selectLayer('minimaal')" onkeydown="onLayerKey(event,'minimaal')">
+        <div class="layer-inner"><div class="layer-label">Minimaal risico</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="detail">
+    <div class="detail-card" id="detail-card">
+      <div class="detail-empty" id="detail-empty">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <p style="font-size:11.5px">Kies een risiconiveau uit de piramide om de details te tonen</p>
+      </div>
+      <div id="detail-content" style="display:none"></div>
+    </div>
+  </div>
+</div>
+<script>
+const DATA = {
+  verboden: {
+    badge: "Verboden - Artikel 5",
+    badgeBg: "#FDF0EE",
+    badgeFg: "#C23B2A",
+    title: "Onacceptabel risico",
+    desc: "Volledig verboden binnen de EU. Deze systemen vormen een directe bedreiging voor grondrechten, veiligheid en menselijke waardigheid.",
+    examples: ["Sociale scoringsystemen", "Biometrische categorisering", "Emotieherkenning op de werkplek", "Gedragsmanipulatie"],
+    obligations: [
+      "Absolute verboden: geen operationele ruimte voor deployers.",
+      "Gebruik of inzet van deze systemen van derden is strafbaar.",
+      "Handhaving en verbodsbepalingen zijn actief sinds februari 2025."
+    ],
+    oblColor: "#C23B2A",
+    article: "Art. 5 EU AI Act",
+  },
+  hoog: {
+    badge: "Hoog risico - Artikel 6",
+    badgeBg: "#FDF4E7",
+    badgeFg: "#C26B1A",
+    title: "Hoog-risico systemen",
+    desc: "Toegestaan onder strikte compliance-voorwaarden vanwege de ingrijpende impact op levenskansen, rechten en vitale processen.",
+    examples: ["CV-screening & HR-systemen", "Kredietbeoordeling", "Onderwijs (scoring & toelating)", "Kritieke infrastructuur"],
+    obligations: [
+      "Verplichte registratie in de EU-databank.",
+      "Inrichten van aantoonbaar en effectief menselijk toezicht (Art. 14).",
+      "Automatische logging inschakelen en loggingbestanden bewaren.",
+      "Uitvoeren van een Fundamentele Rechten Impact Assessment (FRIA) indien vereist."
+    ],
+    oblColor: "#C26B1A",
+    article: "Art. 6 + Annex III EU AI Act",
+  },
+  beperkt: {
+    badge: "Beperkt risico - Artikel 50",
+    badgeBg: "#c4e7ff",
+    badgeFg: "#004d6a",
+    title: "Transparantie vereist",
+    desc: "Systemen met een lichter risicoprofiel. De wettelijke focus ligt hier primair op een duidelijke informatieplicht richting de eindgebruiker.",
+    examples: ["AI Chatbots", "Deepfakes & AI audio", "Generatieve AI-tekst of beeld"],
+    obligations: [
+      "Actief en tijdig melden dat de gebruiker met AI communiceert.",
+      "Deepfakes of synthetische content duidelijk labelen via watermerken of metadata.",
+      "Zorgen dat door AI gegenereerde teksten publiekelijk herkenbaar zijn."
+    ],
+    oblColor: "#00658b",
+    article: "Art. 50 EU AI Act",
+  },
+  minimaal: {
+    badge: "Minimaal risico",
+    badgeBg: "#E8F7F1",
+    badgeFg: "#1A7A52",
+    title: "Vrij te gebruiken",
+    desc: "Het overgrote merendeel van de operationele AI-toepassingen valt hieronder. Er gelden geen aanvullende verplichtingen vanuit de AI Act zelf.",
+    examples: ["Spamfilters", "Spellingscheckers", "AI in gaming", "Logistieke planning"],
+    obligations: [
+      "Geen specifieke wettelijke restricties of verplichtingen onder de AI Act.",
+      "Algemene wetgeving, zoals de AVG/GDPR, blijft onverminderd van kracht.",
+      "Vrijwillige compliance via sector-specifieke gedragscodes wordt aanbevolen."
+    ],
+    oblColor: "#1A7A52",
+    article: "Overweging 48 / Art. 4",
+  },
+};
+
+let current = null;
+const layersOpened = new Set();
+
+function notifyResize() {
+  requestAnimationFrame(() => {
+    const bodyRect = document.body.getBoundingClientRect();
+    const docRect = document.documentElement.getBoundingClientRect();
+    const height = Math.max(
+      document.documentElement.scrollHeight,
+      document.body.scrollHeight,
+      bodyRect.bottom - bodyRect.top,
+      docRect.bottom - docRect.top
+    );
+    window.parent?.postMessage({
+      type: "digidactics_resize",
+      blockId: "p4-risicopiramide-embed",
+      height: Math.ceil(height) + 2
+    }, "*");
+  });
+}
+
+function onLayerKey(event, layer) {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    selectLayer(layer);
+  }
+}
+
+function selectLayer(layer) {
+  if (current === layer) {
+    deselect();
+    return;
+  }
+
+  current = layer;
+  layersOpened.add(layer);
+
+  document.querySelectorAll(".layer").forEach((el) => {
+    const isActive = el.dataset.layer === layer;
+    el.classList.toggle("active", isActive);
+    el.setAttribute("aria-pressed", isActive ? "true" : "false");
+  });
+
+  const d = DATA[layer];
+  const card = document.getElementById("detail-card");
+  card.style.borderColor = d.oblColor;
+  document.getElementById("detail-empty").style.display = "none";
+
+  const content = document.getElementById("detail-content");
+  content.style.display = "block";
+
+  const oblDots = d.obligations.map((o) =>
+    `<div class="obligation"><div class="obligation-dot" style="background:${d.oblColor}"></div><span>${o}</span></div>`
+  ).join("");
+  const chips = d.examples.map((e) => `<span class="example-chip">${e}</span>`).join("");
+
+  content.innerHTML = `
+    <div class="detail-head">
+      <div class="detail-badge" style="background:${d.badgeBg};color:${d.badgeFg}">${d.badge}</div>
+      <h2 class="detail-title">${d.title}</h2>
+      <p class="detail-desc">${d.desc}</p>
+      <div class="section-title">Voorbeelden</div>
+      <div class="examples">${chips}</div>
+      <div class="section-title obligations-label">Belangrijkste plichten (Deployer)</div>
+      <div class="obligations">${oblDots}</div>
+      <div class="article-tag">${d.article}</div>
+    </div>
+  `;
+
+  notifyResize();
+
+  if (layersOpened.size === 4) {
+    window.parent?.postMessage({
+      type: "digidactics_event",
+      event: "block_complete",
+      blockId: "p4-risicopiramide-embed",
+      answer: "alle-lagen-gezien"
+    }, "*");
+  }
+}
+
+function deselect() {
+  current = null;
+  document.querySelectorAll(".layer").forEach((el) => {
+    el.classList.remove("active");
+    el.setAttribute("aria-pressed", "false");
+  });
+  document.getElementById("detail-empty").style.display = "flex";
+  document.getElementById("detail-content").style.display = "none";
+  document.getElementById("detail-card").style.borderColor = "var(--border-color)";
+  notifyResize();
+}
+
+window.addEventListener("load", notifyResize);
+document.fonts?.ready?.then(notifyResize);
+</script>
+</body>
+</html>

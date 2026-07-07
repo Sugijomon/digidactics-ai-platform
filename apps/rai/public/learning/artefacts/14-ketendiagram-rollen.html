@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rollen in de AI-keten</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F5F0;--surface:#FFFFFF;--text:#1A1A18;--text2:#5A5A56;--text3:#9A9A96;
+  --border:rgba(0,0,0,0.08);--r:12px;
+  --purple:#534AB7;--purple-l:#EEEDFE;--purple-d:#3C3489;
+  --blue:#185FA5;--blue-l:#E6F1FB;--blue-d:#0C3D6B;
+  --amber:#BA7517;--amber-l:#FAEEDA;--amber-d:#633806;
+  --green:#1D9E75;--green-l:#E1F5EE;--green-d:#085041;
+  --red:#A32D2D;--red-l:#FCEBEB;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);padding:32px 16px 48px;display:flex;flex-direction:column;align-items:center}
+.header{text-align:center;margin-bottom:28px;max-width:560px}
+.tag{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:99px;background:var(--purple-l);color:var(--purple-d);margin-bottom:10px;letter-spacing:0.06em}
+.header h1{font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:6px}
+.header p{font-size:13px;color:var(--text2);line-height:1.65}
+
+.wrap{max-width:860px;width:100%}
+
+/* Chain row */
+.chain{display:flex;align-items:center;gap:0;margin-bottom:20px}
+.role-card{
+  flex:1;cursor:pointer;
+  border-radius:10px;padding:18px 16px;
+  border:2px solid transparent;
+  transition:all 0.15s;
+}
+.role-card:hover{transform:translateY(-2px)}
+.role-card.active{transform:translateY(-3px)}
+
+.r-provider{background:var(--purple-l)}
+.r-provider.active{border-color:var(--purple)}
+.r-deployer{background:var(--blue-l)}
+.r-deployer.active{border-color:var(--blue)}
+.r-owner{background:var(--amber-l)}
+.r-owner.active{border-color:var(--amber)}
+.r-user{background:var(--green-l)}
+.r-user.active{border-color:var(--green)}
+
+.role-icon{font-size:22px;margin-bottom:8px}
+.role-code{font-size:10px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:4px}
+.r-provider .role-code{color:var(--purple-d)}
+.r-deployer .role-code{color:var(--blue-d)}
+.r-owner .role-code{color:var(--amber-d)}
+.r-user .role-code{color:var(--green-d)}
+.role-title{font-family:'DM Serif Display',serif;font-size:16px;margin-bottom:5px}
+.r-provider .role-title{color:var(--purple-d)}
+.r-deployer .role-title{color:var(--blue-d)}
+.r-owner .role-title{color:var(--amber-d)}
+.r-user .role-title{color:var(--green-d)}
+.role-def{font-size:11px;color:var(--text2);line-height:1.45;margin-bottom:8px}
+.role-example{font-size:11px;font-style:italic;color:var(--text3)}
+
+/* Arrow */
+.chain-arrow{display:flex;flex-direction:column;align-items:center;padding:0 8px;flex-shrink:0}
+.arrow-line{font-size:20px;color:var(--text3)}
+.arrow-label{font-size:9px;color:var(--text3);text-align:center;white-space:nowrap;margin-top:2px;line-height:1.3}
+
+/* Detail panel */
+.detail{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);overflow:hidden;display:none}
+.detail.visible{display:block;animation:fadeIn 0.2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.detail-top{padding:18px 22px 16px;border-bottom:0.5px solid var(--border)}
+.detail-badge{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:99px;margin-bottom:8px}
+.detail-title{font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);margin-bottom:4px}
+.detail-desc{font-size:13px;color:var(--text2);line-height:1.65}
+.detail-body{padding:16px 22px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.d-sec{} .d-sec-lbl{font-size:10px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.d-item{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--text2);margin-bottom:5px;line-height:1.4}
+.d-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.detail-act{grid-column:1/-1;padding:12px 14px;border-radius:8px;font-size:12px;line-height:1.55;font-weight:500}
+
+/* Act articles */
+.articles{display:flex;flex-wrap:wrap;gap:6px;padding:14px 22px;border-top:0.5px solid var(--border)}
+.art{font-size:11px;font-family:monospace;padding:4px 10px;border-radius:5px;background:var(--bg);border:0.5px solid var(--border);color:var(--text2)}
+
+/* Flow diagram */
+.flow{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:16px 20px;margin-top:12px}
+.flow h3{font-size:13px;font-weight:500;color:var(--text);margin-bottom:10px}
+.flow-row{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--text2);margin-bottom:6px;line-height:1.5}
+.flow-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="tag">AI Mastery · M03 · Competentie M6</div>
+  <h1>Rollen in de AI-keten</h1>
+  <p>Vier rollen, vier verantwoordelijkheden. Klik op een rol om te zien wat die inhoudt en wat de EU AI Act vereist.</p>
+</div>
+
+<div class="wrap">
+
+  <div class="chain">
+    <div class="role-card r-provider" id="r-provider" onclick="show('provider')">
+      <div class="role-icon">🏭</div>
+      <div class="role-code">Provider</div>
+      <div class="role-title">Aanbieder</div>
+      <div class="role-def">Ontwikkelt en brengt het AI-systeem op de markt.</div>
+      <div class="role-example">OpenAI, Google, Microsoft, SAP, een SaaS-leverancier</div>
+    </div>
+    <div class="chain-arrow">
+      <div class="arrow-line">→</div>
+      <div class="arrow-label">Levert<br>systeem</div>
+    </div>
+    <div class="role-card r-deployer" id="r-deployer" onclick="show('deployer')">
+      <div class="role-icon">🏢</div>
+      <div class="role-code">Deployer</div>
+      <div class="role-title">Gebruiksverantwoordelijke</div>
+      <div class="role-def">Zet het AI-systeem in voor eigen doeleinden.</div>
+      <div class="role-example">Jouw organisatie als geheel</div>
+    </div>
+    <div class="chain-arrow">
+      <div class="arrow-line">→</div>
+      <div class="arrow-label">Richt<br>in</div>
+    </div>
+    <div class="role-card r-owner" id="r-owner" onclick="show('owner')">
+      <div class="role-icon">📋</div>
+      <div class="role-code">Owner</div>
+      <div class="role-title">Proceseigenaar</div>
+      <div class="role-def">Verantwoordelijk voor AI-gebruik in een specifiek proces of team.</div>
+      <div class="role-example">HR-manager, klantenserviceleider, financieel directeur</div>
+    </div>
+    <div class="chain-arrow">
+      <div class="arrow-line">→</div>
+      <div class="arrow-label">Stuurt<br>aan</div>
+    </div>
+    <div class="role-card r-user" id="r-user" onclick="show('user')">
+      <div class="role-icon">👤</div>
+      <div class="role-code">Gebruiker</div>
+      <div class="role-title">Eindgebruiker</div>
+      <div class="role-def">Werkt dagelijks met het AI-systeem.</div>
+      <div class="role-example">Medewerker klantenservice, analist, recruiter</div>
+    </div>
+  </div>
+
+  <!-- Detail -->
+  <div class="detail" id="detail-panel">
+    <div class="detail-top">
+      <div class="detail-badge" id="d-badge"></div>
+      <div class="detail-title" id="d-title"></div>
+      <div class="detail-desc" id="d-desc"></div>
+    </div>
+    <div class="detail-body" id="d-body"></div>
+    <div class="articles" id="d-arts"></div>
+  </div>
+
+  <!-- Info flow -->
+  <div class="flow">
+    <h3>Hoe verantwoordelijkheid door de keten loopt</h3>
+    <div class="flow-row"><div class="flow-dot" style="background:var(--purple)"></div><span><strong>Provider</strong> levert het systeem en is verantwoordelijk voor conformiteit van het systeem zelf (technische documentatie, CE-markering bij hoog-risico).</span></div>
+    <div class="flow-row"><div class="flow-dot" style="background:var(--blue)"></div><span><strong>Deployer</strong> (jouw organisatie) is verantwoordelijk voor het gebruik: menselijk toezicht aanwijzen, medewerkers trainen, logging bijhouden, betrokkenen informeren.</span></div>
+    <div class="flow-row"><div class="flow-dot" style="background:var(--amber)"></div><span><strong>Owner</strong> vertaalt organisatiebeleid naar procesinstructies: wie mag wat, wanneer escaleren, hoe loggen, wie is de override-persoon.</span></div>
+    <div class="flow-row"><div class="flow-dot" style="background:var(--green)"></div><span><strong>Gebruiker</strong> past het toe: veilig prompten, output controleren, signalen escaleren, niet buiten de kaders opereren.</span></div>
+    <div class="flow-row" style="margin-top:8px;padding-top:8px;border-top:0.5px solid var(--border)"><div class="flow-dot" style="background:var(--red)"></div><span><strong>Belangrijk:</strong> Als jouw organisatie een AI-systeem van een provider afneemt én inzet voor klanten of medewerkers, is jouw organisatie de deployer — ook al heeft jij het systeem niet gebouwd.</span></div>
+  </div>
+</div>
+
+<script>
+const ROLES = {
+  provider:{
+    badge:'Provider · Aanbieder',bg:['var(--purple-l)','var(--purple-d)'],dot:'var(--purple)',
+    title:'Provider — bouwt en levert het systeem',
+    desc:'De provider ontwikkelt het AI-systeem en brengt het op de markt. Bij hoog-risico systemen heeft de provider zware verplichtingen: technische documentatie, CE-markering, registratie in EU-databank.',
+    do:['Technische documentatie en risicoanalyse','CE-markering bij hoog-risico systemen','Registratie in EU AI Act-databank','Gebruiksinstructies voor deployers','Systeem-logging en traceerbaarheid'],
+    check:['Vraag de provider naar conformiteitsdocumentatie','Controleer of het systeem is gecertificeerd voor jouw use case','Vraag naar data-opslag en retentiebeleid','Controleer of de provider opt-out biedt voor trainingsdata'],
+    act:'Art. 16–28 (Provider verplichtingen) · Art. 49 (Registratie) · Art. 6 + Annex III (Hoog-risico criteria)',
+    rule:'Als deployer kun je provider-verplichtingen niet overnemen — maar je kunt wel contractueel vastleggen wat je van de provider verwacht.',ruleBg:'var(--purple-l)',ruleFg:'var(--purple-d)'
+  },
+  deployer:{
+    badge:'Deployer · Gebruiksverantwoordelijke',bg:['var(--blue-l)','var(--blue-d)'],dot:'var(--blue)',
+    title:'Deployer — jouw organisatie',
+    desc:'De deployer zet een AI-systeem in voor eigen doeleinden. Dit is de rol waar de meeste organisaties in zitten: ze bouwen geen AI, maar ze gebruiken AI van providers. De AI Act legt de deployer expliciete verplichtingen op.',
+    do:['Menselijk toezicht aanwijzen en inrichten (Art. 14)','Medewerkers trainen (Art. 4)','Logging bijhouden van hoog-risico gebruik','Betrokkenen informeren (Art. 50)','DPIA uitvoeren indien AVG van toepassing'],
+    check:['Zijn alle medewerkers die AI gebruiken getraind?','Is er een aangewezen oversightpersoon per AI-toepassing?','Worden hoog-risico beslissingen gelogd?','Weten betrokkenen dat AI wordt ingezet?'],
+    act:'Art. 4 (Geletterdheid) · Art. 14 (Human oversight) · Art. 26 (Deployer obligations) · Art. 50 (Transparantie)',
+    rule:'Jouw organisatie is deployer zodra je een AI-systeem inzet — ook als je het van een derde afneemt. De verantwoordelijkheid voor gebruik ligt bij de deployer, niet bij de provider.',ruleBg:'var(--blue-l)',ruleFg:'var(--blue-d)'
+  },
+  owner:{
+    badge:'Owner · Proceseigenaar',bg:['var(--amber-l)','var(--amber-d)'],dot:'var(--amber)',
+    title:'Owner — verantwoordelijk voor het proces',
+    desc:'De proceseigenaar is de brug tussen organisatiebeleid en dagelijks gebruik. Deze rol vertaalt de deployer-verplichtingen naar concrete procesafspraken: wie doet wat, wanneer escaleren, hoe bewijs je naleving.',
+    do:['RACI opstellen voor het AI-gebruik in het eigen proces','Oversightmodel kiezen en inrichten (HITL/HOTL/HIC)','Escalatiepad definiëren met drempelwaarden','Logging en reviewfrequentie bepalen','Teamleden informeren en trainen'],
+    check:['Is er een helder aanspreekpunt voor dit AI-gebruik?','Weet iedereen wanneer te escaleren?','Is het oversightmodel gedocumenteerd?','Wordt de logging periodiek gereviewed?'],
+    act:'Art. 14 (Human oversight — operator) · Art. 26 (Deployer obligations — interne verdeling)',
+    rule:'De owner hoeft niet zelf alles te reviewen — maar moet zorgen dat het review-systeem werkt en dat er een aanwijsbare verantwoordelijke is.',ruleBg:'var(--amber-l)',ruleFg:'var(--amber-d)'
+  },
+  user:{
+    badge:'Gebruiker · Eindgebruiker',bg:['var(--green-l)','var(--green-d)'],dot:'var(--green)',
+    title:'Gebruiker — dagelijks AI-gebruik',
+    desc:'De eindgebruiker werkt dagelijks met het AI-systeem. De verplichtingen zijn hier het laagst, maar de praktische impact is het grootst. Fouten of onveilig gebruik door eindgebruikers kunnen leiden tot privacy-schendingen, compliance-issues of reputatieschade.',
+    do:['Veilig en gericht prompten (geen PII, alleen goedgekeurde tools)','Output altijd controleren vóór gebruik','Twijfels en fouten melden aan de owner','Bijdragen aan een feedbackcultuur'],
+    check:['Weet ik welke tools ik mag gebruiken?','Weet ik wat ik niet in een prompt mag invoeren?','Weet ik wanneer ik moet escaleren?','Controleer ik output altijd vóór gebruik?'],
+    act:'Art. 4 (Geletterdheid — recht op training) · Intern beleid van de deployer',
+    rule:'De gebruiker is niet verantwoordelijk voor het ontwerp van het systeem — maar wel voor het gebruik ervan binnen de afgesproken kaders.',ruleBg:'var(--green-l)',ruleFg:'var(--green-d)'
+  }
+};
+
+let cur=null;
+function show(key){
+  if(cur===key){hide();return;}
+  cur=key;
+  document.querySelectorAll('.role-card').forEach(c=>c.classList.remove('active'));
+  document.getElementById('r-'+key).classList.add('active');
+  const d=ROLES[key];
+  document.getElementById('d-badge').style.cssText=`background:${d.bg[0]};color:${d.bg[1]}`;
+  document.getElementById('d-badge').textContent=d.badge;
+  document.getElementById('d-title').textContent=d.title;
+  document.getElementById('d-desc').textContent=d.desc;
+  const doItems=d.do.map(i=>`<div class="d-item"><div class="d-dot" style="background:${d.dot}"></div><span>${i}</span></div>`).join('');
+  const chItems=d.check.map(i=>`<div class="d-item"><div class="d-dot" style="background:${d.dot}"></div><span>${i}</span></div>`).join('');
+  document.getElementById('d-body').innerHTML=`
+    <div class="d-sec"><div class="d-sec-lbl">Verplichtingen</div>${doItems}</div>
+    <div class="d-sec"><div class="d-sec-lbl">Controleer</div>${chItems}</div>
+    <div class="detail-act" style="background:${d.ruleBg};color:${d.ruleFg}">${d.rule}</div>
+  `;
+  document.getElementById('d-arts').innerHTML=d.act.split(' · ').map(a=>`<span class="art">${a}</span>`).join('');
+  document.getElementById('detail-panel').classList.add('visible');
+}
+function hide(){cur=null;document.querySelectorAll('.role-card').forEach(c=>c.classList.remove('active'));document.getElementById('detail-panel').classList.remove('visible');}
+</script>
+</body>
+</html>

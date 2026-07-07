@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
-import type { ChecklistBlock, LessonBlock } from "@digidactics/domain/learning";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { ChecklistBlock, IframeBlock, LessonBlock } from "@digidactics/domain/learning";
 import { ChecklistBlockPlayer } from "@/components/learning/ChecklistBlockPlayer";
 import { LessonBlockRenderer } from "@/components/learning/LessonBlockRenderer";
 import { SlideDeckPlayer } from "@/components/learning/SlideDeckPlayer";
+import { VideoBlockPlayer } from "@/components/learning/VideoBlockPlayer";
 import type {
   LearningAttemptView,
   LearningCourseView,
@@ -47,6 +48,54 @@ export function LearningPageInteraction({
     getInitialAnswers(latestAttempt),
   );
   const [checklistProceedState, setChecklistProceedState] = useState<Record<string, boolean>>({});
+  const updateAnswer = useCallback((blockId: string, value: AnswerValue) => {
+    setAnswers((current) => ({ ...current, [blockId]: value }));
+  }, []);
+  const messageEnabledIframeIds = useMemo(
+    () =>
+      new Set(
+        page.content.blocks
+          .filter(isIframeMessageBlock)
+          .map((block) => block.id),
+      ),
+    [page.content.blocks],
+  );
+  const messageEnabledIframeOrigins = useMemo(
+    () =>
+      new Map(
+        page.content.blocks
+          .filter(isIframeMessageBlock)
+          .map((block) => [block.id, getUrlOrigin(block.url)])
+          .filter((entry): entry is [string, string] => Boolean(entry[1])),
+      ),
+    [page.content.blocks],
+  );
+
+  useEffect(() => {
+    function handleIframeMessage(event: MessageEvent) {
+      if (!event.data || typeof event.data !== "object") return;
+
+      const data = event.data as {
+        answer?: unknown;
+        blockId?: unknown;
+        event?: unknown;
+        type?: unknown;
+      };
+
+      if (data.type !== "digidactics_event") return;
+      if (data.event !== "block_complete" && data.event !== "answer_submitted") return;
+      if (typeof data.blockId !== "string" || !messageEnabledIframeIds.has(data.blockId)) return;
+
+      const expectedOrigin = messageEnabledIframeOrigins.get(data.blockId);
+      if (expectedOrigin && event.origin !== expectedOrigin) return;
+
+      updateAnswer(data.blockId, normalizePostMessageAnswer(data.answer));
+    }
+
+    window.addEventListener("message", handleIframeMessage);
+    return () => window.removeEventListener("message", handleIframeMessage);
+  }, [messageEnabledIframeIds, messageEnabledIframeOrigins, updateAnswer]);
+
   const interactiveBlocks = useMemo(
     () => page.content.blocks.filter(isInteractiveBlock),
     [page.content.blocks],
@@ -80,10 +129,6 @@ export function LearningPageInteraction({
       return { ...current, [blockId]: canProceed };
     });
   }, []);
-
-  function updateAnswer(blockId: string, value: AnswerValue) {
-    setAnswers((current) => ({ ...current, [blockId]: value }));
-  }
 
   return (
     <form action={action} className="lesson-player-form">
@@ -140,7 +185,7 @@ export function LearningPageInteraction({
 
         <div className="bottombar-center">
           <div className="bottombar-page-label">
-            Blok {topicPageIndex + 1} van {topicPageTotal}
+            Pagina {topicPageIndex + 1} van {topicPageTotal}
           </div>
         </div>
 
@@ -437,6 +482,26 @@ function InteractiveBlock({
         />
       );
 
+    case "iframe":
+      return (
+        <>
+          <input name={`answer:${block.id}`} type="hidden" value={asText(answer)} />
+          <LessonBlockRenderer block={block} />
+        </>
+      );
+
+    case "video":
+      return (
+        <>
+          <input name={`answer:${block.id}`} type="hidden" value={asText(answer)} />
+          <VideoBlockPlayer
+            block={block}
+            initialWatched={Boolean(asText(answer))}
+            onAnswer={onAnswer}
+          />
+        </>
+      );
+
     default:
       return <LessonBlockRenderer block={block} />;
   }
@@ -505,7 +570,18 @@ function isInteractiveBlock(block: LessonBlock) {
     (block.type === "case_lab" && Boolean(block.reflection_prompt)) ||
     (block.type === "slide_deck" &&
       Array.isArray(block.slides) &&
-      block.slides.some((slide) => Boolean(slide?.interaction && slide.interaction.type !== "none")))
+      block.slides.some((slide) => Boolean(slide?.interaction && slide.interaction.type !== "none"))) ||
+    isIframeMessageBlock(block) ||
+    (block.type === "video" && Boolean(block.require_full_watch))
+  );
+}
+
+function isIframeMessageBlock(block: LessonBlock): block is IframeBlock {
+  return (
+    block.type === "iframe" &&
+    typeof block.evidence_kind === "string" &&
+    block.evidence_kind !== "none" &&
+    block.evidence_kind.length > 0
   );
 }
 
@@ -543,8 +619,36 @@ function isBlockSatisfied(block: LessonBlock, answer: AnswerValue | undefined) {
       return block.reflection_prompt ? countWords(asText(answer)) >= 20 : true;
     case "slide_deck":
       return isSlideDeckAnswerSatisfied(block, asText(answer));
+    case "iframe":
+    case "video":
+      return Boolean(asText(answer));
     default:
       return true;
+  }
+}
+
+function normalizePostMessageAnswer(value: unknown): string {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed || "completed";
+  }
+
+  if (value && typeof value === "object") {
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return "completed";
+    }
+  }
+
+  return "completed";
+}
+
+function getUrlOrigin(url: string): string | null {
+  try {
+    return new URL(url).origin;
+  } catch {
+    return null;
   }
 }
 

@@ -2101,7 +2101,19 @@ h3 {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   display: block;
+  min-height: 160px;
+  background: #fff;
   width: 100%;
+}
+
+.lesson-iframe-block {
+  --lesson-block-width: var(--lesson-content-width);
+}
+
+.embed-caption {
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 10px;
 }
 
 .lesson-video-frame {
@@ -2110,6 +2122,43 @@ h3 {
   border-radius: 8px;
   display: block;
   width: 100%;
+}
+
+.video-watch-status {
+  align-items: center;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  color: #7c2d12;
+  display: flex;
+  font-size: 0.94rem;
+  gap: 12px;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding: 10px 12px;
+}
+
+.video-watch-status.complete {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #065f46;
+}
+
+.video-watch-confirm {
+  background: #111827;
+  border: 0;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+
+.video-caption {
+  color: var(--muted);
+  margin-top: 10px;
 }
 
 .sidebar {
@@ -9317,6 +9366,10 @@ h3 {
   flex-direction: column;
 }
 
+.modal-box:has(.text-editor-shell) {
+  max-width: 920px;
+}
+
 .modal-head {
   padding: 20px 22px 0;
   display: flex;
@@ -11046,6 +11099,31 @@ h3 {
   padding: 6px 8px;
 }
 
+.text-editor-shell {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.text-editor-shell.wysiwyg {
+  background: #fff;
+}
+
+.text-editor-shell .editor-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  flex-wrap: wrap;
+  box-shadow: 0 10px 18px rgba(15, 23, 42, 0.04);
+}
+
+.text-editor-shell.wysiwyg .editor-toolbar {
+  position: relative;
+}
+
 .tb-btn,
 .img-tab,
 .tone-pill,
@@ -11069,6 +11147,20 @@ h3 {
   width: 28px;
 }
 
+.text-editor-shell .tb-btn {
+  font-size: 0.9rem;
+  font-weight: 800;
+  min-width: 30px;
+  padding: 0 8px;
+  width: auto;
+}
+
+.text-editor-shell .tb-btn[title="Bulletlijst"],
+.text-editor-shell .tb-btn[title="Genummerde lijst"] {
+  font-size: 1rem;
+  min-width: 34px;
+}
+
 .tb-btn:hover,
 .tb-btn.active {
   background: var(--surface-muted);
@@ -11085,6 +11177,214 @@ h3 {
 .editor-area {
   border-radius: 0 0 var(--radius) var(--radius);
   min-height: 160px;
+}
+
+.text-editor-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.9fr);
+  min-height: 240px;
+}
+
+.text-editor-pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.text-editor-pane + .text-editor-pane {
+  border-left: 1px solid var(--line);
+}
+
+.text-editor-pane-label {
+  background: #f5f7f8;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 8px 12px;
+  text-transform: uppercase;
+}
+
+.text-editor-shell .editor-area {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  flex: 1;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.92rem;
+  min-height: 220px;
+}
+
+.text-editor-shell .editor-area:focus {
+  box-shadow: inset 0 0 0 2px rgba(0, 94, 112, 0.16);
+}
+
+.text-editor-preview {
+  background: #fff;
+  flex: 1;
+  min-height: 220px;
+  overflow: auto;
+  padding: 14px 16px;
+}
+
+.text-editor-preview-empty {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-style: italic;
+  margin: 0;
+}
+
+.text-editor-preview-content {
+  color: var(--text);
+  font-size: 0.96rem;
+  line-height: 1.65;
+}
+
+.text-editor-preview-content > *:first-child {
+  margin-top: 0;
+}
+
+.text-editor-preview-content > *:last-child {
+  margin-bottom: 0;
+}
+
+.text-editor-preview-content h2 {
+  font-size: 1.35rem;
+  line-height: 1.25;
+  margin: 0 0 10px;
+}
+
+.text-editor-preview-content h3 {
+  font-size: 1.08rem;
+  line-height: 1.3;
+  margin: 0 0 8px;
+}
+
+.text-editor-preview-content p {
+  margin: 0 0 10px;
+}
+
+.text-editor-preview-content ul,
+.text-editor-preview-content ol {
+  margin: 0 0 10px;
+  padding-left: 1.35rem;
+}
+
+.text-editor-preview-content li {
+  margin: 0 0 5px;
+  padding-left: 0.15rem;
+}
+
+.text-editor-preview-content a {
+  color: var(--brand);
+  font-weight: 700;
+}
+
+.text-editor-preview-content code {
+  background: #eef2f4;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-size: 0.86em;
+  padding: 1px 4px;
+}
+
+.text-editor-preview-content .inline-markdown-image {
+  border-radius: var(--radius);
+  display: block;
+  height: auto;
+  margin: 10px 0;
+  max-width: 100%;
+}
+
+.wysiwyg-editor {
+  background: #fff;
+  color: var(--text);
+  font-family: var(--font-body), Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.65;
+  max-height: 420px;
+  min-height: 300px;
+  overflow: auto;
+  padding: 22px 26px;
+}
+
+.wysiwyg-editor:focus {
+  box-shadow: inset 0 0 0 2px rgba(0, 94, 112, 0.18);
+  outline: none;
+}
+
+.wysiwyg-editor > *:first-child {
+  margin-top: 0;
+}
+
+.wysiwyg-editor > *:last-child {
+  margin-bottom: 0;
+}
+
+.wysiwyg-editor p {
+  margin: 0 0 14px;
+}
+
+.wysiwyg-editor h2 {
+  color: #0f172a;
+  font-family: var(--font-heading), Manrope, ui-sans-serif, system-ui, sans-serif;
+  font-size: 1.45rem;
+  line-height: 1.25;
+  margin: 0 0 14px;
+}
+
+.wysiwyg-editor h3 {
+  color: #0f172a;
+  font-family: var(--font-heading), Manrope, ui-sans-serif, system-ui, sans-serif;
+  font-size: 1.16rem;
+  line-height: 1.3;
+  margin: 0 0 12px;
+}
+
+.wysiwyg-editor ul,
+.wysiwyg-editor ol {
+  margin: 0 0 18px;
+  padding-left: 1.5rem;
+}
+
+.wysiwyg-editor li {
+  margin: 0 0 8px;
+  padding-left: 0.2rem;
+}
+
+.wysiwyg-editor li::marker {
+  color: #181c1e;
+  font-weight: 700;
+}
+
+.wysiwyg-editor a {
+  color: var(--brand);
+  font-weight: 700;
+}
+
+.wysiwyg-editor code,
+.wysiwyg-editor pre {
+  background: #eef2f4;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.9em;
+  padding: 2px 5px;
+}
+
+.wysiwyg-editor pre {
+  display: block;
+  margin: 0 0 14px;
+  padding: 10px 12px;
+}
+
+.wysiwyg-editor img {
+  border-radius: var(--radius);
+  display: block;
+  height: auto;
+  margin: 12px 0;
+  max-width: 100%;
 }
 
 .image-tabs {
@@ -14501,9 +14801,18 @@ h3 {
   --lesson-block-width: var(--lesson-video-width);
 }
 
+.lesson-player .player-content .lesson-iframe-block,
+.lesson-player .player-content .block:has(.embed-frame) {
+  --lesson-block-width: var(--lesson-content-width);
+}
+
+.lesson-player .player-content .lesson-comparison-block {
+  --lesson-block-width: var(--lesson-content-width);
+}
+
 .lesson-player .player-content .lesson-heading-block,
 .lesson-player .player-content .block:has(.lesson-markdown),
-.lesson-player .player-content .block:not(.block-hero):not(.media-card):not(.quote-player):not(.lesson-video-block):not(.takeaway-block):not(.practice-block):not(.interactive-block):not(.knowledge-cards-block):not(:has(.lesson-image)):not(:has(.takeaway-list)) {
+.lesson-player .player-content .block:not(.block-hero):not(.media-card):not(.quote-player):not(.lesson-video-block):not(.lesson-iframe-block):not(.lesson-comparison-block):not(.takeaway-block):not(.practice-block):not(.interactive-block):not(.knowledge-cards-block):not(:has(.embed-frame)):not(:has(.lesson-image)):not(:has(.takeaway-list)) {
   --lesson-block-width: var(--lesson-text-width);
 }
 
@@ -14542,6 +14851,126 @@ h3 {
 
 .lesson-player .player-content .quote-player .qp-text {
   font-size: 1.08rem;
+}
+
+.lesson-player .player-content .lesson-comparison-card {
+  background: #fafbfc;
+  border: 1px solid #d6dee4;
+  border-radius: 8px;
+  box-shadow: 0 16px 36px rgba(24, 28, 30, 0.06);
+  color: #181c1e;
+  overflow: hidden;
+}
+
+.lesson-player .player-content .lesson-comparison-title {
+  background: #f3f6f8;
+  border-bottom: 1px solid #d6dee4;
+  color: #5f6d73;
+  font-family: var(--font-heading);
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  line-height: 1.35;
+  padding: 14px 20px;
+  text-transform: uppercase;
+}
+
+.lesson-player .player-content .lesson-comparison {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.lesson-player .player-content .lesson-comparison-col {
+  --comparison-accent: #6993aa;
+  border-right: 1px solid #d6dee4;
+  min-width: 0;
+  padding: 22px 24px 24px;
+}
+
+.lesson-player .player-content .lesson-comparison-col:last-child {
+  border-right: 0;
+}
+
+.lesson-player .player-content .lesson-comparison-green {
+  --comparison-accent: #1a7a52;
+}
+
+.lesson-player .player-content .lesson-comparison-red {
+  --comparison-accent: #a32d2d;
+}
+
+.lesson-player .player-content .lesson-comparison-blue {
+  --comparison-accent: #00658b;
+}
+
+.lesson-player .player-content .lesson-comparison-col h3 {
+  color: var(--comparison-accent);
+  font-family: var(--font-heading);
+  font-size: 1.06rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+  margin: 0 0 14px;
+  text-transform: uppercase;
+}
+
+.lesson-player .player-content .lesson-comparison-col ul {
+  display: grid;
+  gap: 11px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lesson-player .player-content .lesson-comparison-col li {
+  align-items: flex-start;
+  color: #3e484f;
+  display: flex;
+  font-size: 1.08rem;
+  gap: 12px;
+  line-height: 1.45;
+}
+
+.lesson-player .player-content .lesson-comparison-dot {
+  background: var(--comparison-accent);
+  border-radius: 999px;
+  flex: 0 0 auto;
+  height: 8px;
+  margin-top: 0.58em;
+  width: 8px;
+}
+
+@media (max-width: 720px) {
+  .text-editor-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .text-editor-pane + .text-editor-pane {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .lesson-player .player-content .lesson-comparison {
+    grid-template-columns: 1fr;
+  }
+
+  .lesson-player .player-content .lesson-comparison-col {
+    border-bottom: 1px solid #d6dee4;
+    border-right: 0;
+    padding: 18px 18px 20px;
+  }
+
+  .lesson-player .player-content .lesson-comparison-col:last-child {
+    border-bottom: 0;
+  }
+
+  .lesson-player .player-content .lesson-comparison-title {
+    padding: 12px 18px;
+  }
+
+  .lesson-player .player-content .lesson-comparison-col li {
+    font-size: 1rem;
+  }
 }
 
 .lesson-player .player-content .media-card {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { LearningEvidenceKind } from "@digidactics/domain/learning";
 import { ModalShell } from "@/components/learning/admin/ModalShell";
 
 const DEFAULT_HEIGHTS: Record<string, number> = {
@@ -37,8 +38,10 @@ function detectProvider(url: string): string {
 
 export function IframeBlockModal({
   blockNumber,
+  initialAllowFullscreen = true,
   initialHeight = 500,
   initialProvider = "",
+  initialEvidenceKind = "none",
   initialTitle = "",
   initialUrl = "",
   onClose,
@@ -48,7 +51,9 @@ export function IframeBlockModal({
   initialUrl?: string;
   initialTitle?: string;
   initialHeight?: number;
+  initialAllowFullscreen?: boolean;
   initialProvider?: string;
+  initialEvidenceKind?: LearningEvidenceKind;
   onClose: () => void;
   onSave: (data: {
     url: string;
@@ -56,12 +61,14 @@ export function IframeBlockModal({
     height: number;
     provider: string;
     allow_fullscreen: boolean;
+    evidence_kind: LearningEvidenceKind;
   }) => void;
 }) {
   const [url, setUrl] = useState(initialUrl);
   const [title, setTitle] = useState(initialTitle);
   const [height, setHeight] = useState(initialHeight);
-  const [allowFullscreen, setAllowFullscreen] = useState(true);
+  const [allowFullscreen, setAllowFullscreen] = useState(initialAllowFullscreen);
+  const [requireInteraction, setRequireInteraction] = useState(initialEvidenceKind !== "none");
   const [detectedProvider, setDetectedProvider] = useState(initialProvider || detectProvider(initialUrl));
   const [previewError, setPreviewError] = useState(false);
   const [showValidation, setShowValidation] = useState(false);
@@ -96,6 +103,7 @@ export function IframeBlockModal({
       height: Math.min(1200, Math.max(200, Number(height) || 500)),
       provider: detectedProvider || detectProvider(url),
       allow_fullscreen: allowFullscreen,
+      evidence_kind: requireInteraction ? "self_check" : "none",
     });
   }
 
@@ -194,6 +202,23 @@ export function IframeBlockModal({
             </div>
             <span className="toggle-label">Toestaan</span>
           </label>
+        </div>
+        <div className="quiz-setting">
+          <div className="quiz-setting-label">Interactie vereist</div>
+          <label className="toggle-row" style={{ marginTop: 8 }}>
+            <div className="toggle-switch">
+              <input
+                checked={requireInteraction}
+                onChange={(event) => setRequireInteraction(event.target.checked)}
+                type="checkbox"
+              />
+              <span className="toggle-track">
+                <span className="toggle-thumb" />
+              </span>
+            </div>
+            <span className="toggle-label">Meetellen voor voortgang</span>
+          </label>
+          <p className="m-hint">De embed moet een Digidactics completion-event versturen.</p>
         </div>
       </div>
 

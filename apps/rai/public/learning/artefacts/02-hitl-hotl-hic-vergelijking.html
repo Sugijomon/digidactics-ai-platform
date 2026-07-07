@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vergelijking Human Oversight Modellen</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --font-heading:'Manrope',Inter,ui-sans-serif,system-ui,sans-serif;
+  --font-body:'Inter',ui-sans-serif,system-ui,sans-serif;
+  --ui-blue-grey:#6993aa;
+  --surface-lowest:#ffffff;
+  --surface:#f7fafc;
+  --container-high:#e5e9eb;
+  --on-surface:#181c1e;
+  --on-surface-variant:#3e484f;
+  --outline-variant:#bdc8d0;
+  --radius-ui:8px;
+  --radius-badge:999px;
+  --space-xs:4px;
+  --space-s:8px;
+  --space-m:12px;
+  --space-l:16px;
+}
+html{overflow:hidden}
+body{
+  font-family:var(--font-body);
+  background-color:var(--surface);
+  color:var(--on-surface);
+  -webkit-font-smoothing:antialiased;
+  padding:var(--space-l);
+  overflow:hidden;
+}
+.embed-table-container{
+  width:100%;
+  max-width:none;
+  margin:0 auto;
+  background-color:var(--surface-lowest);
+  border:1px solid var(--outline-variant);
+  border-radius:var(--radius-ui);
+  overflow:hidden;
+}
+.table-title-bar{
+  padding:var(--space-s) var(--space-m);
+  background-color:var(--surface);
+  font-family:var(--font-heading);
+  font-size:11px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  color:var(--ui-blue-grey);
+  border-bottom:1px solid var(--container-high);
+}
+.matrix-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  background-color:var(--surface-lowest);
+}
+.matrix-col{
+  padding:var(--space-m);
+  border-right:1px solid var(--container-high);
+}
+.matrix-col:last-child{border-right:none}
+.col-heading{
+  font-family:var(--font-heading);
+  font-size:13px;
+  font-weight:800;
+  margin-bottom:var(--space-s);
+  line-height:1.3;
+}
+.col-hitl{color:#185fa5}
+.col-hotl{color:#ba7517}
+.col-hic{color:#1a7a52}
+.matrix-list{
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:var(--space-xs);
+}
+.matrix-list li{
+  font-size:13.5px;
+  line-height:1.35;
+  color:var(--on-surface-variant);
+  position:relative;
+  padding-left:var(--space-m);
+}
+.matrix-list li::before{
+  content:"";
+  position:absolute;
+  left:2px;
+  top:5px;
+  width:5px;
+  height:5px;
+  border-radius:var(--radius-badge);
+}
+.matrix-list-hitl li::before{background-color:#185fa5}
+.matrix-list-hotl li::before{background-color:#ba7517}
+.matrix-list-hic li::before{background-color:#1a7a52}
+@media(max-width:560px){
+  body{padding:var(--space-m)}
+  .matrix-grid{grid-template-columns:1fr}
+  .matrix-col{border-right:none;border-bottom:1px solid var(--container-high)}
+  .matrix-col:last-child{border-bottom:none}
+}
+</style>
+</head>
+<body>
+<div class="embed-table-container">
+  <div class="table-title-bar">Vergelijking op een regel</div>
+  <div class="matrix-grid">
+    <div class="matrix-col">
+      <div class="col-heading col-hitl">HITL - per beslissing</div>
+      <ul class="matrix-list matrix-list-hitl">
+        <li>Mens keurt elke output goed</li>
+        <li>Hoog-risico beslissingen</li>
+        <li>Laag volume, hoge impact</li>
+        <li>Medewerker als reviewer</li>
+      </ul>
+    </div>
+    <div class="matrix-col">
+      <div class="col-heading col-hotl">HOTL - bij afwijking</div>
+      <ul class="matrix-list matrix-list-hotl">
+        <li>Mens monitort en overridet</li>
+        <li>Middel-risico processen</li>
+        <li>Hoog volume, middel impact</li>
+        <li>Teamlead als monitor</li>
+      </ul>
+    </div>
+    <div class="matrix-col">
+      <div class="col-heading col-hic">HIC - op beleidsniveau</div>
+      <ul class="matrix-list matrix-list-hic">
+        <li>Mens stelt kaders en stopt</li>
+        <li>Strategisch AI-gebruik</li>
+        <li>Systeemniveau, governance</li>
+        <li>Proceseigenaar / management</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<script>
+function notifyResize() {
+  requestAnimationFrame(() => {
+    const container = document.querySelector(".embed-table-container");
+    const containerRect = container?.getBoundingClientRect();
+    const bodyStyle = getComputedStyle(document.body);
+    const paddingTop = parseFloat(bodyStyle.paddingTop) || 0;
+    const paddingBottom = parseFloat(bodyStyle.paddingBottom) || 0;
+    const height = containerRect
+      ? containerRect.height + paddingTop + paddingBottom
+      : document.body.getBoundingClientRect().height;
+    window.parent?.postMessage({
+      type: "digidactics_resize",
+      blockId: "p12-rich-html-hitl-hotl-hic-vergelijking",
+      height: Math.ceil(height) + 10
+    }, "*");
+  });
+}
+window.addEventListener("load", notifyResize);
+document.fonts?.ready?.then(notifyResize);
+</script>
+</body>
+</html>

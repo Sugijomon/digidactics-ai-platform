@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Output verifiëren — 5 stappen</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F5F0;--surface:#FFFFFF;--text:#1A1A18;--text2:#5A5A56;--text3:#9A9A96;
+  --border:rgba(0,0,0,0.08);--r:12px;
+  --accent:#1D9E75;--accent-l:#E1F5EE;--accent-d:#085041;
+  --red:#A32D2D;--red-l:#FCEBEB;
+  --amber:#BA7517;--amber-l:#FAEEDA;--amber-d:#633806;
+  --purple:#534AB7;--purple-l:#EEEDFE;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);padding:32px 16px 48px;display:flex;flex-direction:column;align-items:center}
+.header{text-align:center;margin-bottom:30px;max-width:540px}
+.tag{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:99px;background:var(--accent-l);color:var(--accent-d);margin-bottom:10px;letter-spacing:0.06em}
+.header h1{font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:6px}
+.header p{font-size:13px;color:var(--text2);line-height:1.65}
+
+.wrap{max-width:800px;width:100%}
+
+/* Horizontal timeline */
+.tl-row{display:flex;align-items:flex-start;position:relative;margin-bottom:16px;padding:0 10px}
+.tl-row::before{content:'';position:absolute;top:22px;left:38px;right:38px;height:2px;background:var(--border);z-index:0}
+.progress-line{position:absolute;top:22px;left:38px;height:2px;background:var(--accent);z-index:1;transition:width 0.4s ease;width:0}
+
+.step{display:flex;flex-direction:column;align-items:center;flex:1;cursor:pointer;position:relative;z-index:2}
+.step-dot{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;border:2px solid var(--border);background:var(--surface);color:var(--text3);transition:all 0.2s;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.step-dot:hover{border-color:var(--accent)}
+.step.done .step-dot{background:var(--accent);border-color:var(--accent);color:white}
+.step.active .step-dot{background:var(--accent-d);border-color:var(--accent-d);color:white;box-shadow:0 0 0 4px var(--accent-l)}
+.step-lbl{font-size:11px;font-weight:500;color:var(--text3);text-align:center;line-height:1.3;max-width:80px}
+.step.done .step-lbl,.step.active .step-lbl{color:var(--accent-d)}
+
+/* Detail */
+.detail{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);overflow:hidden}
+.detail-top{padding:20px 24px 18px;border-bottom:0.5px solid var(--border);display:flex;gap:16px;align-items:flex-start}
+.step-num-lg{width:40px;height:40px;border-radius:10px;background:var(--accent-l);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:20px;color:var(--accent-d);flex-shrink:0}
+.detail-title{font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);margin-bottom:3px}
+.detail-sub{font-size:13px;color:var(--text3);font-style:italic}
+.detail-body{padding:18px 24px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.detail-desc{grid-column:1/-1;font-size:14px;color:var(--text2);line-height:1.7}
+
+/* Good/bad examples */
+.ex-box{border-radius:8px;padding:14px}
+.ex-box.bad{background:var(--red-l)}
+.ex-box.good{background:var(--accent-l)}
+.ex-label{font-size:10px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:6px}
+.ex-box.bad .ex-label{color:var(--red)}
+.ex-box.good .ex-label{color:var(--accent-d)}
+.ex-text{font-size:12px;line-height:1.6}
+.ex-box.bad .ex-text{color:var(--red)}
+.ex-box.good .ex-text{color:var(--accent-d)}
+
+/* Action prompt */
+.action-box{grid-column:1/-1;background:var(--bg);border:0.5px solid var(--border);border-radius:8px;padding:14px}
+.action-label{font-size:10px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.action-items{display:flex;flex-direction:column;gap:4px}
+.action-item{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--text2);line-height:1.5}
+.action-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:5px}
+
+/* Nav */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-top:0.5px solid var(--border);background:var(--bg)}
+.nav-btn{display:flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;border:0.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;transition:all 0.12s}
+.nav-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.nav-btn:disabled{opacity:0.3;cursor:default}
+.nav-btn.primary{background:var(--accent);border-color:var(--accent);color:white}
+.nav-btn.primary:hover{background:var(--accent-d)}
+.nav-info{font-size:12px;color:var(--text3)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="tag">AI Proficiency · P04 · Competentie P5</div>
+  <h1>Output verifiëren en verbeteren</h1>
+  <p>Vijf verificatiestappen die je doorloopt vóór AI-output wordt gebruikt, verstuurd of gedeeld. Klik op een stap voor uitleg en voorbeelden.</p>
+</div>
+
+<div class="wrap">
+  <div class="tl-row">
+    <div class="progress-line" id="pl"></div>
+    <div class="step" data-i="0" onclick="goTo(0)"><div class="step-dot">1</div><div class="step-lbl">Feiten checken</div></div>
+    <div class="step" data-i="1" onclick="goTo(1)"><div class="step-dot">2</div><div class="step-lbl">Bronnen verifiëren</div></div>
+    <div class="step" data-i="2" onclick="goTo(2)"><div class="step-dot">3</div><div class="step-lbl">Toon beoordelen</div></div>
+    <div class="step" data-i="3" onclick="goTo(3)"><div class="step-dot">4</div><div class="step-lbl">Bias scannen</div></div>
+    <div class="step" data-i="4" onclick="goTo(4)"><div class="step-dot">5</div><div class="step-lbl">Actualiteit checken</div></div>
+  </div>
+
+  <div class="detail">
+    <div class="detail-top">
+      <div class="step-num-lg" id="d-num">1</div>
+      <div>
+        <div class="detail-title" id="d-title">Feiten controleren</div>
+        <div class="detail-sub" id="d-sub">Klopt de inhoud?</div>
+      </div>
+    </div>
+    <div class="detail-body" id="d-body"></div>
+    <div class="nav">
+      <button class="nav-btn" id="pb" onclick="prev()" disabled>← Vorige</button>
+      <span class="nav-info" id="ni">Stap 1 van 5</span>
+      <button class="nav-btn primary" id="nb" onclick="next()">Volgende →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STEPS=[
+  {num:1,title:'Feiten controleren',sub:'Klopt de inhoud feitelijk?',
+   desc:'AI genereert op basis van patronen — niet op basis van actuele kennis. Feiten klinken zeker maar kunnen onjuist zijn. Verifieer altijd de kern voordat je output gebruikt.',
+   bad:{label:'Rode vlag',text:'AI schrijft: "Bedrijven met meer dan 50 medewerkers zijn verplicht een DPO aan te stellen." Dit is niet universeel correct — de drempel hangt af van het type verwerking, niet alleen het aantal medewerkers.'},
+   good:{label:'Correcte aanpak',text:'Zoek het op via de Autoriteit Persoonsgegevens of vraag je privacycontact. Gebruik AI-output als startpunt, niet als eindpunt.'},
+   actions:['Zijn namen, datums en cijfers verifieerbaar?','Zijn de claims te stellig voor het onderwerp?','Heb ik dit gecheckt via een primaire bron?']},
+  {num:2,title:'Bronnen verifiëren',sub:'Bestaan de bronnen echt?',
+   desc:'AI verzint bronnen: wetsartikelen, rapporten, onderzoeken en citaten die er professioneel uitzien maar niet bestaan. Dit is een van de meest gevaarlijke AI-fouten in professionele context.',
+   bad:{label:'Rode vlag',text:'AI verwijst naar: "Rapport van McKinsey (2024): AI verhoogt productiviteit met 40%." Na opzoeken: het rapport bestaat niet in die vorm. Het percentage is verzonnen.'},
+   good:{label:'Correcte aanpak',text:'Controleer elke genoemde bron direct. Zoek op de officiële website van de instantie. Kan je hem niet vinden → verwijder of vervang.'},
+   actions:['Is de bron te vinden op de website van de instantie?','Bestaat het wetsartikel, rapport of boek echt?','Staat het citaat werkelijk in de bron?']},
+  {num:3,title:'Toon beoordelen',sub:'Passend voor context en ontvanger?',
+   desc:'AI calibreert toon op instructies maar mist vaak subtiele context: de ernst van een situatie, de relatie met de ontvanger, of culturele nuances in communicatie.',
+   bad:{label:'Rode vlag',text:'AI reageert op een klacht: "Uw melding is ontvangen. Wij nemen dit mee in onze processen." Correct maar ijskoud. Geen empathie, geen persoonlijkheid — klant voelt zich niet gehoord.'},
+   good:{label:'Correcte aanpak',text:'"Bedankt voor uw melding — het spijt ons dat u deze ervaring heeft gehad. We pakken dit direct op en komen binnen 24 uur bij u terug." Zelfde informatie, menselijke toon.'},
+   actions:['Past de toon bij de ontvanger en het kanaal?','Is de urgentie of ernst goed weergegeven?','Zijn er zinnen die verkeerd begrepen kunnen worden?']},
+  {num:4,title:'Bias scannen',sub:'Eerlijk en evenwichtig?',
+   desc:'AI leert van data met menselijke vooroordelen. Output kan bepaalde groepen systematisch benadelen, stereotypen bevatten of eenzijdige perspectieven weerspiegelen — ook subtiel.',
+   bad:{label:'Rode vlag',text:'AI schrijft een vacaturetekst en gebruikt "hij" voor technische functies, "zij" voor ondersteunende functies. Patroon is consistent — maar bevestigt een stereotiep dat de selectie beïnvloedt.'},
+   good:{label:'Correcte aanpak',text:'Gebruik genderneutrale taal ("de kandidaat", "medewerker"). Controleer of specifieke achtergronden of groepen impliciet worden benadeld of uitgeloten.'},
+   actions:['Zijn bepaalde groepen of perspectieven ondervertegenwoordigd?','Bevat de output impliciete aannames over gender, leeftijd of achtergrond?','Is het taalgebruik inclusief?']},
+  {num:5,title:'Actualiteit checken',sub:'Informatie nog geldig?',
+   desc:'AI-modellen hebben een trainings-cutoff. Wetgeving, tarieven, beleid en marktinformatie veranderen — AI weet dat niet. Dit is extra relevant in compliance, finance en juridische context.',
+   bad:{label:'Rode vlag',text:'AI beschrijft de AI Act-tijdlijn met een verouderde datum voor de hoog-risico-regels. Was correct bij de trainingsdata — inmiddels achterhaald door politiek akkoord van mei 2026.'},
+   good:{label:'Correcte aanpak',text:'Check altijd bij tijdgevoelige informatie: wetgeving, deadlines, tarieven. Voeg aan je prompt toe: "Geef aan als deze informatie kan zijn veranderd na jouw trainings-cutoff."'},
+   actions:['Is er regelgeving of beleid dat recentelijk is gewijzigd?','Zijn genoemde tarieven, drempelwaarden of deadlines actueel?','Zijn er recente ontwikkelingen die de output beïnvloeden?']},
+];
+
+let cur=0,maxR=0;
+
+function render(){
+  const s=STEPS[cur];
+  document.getElementById('d-num').textContent=s.num;
+  document.getElementById('d-title').textContent=s.title;
+  document.getElementById('d-sub').textContent=s.sub;
+  const acts=s.actions.map(a=>`<div class="action-item"><div class="action-dot"></div><span>${a}</span></div>`).join('');
+  document.getElementById('d-body').innerHTML=`
+    <div class="detail-desc">${s.desc}</div>
+    <div class="ex-box bad"><div class="ex-label">${s.bad.label}</div><div class="ex-text">${s.bad.text}</div></div>
+    <div class="ex-box good"><div class="ex-label">${s.good.label}</div><div class="ex-text">${s.good.text}</div></div>
+    <div class="action-box"><div class="action-label">Controleer dit</div><div class="action-items">${acts}</div></div>
+  `;
+  document.getElementById('ni').textContent=`Stap ${cur+1} van 5`;
+  document.getElementById('pb').disabled=cur===0;
+  document.getElementById('nb').textContent=cur===4?'✓ Afronden':'Volgende →';
+  document.querySelectorAll('.step').forEach((el,i)=>{
+    el.classList.remove('active','done');
+    const dot=el.querySelector('.step-dot');
+    if(i<cur){el.classList.add('done');dot.textContent='✓';}
+    else if(i===cur){el.classList.add('active');dot.textContent=i+1;}
+    else dot.textContent=i+1;
+  });
+  const pct=cur===0?0:(cur/4)*100;
+  document.getElementById('pl').style.width=`calc(${pct}% - ${pct===0?0:18}px)`;
+}
+
+function goTo(i){cur=i;maxR=Math.max(maxR,i);render();}
+function next(){if(cur<4)goTo(cur+1);}
+function prev(){if(cur>0)goTo(cur-1);}
+render();
+</script>
+</body>
+</html>

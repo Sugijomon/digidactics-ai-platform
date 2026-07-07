@@ -193,6 +193,8 @@ function reuseAiLiteracyPage(pageCode: string): PageSeed {
 
 export const aiLiteracyTopicSeeds: AiLiteracyTopicSeed[] = topicSeeds;
 
+let aiLiteracyGlobalPageSequence = 0;
+
 export const aiLiteracyPreviewCourse: LearningCourseView = {
   id: "preview-ai-literacy-foundation",
   course_code: "ai-literacy-foundation",
@@ -213,7 +215,7 @@ export const aiLiteracyPreviewCourse: LearningCourseView = {
       summary: topic.summary,
       sequence_order: topicIndex + 1,
       is_required: true,
-      pages: topic.pages.map((page, pageIndex) => ({
+      pages: topic.pages.map((page) => ({
         id: `preview-page-${page.code}`,
         page_code: page.code,
         topic_id: topicId,
@@ -221,7 +223,7 @@ export const aiLiteracyPreviewCourse: LearningCourseView = {
         summary: page.summary,
         page_type: page.type,
         estimated_duration_minutes: page.minutes,
-        sequence_order: pageIndex + 1,
+        sequence_order: ++aiLiteracyGlobalPageSequence,
         is_required: page.is_required ?? true,
         content: {
           version: 1,
@@ -526,6 +528,8 @@ const aiProficiencyTopicSeeds: TopicSeed[] = [
 
 const activeAiProficiencyTopicSeeds: TopicSeed[] = aiProficiencyCourseTopicSeeds;
 
+let aiProficiencyGlobalPageSequence = 0;
+
 export const aiProficiencyPreviewCourse: LearningCourseView = {
   id: "preview-ai-proficiency",
   course_code: "ai-proficiency",
@@ -546,7 +550,7 @@ export const aiProficiencyPreviewCourse: LearningCourseView = {
       summary: topic.summary,
       sequence_order: topicIndex + 1,
       is_required: true,
-      pages: topic.pages.map((page, pageIndex) => ({
+      pages: topic.pages.map((page) => ({
         id: `preview-page-${page.code}`,
         page_code: page.code,
         topic_id: topicId,
@@ -554,7 +558,7 @@ export const aiProficiencyPreviewCourse: LearningCourseView = {
         summary: page.summary,
         page_type: page.type,
         estimated_duration_minutes: page.minutes,
-        sequence_order: pageIndex + 1,
+        sequence_order: ++aiProficiencyGlobalPageSequence,
         is_required: true,
         content: {
           version: 1,
@@ -649,6 +653,8 @@ const aiMasteryTopicSeeds: TopicSeed[] = [
 
 const activeAiMasteryTopicSeeds: TopicSeed[] = aiMasteryCourseTopicSeeds;
 
+let aiMasteryGlobalPageSequence = 0;
+
 export const aiMasteryPreviewCourse: LearningCourseView = {
   id: "preview-ai-mastery",
   course_code: "ai-mastery",
@@ -669,7 +675,7 @@ export const aiMasteryPreviewCourse: LearningCourseView = {
       summary: topic.summary,
       sequence_order: topicIndex + 1,
       is_required: true,
-      pages: topic.pages.map((page, pageIndex) => ({
+      pages: topic.pages.map((page) => ({
         id: `preview-page-${page.code}`,
         page_code: page.code,
         topic_id: topicId,
@@ -677,7 +683,7 @@ export const aiMasteryPreviewCourse: LearningCourseView = {
         summary: page.summary,
         page_type: page.type,
         estimated_duration_minutes: page.minutes,
-        sequence_order: pageIndex + 1,
+        sequence_order: ++aiMasteryGlobalPageSequence,
         is_required: true,
         content: {
           version: 1,

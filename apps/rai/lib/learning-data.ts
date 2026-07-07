@@ -27,6 +27,7 @@ import {
   hasSupabaseConfig,
 } from "./supabase-server";
 import { isDevContentEditorBypassEnabled } from "./dev-content-editor-bypass";
+import { applyLocalLearningContentOverrides } from "./learning-local-content-overrides";
 
 interface CourseRow {
   id: string;
@@ -305,15 +306,15 @@ export async function getAiLiteracyCourse(courseCode = "ai-literacy-foundation")
 
 function getPreviewCourse(courseCode: string) {
   if (courseCode === aiLiteracyPreviewCourse.course_code) {
-    return aiLiteracyPreviewCourse;
+    return applyLocalLearningContentOverrides(aiLiteracyPreviewCourse);
   }
 
   if (courseCode === aiProficiencyPreviewCourse.course_code) {
-    return aiProficiencyPreviewCourse;
+    return applyLocalLearningContentOverrides(aiProficiencyPreviewCourse);
   }
 
   if (courseCode === aiMasteryPreviewCourse.course_code) {
-    return aiMasteryPreviewCourse;
+    return applyLocalLearningContentOverrides(aiMasteryPreviewCourse);
   }
 
   return null;
@@ -335,7 +336,11 @@ async function canPreviewDraftLearningContent(
 }
 
 function getPreviewPublishedCourses(): PublishedCourseCatalogItem[] {
-  return [aiProficiencyPreviewCourse, aiMasteryPreviewCourse, aiLiteracyPreviewCourse].map((course) => {
+  return [
+    applyLocalLearningContentOverrides(aiProficiencyPreviewCourse),
+    applyLocalLearningContentOverrides(aiMasteryPreviewCourse),
+    applyLocalLearningContentOverrides(aiLiteracyPreviewCourse),
+  ].map((course) => {
     const pages = getCoursePages(course);
 
     return {
@@ -358,7 +363,7 @@ function getPreviewPublishedCourses(): PublishedCourseCatalogItem[] {
 }
 
 function mergePreviewCourseContent(course: LearningCourseView): LearningCourseView {
-  return course;
+  return applyLocalLearningContentOverrides(course);
 }
 
 export async function getPublishedCourses(): Promise<PublishedCourseCatalogItem[]> {

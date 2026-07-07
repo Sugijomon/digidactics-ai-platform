@@ -2,9 +2,13 @@ import Link from "next/link";
 import { Breadcrumb } from "@/components/learning/admin/Breadcrumb";
 import { ContentEditorShell } from "@/components/learning/admin/ContentEditorShell";
 import { getLearningContentAudit } from "@/lib/learning-admin-data";
-import { syncAiLiteracyContentFromSource } from "../actions";
 
-export default async function LearningContentAuditPage() {
+export default async function LearningContentAuditPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ sync_error?: string; synced?: string }>;
+}) {
+  const params = await searchParams;
   const rows = await getLearningContentAudit();
   const mismatchCount = rows.filter((row) => row.status !== "ok").length;
   const reviewRequiredCount = rows.reduce((sum, row) => sum + row.review_required_count, 0);
@@ -27,13 +31,32 @@ export default async function LearningContentAuditPage() {
           <Link className="button button-secondary" href="/learning">
             Learner bekijken
           </Link>
-          <form action={syncAiLiteracyContentFromSource}>
+          <form action="/learning/admin/content-audit/sync" method="post">
             <button className="button button-primary" type="submit">
               Sync Literacy + Proficiency + Mastery
             </button>
           </form>
         </div>
       </div>
+
+      {params?.synced === "1" ? (
+        <div className="review-notice success">
+          <span>✓</span>
+          <div>
+            <strong>Sync uitgevoerd</strong>
+            <p>De live Supabase-content is opnieuw opgebouwd vanuit de repo-bron.</p>
+          </div>
+        </div>
+      ) : null}
+      {params?.sync_error ? (
+        <div className="review-notice">
+          <span>!</span>
+          <div>
+            <strong>Sync niet uitgevoerd</strong>
+            <p>{params.sync_error}</p>
+          </div>
+        </div>
+      ) : null}
 
       <section className="admin-stat-grid" aria-label="Content audit statistieken">
         <article className="admin-stat-card">

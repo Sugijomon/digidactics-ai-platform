@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verboden, hoog risico en transparantie (RAI Learning Style)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f7fafc;
+  --surface:#ffffff;
+  --text-primary:#181c1e;
+  --text-secondary:#3e484f;
+  --text-muted:#6993aa;
+  --border-color:#bdc8d0;
+  --radius-ui:8px;
+  --radius-card:12px;
+  --radius-pill:999px;
+  --red:#A32D2D;--red-bg:#FCEBEB;--red-brd:#F5C5BE;
+  --amber:#BA7517;--amber-bg:#FAEEDA;--amber-brd:#F5C875;
+  --blue:#00658b;--blue-bg:#c4e7ff;--blue-brd:#a2d4f2;
+}
+html{overflow:hidden}
+body{
+  font-family:'Inter',ui-sans-serif,system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text-primary);
+  padding:12px;
+  max-width:none;
+  margin:0 auto;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+.header{text-align:center;margin-bottom:16px}
+.header h1{
+  font-family:'Manrope',sans-serif;
+  font-size:18px;
+  font-weight:700;
+  color:var(--text-primary);
+  margin-bottom:4px;
+  letter-spacing:0;
+}
+.header p{font-size:12px;color:var(--text-secondary)}
+.main-container{
+  display:grid;
+  grid-template-columns:minmax(260px,.9fr) minmax(330px,1.25fr);
+  gap:14px;
+  width:100%;
+  align-items:start;
+}
+.accordion-side{display:flex;flex-direction:column;gap:8px;min-width:0}
+.acc-item{
+  background:var(--surface);
+  border:1px solid var(--border-color);
+  border-radius:var(--radius-ui);
+  overflow:hidden;
+  transition:border-color .15s;
+}
+.acc-item.active{border-color:var(--text-primary)}
+.acc-trigger{
+  width:100%;
+  padding:10px 12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:none;
+  border:none;
+  cursor:pointer;
+  text-align:left;
+}
+.acc-title{
+  font-family:'Manrope',sans-serif;
+  font-size:12px;
+  font-weight:700;
+  color:var(--text-primary);
+}
+.acc-arrow{
+  font-size:12px;
+  color:var(--text-muted);
+  transition:transform .2s ease;
+}
+.acc-item.active .acc-arrow{transform:rotate(90deg);color:var(--text-primary)}
+.acc-content{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height .25s ease-out;
+  background:var(--bg);
+}
+.acc-item.active .acc-content{
+  max-height:360px;
+  border-top:1px solid var(--border-color);
+}
+.sub-list{padding:6px;display:flex;flex-direction:column;gap:4px}
+.sub-btn{
+  width:100%;
+  padding:8px;
+  background:var(--surface);
+  border:1px solid var(--border-color);
+  border-radius:6px;
+  text-align:left;
+  cursor:pointer;
+  display:flex;
+  gap:8px;
+  align-items:flex-start;
+  transition:background .15s,border-color .15s,box-shadow .15s;
+}
+.sub-btn:hover{background:var(--bg)}
+.sub-btn:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.sub-btn.selected{
+  border-color:var(--text-primary);
+  background:var(--surface);
+  box-shadow:inset 2px 0 0 var(--text-primary);
+}
+.sub-icon{font-size:14px;margin-top:1px}
+.sub-text-title{font-size:11px;font-weight:600;color:var(--text-primary);line-height:1.3}
+.sub-text-note{font-size:10px;color:var(--text-muted);line-height:1.2;margin-top:1px}
+.detail-side{min-width:0}
+.detail-card{
+  background:var(--surface);
+  border:1px solid var(--border-color);
+  border-radius:var(--radius-card);
+  padding:14px;
+  min-height:340px;
+  display:flex;
+  flex-direction:column;
+}
+.detail-empty{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  margin:auto;
+  text-align:center;
+  color:var(--text-muted);
+  gap:8px;
+}
+.detail-empty svg{opacity:.4}
+.detail-main-content{animation:fadeIn .2s ease-out}
+.detail-header{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.detail-title{
+  font-family:'Manrope',sans-serif;
+  font-size:14px;
+  font-weight:700;
+  color:var(--text-primary);
+}
+.detail-desc{font-size:11.5px;color:var(--text-secondary);line-height:1.5;margin-bottom:12px}
+.section-title{
+  font-family:'Manrope',sans-serif;
+  font-size:10px;
+  font-weight:600;
+  color:var(--text-muted);
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  margin:12px 0 6px;
+}
+.obligations-list{display:flex;flex-direction:column;gap:5px}
+.obligation-item{
+  display:flex;
+  align-items:flex-start;
+  gap:6px;
+  font-size:11px;
+  color:var(--text-secondary);
+  line-height:1.35;
+}
+.obligation-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.signal-box{
+  padding:10px;
+  border-radius:var(--radius-ui);
+  border:1px solid transparent;
+  font-size:11px;
+  line-height:1.4;
+  margin-top:12px;
+}
+.signal-box strong{display:block;font-family:'Manrope',sans-serif;margin-bottom:2px}
+.sig-red{background:var(--red-bg);border-color:var(--red-brd);color:var(--red)}
+.sig-amber{background:var(--amber-bg);border-color:var(--amber-brd);color:#633806}
+.sig-blue{background:var(--blue-bg);border-color:var(--blue-brd);color:#004d6a}
+.meta-row{
+  display:flex;
+  gap:4px;
+  flex-wrap:wrap;
+  margin-top:14px;
+  border-top:1px solid var(--border-color);
+  padding-top:10px;
+}
+.meta-tag{
+  font-size:9.5px;
+  font-family:system-mono,monospace;
+  background:var(--bg);
+  border:1px solid var(--border-color);
+  padding:2px 6px;
+  border-radius:4px;
+  color:var(--text-secondary);
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:580px){
+  .main-container{display:flex;flex-direction:column}
+  .accordion-side,.detail-side{width:100%}
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Wettelijke classificaties en MKB</h1>
+  <p>Klik op een categorie en selecteer een voorbeeld voor de volledige duiding.</p>
+</div>
+<div class="main-container">
+  <div class="accordion-side">
+    <div class="acc-item" id="item-verboden">
+      <button class="acc-trigger" type="button" onclick="toggleAccordion('verboden')" aria-expanded="false" aria-controls="content-verboden">
+        <span class="acc-title" style="color:var(--red)">Artikel 5 - Verboden</span>
+        <span class="acc-arrow" aria-hidden="true">&rsaquo;</span>
+      </button>
+      <div class="acc-content" id="content-verboden">
+        <div class="sub-list">
+          <button class="sub-btn" type="button" id="btn-socialscoring" onclick="selectSubitem('socialscoring')"><span class="sub-icon">!</span><div><div class="sub-text-title">Sociale scoring door overheid</div><div class="sub-text-note">Rangschikking van burgers op gedrag</div></div></button>
+          <button class="sub-btn" type="button" id="btn-biometrie" onclick="selectSubitem('biometrie')"><span class="sub-icon">ID</span><div><div class="sub-text-title">Realtime biometrische identificatie</div><div class="sub-text-note">Gezichtsherkenning op openbare plekken</div></div></button>
+          <button class="sub-btn" type="button" id="btn-manipulatie" onclick="selectSubitem('manipulatie')"><span class="sub-icon">!</span><div><div class="sub-text-title">Manipulatie via onbewuste technieken</div><div class="sub-text-note">Beinvloeding buiten bewustzijn</div></div></button>
+          <button class="sub-btn" type="button" id="btn-politieprofiling" onclick="selectSubitem('politieprofiling')"><span class="sub-icon">?</span><div><div class="sub-text-title">Voorspellend politiewerk op profiling</div><div class="sub-text-note">Zonder feitelijke gedragsindicatoren</div></div></button>
+        </div>
+      </div>
+    </div>
+    <div class="acc-item" id="item-hoog">
+      <button class="acc-trigger" type="button" onclick="toggleAccordion('hoog')" aria-expanded="false" aria-controls="content-hoog">
+        <span class="acc-title" style="color:var(--amber)">Artikel 6 - Hoog risico</span>
+        <span class="acc-arrow" aria-hidden="true">&rsaquo;</span>
+      </button>
+      <div class="acc-content" id="content-hoog">
+        <div class="sub-list">
+          <button class="sub-btn" type="button" id="btn-hrscreening" onclick="selectSubitem('hrscreening')"><span class="sub-icon">HR</span><div><div class="sub-text-title">CV-selectie en HR-screening</div><div class="sub-text-note">AI die sollicitanten rangschikt of beoordeelt</div></div></button>
+          <button class="sub-btn" type="button" id="btn-krediet" onclick="selectSubitem('krediet')"><span class="sub-icon">€</span><div><div class="sub-text-title">Kredietbeoordeling</div><div class="sub-text-note">AI-beslissing over financiele diensten</div></div></button>
+          <button class="sub-btn" type="button" id="btn-medisch" onclick="selectSubitem('medisch')"><span class="sub-icon">+</span><div><div class="sub-text-title">Medische diagnose-ondersteuning</div><div class="sub-text-note">AI in klinische besluitvorming</div></div></button>
+          <button class="sub-btn" type="button" id="btn-onderwijs" onclick="selectSubitem('onderwijs')"><span class="sub-icon">ED</span><div><div class="sub-text-title">Scoring en toelating in onderwijs</div><div class="sub-text-note">AI die studenten beoordeelt of toelaat</div></div></button>
+        </div>
+      </div>
+    </div>
+    <div class="acc-item" id="item-transparantie">
+      <button class="acc-trigger" type="button" onclick="toggleAccordion('transparantie')" aria-expanded="false" aria-controls="content-transparantie">
+        <span class="acc-title" style="color:var(--blue)">Artikel 50 - Transparantie</span>
+        <span class="acc-arrow" aria-hidden="true">&rsaquo;</span>
+      </button>
+      <div class="acc-content" id="content-transparantie">
+        <div class="sub-list">
+          <button class="sub-btn" type="button" id="btn-chatbot" onclick="selectSubitem('chatbot')"><span class="sub-icon">AI</span><div><div class="sub-text-title">Chatbots en AI-assistenten</div><div class="sub-text-note">Gebruiker moet weten: dit is AI</div></div></button>
+          <button class="sub-btn" type="button" id="btn-deepfake" onclick="selectSubitem('deepfake')"><span class="sub-icon">AV</span><div><div class="sub-text-title">Deepfakes en synthetische media</div><div class="sub-text-note">Labeling als AI-gegenereerd verplicht</div></div></button>
+          <button class="sub-btn" type="button" id="btn-emotie" onclick="selectSubitem('emotie')"><span class="sub-icon">EM</span><div><div class="sub-text-title">Emotieherkenningssystemen</div><div class="sub-text-note">Informatieplicht richting betrokkenen</div></div></button>
+          <button class="sub-btn" type="button" id="btn-aicontent" onclick="selectSubitem('aicontent')"><span class="sub-icon">TXT</span><div><div class="sub-text-title">AI-gegenereerde content</div><div class="sub-text-note">Markeren waar misleiding kan ontstaan</div></div></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="detail-side">
+    <div class="detail-card">
+      <div class="detail-empty" id="detail-empty">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+        </svg>
+        <p style="font-size:11px">Selecteer een praktijkvoorbeeld links om de duiding te bekijken</p>
+      </div>
+      <div class="detail-main-content" id="detail-content" style="display:none">
+        <div class="detail-header">
+          <span id="d-icon" style="font-size:12px;font-weight:700;color:var(--text-muted)"></span>
+          <h2 class="detail-title" id="d-title"></h2>
+        </div>
+        <p class="detail-desc" id="d-desc"></p>
+        <div>
+          <div class="section-title" id="d-obligations-label"></div>
+          <div class="obligations-list" id="d-obligations-list"></div>
+        </div>
+        <div class="signal-box" id="d-signal"></div>
+        <div class="meta-row">
+          <span class="meta-tag" id="d-meta-art"></span>
+          <span class="meta-tag" id="d-meta-date"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const DATA = {
+  socialscoring: {
+    icon: "!",
+    title: "Sociale scoring door overheid",
+    desc: "AI-systemen die mensen ongunstig behandelen op basis van een algemene score rond gedrag, sociale relaties of persoonlijke eigenschappen vallen onder verboden praktijken.",
+    label: "Gevolg overtreding",
+    obligations: ["Niet gebruiken, inkopen of doorzetten.", "Bij verzoeken van klanten of partners: direct juridisch laten toetsen."],
+    signal: "Wordt gevraagd om burgers, klanten of medewerkers breed te rangschikken op betrouwbaarheid of gedrag? Stop en escaleer.",
+    stype: "red",
+    art: "Art. 5 - Verboden praktijken",
+    date: "Van toepassing: 2 feb 2025"
+  },
+  biometrie: {
+    icon: "ID",
+    title: "Realtime biometrische identificatie",
+    desc: "Realtime biometrische identificatie in publiek toegankelijke ruimten is sterk beperkt en voor wetshandhaving in beginsel verboden, behalve onder nauwe uitzonderingen.",
+    label: "Gevolg overtreding",
+    obligations: ["Geen realtime identificatie inzetten zonder expliciete juridische grondslag.", "Camera- of toegangsprojecten vooraf laten beoordelen."],
+    signal: "Herkennen camera's automatisch klanten, bezoekers of medewerkers? Dan is voorafgaande juridische toetsing noodzakelijk.",
+    stype: "red",
+    art: "Art. 5 - Verboden praktijken",
+    date: "Van toepassing: 2 feb 2025"
+  },
+  manipulatie: {
+    icon: "!",
+    title: "Manipulatie via onbewuste technieken",
+    desc: "AI die gedrag wezenlijk verstoort door subliminale, manipulatieve of misleidende technieken, of kwetsbaarheden exploiteert, kan verboden zijn.",
+    label: "Gevolg overtreding",
+    obligations: ["Geen verborgen sturing of misleiding ontwerpen.", "Marketing- en verkoop-AI toetsen bij kwetsbare groepen."],
+    signal: "Als een systeem beslissingen onzichtbaar stuurt in plaats van transparant te adviseren, is dat een rood signaal.",
+    stype: "red",
+    art: "Art. 5 - Verboden praktijken",
+    date: "Van toepassing: 2 feb 2025"
+  },
+  politieprofiling: {
+    icon: "?",
+    title: "Voorspellend politiewerk op profiling",
+    desc: "AI die individuen als verdachte aanwijst puur op profiling of persoonlijkheidskenmerken, zonder objectieve feiten over gedrag, valt onder verboden praktijken.",
+    label: "Gevolg overtreding",
+    obligations: ["Geen individuele verdenking baseren op profiling alleen.", "Overheids- of veiligheidsopdrachten extra juridisch toetsen."],
+    signal: "Relevant voor MKB'ers die software, data-analyse of tooling leveren aan overheid of veiligheidsketen.",
+    stype: "red",
+    art: "Art. 5 - Verboden praktijken",
+    date: "Van toepassing: 2 feb 2025"
+  },
+  hrscreening: {
+    icon: "HR",
+    title: "CV-selectie en HR-screening",
+    desc: "AI die sollicitanten rangschikt, filtert of beoordeelt valt vaak onder Annex III hoog-risico. Voor MKB-gebruik is vooral belangrijk: niet blind varen op tooloutput.",
+    label: "Praktische deployer-plichten",
+    obligations: ["Controleer providerinformatie, doel en gebruiksinstructies.", "Wijs menselijk toezicht toe en documenteer de beslissing.", "Gebruik alleen binnen het bedoelde doel en monitor fouten of bias.", "Informeer betrokkenen waar arbeidsrecht, privacyrecht of AI Act dat vereist."],
+    signal: "AI mag voorselectie ondersteunen, maar de organisatie moet de keuze kunnen uitleggen en corrigeren.",
+    stype: "amber",
+    art: "Art. 6 + Annex III - Hoog risico",
+    date: "Annex III: vanaf 2 aug 2026"
+  },
+  krediet: {
+    icon: "EUR",
+    title: "Kredietbeoordeling",
+    desc: "AI die natuurlijke personen beoordeelt voor financiele diensten of kredietwaardigheid is hoog-risico en raakt ook privacyregels rond geautomatiseerde besluitvorming.",
+    label: "Praktische deployer-plichten",
+    obligations: ["Gebruik aantoonbaar betrouwbare en passende tooling.", "Regel menselijke herbeoordeling waar nodig.", "Bewaar relevante logs en besliscontext.", "Laat privacy en juridische grondslag vooraf toetsen."],
+    signal: "Een afwijzing op basis van AI moet uitlegbaar, controleerbaar en corrigeerbaar zijn.",
+    stype: "amber",
+    art: "Art. 6 + Annex III - Hoog risico",
+    date: "Annex III: vanaf 2 aug 2026"
+  },
+  medisch: {
+    icon: "+",
+    title: "Medische diagnose-ondersteuning",
+    desc: "AI in medische hulpmiddelen of klinische besluitvorming kan hoog-risico zijn en vaak ook onder medische hulpmiddelenregelgeving vallen.",
+    label: "Praktische deployer-plichten",
+    obligations: ["Gebruik alleen goedgekeurde systemen binnen de bedoelde context.", "Zorg voor toezicht door bevoegde professionals.", "Monitor afwijkingen, incidenten en onjuiste adviezen.", "Leg verantwoordelijkheden en escalatie vast."],
+    signal: "In zorgcontexten is AI-output ondersteunend. De professionele beoordeling blijft leidend.",
+    stype: "amber",
+    art: "Art. 6 + Annex I/III - Hoog risico",
+    date: "Fasering: 2026/2027 afhankelijk van type"
+  },
+  onderwijs: {
+    icon: "ED",
+    title: "Scoring en toelating in onderwijs",
+    desc: "AI die leerlingen of studenten beoordeelt, routeert, scoort of toegang geeft tot onderwijs kan hoog-risico zijn.",
+    label: "Praktische deployer-plichten",
+    obligations: ["Voorkom automatische eindbeslissingen zonder menselijke beoordeling.", "Controleer bias, foutmarges en uitlegbaarheid.", "Informeer betrokkenen en borg bezwaar of correctie.", "Bewaar voldoende beslisinformatie voor audit."],
+    signal: "AI-proctoring en automatische scoring vragen vrijwel altijd extra toetsing vooraf.",
+    stype: "amber",
+    art: "Art. 6 + Annex III - Hoog risico",
+    date: "Annex III: vanaf 2 aug 2026"
+  },
+  chatbot: {
+    icon: "AI",
+    title: "Chatbots en AI-assistenten",
+    desc: "Als mensen met een AI-systeem communiceren, moet duidelijk zijn dat zij met AI te maken hebben, tenzij dit evident is uit de context.",
+    label: "Transparantieplicht",
+    obligations: ["Maak zichtbaar dat het om AI gaat.", "Formuleer beperkingen en verwijs bij risico naar menselijke hulp."],
+    signal: "Plaats bijvoorbeeld direct zichtbaar: 'Je praat met een AI-assistent'.",
+    stype: "blue",
+    art: "Art. 50 - Transparantie",
+    date: "Van toepassing: 2 aug 2026"
+  },
+  deepfake: {
+    icon: "AV",
+    title: "Deepfakes en synthetische media",
+    desc: "AI-gegenereerde of gemanipuleerde audio, video of beeld dat echt lijkt, moet in relevante situaties als kunstmatig of gemanipuleerd herkenbaar zijn.",
+    label: "Transparantieplicht",
+    obligations: ["Label synthetische media duidelijk.", "Gebruik geen stem, gezicht of testimonial zonder passende toestemming en context."],
+    signal: "AI-avatars, stemklonen en synthetische testimonials zijn geen gewone vormgeving; label en toestemming zijn cruciaal.",
+    stype: "blue",
+    art: "Art. 50 - Transparantie",
+    date: "Van toepassing: 2 aug 2026"
+  },
+  emotie: {
+    icon: "EM",
+    title: "Emotieherkenningssystemen",
+    desc: "Bij emotieherkenning of biometrische categorisering moet de betrokkene worden geinformeerd. Op werkvloer en onderwijs zijn bepaalde vormen bovendien verboden, behalve smalle uitzonderingen.",
+    label: "Transparantieplicht en rode vlag",
+    obligations: ["Informeer betrokkenen actief.", "Toets werkvloer- of onderwijsgebruik juridisch vooraf.", "Gebruik dit niet voor verborgen beoordeling van medewerkers."],
+    signal: "Voor gemiddelde MKB'ers is emotieherkenning meestal een toepassing om te vermijden.",
+    stype: "blue",
+    art: "Art. 5/50 - Emotieherkenning",
+    date: "Verbod deels 2 feb 2025; transparantie 2 aug 2026"
+  },
+  aicontent: {
+    icon: "TXT",
+    title: "AI-gegenereerde content",
+    desc: "AI-content die voor publieke informatie of misleiding relevant kan zijn, moet herkenbaar worden gemaakt. Reguliere schrijfhulp voor interne concepten valt hier niet automatisch onder.",
+    label: "Transparantieplicht",
+    obligations: ["Markeer AI-content waar publiek of context dat vereist.", "Controleer feiten, brongebruik en mogelijke misleiding.", "Leg intern vast wanneer labeling nodig is."],
+    signal: "Gebruik je AI voor nieuws, advies, publieke opinie of klantcommunicatie? Controleer of labeling vereist is.",
+    stype: "blue",
+    art: "Art. 50 - Transparantie",
+    date: "Van toepassing: 2 aug 2026"
+  }
+};
+
+let currentAccordion = null;
+let selectedCount = 0;
+const selectedKeys = new Set();
+
+function notifyResize() {
+  requestAnimationFrame(() => {
+    const bodyRect = document.body.getBoundingClientRect();
+    const docRect = document.documentElement.getBoundingClientRect();
+    const height = Math.max(
+      document.documentElement.scrollHeight,
+      document.body.scrollHeight,
+      bodyRect.bottom - bodyRect.top,
+      docRect.bottom - docRect.top
+    );
+    window.parent?.postMessage({
+      type: "digidactics_resize",
+      blockId: "p5-rich-html-verboden-hoog-risico-transparantie",
+      height: Math.ceil(height) + 2
+    }, "*");
+  });
+}
+
+function toggleAccordion(id) {
+  const item = document.getElementById(`item-${id}`);
+  const isActive = item.classList.contains("active");
+
+  document.querySelectorAll(".acc-item").forEach((el) => {
+    el.classList.remove("active");
+    el.querySelector(".acc-trigger")?.setAttribute("aria-expanded", "false");
+  });
+
+  currentAccordion = isActive ? null : id;
+  if (!isActive) {
+    item.classList.add("active");
+    item.querySelector(".acc-trigger")?.setAttribute("aria-expanded", "true");
+  }
+
+  notifyResize();
+}
+
+function selectSubitem(key) {
+  document.querySelectorAll(".sub-btn").forEach((btn) => btn.classList.remove("selected"));
+  document.getElementById(`btn-${key}`).classList.add("selected");
+
+  selectedKeys.add(key);
+  selectedCount += 1;
+
+  const d = DATA[key];
+  document.getElementById("detail-empty").style.display = "none";
+  const content = document.getElementById("detail-content");
+  content.style.display = "block";
+
+  document.getElementById("d-icon").textContent = d.icon;
+  document.getElementById("d-title").textContent = d.title;
+  document.getElementById("d-desc").textContent = d.desc;
+  document.getElementById("d-obligations-label").textContent = d.label;
+
+  const color = d.stype === "red" ? "var(--red)" : d.stype === "amber" ? "var(--amber)" : "var(--blue)";
+  document.getElementById("d-obligations-list").innerHTML = d.obligations.map((o) => `
+    <div class="obligation-item">
+      <div class="obligation-dot" style="background:${color}"></div>
+      <span>${o}</span>
+    </div>
+  `).join("");
+
+  const signalBox = document.getElementById("d-signal");
+  signalBox.className = `signal-box sig-${d.stype}`;
+  signalBox.innerHTML = `<strong>Praktische signalen voor MKB:</strong> ${d.signal}`;
+  document.getElementById("d-meta-art").textContent = d.art;
+  document.getElementById("d-meta-date").textContent = d.date;
+
+  notifyResize();
+
+  if (selectedKeys.size >= 3) {
+    window.parent?.postMessage({
+      type: "digidactics_event",
+      event: "block_complete",
+      blockId: "p5-rich-html-verboden-hoog-risico-transparantie",
+      answer: "drie-voorbeelden-bekeken"
+    }, "*");
+  }
+}
+
+window.addEventListener("load", notifyResize);
+document.fonts?.ready?.then(notifyResize);
+</script>
+</body>
+</html>

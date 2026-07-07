@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { ModalShell } from "@/components/learning/admin/ModalShell";
 
 type ToolbarAction =
@@ -35,49 +36,50 @@ export function TextBlockModal({
   const [imageMode, setImageMode] = useState<"url" | "upload">("url");
   const [imageError, setImageError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const editorRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const initialHtml = useMemo(() => markdownToHtml(initialContent), [initialContent]);
+
+  function syncContentFromEditor() {
+    const editor = editorRef.current;
+    if (!editor) return;
+    setContent(htmlToMarkdown(editor));
+  }
+
+  function focusEditor() {
+    editorRef.current?.focus();
+  }
 
   function applyToolbarAction(action: ToolbarAction) {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
+    focusEditor();
 
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selected = content.slice(start, end);
-    const next = transformContent(action, content, start, end, selected);
+    if (action === "bold") document.execCommand("bold");
+    if (action === "italic") document.execCommand("italic");
+    if (action === "underline") document.execCommand("underline");
+    if (action === "h2") document.execCommand("formatBlock", false, "h2");
+    if (action === "h3") document.execCommand("formatBlock", false, "h3");
+    if (action === "list") document.execCommand("insertUnorderedList");
+    if (action === "numbered") document.execCommand("insertOrderedList");
+    if (action === "code") document.execCommand("formatBlock", false, "pre");
 
-    setContent(next.value);
+    if (action === "link") {
+      const url = window.prompt("Link URL");
+      if (url) document.execCommand("createLink", false, url);
+    }
 
-    window.requestAnimationFrame(() => {
-      textarea.focus();
-      textarea.setSelectionRange(next.selectionStart, next.selectionEnd);
-    });
+    if (action === "image") {
+      const url = window.prompt("Afbeelding URL");
+      if (url) document.execCommand("insertImage", false, url);
+    }
+
+    syncContentFromEditor();
   }
 
   function applyTextSize(size: TextSize | "") {
     if (!size) return;
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selected = content.slice(start, end);
-    const next = wrapSelection(
-      content,
-      start,
-      end,
-      selected,
-      `[[size:${size}]]`,
-      "[[/size]]",
-    );
-
-    setContent(next.value);
-
-    window.requestAnimationFrame(() => {
-      textarea.focus();
-      textarea.setSelectionRange(next.selectionStart, next.selectionEnd);
-    });
+    focusEditor();
+    wrapSelectionInSpan(`text-size-${size}`);
+    syncContentFromEditor();
   }
 
   function handleImageFile(file: File | undefined) {
@@ -109,57 +111,63 @@ export function TextBlockModal({
       blockType="Tekst"
       description="Pas de inhoud van dit blok aan."
       onClose={onClose}
-        onSave={() => onSave(content, imageUrl.trim() || undefined)}
+      onSave={() => onSave(content, imageUrl.trim() || undefined)}
       title="Edit Paragraaf Block"
     >
-      <div className="modal-field">
+      <div className="modal-field text-modal-field">
         <label className="m-label" htmlFor="text-block-content">
           Inhoud <span className="m-label-opt">verplicht</span>
         </label>
-        <div className="editor-toolbar">
-          <ToolbarButton label="B" onClick={() => applyToolbarAction("bold")} />
-          <ToolbarButton label="I" onClick={() => applyToolbarAction("italic")} />
-          <ToolbarButton label="U" onClick={() => applyToolbarAction("underline")} />
-          <span className="tb-sep" />
-          <select
-            aria-label="Tekstgrootte"
-            className="tb-select"
-            defaultValue=""
-            onChange={(event) => {
-              applyTextSize(event.target.value as TextSize | "");
-              event.currentTarget.value = "";
-            }}
-            title="Tekstgrootte"
-          >
-            <option value="">Grootte</option>
-            <option value="14">14</option>
-            <option value="16">16</option>
-            <option value="18">18</option>
-            <option value="20">20</option>
-            <option value="22">22</option>
-          </select>
-          <span className="tb-sep" />
-          <ToolbarButton label="H2" onClick={() => applyToolbarAction("h2")} />
-          <ToolbarButton label="H3" onClick={() => applyToolbarAction("h3")} />
-          <span className="tb-sep" />
-          <ToolbarButton label="•" title="Lijst" onClick={() => applyToolbarAction("list")} />
-          <ToolbarButton label="1." title="Genummerde lijst" onClick={() => applyToolbarAction("numbered")} />
-          <span className="tb-sep" />
-          <ToolbarButton label="🔗" title="Link" onClick={() => applyToolbarAction("link")} />
-          <ToolbarButton label="🖼" title="Afbeelding" onClick={() => applyToolbarAction("image")} />
-          <span className="tb-sep" />
-          <ToolbarButton label="&lt;/&gt;" title="Code" onClick={() => applyToolbarAction("code")} />
+        <div className="text-editor-shell wysiwyg">
+          <div className="editor-toolbar">
+            <ToolbarButton label="B" onClick={() => applyToolbarAction("bold")} />
+            <ToolbarButton label="I" onClick={() => applyToolbarAction("italic")} />
+            <ToolbarButton label="U" onClick={() => applyToolbarAction("underline")} />
+            <span className="tb-sep" />
+            <select
+              aria-label="Tekstgrootte"
+              className="tb-select"
+              defaultValue=""
+              onChange={(event) => {
+                applyTextSize(event.target.value as TextSize | "");
+                event.currentTarget.value = "";
+              }}
+              title="Tekstgrootte"
+            >
+              <option value="">Grootte</option>
+              <option value="14">14</option>
+              <option value="16">16</option>
+              <option value="18">18</option>
+              <option value="20">20</option>
+              <option value="22">22</option>
+            </select>
+            <span className="tb-sep" />
+            <ToolbarButton label="H2" onClick={() => applyToolbarAction("h2")} />
+            <ToolbarButton label="H3" onClick={() => applyToolbarAction("h3")} />
+            <span className="tb-sep" />
+            <ToolbarButton label={<span aria-hidden="true">&bull;</span>} title="Bulletlijst" onClick={() => applyToolbarAction("list")} />
+            <ToolbarButton label="1." title="Genummerde lijst" onClick={() => applyToolbarAction("numbered")} />
+            <span className="tb-sep" />
+            <ToolbarButton label="Link" title="Link" onClick={() => applyToolbarAction("link")} />
+            <ToolbarButton label="Img" title="Afbeelding in tekst" onClick={() => applyToolbarAction("image")} />
+            <span className="tb-sep" />
+            <ToolbarButton label="Code" title="Code" onClick={() => applyToolbarAction("code")} />
+          </div>
+          <div
+            aria-label="Tekstinhoud"
+            className="wysiwyg-editor"
+            contentEditable
+            dangerouslySetInnerHTML={{ __html: initialHtml }}
+            id="text-block-content"
+            onBlur={syncContentFromEditor}
+            onInput={syncContentFromEditor}
+            ref={editorRef}
+            role="textbox"
+            suppressContentEditableWarning
+          />
         </div>
-        <textarea
-          className="m-textarea editor-area"
-          id="text-block-content"
-          onChange={(event) => setContent(event.target.value)}
-          placeholder="Schrijf hier de inhoud van dit blok..."
-          ref={textareaRef}
-          value={content}
-        />
         <p className="m-hint">
-          Tip: gebruik ** voor vet, _ voor cursief, ## voor kopteksten.
+          Je bewerkt direct de uiteindelijke opmaak. Gebruik Enter voor nieuwe alinea's en de lijstknoppen voor echte lijsten.
         </p>
       </div>
 
@@ -242,91 +250,179 @@ function ToolbarButton({
   onClick,
   title,
 }: {
-  label: string;
+  label: ReactNode;
   onClick: () => void;
   title?: string;
 }) {
   return (
-    <button className="tb-btn" onClick={onClick} title={title ?? label} type="button">
+    <button className="tb-btn" onClick={onClick} title={title ?? String(label)} type="button">
       {label}
     </button>
   );
 }
 
-function transformContent(
-  action: ToolbarAction,
-  value: string,
-  start: number,
-  end: number,
-  selected: string,
-) {
-  switch (action) {
-    case "bold":
-      return wrapSelection(value, start, end, selected, "**", "**");
-    case "italic":
-      return wrapSelection(value, start, end, selected, "_", "_");
-    case "underline":
-      return wrapSelection(value, start, end, selected, "<u>", "</u>");
-    case "h2":
-      return prefixSelectedLines(value, start, end, "## ");
-    case "h3":
-      return prefixSelectedLines(value, start, end, "### ");
-    case "list":
-      return prefixSelectedLines(value, start, end, "- ");
-    case "numbered":
-      return prefixSelectedLines(value, start, end, "1. ");
-    case "link":
-      return wrapSelection(value, start, end, selected || "linktekst", "[", "](url)");
-    case "image":
-      return insertText(value, start, end, `![${selected || "alt tekst"}](https://...)`);
-    case "code":
-      return wrapSelection(value, start, end, selected, "`", "`");
-    default:
-      return { value, selectionStart: start, selectionEnd: end };
+function wrapSelectionInSpan(className: string) {
+  const selection = window.getSelection();
+  if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return;
+
+  const range = selection.getRangeAt(0);
+  const span = document.createElement("span");
+  span.className = className;
+  span.append(range.extractContents());
+  range.insertNode(span);
+  selection.removeAllRanges();
+  selection.addRange(range);
+}
+
+function markdownToHtml(value: string) {
+  const blocks = value
+    .replace(/\r\n/g, "\n")
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+
+  if (!blocks.length) {
+    return "<p><br></p>";
   }
+
+  return blocks.map(markdownBlockToHtml).join("");
 }
 
-function wrapSelection(
-  value: string,
-  start: number,
-  end: number,
-  selected: string,
-  before: string,
-  after: string,
-) {
-  const inner = selected || "tekst";
-  const insert = `${before}${inner}${after}`;
-  return insertText(value, start, end, insert, before.length, before.length + inner.length);
+function markdownBlockToHtml(block: string) {
+  if (block.startsWith("### ")) {
+    return `<h3>${inlineMarkdownToHtml(block.slice(4))}</h3>`;
+  }
+
+  if (block.startsWith("## ")) {
+    return `<h2>${inlineMarkdownToHtml(block.slice(3))}</h2>`;
+  }
+
+  if (isMarkdownList(block, "unordered")) {
+    const items = block
+      .split("\n")
+      .map((line) => line.replace(/^\s*[-*•]\s+/, "").trim())
+      .filter(Boolean)
+      .map((item) => `<li>${inlineMarkdownToHtml(item)}</li>`)
+      .join("");
+    return `<ul>${items}</ul>`;
+  }
+
+  if (isMarkdownList(block, "ordered")) {
+    const items = block
+      .split("\n")
+      .map((line) => line.replace(/^\s*\d+[.)]\s+/, "").trim())
+      .filter(Boolean)
+      .map((item) => `<li>${inlineMarkdownToHtml(item)}</li>`)
+      .join("");
+    return `<ol>${items}</ol>`;
+  }
+
+  return `<p>${inlineMarkdownToHtml(block)}</p>`;
 }
 
-function insertText(
-  value: string,
-  start: number,
-  end: number,
-  insert: string,
-  selectionOffsetStart = insert.length,
-  selectionOffsetEnd = insert.length,
-) {
-  return {
-    value: `${value.slice(0, start)}${insert}${value.slice(end)}`,
-    selectionStart: start + selectionOffsetStart,
-    selectionEnd: start + selectionOffsetEnd,
-  };
+function inlineMarkdownToHtml(value: string) {
+  return escapeHtml(value)
+    .replace(/\[\[size:(8|10|12|14|16|18|20|22)\]\]([\s\S]*?)\[\[\/size\]\]/g, '<span class="text-size-$1">$2</span>')
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img alt="$1" src="$2">')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/_([^_]+)_/g, "<em>$1</em>")
+    .replace(/`([^`]+)`/g, "<code>$1</code>");
 }
 
-function prefixSelectedLines(value: string, start: number, end: number, prefix: string) {
-  const lineStart = value.lastIndexOf("\n", start - 1) + 1;
-  const lineEndIndex = value.indexOf("\n", end);
-  const lineEnd = lineEndIndex === -1 ? value.length : lineEndIndex;
-  const segment = value.slice(lineStart, lineEnd);
-  const prefixed = segment
-    .split("\n")
-    .map((line) => (line.startsWith(prefix) ? line : `${prefix}${line}`))
-    .join("\n");
+function htmlToMarkdown(root: HTMLElement) {
+  return Array.from(root.childNodes)
+    .map((node) => nodeToMarkdown(node))
+    .filter(Boolean)
+    .join("\n\n")
+    .trim();
+}
 
-  return {
-    value: `${value.slice(0, lineStart)}${prefixed}${value.slice(lineEnd)}`,
-    selectionStart: lineStart,
-    selectionEnd: lineStart + prefixed.length,
-  };
+function nodeToMarkdown(node: Node): string {
+  if (node.nodeType === Node.TEXT_NODE) {
+    return normalizeWhitespace(node.textContent ?? "");
+  }
+
+  if (!(node instanceof HTMLElement)) {
+    return "";
+  }
+
+  const tag = node.tagName.toLowerCase();
+
+  if (tag === "h2") return `## ${inlineHtmlToMarkdown(node)}`;
+  if (tag === "h3") return `### ${inlineHtmlToMarkdown(node)}`;
+  if (tag === "pre") return `\`${inlineHtmlToMarkdown(node)}\``;
+  if (tag === "ul") {
+    return Array.from(node.children)
+      .filter((child) => child.tagName.toLowerCase() === "li")
+      .map((child) => `- ${inlineHtmlToMarkdown(child as HTMLElement)}`)
+      .join("\n");
+  }
+  if (tag === "ol") {
+    return Array.from(node.children)
+      .filter((child) => child.tagName.toLowerCase() === "li")
+      .map((child, index) => `${index + 1}. ${inlineHtmlToMarkdown(child as HTMLElement)}`)
+      .join("\n");
+  }
+  if (tag === "div" || tag === "p") {
+    const text = inlineHtmlToMarkdown(node);
+    return text || "";
+  }
+  if (tag === "br") return "";
+
+  return inlineHtmlToMarkdown(node);
+}
+
+function inlineHtmlToMarkdown(node: HTMLElement): string {
+  return Array.from(node.childNodes)
+    .map((child) => {
+      if (child.nodeType === Node.TEXT_NODE) {
+        return normalizeWhitespace(child.textContent ?? "");
+      }
+
+      if (!(child instanceof HTMLElement)) {
+        return "";
+      }
+
+      const tag = child.tagName.toLowerCase();
+      const inner = inlineHtmlToMarkdown(child);
+
+      if (tag === "strong" || tag === "b") return `**${inner}**`;
+      if (tag === "em" || tag === "i") return `_${inner}_`;
+      if (tag === "u") return `<u>${inner}</u>`;
+      if (tag === "code") return `\`${inner}\``;
+      if (tag === "a") return `[${inner}](${child.getAttribute("href") ?? "url"})`;
+      if (tag === "img") return `![${child.getAttribute("alt") ?? "alt tekst"}](${child.getAttribute("src") ?? "https://..."})`;
+      if (tag === "span") {
+        const sizeClass = Array.from(child.classList).find((item) => /^text-size-\d+$/.test(item));
+        if (sizeClass) {
+          return `[[size:${sizeClass.replace("text-size-", "")}]]${inner}[[/size]]`;
+        }
+      }
+      if (tag === "br") return "\n";
+
+      return inner;
+    })
+    .join("")
+    .replace(/[ \t]+\n/g, "\n")
+    .trim();
+}
+
+function isMarkdownList(block: string, type: "ordered" | "unordered") {
+  const lines = block.split("\n").filter((line) => line.trim());
+  if (!lines.length) return false;
+  const pattern = type === "ordered" ? /^\s*\d+[.)]\s+/ : /^\s*[-*•]\s+/;
+  return lines.every((line) => pattern.test(line));
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function normalizeWhitespace(value: string) {
+  return value.replace(/\s+/g, " ");
 }

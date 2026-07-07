@@ -28,6 +28,7 @@ import {
   getSupabaseServerClient,
   hasSupabaseConfig,
 } from "./supabase-server";
+import { applyLocalLearningContentOverrides } from "./learning-local-content-overrides";
 
 export interface LearningAdminCourseSummary {
   id: string;
@@ -545,7 +546,7 @@ const getCachedAdminCourse = unstable_cache(
     const supabase = getSupabaseAdminClient();
 
     if (!supabase) {
-      return getAdminPreviewCourse(courseCode) ?? aiLiteracyPreviewCourse;
+      return getAdminPreviewCourse(courseCode) ?? applyLocalLearningContentOverrides(aiLiteracyPreviewCourse);
     }
 
     return getAdminCourseFromSupabase(courseCode, supabase);
@@ -559,7 +560,7 @@ const getCachedAdminCourse = unstable_cache(
 
 export async function getAdminCourse(courseCode: string): Promise<LearningCourseView> {
   if (!hasSupabaseConfig()) {
-    return getAdminPreviewCourse(courseCode) ?? aiLiteracyPreviewCourse;
+    return getAdminPreviewCourse(courseCode) ?? applyLocalLearningContentOverrides(aiLiteracyPreviewCourse);
   }
 
   const { supabase } = await requireContentEditor();
@@ -570,7 +571,7 @@ export async function getAdminCourse(courseCode: string): Promise<LearningCourse
   }
 
   if (!supabase) {
-    return getAdminPreviewCourse(courseCode) ?? aiLiteracyPreviewCourse;
+    return getAdminPreviewCourse(courseCode) ?? applyLocalLearningContentOverrides(aiLiteracyPreviewCourse);
   }
 
   return getAdminCourseFromSupabase(courseCode, supabase);
@@ -600,7 +601,7 @@ async function getAdminCourseFromSupabase(
     .maybeSingle<CourseRow>();
 
   if (courseError || !course) {
-    return getAdminPreviewCourse(courseCode) ?? aiLiteracyPreviewCourse;
+    return getAdminPreviewCourse(courseCode) ?? applyLocalLearningContentOverrides(aiLiteracyPreviewCourse);
   }
 
   const { data: topicRows, error: topicError } = await supabase
@@ -611,7 +612,7 @@ async function getAdminCourseFromSupabase(
     .order("sequence_order", { ascending: true });
 
   if (topicError || !topicRows) {
-    return getAdminPreviewCourse(courseCode) ?? aiLiteracyPreviewCourse;
+    return getAdminPreviewCourse(courseCode) ?? applyLocalLearningContentOverrides(aiLiteracyPreviewCourse);
   }
 
   const topics = topicRows as AdminTopicRow[];
@@ -642,7 +643,7 @@ async function getAdminCourseFromSupabase(
     : { data: [], error: null };
 
   if (pageError || !pageRows) {
-    return getAdminPreviewCourse(courseCode) ?? aiLiteracyPreviewCourse;
+    return getAdminPreviewCourse(courseCode) ?? applyLocalLearningContentOverrides(aiLiteracyPreviewCourse);
   }
 
   const pages = (pageRows as PageRow[])
@@ -1137,22 +1138,26 @@ export async function getLearningContentAudit(): Promise<LearningContentAuditRow
 
 function getAdminPreviewCourse(courseCode: string): LearningCourseView | null {
   if (courseCode === aiLiteracyPreviewCourse.course_code) {
-    return aiLiteracyPreviewCourse;
+    return applyLocalLearningContentOverrides(aiLiteracyPreviewCourse);
   }
 
   if (courseCode === aiProficiencyPreviewCourse.course_code) {
-    return aiProficiencyPreviewCourse;
+    return applyLocalLearningContentOverrides(aiProficiencyPreviewCourse);
   }
 
   if (courseCode === aiMasteryPreviewCourse.course_code) {
-    return aiMasteryPreviewCourse;
+    return applyLocalLearningContentOverrides(aiMasteryPreviewCourse);
   }
 
   return null;
 }
 
 function previewOverview(): LearningAdminOverview {
-  const previewCourses = [aiLiteracyPreviewCourse, aiProficiencyPreviewCourse, aiMasteryPreviewCourse];
+  const previewCourses = [
+    applyLocalLearningContentOverrides(aiLiteracyPreviewCourse),
+    applyLocalLearningContentOverrides(aiProficiencyPreviewCourse),
+    applyLocalLearningContentOverrides(aiMasteryPreviewCourse),
+  ];
 
   return {
     courses: previewCourses.map((course) => ({
@@ -1194,9 +1199,12 @@ function previewAdminPage(pageCode: string): {
   page: LearningPageView | null;
 } {
   const course =
-    [aiLiteracyPreviewCourse, aiProficiencyPreviewCourse, aiMasteryPreviewCourse].find((item) =>
-      getCoursePages(item).some((page) => page.page_code === pageCode),
-    ) ?? aiLiteracyPreviewCourse;
+    [
+      applyLocalLearningContentOverrides(aiLiteracyPreviewCourse),
+      applyLocalLearningContentOverrides(aiProficiencyPreviewCourse),
+      applyLocalLearningContentOverrides(aiMasteryPreviewCourse),
+    ].find((item) => getCoursePages(item).some((page) => page.page_code === pageCode)) ??
+    applyLocalLearningContentOverrides(aiLiteracyPreviewCourse);
   const page = getCoursePages(course).find((item) => item.page_code === pageCode) ?? null;
   const topic =
     course.topics.find((item) =>

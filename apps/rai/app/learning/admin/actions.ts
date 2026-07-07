@@ -17,6 +17,7 @@ import {
   getDevContentEditorSupabaseClient,
   isDevContentEditorBypassEnabled,
 } from "@/lib/dev-content-editor-bypass";
+import { writeLocalLearningPageOverride } from "@/lib/learning-local-content-overrides";
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 
 const defaultPageContent = {
@@ -743,25 +744,60 @@ export async function updateLearningPageContent(formData: FormData) {
   const status = String(formData.get("status") ?? "published");
   const contentText = readRequired(formData, "content");
   const content = parseContentJson(contentText);
+  const estimatedDurationMinutes = Number.isFinite(estimatedMinutes)
+    ? estimatedMinutes
+    : 5;
 
-  const { error } = await supabase
+  if (!isUuid(pageId)) {
+    writeLocalLearningPageOverride({
+      courseCode,
+      pageCode,
+      title,
+      summary,
+      pageType,
+      estimatedDurationMinutes,
+      isRequired,
+      status,
+      content,
+    });
+    revalidateLearningCourse(courseCode);
+    revalidatePath(`/learning/admin/lessons/${pageCode}`);
+    revalidatePath(`/learning/${courseCode}/${pageCode}`);
+    return;
+  }
+
+  const { data: updatedPage, error } = await supabase
     .from("learning_pages")
     .update({
       title,
       summary,
       page_type: pageType,
-      estimated_duration_minutes: Number.isFinite(estimatedMinutes)
-        ? estimatedMinutes
-        : 5,
+      estimated_duration_minutes: estimatedDurationMinutes,
       is_required: isRequired,
       status,
       content,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", pageId);
+    .eq("id", pageId)
+    .select("id")
+    .maybeSingle<{ id: string }>();
 
   if (error) {
     throw new Error(`Pagina opslaan is mislukt: ${error.message}`);
+  }
+
+  if (!updatedPage && isDevContentEditorBypassEnabled()) {
+    writeLocalLearningPageOverride({
+      courseCode,
+      pageCode,
+      title,
+      summary,
+      pageType,
+      estimatedDurationMinutes,
+      isRequired,
+      status,
+      content,
+    });
   }
 
   revalidateTag("learning-admin");
@@ -1006,7 +1042,7 @@ async function syncCourseContentFromSource(
   );
 
   const pageRows = sourceCourse.topics.flatMap((topic) =>
-    topic.pages.map((page, pageIndex) => {
+    topic.pages.map((page) => {
       const topicId = topicIdByCode.get(topic.topic_code);
       if (!topicId) {
         throw new Error(`Topic ontbreekt voor ${topic.topic_code}.`);
@@ -1029,7 +1065,7 @@ async function syncCourseContentFromSource(
         page_type: page.page_type,
         status: "published",
         estimated_duration_minutes: page.estimated_duration_minutes,
-        sequence_order: pageIndex + 1,
+        sequence_order: page.sequence_order,
         is_required: page.is_required,
         content_schema_version: 1,
         content: shouldOverwriteContent
@@ -1481,7 +1517,7 @@ function revalidateLearningCourse(courseCode: string) {
 function parseContentJson(value: string) {
   const parsed = JSON.parse(value) as unknown;
 
-  if (!parsed || typeof parsed !== "object" || !("blocks" in parsed)) {
+  if (!isLessonContent(parsed)) {
     throw new Error("Content moet een JSON-object met blocks[] zijn.");
   }
 

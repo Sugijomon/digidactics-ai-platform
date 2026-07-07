@@ -1,7 +1,8 @@
 import type { AiLiteracyTopicSeed } from "./learning-preview-data";
 import { ERROR_ASYMMETRY_RUBRIC, SWAC_REVIEW_RUBRIC } from "./learning-governance-config";
+import { aiProficiencyRichHtmlPlacements, withRichHtmlArtefacts } from "./learning-rich-html-artefacts";
 
-export const aiProficiencyCourseTopicSeeds: AiLiteracyTopicSeed[] = [
+const aiProficiencyCourseTopicSeedsBase: AiLiteracyTopicSeed[] = [
   {
     code: "aipro-slim-kiezen",
     title: "Slim kiezen en kaderen",
@@ -1049,3 +1050,8 @@ export const aiProficiencyCourseTopicSeeds: AiLiteracyTopicSeed[] = [
     ],
   },
 ];
+
+export const aiProficiencyCourseTopicSeeds = withRichHtmlArtefacts(
+  aiProficiencyCourseTopicSeedsBase,
+  aiProficiencyRichHtmlPlacements,
+);

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Literacy — Rijbewijs behaald</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --purple:#534AB7;--purple-l:#EEEDFE;--purple-d:#3C3489;
+  --teal:#1D9E75;--teal-l:#E1F5EE;
+  --bg:#F7F5F0;--text:#1A1A18;--text2:#5A5A56;--text3:#9A9A96;
+  --border:rgba(0,0,0,0.08);
+}
+html,body{height:100%;margin:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);display:flex;align-items:center;justify-content:center;min-height:100vh;overflow:hidden;flex-direction:column}
+
+/* Confetti */
+.confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.confetti-piece{position:absolute;width:8px;height:8px;border-radius:1px;animation:fall linear forwards}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+/* Card */
+.cert-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:0;animation:cardIn 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.3s both}
+@keyframes cardIn{from{transform:scale(0.7) translateY(30px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+
+.cert-card{
+  background:#FFFFFF;
+  border:0.5px solid var(--border);
+  border-radius:16px;
+  width:420px;
+  overflow:hidden;
+  box-shadow:0 8px 40px rgba(83,74,183,0.12),0 2px 8px rgba(0,0,0,0.06);
+}
+.cert-top{background:var(--purple);padding:28px 28px 22px;text-align:center;position:relative;overflow:hidden}
+.cert-top::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.08)}
+.cert-top::after{content:'';position:absolute;bottom:-30px;left:-30px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.06)}
+
+.cert-icon-wrap{width:64px;height:64px;background:rgba(255,255,255,0.15);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;animation:iconPop 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.8s both}
+@keyframes iconPop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.cert-icon{font-size:32px}
+
+.cert-eyebrow{font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.65);margin-bottom:6px;animation:fadeUp 0.5s ease 0.9s both}
+.cert-main-title{font-family:'DM Serif Display',serif;font-size:26px;color:#FFFFFF;line-height:1.2;animation:fadeUp 0.5s ease 1.0s both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.cert-body{padding:22px 26px 20px}
+.cert-subtitle{font-size:14px;font-weight:500;color:var(--text);text-align:center;margin-bottom:4px;animation:fadeUp 0.5s ease 1.1s both}
+.cert-name{font-family:'DM Serif Display',serif;font-size:20px;color:var(--purple);text-align:center;margin-bottom:18px;animation:fadeUp 0.5s ease 1.15s both}
+
+.cert-divider{height:0.5px;background:var(--border);margin-bottom:18px}
+
+.cert-meta{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+.cert-meta-item{animation:fadeUp 0.4s ease 1.2s both}
+.cert-meta-label{font-size:10px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);margin-bottom:3px}
+.cert-meta-val{font-size:13px;color:var(--text);font-weight:500}
+
+.cert-comps{margin-bottom:18px;animation:fadeUp 0.4s ease 1.3s both}
+.cert-comps-label{font-size:10px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.cert-comps-row{display:flex;flex-wrap:wrap;gap:5px}
+.comp-badge{font-size:11px;font-weight:500;padding:3px 9px;border-radius:99px;background:var(--purple-l);color:var(--purple-d)}
+.comp-badge.critical{background:var(--teal-l);color:#085041}
+
+.cert-footer{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg);border-radius:8px;animation:fadeUp 0.4s ease 1.4s both}
+.cert-footer-label{font-size:11px;color:var(--text3)}
+.cert-footer-val{font-size:12px;font-weight:500;color:var(--text)}
+.cert-valid-badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:99px;background:var(--teal-l);color:#085041}
+
+/* CTA */
+.cert-cta{margin-top:14px;display:flex;flex-direction:column;align-items:center;gap:8px;animation:fadeUp 0.5s ease 1.5s both}
+.cta-btn{padding:12px 28px;background:var(--purple);color:#FFFFFF;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:background 0.15s}
+.cta-btn:hover{background:var(--purple-d)}
+.cta-note{font-size:12px;color:var(--text3)}
+
+/* Checkmark animation */
+.check-ring{width:40px;height:40px;position:relative;margin:0 auto 12px;animation:ringIn 0.6s ease 0.7s both}
+@keyframes ringIn{from{transform:scale(0) rotate(-45deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.check-ring svg{width:40px;height:40px}
+.check-circle{stroke-dasharray:113;stroke-dashoffset:113;animation:drawCircle 0.6s ease 1.0s forwards}
+@keyframes drawCircle{to{stroke-dashoffset:0}}
+.check-mark{stroke-dasharray:30;stroke-dashoffset:30;animation:drawCheck 0.4s ease 1.5s forwards}
+@keyframes drawCheck{to{stroke-dashoffset:0}}
+</style>
+</head>
+<body>
+
+<div class="confetti-container" id="confetti"></div>
+
+<div class="cert-wrap">
+  <div class="cert-card">
+    <div class="cert-top">
+      <div class="check-ring">
+        <svg viewBox="0 0 40 40" fill="none">
+          <circle class="check-circle" cx="20" cy="20" r="18" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+          <polyline class="check-mark" points="12,20 18,26 29,14" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="cert-eyebrow">Certificaat behaald</div>
+      <div class="cert-main-title">AI Literacy<br>Foundation</div>
+    </div>
+    <div class="cert-body">
+      <div class="cert-subtitle">Dit certificaat wordt uitgereikt aan</div>
+      <div class="cert-name">Jouw naam</div>
+      <div class="cert-divider"></div>
+      <div class="cert-meta">
+        <div class="cert-meta-item">
+          <div class="cert-meta-label">Credential</div>
+          <div class="cert-meta-val">AISA AI Governance Foundations</div>
+        </div>
+        <div class="cert-meta-item">
+          <div class="cert-meta-label">Versie</div>
+          <div class="cert-meta-val">v2026.1</div>
+        </div>
+        <div class="cert-meta-item">
+          <div class="cert-meta-label">Behaald op</div>
+          <div class="cert-meta-val" id="cert-date">—</div>
+        </div>
+        <div class="cert-meta-item">
+          <div class="cert-meta-label">Afstemming</div>
+          <div class="cert-meta-val">EU AI Act Art. 4</div>
+        </div>
+      </div>
+      <div class="cert-comps">
+        <div class="cert-comps-label">Gedemonstreerde competenties</div>
+        <div class="cert-comps-row">
+          <span class="comp-badge">C1 AI-basis</span>
+          <span class="comp-badge">C2 Herkenning</span>
+          <span class="comp-badge">C3 Risicobewustzijn</span>
+          <span class="comp-badge critical">C4 Privacy ✓</span>
+          <span class="comp-badge">C5 Outputcontrole</span>
+          <span class="comp-badge critical">C6 Oversight ✓</span>
+          <span class="comp-badge">C7 Taakselectie</span>
+          <span class="comp-badge">C8 Escalatie</span>
+        </div>
+      </div>
+      <div class="cert-footer">
+        <div>
+          <div class="cert-footer-label">Geldigheid</div>
+          <div class="cert-footer-val">12–18 maanden</div>
+        </div>
+        <span class="cert-valid-badge">✓ Geldig</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="cert-cta">
+    <button class="cta-btn" onclick="replay()">↻ Opnieuw afspelen</button>
+    <span class="cta-note">Digidactics · RouteAI Learning System</span>
+  </div>
+</div>
+
+<script>
+document.getElementById('cert-date').textContent = new Date().toLocaleDateString('nl-NL',{day:'numeric',month:'long',year:'numeric'});
+
+const COLORS=['#534AB7','#1D9E75','#BA7517','#185FA5','#A32D2D','#FFFFFF','#EEEDFE','#E1F5EE'];
+function spawnConfetti(){
+  const c=document.getElementById('confetti');
+  c.innerHTML='';
+  for(let i=0;i<80;i++){
+    const el=document.createElement('div');
+    el.className='confetti-piece';
+    el.style.cssText=`
+      left:${Math.random()*100}%;
+      top:-10px;
+      background:${COLORS[Math.floor(Math.random()*COLORS.length)]};
+      width:${6+Math.random()*8}px;
+      height:${6+Math.random()*8}px;
+      border-radius:${Math.random()>0.5?'50%':'2px'};
+      animation-duration:${2+Math.random()*2}s;
+      animation-delay:${Math.random()*1.5}s;
+    `;
+    c.appendChild(el);
+  }
+}
+function replay(){
+  document.querySelector('.cert-wrap').style.animation='none';
+  setTimeout(()=>{document.querySelector('.cert-wrap').style.animation='cardIn 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.3s both';},10);
+  spawnConfetti();
+}
+spawnConfetti();
+</script>
+</body>
+</html>

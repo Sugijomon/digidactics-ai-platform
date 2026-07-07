@@ -16,6 +16,10 @@ The existing SAI `audit_events` table remains in place. The new ledger is the
 cross-domain evidence plane for events that need durable reconstruction across
 Learning, certification, and DPO decisions.
 
+SAI `audit_events` remains authoritative for current survey/scoring telemetry.
+The platform ledger captures the first cross-domain evidence events. The two
+logs should be formally reconciled in the future AI use case lifecycle phase.
+
 ## Platform Event Ledger
 
 `platform_event_ledger` stores immutable event rows with:
@@ -30,6 +34,27 @@ Learning, certification, and DPO decisions.
 Rows are append-only through a database trigger. Authenticated users can only
 read events where they are the actor or where their org/DPO/admin role permits
 it. Client roles do not receive direct insert/update/delete grants.
+
+The ledger is tamper-evident, not tamper-proof. Roles with definer-level
+database access can disable triggers or rewrite rows; the per-subject hash chain
+exists so manipulation is detectable, not impossible. Chain verification should
+be part of periodic compliance checks.
+
+Event types follow `domain.subject.verb_in_past_tense`, for example
+`learning.certification.issued` and `dpo.review.decision_recorded`. Payload
+shape changes must bump `event_schema_version`; do not mutate the meaning of an
+existing event type.
+
+Initial event registry:
+
+- `learning.content.synced`
+- `learning.page_attempt.submitted`
+- `learning.page_attempt.reviewed`
+- `learning.lesson_attempt.submitted`
+- `learning.lesson_attempt.reviewed`
+- `learning.certification.issued`
+- `learning.certification.updated`
+- `dpo.review.decision_recorded`
 
 ## Learning Pinning
 
@@ -64,6 +89,37 @@ Learning manual reviews persist `decision_rationale` alongside existing
 
 Rationale is not a legal conclusion. It is the operational explanation for why a
 review, access gate, or certification state changed.
+
+`decision_rationale` is operational evidence, not a narrative field. It must
+describe the decision basis and must not contain special-category personal data
+or personal data of third parties. Rationale about the subject of the decision
+is expected and appropriate. This convention matters because ledger rows are
+immutable.
+
+The current Learning review UI writes the same value to `reviewer_notes` and
+`decision_rationale` as a bridge. Post-pilot, the UI should split these fields:
+notes for free-form reviewer context, rationale for the accountable decision
+basis.
+
+## Evidence Epoch
+
+Attempts, certifications, and decisions recorded before the Evidence Foundation
+migration have no version pinning and no platform ledger events. Absence of
+version-pinned evidence before this migration is an epoch boundary, not an
+anomaly.
+
+## Agentic Governance Roadmap
+
+The event envelope is intentionally agent-ready without implementing agents.
+`actor_kind` includes `agent`, `actor_id` can remain null until a first-class
+Actor table exists, and subject fields are text so future aggregates can become
+event subjects without reshaping this ledger.
+
+Future product direction: AI agents may need credentials in the same way people
+need credentials. An "AI-rijbewijs voor agents" would certify that an agent is
+allowed to perform scoped actions under human or organizational delegation,
+based on version-pinned assessments, expiring credentials, policy gates, and
+ledgered evidence. That is roadmap, not current implementation.
 
 ## Validation Boundary
 

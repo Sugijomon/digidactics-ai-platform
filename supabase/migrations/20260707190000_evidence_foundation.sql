@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS public.platform_event_ledger (
   source_system         text NOT NULL DEFAULT 'platform',
   actor_id              uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
   actor_kind            text NOT NULL DEFAULT 'system',
+  classification        text NOT NULL DEFAULT 'internal',
   subject_table         text NOT NULL,
   subject_id            text NOT NULL,
   subject_version       text,
@@ -45,7 +46,10 @@ CREATE TABLE IF NOT EXISTS public.platform_event_ledger (
   CONSTRAINT platform_event_ledger_event_type_chk CHECK (length(trim(event_type)) > 0),
   CONSTRAINT platform_event_ledger_schema_version_chk CHECK (event_schema_version > 0),
   CONSTRAINT platform_event_ledger_actor_kind_chk CHECK (
-    actor_kind IN ('system', 'service', 'user', 'admin')
+    actor_kind IN ('system', 'service', 'user', 'admin', 'agent')
+  ),
+  CONSTRAINT platform_event_ledger_classification_chk CHECK (
+    classification IN ('public', 'internal', 'confidential', 'restricted')
   ),
   CONSTRAINT platform_event_ledger_evidence_snapshot_chk CHECK (
     jsonb_typeof(evidence_snapshot) = 'object'
@@ -91,6 +95,10 @@ AS $$
 DECLARE
   v_previous_hash text;
 BEGIN
+  PERFORM pg_advisory_xact_lock(
+    hashtextextended(NEW.subject_table || ':' || NEW.subject_id, 0)
+  );
+
   SELECT pel.event_hash
     INTO v_previous_hash
     FROM public.platform_event_ledger pel
@@ -111,6 +119,7 @@ BEGIN
         NEW.source_system,
         COALESCE(NEW.actor_id::text, ''),
         NEW.actor_kind,
+        NEW.classification,
         NEW.subject_table,
         NEW.subject_id,
         COALESCE(NEW.subject_version, ''),
@@ -249,6 +258,65 @@ REVOKE ALL ON FUNCTION public.record_platform_event_internal(
   timestamptz
 ) FROM PUBLIC, anon, authenticated;
 
+CREATE OR REPLACE FUNCTION public.record_learning_content_sync_event(
+  p_course_id uuid,
+  p_content_version_hash text,
+  p_evidence_snapshot jsonb DEFAULT '{}'::jsonb,
+  p_payload jsonb DEFAULT '{}'::jsonb
+)
+RETURNS uuid
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_course public.learning_courses%ROWTYPE;
+  v_actor_id uuid := auth.uid();
+  v_jwt_role text := COALESCE(current_setting('request.jwt.claim.role', true), '');
+  v_event_id uuid;
+BEGIN
+  SELECT *
+    INTO v_course
+    FROM public.learning_courses
+   WHERE id = p_course_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'learning course % not found for content sync evidence', p_course_id;
+  END IF;
+
+  IF v_jwt_role <> 'service_role'
+     AND NOT public.is_learning_admin_for(v_course.org_id) THEN
+    RAISE EXCEPTION 'unauthorized: record_learning_content_sync_event';
+  END IF;
+
+  v_event_id := public.record_platform_event_internal(
+    v_course.org_id,
+    'learning.content.synced',
+    'rai-learning',
+    v_actor_id,
+    CASE WHEN v_jwt_role = 'service_role' THEN 'service' ELSE 'admin' END,
+    'learning_courses',
+    v_course.id::text,
+    v_course.version::text,
+    'synced',
+    'Git-canonical learning content sync completed.',
+    p_content_version_hash,
+    COALESCE(p_evidence_snapshot, '{}'::jsonb),
+    COALESCE(p_payload, '{}'::jsonb),
+    NULL,
+    NULL,
+    now()
+  );
+
+  RETURN v_event_id;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.record_learning_content_sync_event(uuid, text, jsonb, jsonb)
+  FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.record_learning_content_sync_event(uuid, text, jsonb, jsonb)
+  TO authenticated, service_role;
+
 -- =============================================================================
 -- 2. LEARNING ATTEMPT VERSION PINNING
 -- =============================================================================
@@ -283,6 +351,7 @@ CREATE INDEX IF NOT EXISTS learning_page_attempts_content_hash_idx
 CREATE OR REPLACE FUNCTION public.pin_learning_page_attempt_evidence()
 RETURNS trigger
 LANGUAGE plpgsql
+SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
@@ -375,8 +444,8 @@ BEGIN
      OR NEW.decision_rationale IS DISTINCT FROM OLD.decision_rationale
      OR NEW.graded_at IS DISTINCT FROM OLD.graded_at THEN
     v_event_type := 'learning.page_attempt.reviewed';
-    v_actor_id := COALESCE(NEW.reviewer_id, auth.uid(), NEW.user_id);
-    v_actor_kind := CASE WHEN NEW.reviewer_id IS NOT NULL THEN 'admin' ELSE 'user' END;
+    v_actor_id := COALESCE(NEW.reviewer_id, auth.uid());
+    v_actor_kind := CASE WHEN v_actor_id IS NULL THEN 'system' ELSE 'admin' END;
   ELSE
     RETURN NEW;
   END IF;
@@ -483,7 +552,7 @@ DROP TRIGGER IF EXISTS trg_learning_page_attempts_evidence_pin
   ON public.learning_page_attempts;
 
 CREATE TRIGGER trg_learning_page_attempts_evidence_pin
-  BEFORE INSERT OR UPDATE ON public.learning_page_attempts
+  BEFORE INSERT ON public.learning_page_attempts
   FOR EACH ROW
   EXECUTE FUNCTION public.pin_learning_page_attempt_evidence();
 
@@ -505,6 +574,7 @@ CREATE INDEX IF NOT EXISTS learning_lesson_attempts_content_hash_idx
 CREATE OR REPLACE FUNCTION public.pin_learning_lesson_attempt_evidence()
 RETURNS trigger
 LANGUAGE plpgsql
+SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
@@ -600,8 +670,8 @@ BEGIN
      OR NEW.decision_rationale IS DISTINCT FROM OLD.decision_rationale
      OR NEW.graded_at IS DISTINCT FROM OLD.graded_at THEN
     v_event_type := 'learning.lesson_attempt.reviewed';
-    v_actor_id := COALESCE(NEW.reviewer_id, auth.uid(), NEW.user_id);
-    v_actor_kind := CASE WHEN NEW.reviewer_id IS NOT NULL THEN 'admin' ELSE 'user' END;
+    v_actor_id := COALESCE(NEW.reviewer_id, auth.uid());
+    v_actor_kind := CASE WHEN v_actor_id IS NULL THEN 'system' ELSE 'admin' END;
   ELSE
     RETURN NEW;
   END IF;
@@ -707,7 +777,7 @@ DROP TRIGGER IF EXISTS trg_learning_lesson_attempts_evidence_pin
   ON public.learning_lesson_attempts;
 
 CREATE TRIGGER trg_learning_lesson_attempts_evidence_pin
-  BEFORE INSERT OR UPDATE ON public.learning_lesson_attempts
+  BEFORE INSERT ON public.learning_lesson_attempts
   FOR EACH ROW
   EXECUTE FUNCTION public.pin_learning_lesson_attempt_evidence();
 
@@ -745,6 +815,7 @@ CREATE INDEX IF NOT EXISTS learning_certifications_course_hash_idx
 CREATE OR REPLACE FUNCTION public.pin_learning_certification_evidence()
 RETURNS trigger
 LANGUAGE plpgsql
+SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
@@ -885,7 +956,7 @@ BEGIN
     'learning_certifications',
     NEW.id::text,
     NEW.certification_code,
-    NEW.status,
+    CASE WHEN TG_OP = 'INSERT' THEN 'auto_eligibility' ELSE NEW.status END,
     COALESCE(NEW.decision_rationale, NEW.revoke_reason),
     NEW.course_version_hash,
     NEW.evidence_snapshot,
@@ -909,7 +980,7 @@ DROP TRIGGER IF EXISTS trg_learning_certifications_evidence_pin
   ON public.learning_certifications;
 
 CREATE TRIGGER trg_learning_certifications_evidence_pin
-  BEFORE INSERT OR UPDATE ON public.learning_certifications
+  BEFORE INSERT ON public.learning_certifications
   FOR EACH ROW
   EXECUTE FUNCTION public.pin_learning_certification_evidence();
 

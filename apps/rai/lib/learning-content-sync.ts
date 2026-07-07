@@ -1,5 +1,6 @@
 import "server-only";
 
+import { createHash } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   aiLiteracyPreviewCourse,
@@ -180,6 +181,101 @@ async function syncCourseContentFromSource(
   }
 
   await archiveExtraPages(supabase, course.id, sourceCourse);
+  await recordLearningContentSyncEvent(supabase, course.id, sourceCourse);
+}
+
+async function recordLearningContentSyncEvent(
+  supabase: LearningSyncClient,
+  courseId: string,
+  sourceCourse: LearningCourseView,
+) {
+  const evidenceSnapshot = buildLearningContentSyncEvidence(sourceCourse);
+  const { error } = await supabase.rpc("record_learning_content_sync_event", {
+    p_course_id: courseId,
+    p_content_version_hash: evidenceSnapshot.content_version_hash,
+    p_evidence_snapshot: evidenceSnapshot,
+    p_payload: {
+      source: "git-canonical",
+      course_code: sourceCourse.course_code,
+      topic_count: evidenceSnapshot.topic_count,
+      page_count: evidenceSnapshot.page_count,
+      block_count: evidenceSnapshot.block_count,
+    },
+  });
+
+  if (error) {
+    throw new Error(`Content-sync event vastleggen is mislukt: ${error.message}`);
+  }
+}
+
+function buildLearningContentSyncEvidence(sourceCourse: LearningCourseView) {
+  const topicCount = sourceCourse.topics.length;
+  const pages = sourceCourse.topics.flatMap((topic) => topic.pages);
+  const blockCount = pages.reduce(
+    (total, page) => total + page.content.blocks.length,
+    0,
+  );
+  const canonicalPayload = {
+    source: "git-canonical",
+    course_code: sourceCourse.course_code,
+    topics: sourceCourse.topics.map((topic) => ({
+      topic_code: topic.topic_code,
+      title: topic.title,
+      pages: topic.pages.map((page) => ({
+        page_code: page.page_code,
+        title: page.title,
+        page_type: page.page_type,
+        is_required: page.is_required,
+        content_schema_version: 1,
+        content: {
+          version: 1,
+          blocks: page.content.blocks,
+        },
+      })),
+    })),
+  };
+
+  return {
+    content_source: "git-canonical",
+    course_code: sourceCourse.course_code,
+    topic_count: topicCount,
+    page_count: pages.length,
+    block_count: blockCount,
+    content_version_hash: hashJson(canonicalPayload),
+  };
+}
+
+function hashJson(value: unknown) {
+  return createHash("sha256").update(stableJsonStringify(value)).digest("hex");
+}
+
+function stableJsonStringify(value: unknown): string {
+  if (
+    value === undefined ||
+    typeof value === "function" ||
+    typeof value === "symbol"
+  ) {
+    return "null";
+  }
+
+  if (value === null || typeof value !== "object") {
+    return JSON.stringify(value) ?? "null";
+  }
+
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => stableJsonStringify(item)).join(",")}]`;
+  }
+
+  const record = value as Record<string, unknown>;
+
+  return `{${Object.keys(record)
+    .sort()
+    .filter((key) => {
+      const item = record[key];
+      return item !== undefined && typeof item !== "function" && typeof item !== "symbol";
+    })
+    .map((key) => `${JSON.stringify(key)}:${stableJsonStringify(record[key])}`)
+    .join(",")}}`;
 }
 
 async function moveTopicsToTemporaryOrder(

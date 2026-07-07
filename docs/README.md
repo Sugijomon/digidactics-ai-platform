@@ -10,6 +10,7 @@ Use these documents to transfer context between laptops, Codex sessions, ChatGPT
 - `architecture.md` - technical architecture and repo structure.
 - `auth-foundation.md` - prepared authentication direction for Next.js App Router and Supabase SSR.
 - `domain-decisions.md` - durable product, domain, compliance, and architecture decisions.
+- `adr/` - focused architecture decision records for decisions that should stay stable across PRs.
 - `development-workflow.md` - how Codex, ChatGPT, GitHub, Vercel, and Supabase are used together.
 - `sai-build-plan.md` - practical build sequence and implementation checklist for SAI.
 - `risk-engine-spec.md` - Shadow AI Scan scoring and risk logic.
@@ -31,6 +32,7 @@ Use this rule of thumb:
 
 - product positioning and scope: `sai-product-readme.md`
 - durable decisions: `domain-decisions.md`
+- architecture decision records: `adr/`
 - technical architecture: `architecture.md`
 - authentication foundation: `auth-foundation.md`
 - survey flow: `survey-flow-spec.md`

@@ -13,6 +13,7 @@ BEGIN
         ('table', 'public.platform_event_ledger'::text),
         ('function', 'public.set_platform_event_hash()'),
         ('function', 'public.record_platform_event_internal(uuid,text,text,uuid,text,text,text,text,text,text,text,jsonb,jsonb,uuid,uuid,timestamp with time zone)'),
+        ('function', 'public.record_learning_content_sync_event(uuid,text,jsonb,jsonb)'),
         ('function', 'public.pin_learning_page_attempt_evidence()'),
         ('function', 'public.pin_learning_lesson_attempt_evidence()'),
         ('function', 'public.pin_learning_certification_evidence()'),
@@ -62,7 +63,8 @@ BEGIN
         ('learning_certifications', 'course_version_hash'),
         ('learning_certifications', 'evidence_snapshot'),
         ('learning_certifications', 'decision_rationale'),
-        ('dpo_review_items', 'decision_rationale')
+        ('dpo_review_items', 'decision_rationale'),
+        ('platform_event_ledger', 'classification')
     ) AS expected(table_name, column_name)
    WHERE NOT EXISTS (
     SELECT 1

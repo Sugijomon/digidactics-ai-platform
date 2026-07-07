@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Human Oversight - HITL, HOTL en HIC</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --font-heading:'Manrope',Inter,ui-sans-serif,system-ui,sans-serif;
+  --font-body:'Inter',ui-sans-serif,system-ui,sans-serif;
+  --primary:#00658b;
+  --secondary:#396379;
+  --ui-blue-grey:#6993aa;
+  --surface-lowest:#ffffff;
+  --surface:#f7fafc;
+  --container-low:#f1f4f6;
+  --container:#ebeef0;
+  --container-high:#e5e9eb;
+  --on-surface:#181c1e;
+  --on-surface-variant:#3e484f;
+  --outline-variant:#bdc8d0;
+  --success-bg:#ecfdf5;
+  --success-text:#065f46;
+  --warning-bg:#fff7ed;
+  --warning-text:#7c2d12;
+  --radius-ui:8px;
+  --radius-badge:999px;
+  --space-xs:4px;
+  --space-s:8px;
+  --space-m:12px;
+  --space-l:16px;
+  --space-xl:24px;
+}
+html{overflow:hidden}
+body{
+  font-family:var(--font-body);
+  background-color:var(--surface);
+  color:var(--on-surface);
+  -webkit-font-smoothing:antialiased;
+  padding:var(--space-l);
+  overflow:hidden;
+}
+.embed-container{
+  width:100%;
+  max-width:none;
+  margin:0 auto;
+  background-color:var(--surface-lowest);
+  border:1px solid var(--outline-variant);
+  border-radius:var(--radius-ui);
+  padding:var(--space-xl);
+}
+.header{margin-bottom:var(--space-xl)}
+.badge{
+  display:inline-block;
+  font-size:11px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  padding:var(--space-xs) var(--space-s);
+  border-radius:var(--radius-badge);
+  background-color:var(--container-low);
+  color:var(--secondary);
+  margin-bottom:var(--space-s);
+}
+.header h1{
+  font-family:var(--font-heading);
+  font-size:24px;
+  font-weight:800;
+  color:var(--on-surface);
+  line-height:1.2;
+  margin-bottom:var(--space-s);
+  letter-spacing:0;
+}
+.header p{
+  font-size:14px;
+  color:var(--on-surface-variant);
+  line-height:1.5;
+}
+.tabs{
+  display:flex;
+  gap:var(--space-s);
+  margin-bottom:var(--space-l);
+  border-bottom:1px solid var(--container-high);
+  padding-bottom:var(--space-s);
+}
+.tab{
+  flex:1;
+  background:none;
+  border:1px solid transparent;
+  padding:var(--space-m) var(--space-s);
+  border-radius:var(--radius-ui);
+  cursor:pointer;
+  text-align:center;
+  transition:all .15s ease;
+  font:inherit;
+}
+.tab:hover{background-color:var(--surface)}
+.tab:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.tab-code{
+  display:block;
+  font-family:var(--font-heading);
+  font-size:16px;
+  font-weight:800;
+  color:var(--secondary);
+  line-height:1;
+  margin-bottom:2px;
+}
+.tab-name{
+  display:block;
+  font-size:11px;
+  font-weight:600;
+  color:var(--ui-blue-grey);
+}
+.tab.active{
+  background-color:var(--container-low);
+  border-color:var(--outline-variant);
+}
+.tab.active .tab-code{color:var(--primary)}
+.panel-inner{display:none}
+.panel-inner.visible{display:block;animation:fadeIn .22s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.panel-header-block{
+  display:flex;
+  gap:var(--space-l);
+  margin-bottom:var(--space-l);
+  align-items:flex-start;
+}
+.panel-icon-shield{
+  min-width:42px;
+  height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:var(--font-heading);
+  font-size:15px;
+  font-weight:800;
+  padding:var(--space-s);
+  background-color:var(--surface);
+  border:1px solid var(--container-high);
+  border-radius:var(--radius-ui);
+  line-height:1;
+  color:var(--primary);
+}
+.panel-title-area h2{
+  font-family:var(--font-heading);
+  font-size:18px;
+  font-weight:800;
+  color:var(--primary);
+}
+.panel-subtitle{
+  font-size:13px;
+  color:var(--ui-blue-grey);
+  font-style:italic;
+  margin-bottom:var(--space-xs);
+}
+.panel-desc{
+  font-size:14px;
+  line-height:1.6;
+  color:var(--on-surface-variant);
+}
+.section-title{
+  font-family:var(--font-heading);
+  font-size:12px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  color:var(--ui-blue-grey);
+  margin:var(--space-l) 0 var(--space-s);
+}
+.flow-container{
+  background-color:var(--surface);
+  border:1px solid var(--container-high);
+  border-radius:var(--radius-ui);
+  padding:var(--space-m);
+}
+.flow-steps{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:var(--space-xs);
+  flex-wrap:nowrap;
+}
+.flow-step{
+  font-size:12px;
+  font-weight:600;
+  padding:var(--space-s) var(--space-m);
+  background-color:var(--surface-lowest);
+  border:1px solid var(--outline-variant);
+  border-radius:var(--radius-ui);
+  text-align:center;
+  flex:1;
+}
+.flow-step.human{
+  border:2px solid var(--primary);
+  color:var(--primary);
+  font-weight:700;
+}
+.flow-step.success{
+  background-color:var(--success-bg);
+  border-color:transparent;
+  color:var(--success-text);
+}
+.flow-arrow{font-size:13px;color:var(--ui-blue-grey);user-select:none}
+.grid-data{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:var(--space-s);
+}
+.grid-card{
+  background-color:var(--surface);
+  border:1px solid var(--container-high);
+  border-radius:var(--radius-ui);
+  padding:var(--space-m);
+}
+.grid-label{
+  font-size:11px;
+  font-weight:700;
+  color:var(--ui-blue-grey);
+  text-transform:uppercase;
+  letter-spacing:.02em;
+  margin-bottom:var(--space-xs);
+}
+.grid-value{
+  font-size:13px;
+  line-height:1.4;
+  color:var(--on-surface);
+}
+.chips-container{
+  display:flex;
+  flex-direction:column;
+  gap:var(--space-xs);
+}
+.chip-row{
+  font-size:13px;
+  padding:var(--space-s) var(--space-m);
+  border-radius:var(--radius-ui);
+  background-color:var(--surface);
+  border:1px solid var(--container-high);
+  color:var(--on-surface-variant);
+  line-height:1.4;
+}
+.alert-box{
+  display:flex;
+  gap:var(--space-m);
+  padding:var(--space-m);
+  border-radius:var(--radius-ui);
+  background-color:var(--warning-bg);
+  font-size:13px;
+  line-height:1.5;
+  color:var(--warning-text);
+  margin-top:var(--space-m);
+}
+.alert-icon{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  border:1px solid currentColor;
+  font-size:12px;
+  font-weight:800;
+  line-height:1;
+  flex-shrink:0;
+}
+@media(max-width:560px){
+  body{padding:var(--space-m)}
+  .embed-container{padding:var(--space-l)}
+  .tabs{gap:var(--space-xs)}
+  .tab{padding:var(--space-s)}
+  .panel-header-block{gap:var(--space-m)}
+  .flow-steps{align-items:stretch;flex-direction:column}
+  .flow-arrow{transform:rotate(90deg)}
+  .grid-data{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="embed-container">
+  <header class="header">
+    <span class="badge">EU AI Act - Articles 14 en 26 - Human Oversight</span>
+    <h1>Human Oversight Modellen</h1>
+    <p>Drie vormen van menselijk toezicht op AI. Klik op een model om te zien wanneer het past en hoe je het inricht.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Human oversight modellen">
+    <button class="tab active" id="tab-hitl" onclick="show('hitl')" role="tab" aria-controls="panel-hitl" aria-selected="true" type="button">
+      <span class="tab-code">HITL</span>
+      <span class="tab-name">In the Loop</span>
+    </button>
+    <button class="tab" id="tab-hotl" onclick="show('hotl')" role="tab" aria-controls="panel-hotl" aria-selected="false" type="button">
+      <span class="tab-code">HOTL</span>
+      <span class="tab-name">On the Loop</span>
+    </button>
+    <button class="tab" id="tab-hic" onclick="show('hic')" role="tab" aria-controls="panel-hic" aria-selected="false" type="button">
+      <span class="tab-code">HIC</span>
+      <span class="tab-name">In Command</span>
+    </button>
+  </nav>
+  <main class="panel-main">
+    <div class="panel-inner visible" id="panel-hitl" role="tabpanel" aria-labelledby="tab-hitl">
+      <div class="panel-header-block">
+        <div class="panel-icon-shield" aria-hidden="true">H</div>
+        <div class="panel-title-area">
+          <h2>HITL</h2>
+          <div class="panel-subtitle">Human-in-the-Loop</div>
+          <p class="panel-desc">Een mens beoordeelt en keurt <strong>elke individuele AI-beslissing</strong> goed voordat die wordt uitgevoerd. De AI doet een voorstel; de mens beslist.</p>
+        </div>
+      </div>
+      <div class="section-title">Werkproces</div>
+      <div class="flow-container">
+        <div class="flow-steps">
+          <div class="flow-step">AI genereert voorstel</div>
+          <div class="flow-arrow">></div>
+          <div class="flow-step human">Mens keurt goed</div>
+          <div class="flow-arrow">></div>
+          <div class="flow-step success">Actie uitgevoerd</div>
+        </div>
+      </div>
+      <div class="section-title">Wanneer toepassen</div>
+      <div class="grid-data">
+        <div class="grid-card"><div class="grid-label">Situatie</div><div class="grid-value">Beslissingen met directe impact op klanten, medewerkers of rechten van personen.</div></div>
+        <div class="grid-card"><div class="grid-label">Frequentie</div><div class="grid-value">Per beslissing. Mens is een verplichte stap in het proces.</div></div>
+        <div class="grid-card"><div class="grid-label">Wie</div><div class="grid-value">De medewerker die verantwoordelijk is voor de uitkomst.</div></div>
+        <div class="grid-card"><div class="grid-label">Vastleggen</div><div class="grid-value">Datum, reviewer, beslissing en eventuele afwijking van AI-voorstel.</div></div>
+      </div>
+      <div class="section-title">Voorbeelden in MKB</div>
+      <div class="chips-container">
+        <div class="chip-row">AI-concept klantenbrief: medewerker keurt tekst goed voor versturen</div>
+        <div class="chip-row">CV-samenvatting door AI: recruiter beslist over uitnodiging</div>
+        <div class="chip-row">Fraudesignaal door AI: medewerker beoordeelt voor actie</div>
+      </div>
+      <div class="alert-box"><span class="alert-icon">!</span><p><strong>Let op:</strong> Rubber-stamping is geen HITL. Als de mens altijd bevestigt zonder echt te beoordelen, is er geen effectief menselijk toezicht.</p></div>
+    </div>
+    <div class="panel-inner" id="panel-hotl" role="tabpanel" aria-labelledby="tab-hotl">
+      <div class="panel-header-block">
+        <div class="panel-icon-shield" aria-hidden="true">O</div>
+        <div class="panel-title-area">
+          <h2>HOTL</h2>
+          <div class="panel-subtitle">Human-on-the-Loop</div>
+          <p class="panel-desc">AI handelt zelfstandig, maar een mens <strong>monitort actief</strong> en kan ingrijpen. De override-optie moet snel en effectief werken.</p>
+        </div>
+      </div>
+      <div class="section-title">Werkproces</div>
+      <div class="flow-container">
+        <div class="flow-steps">
+          <div class="flow-step">AI handelt</div>
+          <div class="flow-arrow">></div>
+          <div class="flow-step">Monitoring dashboard</div>
+          <div class="flow-arrow">></div>
+          <div class="flow-step human">Mens grijpt in</div>
+          <div class="flow-arrow">></div>
+          <div class="flow-step success">Override / doorgaan</div>
+        </div>
+      </div>
+      <div class="section-title">Wanneer toepassen</div>
+      <div class="grid-data">
+        <div class="grid-card"><div class="grid-label">Situatie</div><div class="grid-value">Hoog volume, lage tot middelhoge impact per beslissing; patronen kunnen significant worden.</div></div>
+        <div class="grid-card"><div class="grid-label">Frequentie</div><div class="grid-value">Periodieke steekproeven en automatische alerts bij drempeloverschrijding.</div></div>
+        <div class="grid-card"><div class="grid-label">Wie</div><div class="grid-value">Proceseigenaar of teamlead met override-bevoegdheid en beschikbaarheid.</div></div>
+        <div class="grid-card"><div class="grid-label">Vastleggen</div><div class="grid-value">Monitoring-log plus tijdstip en reden van elke override.</div></div>
+      </div>
+      <div class="section-title">Voorbeelden in MKB</div>
+      <div class="chips-container">
+        <div class="chip-row">AI-aanbevelingen voor klantsegmentatie: wekelijkse steekproef door marketingmanager</div>
+        <div class="chip-row">Automatische e-mailsortering: alert bij ongebruikelijke patronen</div>
+        <div class="chip-row">AI-gestuurde planning: teamlead controleert dagelijks output</div>
+      </div>
+      <div class="alert-box"><span class="alert-icon">!</span><p><strong>Let op:</strong> HOTL werkt alleen als de override-functie echt werkt en gebruikt wordt. Een stopknop die niemand kent, is geen effectief toezicht.</p></div>
+    </div>
+    <div class="panel-inner" id="panel-hic" role="tabpanel" aria-labelledby="tab-hic">
+      <div class="panel-header-block">
+        <div class="panel-icon-shield" aria-hidden="true">C</div>
+        <div class="panel-title-area">
+          <h2>HIC</h2>
+          <div class="panel-subtitle">Human-in-Command</div>
+          <p class="panel-desc">Een mens bepaalt <strong>het doel, de grenzen en de stopcriteria</strong> van het AI-systeem. Operationele beslissingen kunnen worden gedelegeerd, maar de mens blijft eindverantwoordelijk.</p>
+        </div>
+      </div>
+      <div class="section-title">Werkproces</div>
+      <div class="flow-container">
+        <div class="flow-steps">
+          <div class="flow-step human">Mens stelt kaders</div>
+          <div class="flow-arrow">></div>
+          <div class="flow-step">AI opereert autonoom</div>
+          <div class="flow-arrow">></div>
+          <div class="flow-step">Review resultaten</div>
+          <div class="flow-arrow">></div>
+          <div class="flow-step success">Beleid aanpassen</div>
+        </div>
+      </div>
+      <div class="section-title">Wanneer toepassen</div>
+      <div class="grid-data">
+        <div class="grid-card"><div class="grid-label">Situatie</div><div class="grid-value">Strategisch AI-gebruik op team- of procesniveau; proceseigenaar stelt kaders.</div></div>
+        <div class="grid-card"><div class="grid-label">Frequentie</div><div class="grid-value">Periodieke review plus onmiddellijke stopbevoegdheid.</div></div>
+        <div class="grid-card"><div class="grid-label">Wie</div><div class="grid-value">Leidinggevende of AI-ambassador met mandaat om systeem te stoppen of aan te passen.</div></div>
+        <div class="grid-card"><div class="grid-label">Vastleggen</div><div class="grid-value">Governance-document: doel, grenzen, stopcriteria, eigenaar en reviewfrequentie.</div></div>
+      </div>
+      <div class="section-title">Voorbeelden in MKB</div>
+      <div class="chips-container">
+        <div class="chip-row">AI-beleid voor klantenservice-team: teamlead stelt grenzen en evalueert maandelijks</div>
+        <div class="chip-row">Automatiseringsproject: proceseigenaar bepaalt go/no-go criteria</div>
+        <div class="chip-row">AI-tool in HR: HR-manager bepaalt waarvoor het wel of niet mag worden ingezet</div>
+      </div>
+      <div class="alert-box"><span class="alert-icon">!</span><p><strong>Let op:</strong> HIC vereist dat de verantwoordelijke ook daadwerkelijk bevoegd en in staat is om in te grijpen. Eindverantwoordelijkheid zonder stopmogelijkheid is een lege rol.</p></div>
+    </div>
+  </main>
+</div>
+<script>
+const visitedTabs = new Set(["hitl"]);
+
+function notifyResize() {
+  requestAnimationFrame(() => {
+    const bodyRect = document.body.getBoundingClientRect();
+    const docRect = document.documentElement.getBoundingClientRect();
+    const height = Math.max(
+      document.documentElement.scrollHeight,
+      document.body.scrollHeight,
+      bodyRect.bottom - bodyRect.top,
+      docRect.bottom - docRect.top
+    );
+    window.parent?.postMessage({
+      type: "digidactics_resize",
+      blockId: "p12-rich-html-hitl-hotl-hic",
+      height: Math.ceil(height) + 2
+    }, "*");
+  });
+}
+
+function show(model) {
+  ["hitl","hotl","hic"].forEach((m) => {
+    document.getElementById(`panel-${m}`).classList.remove("visible");
+    document.getElementById(`tab-${m}`).classList.remove("active");
+    document.getElementById(`tab-${m}`).setAttribute("aria-selected", "false");
+  });
+
+  document.getElementById(`panel-${model}`).classList.add("visible");
+  document.getElementById(`tab-${model}`).classList.add("active");
+  document.getElementById(`tab-${model}`).setAttribute("aria-selected", "true");
+  visitedTabs.add(model);
+  notifyResize();
+
+  if (visitedTabs.size === 3) {
+    window.parent?.postMessage({
+      type: "digidactics_event",
+      event: "block_complete",
+      blockId: "p12-rich-html-hitl-hotl-hic",
+      answer: "alle-modellen-bekeken"
+    }, "*");
+  }
+}
+
+window.addEventListener("load", notifyResize);
+document.fonts?.ready?.then(notifyResize);
+</script>
+</body>
+</html>

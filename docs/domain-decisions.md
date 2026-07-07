@@ -215,9 +215,9 @@ SAI will be developed as the first product/module of the broader RAI / RouteAI p
 
 The codebase will use a monorepo structure with separate Next.js apps under `apps/` and shared packages under `packages/`.
 
-In phase 1, only `apps/sai` will be built as a real Next.js application.
+In phase 1, `apps/sai` remains the first scan product surface. `apps/rai` may be built for the Learning System because AI Literacy is a RouteAI access gate.
 
-RAI and marketing will not be scaffolded as full applications yet. They are future platform surfaces and will be added when the SAI foundation is stable.
+Marketing will not be scaffolded as a full application yet. RouteAI should not be built out as the full governance suite prematurely, but the Learning System is a real RouteAI module and belongs in `apps/rai`.
 
 SAI and RAI will share:
 
@@ -358,6 +358,8 @@ A future legal role should not be added until its permissions and product respon
 
 Unknown or future roles should fall back safely, for example to `/dashboard`, without crashing routing logic.
 
+The detailed implementation note for shared auth, role lookup, and entry routing lives in `docs/auth-role-routing.md`.
+
 ## Decision: Keep Legal And Governance Concepts Separate
 
 Unknown tools are not automatically prohibited.
@@ -459,3 +461,27 @@ scorer because it runs server-side at survey completion and writes audit rows.
 `packages/domain` remains the regression-testable reference that must stay in
 behavioural parity with SQL. Any future scoring change must update both layers
 and include a SQL smoke test.
+
+## Decision: Build The Learning System As A RouteAI Module On The Shared Database
+
+The RouteAI Learning System may be built in parallel with the SAI migration.
+
+It shares the same Supabase database, organization model, profile model, role model, and audit principles as SAI. It does not depend on SAI survey tables for its core operation.
+
+Learning content is stored as versioned JSONB. For authored courses, the current shape is `learning_courses -> learning_topics -> learning_pages -> content.blocks[]`. `learning_lessons.content` remains for legacy compatibility and microlearnings. This is intentional because regulations, sector cases, policy examples, and training scenarios will change over time. The database validates the outer content shape, while detailed block rendering and validation live in shared TypeScript domain code.
+
+Learning rules are kept separate from risk scoring. The first product role of the Learning System is AI Literacy as a hard access criterion for RouteAI usecase checks. RouteAI may later map its own medium and high risk classifications to additional microlearnings. SAI scan outputs are not part of the current Learning System runtime; any SAI-derived intervention intelligence is parked as a separate analysis flow.
+
+The first implementation uses platform-level content (`org_id = NULL`) plus organization-level enablement/customization through `learning_catalog`. Organization-specific lessons or courses are possible, but should be used deliberately.
+
+The detailed product contract for AI Literacy certification, RouteAI access gating, and RouteAI-driven microlearnings lives in `docs/learning-system-product-spec.md`.
+
+The visible Learning System surface belongs in `apps/rai`, not `apps/sai`. SAI remains focused on the Shadow AI Scan. AI Literacy is the RouteAI access gate, so its course viewer, lesson player, progress flow, certificate issuance, and capability guard should be wired into the RouteAI app surface.
+
+Rationale:
+
+- supports parallel development without blocking SAI
+- preserves a single platform identity and role model
+- keeps JSON content flexible but governed
+- enables future sector-specific and regulatory updates
+- avoids importing Lovable's historical table drift directly into the new production schema

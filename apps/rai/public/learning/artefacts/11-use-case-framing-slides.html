@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Use-case framing — 5 slides</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F5F0;--surface:#FFFFFF;--text:#1A1A18;--text2:#5A5A56;--text3:#9A9A96;
+  --border:rgba(0,0,0,0.08);--r:12px;
+  --accent:#1D9E75;--accent-l:#E1F5EE;--accent-d:#085041;
+  --red:#A32D2D;--red-l:#FCEBEB;
+  --amber:#BA7517;--amber-l:#FAEEDA;--amber-d:#633806;
+  --purple:#534AB7;--purple-l:#EEEDFE;--purple-d:#3C3489;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);padding:24px 16px 48px;display:flex;flex-direction:column;align-items:center}
+.meta{max-width:780px;width:100%;margin-bottom:10px;font-size:11px;color:var(--text3)}
+.meta strong{color:var(--accent-d)}
+.deck{max-width:780px;width:100%;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);overflow:hidden;min-height:480px}
+.pbar{height:3px;background:var(--border)}.pfill{height:3px;background:var(--accent);transition:width .35s ease}
+.strip{padding:12px 22px;border-bottom:.5px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:space-between}
+.strip-lbl{font-size:11px;font-weight:500;color:var(--text3)}.strip-lbl strong{color:var(--accent)}
+.dots{display:flex;gap:5px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--border);cursor:pointer;transition:all .2s}
+.dot.active{background:var(--accent);width:16px;border-radius:3px}.dot.done{background:var(--accent-d)}
+.slide{display:none;padding:28px 28px 20px;animation:fin .22s ease}.slide.visible{display:block}
+@keyframes fin{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.slbl{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+.sh{font-family:'DM Serif Display',serif;font-size:24px;color:var(--text);margin-bottom:8px;line-height:1.2}
+.sp{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:16px;max-width:580px}
+
+/* Slide 1 — Four elements */
+.elements{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
+.el{background:var(--bg);border:.5px solid var(--border);border-radius:8px;padding:14px}
+.el-num{font-size:22px;font-family:'DM Serif Display',serif;color:var(--accent);margin-bottom:5px}
+.el-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px}
+.el-desc{font-size:11px;color:var(--text3);line-height:1.45;margin-bottom:6px}
+.el-q{font-size:11px;font-style:italic;color:var(--accent-d);background:var(--accent-l);padding:5px 8px;border-radius:5px;line-height:1.4}
+
+/* Slide 2 — Bad example with annotations */
+.bad-card{background:var(--red-l);border:.5px solid #F5C5BE;border-radius:8px;padding:16px 18px;margin-top:12px}
+.bad-head{font-size:12px;font-weight:500;color:var(--red);margin-bottom:10px}
+.bad-text{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--red);line-height:1.7;background:rgba(162,45,45,.06);padding:10px 12px;border-radius:6px;margin-bottom:10px}
+.missing-list{display:flex;flex-wrap:wrap;gap:6px}
+.missing-chip{font-size:11px;padding:3px 10px;border-radius:99px;background:#F5C5BE;color:var(--red);font-weight:500}
+
+/* Slide 3 — Good example with annotations */
+.good-card{background:var(--accent-l);border:.5px solid var(--accent-d);border-radius:8px;padding:16px 18px;margin-top:12px}
+.good-head{font-size:12px;font-weight:500;color:var(--accent-d);margin-bottom:10px}
+.good-text{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--accent-d);line-height:1.8;background:rgba(26,122,82,.07);padding:12px 14px;border-radius:6px;margin-bottom:8px}
+.ann-row{display:flex;flex-wrap:wrap;gap:6px}
+.ann-chip{font-size:11px;padding:3px 10px;border-radius:99px;background:#8FD4B6;color:var(--green-d,#0A3D28);font-weight:500}
+
+/* Slide 4 — Check questions */
+.checks{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.check-item{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border-radius:8px;background:var(--bg);border:.5px solid var(--border)}
+.check-num{font-size:18px;font-family:'DM Serif Display',serif;color:var(--accent);flex-shrink:0;width:24px;text-align:center}
+.check-q{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px}
+.check-hint{font-size:11px;color:var(--text3);line-height:1.4}
+
+/* Slide 5 — Download + own task */
+.dl-box{background:var(--purple-l);border:.5px solid rgba(83,74,183,.2);border-radius:8px;padding:16px 18px;margin-top:10px}
+.dl-head{font-size:13px;font-weight:500;color:var(--purple-d);margin-bottom:8px}
+.dl-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.field{background:var(--surface);border:.5px solid var(--border);border-radius:6px;padding:10px 12px}
+.field-lbl{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:3px}
+.field-val{font-size:12px;color:var(--text);font-style:italic}
+textarea{width:100%;min-height:80px;border:.5px solid var(--border);border-radius:8px;padding:10px 13px;font-family:inherit;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;outline:none;transition:border-color .15s;margin-top:10px;line-height:1.6}
+textarea:focus{border-color:var(--accent)}
+
+.nav-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 22px;border-top:.5px solid var(--border);background:var(--bg)}
+.nbtn{display:flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;border:.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;transition:all .12s}
+.nbtn:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.nbtn:disabled{opacity:.3;cursor:default}
+.nbtn.p{background:var(--accent);border-color:var(--accent);color:white}
+.nbtn.p:hover{background:var(--accent-d)}
+.nav-info{font-size:12px;color:var(--text3)}
+</style>
+</head>
+<body>
+<div class="meta">AI Proficiency · P02 · <strong>Competentie P1 & P2</strong> · 5 slides</div>
+<div class="deck">
+  <div class="pbar"><div class="pfill" id="pf" style="width:20%"></div></div>
+  <div class="strip">
+    <span class="strip-lbl">Use-case framing &nbsp;·&nbsp; <strong id="sc">Slide 1 van 5</strong></span>
+    <div class="dots" id="dots">
+      <div class="dot active" onclick="goTo(0)"></div>
+      <div class="dot" onclick="goTo(1)"></div>
+      <div class="dot" onclick="goTo(2)"></div>
+      <div class="dot" onclick="goTo(3)"></div>
+      <div class="dot" onclick="goTo(4)"></div>
+    </div>
+  </div>
+
+  <!-- S1 -->
+  <div class="slide visible" id="s0">
+    <div class="slbl">Slide 1 — De taakbrief</div>
+    <h2 class="sh">Wat is een taakbrief?</h2>
+    <p class="sp">Vóór je AI inzet, formuleer je een taakbrief: vier vragen die de opdracht scherp stellen. Dit voorkomt vage output, privacyfouten en ongepaste AI-inzet.</p>
+    <div class="elements">
+      <div class="el">
+        <div class="el-num">1</div>
+        <div class="el-title">Doel</div>
+        <div class="el-desc">Wat wil je bereiken? Wat is het gewenste eindresultaat?</div>
+        <div class="el-q">"Ik wil een conceptreactie op een klantvraag over levertijd."</div>
+      </div>
+      <div class="el">
+        <div class="el-num">2</div>
+        <div class="el-title">Input</div>
+        <div class="el-desc">Welke data gebruik je? Is die geanonimiseerd en toegestaan?</div>
+        <div class="el-q">"Geanonimiseerde klantvraag + productspecificaties."</div>
+      </div>
+      <div class="el">
+        <div class="el-num">3</div>
+        <div class="el-title">Randvoorwaarden</div>
+        <div class="el-desc">Welke grenzen gelden? Toon, lengte, privacyregels?</div>
+        <div class="el-q">"Max. 80 woorden, vriendelijke toon, geen persoonlijke gegevens."</div>
+      </div>
+      <div class="el">
+        <div class="el-num">4</div>
+        <div class="el-title">Succescriteria</div>
+        <div class="el-desc">Hoe weet je wanneer de output goed genoeg is?</div>
+        <div class="el-q">"Klant begrijpt de levertijd en weet wat de volgende stap is."</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S2 -->
+  <div class="slide" id="s1">
+    <div class="slbl">Slide 2 — Slecht voorbeeld</div>
+    <h2 class="sh">Wat ontbreekt hier?</h2>
+    <p class="sp">Dit is een veelgemaakte fout: direct aan de slag zonder de taak te framen. Welke elementen missen er?</p>
+    <div class="bad-card">
+      <div class="bad-head">✗ Zonder taakbrief — typische opdracht-prompt</div>
+      <div class="bad-text">Schrijf een mail naar de klant over de bestelling die te laat is.</div>
+      <div class="missing-list">
+        <span class="missing-chip">✗ Geen doel — wat moet de mail bereiken?</span>
+        <span class="missing-chip">✗ Geen input — welke info heeft AI?</span>
+        <span class="missing-chip">✗ Geen randvoorwaarden — toon? lengte? PII?</span>
+        <span class="missing-chip">✗ Geen succescriteria — wanneer is het goed?</span>
+        <span class="missing-chip">✗ Privacy-risico — bevat "de klant" PII?</span>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--text3);margin-top:10px;font-style:italic">Resultaat: AI raadt alles. Output is generiek, mogelijk onveilig en kost meer revisietijd dan het bespaart.</p>
+  </div>
+
+  <!-- S3 -->
+  <div class="slide" id="s2">
+    <div class="slbl">Slide 3 — Goed voorbeeld</div>
+    <h2 class="sh">Dezelfde taak, met taakbrief</h2>
+    <p class="sp">Alle vier elementen aanwezig — output is gericht, controleerbaar en privacyveilig.</p>
+    <div class="good-card">
+      <div class="good-head">✓ Met taakbrief</div>
+      <div class="good-text"><span style="opacity:.6">// Doel</span>
+Schrijf een kortse excuusmail aan een klant over een vertraagde levering.
+
+<span style="opacity:.6">// Input</span>
+Situatie: bestelling verwacht op 12 mei, nu beschikbaar op 19 mei.
+Geen naam of ordernummer in de output.
+
+<span style="opacity:.6">// Randvoorwaarden</span>
+Max. 80 woorden. Toon: empathisch, oplossingsgericht.
+
+<span style="opacity:.6">// Succescriteria</span>
+Klant begrijpt de vertraging, weet de nieuwe datum en voelt zich gehoord.</div>
+      <div class="ann-row">
+        <span class="ann-chip">✓ Doel helder</span>
+        <span class="ann-chip">✓ Geen PII</span>
+        <span class="ann-chip">✓ Toon bepaald</span>
+        <span class="ann-chip">✓ Lengte begrensd</span>
+        <span class="ann-chip">✓ Succescriterium zichtbaar</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- S4 -->
+  <div class="slide" id="s3">
+    <div class="slbl">Slide 4 — Veiligheidschecklist</div>
+    <h2 class="sh">Check vóór je AI inzet</h2>
+    <p class="sp">Vijf vragen die je stelt vóórdat je de prompt verstuurt. Als je een vraag niet kunt beantwoorden, herstel eerst de taakbrief.</p>
+    <div class="checks">
+      <div class="check-item">
+        <div class="check-num">1</div>
+        <div>
+          <div class="check-q">Is de taak geschikt voor AI?</div>
+          <div class="check-hint">AI is geschikt voor drafting, samenvatten, structureren. Niet voor besluiten over mensen, juridische oordelen of gevoelige assessments.</div>
+        </div>
+      </div>
+      <div class="check-item">
+        <div class="check-num">2</div>
+        <div>
+          <div class="check-q">Bevat mijn input persoonsgegevens?</div>
+          <div class="check-hint">Namen, e-mails, BSN, klantdata, HR-info → anonimiseer eerst of gebruik alleen goedgekeurde tools.</div>
+        </div>
+      </div>
+      <div class="check-item">
+        <div class="check-num">3</div>
+        <div>
+          <div class="check-q">Is de tool goedgekeurd voor dit gebruik?</div>
+          <div class="check-hint">Check de lijst met goedgekeurde tools van jouw organisatie. Bij twijfel: vraag je leidinggevende.</div>
+        </div>
+      </div>
+      <div class="check-item">
+        <div class="check-num">4</div>
+        <div>
+          <div class="check-q">Weet ik wie de output controleert?</div>
+          <div class="check-hint">AI-output gaat nooit direct naar een klant of collega zonder menselijke review. Wie bent dat? Jij? Een collega?</div>
+        </div>
+      </div>
+      <div class="check-item">
+        <div class="check-num">5</div>
+        <div>
+          <div class="check-q">Weet ik wanneer ik escaleer?</div>
+          <div class="check-hint">Als de output onverwacht is, gevoelig aanvoelt of je twijfelt over de juistheid: stop en vraag advies.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S5 -->
+  <div class="slide" id="s4">
+    <div class="slbl">Slide 5 — Eigen taakbrief</div>
+    <h2 class="sh">Schrijf jouw eigen taakbrief</h2>
+    <p class="sp">Kies een AI-taak uit jouw werk en vul de vier elementen in. Dit is jouw persoonlijke startpunt voor veilig en gericht AI-gebruik.</p>
+    <div class="dl-box">
+      <div class="dl-head">Taakbrief template</div>
+      <div class="dl-fields">
+        <div class="field"><div class="field-lbl">Doel</div><div class="field-val">Wat wil ik bereiken?</div></div>
+        <div class="field"><div class="field-lbl">Input</div><div class="field-val">Welke data gebruik ik (geanonimiseerd)?</div></div>
+        <div class="field"><div class="field-lbl">Randvoorwaarden</div><div class="field-val">Toon, lengte, privacyregels?</div></div>
+        <div class="field"><div class="field-lbl">Succescriteria</div><div class="field-val">Wanneer is de output goed genoeg?</div></div>
+      </div>
+    </div>
+    <textarea placeholder="Schrijf hier jouw taakbrief voor een concrete taak uit jouw werk. Gebruik de vier elementen hierboven als structuur. Geen persoonsgegevens."></textarea>
+  </div>
+
+  <div class="nav-bar">
+    <button class="nbtn" id="pb" onclick="prev()" disabled>← Vorige</button>
+    <span class="nav-info" id="ni">Slide 1 van 5</span>
+    <button class="nbtn p" id="nb" onclick="next()">Volgende →</button>
+  </div>
+</div>
+
+<script>
+let c=0,t=5;
+function goTo(i){
+  document.getElementById('s'+c).classList.remove('visible');
+  const ds=document.querySelectorAll('.dot');
+  ds[c].classList.remove('active');
+  if(i>c)ds[c].classList.add('done');
+  c=i;
+  document.getElementById('s'+c).classList.add('visible');
+  ds.forEach((d,idx)=>{d.classList.remove('active');if(idx===c)d.classList.add('active')});
+  document.getElementById('sc').textContent=`Slide ${c+1} van ${t}`;
+  document.getElementById('ni').textContent=`Slide ${c+1} van ${t}`;
+  document.getElementById('pb').disabled=c===0;
+  document.getElementById('nb').textContent=c===t-1?'✓ Afronden':'Volgende →';
+  document.getElementById('pf').style.width=`${((c+1)/t)*100}%`;
+}
+function next(){if(c<t-1)goTo(c+1);}
+function prev(){if(c>0)goTo(c-1);}
+</script>
+</body>
+</html>

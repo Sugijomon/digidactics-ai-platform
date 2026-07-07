@@ -16,7 +16,7 @@ SAI apart verkopen, maar niet apart bouwen.
 
 ## Repository Model
 
-This repository uses a lean monorepo model. In phase 1, only SAI is built as a real Next.js app. RAI and marketing are future platform surfaces and should not be scaffolded as full apps until SAI is stable.
+This repository uses a lean monorepo model. In phase 1, SAI is the first commercial product surface. The RouteAI Learning System is an explicit exception: because AI Literacy is the access gate for RouteAI, its visible course and lesson surface belongs in `apps/rai`.
 
 ```txt
 digidactics-ai-platform/
@@ -43,7 +43,7 @@ apps/rai
 apps/marketing
 ```
 
-These are documented as future surfaces, not maintained as placeholder applications in phase 1.
+Marketing remains a future surface. `apps/rai` may start with the Learning System and RouteAI access-gate integration without prematurely building the full RouteAI governance suite.
 
 ## Apps
 
@@ -62,7 +62,7 @@ The first product surface:
 
 ### `apps/rai`
 
-Future app. The broader RouteAI platform, added later:
+RouteAI platform surface. It starts with the Learning System and later expands into the broader governance platform:
 
 - organization AI policy
 - tool approval workflows
@@ -234,16 +234,16 @@ RLS is mandatory for all product tables.
 
 ## Deployment
 
-In phase 1, only SAI is deployed from the monorepo:
+In phase 1, SAI and the first RouteAI Learning System surface can be deployed as separate Vercel projects from the monorepo:
 
 ```txt
 Vercel project: sai -> Root Directory: apps/sai
+Vercel project: rai -> Root Directory: apps/rai
 ```
 
 Later, Vercel can use separate projects per app inside the same monorepo:
 
 ```txt
-Vercel project: rai -> Root Directory: apps/rai
 Vercel project: marketing -> Root Directory: apps/marketing
 ```
 

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Use-case triage — Waarde × Risico</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F5F0;--surface:#FFFFFF;--text:#1A1A18;--text2:#5A5A56;--text3:#9A9A96;
+  --border:rgba(0,0,0,0.08);--r:12px;
+  --green:#1A7A52;--green-l:#E8F7F1;--green-d:#0A3D28;
+  --amber:#BA7517;--amber-l:#FAEEDA;--amber-d:#633806;
+  --red:#A32D2D;--red-l:#FCEBEB;--red-d:#5C1818;
+  --gray-l:#EBEBEB;--gray-d:#5A5A56;
+  --purple:#534AB7;--purple-l:#EEEDFE;--purple-d:#3C3489;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);padding:32px 16px 48px;display:flex;flex-direction:column;align-items:center}
+.header{text-align:center;margin-bottom:26px;max-width:560px}
+.tag{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:99px;background:var(--purple-l);color:var(--purple-d);margin-bottom:10px;letter-spacing:0.06em}
+.header h1{font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:6px}
+.header p{font-size:13px;color:var(--text2);line-height:1.65}
+
+.wrap{max-width:820px;width:100%}
+
+/* Axis wrapper */
+.matrix-outer{display:flex;gap:0;align-items:stretch}
+.y-axis{display:flex;flex-direction:column;align-items:center;justify-content:center;width:36px;flex-shrink:0;gap:4px}
+.y-label{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap}
+.y-arrow{font-size:18px;color:var(--text3);writing-mode:vertical-rl;transform:rotate(180deg)}
+
+.matrix-inner{flex:1}
+.x-axis{display:flex;justify-content:space-around;padding:0 4px;margin-bottom:6px}
+.x-label{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;text-align:center;flex:1}
+
+/* Grid */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.quad{border-radius:10px;padding:18px;cursor:pointer;transition:transform 0.15s,filter 0.15s;border:2px solid transparent;position:relative}
+.quad:hover{transform:translateY(-2px)}
+.quad.sel{transform:translateY(-3px);border-width:2px}
+
+.q-start{background:var(--green-l);border-color:#8FD4B6}
+.q-start.sel{filter:brightness(0.95)}
+.q-careful{background:var(--amber-l);border-color:#F5C875}
+.q-careful.sel{filter:brightness(0.95)}
+.q-later{background:var(--gray-l);border-color:#C8C6BE}
+.q-later.sel{filter:brightness(0.95)}
+.q-avoid{background:var(--red-l);border-color:#F5C5BE}
+.q-avoid.sel{filter:brightness(0.95)}
+
+.quad-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px}
+.q-start .quad-label{color:var(--green)}
+.q-careful .quad-label{color:var(--amber)}
+.q-later .quad-label{color:var(--gray-d)}
+.q-avoid .quad-label{color:var(--red)}
+
+.quad-title{font-family:'DM Serif Display',serif;font-size:18px;margin-bottom:6px}
+.q-start .quad-title{color:var(--green-d)}
+.q-careful .quad-title{color:var(--amber-d)}
+.q-later .quad-title{color:var(--gray-d)}
+.q-avoid .quad-title{color:var(--red-d)}
+
+.quad-desc{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:10px}
+.quad-chips{display:flex;flex-wrap:wrap;gap:4px}
+
+/* Use case dots on matrix */
+.use-cases{display:flex;flex-wrap:wrap;gap:6px}
+.uc-chip{font-size:11px;padding:4px 10px;border-radius:99px;border:0.5px solid rgba(0,0,0,0.1);background:rgba(255,255,255,0.6);color:var(--text2);cursor:pointer;transition:all 0.12s}
+.uc-chip:hover{background:rgba(255,255,255,0.9)}
+
+/* Detail panel */
+.detail{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:18px 22px;margin-top:12px;display:none}
+.detail.visible{display:block;animation:fadeIn 0.2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.detail-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:14px}
+.detail-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:4px 12px;border-radius:99px;flex-shrink:0}
+.detail-q-title{font-family:'DM Serif Display',serif;font-size:19px;color:var(--text);margin-bottom:3px}
+.detail-desc{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:12px}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.d-col-lbl{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:7px}
+.d-item{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--text2);margin-bottom:5px;line-height:1.4}
+.d-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.detail-rule{padding:11px 14px;border-radius:8px;font-size:13px;line-height:1.55;margin-top:12px}
+.detail-close{display:flex;justify-content:flex-end;margin-top:10px}
+.close-btn{font-size:12px;color:var(--text3);cursor:pointer;background:none;border:none;font-family:inherit}
+
+/* Vragen / beslishulp */
+.triage-qs{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:16px 20px;margin-top:12px}
+.triage-qs h3{font-size:13px;font-weight:500;color:var(--text);margin-bottom:10px}
+.triage-row{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--text2);margin-bottom:7px;line-height:1.5}
+.triage-num{font-size:11px;font-weight:500;color:var(--purple-d);background:var(--purple-l);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="tag">AI Mastery · M02 · Competentie M1 & M4</div>
+  <h1>Use-case triage</h1>
+  <p>Prioriteer AI-initiatieven op <strong>waarde</strong> en <strong>risico</strong>. Klik op een kwadrant of use case voor de aanpak.</p>
+</div>
+
+<div class="wrap">
+
+  <!-- Detail panel -->
+  <div class="detail" id="detail-panel">
+    <div class="detail-top">
+      <div id="d-badge" class="detail-badge"></div>
+      <div>
+        <div class="detail-q-title" id="d-title"></div>
+        <div id="d-sub" style="font-size:12px;color:var(--text3);font-style:italic"></div>
+      </div>
+    </div>
+    <div class="detail-desc" id="d-desc"></div>
+    <div class="detail-grid" id="d-grid"></div>
+    <div class="detail-rule" id="d-rule"></div>
+    <div class="detail-close"><button class="close-btn" onclick="closeDetail()">Sluiten ×</button></div>
+  </div>
+
+  <div class="matrix-outer">
+    <div class="y-axis">
+      <div class="y-arrow">↑</div>
+      <div class="y-label">Hoge waarde</div>
+      <div style="flex:1"></div>
+      <div class="y-label">Lage waarde</div>
+      <div class="y-arrow">↓</div>
+    </div>
+
+    <div class="matrix-inner">
+      <div class="x-axis">
+        <div class="x-label">↙ Laag risico</div>
+        <div class="x-label">Hoog risico ↘</div>
+      </div>
+      <div class="grid">
+
+        <div class="quad q-start" id="q-start" onclick="showQ('start')">
+          <div class="quad-label">Kwadrant 1</div>
+          <div class="quad-title">Start hier</div>
+          <div class="quad-desc">Hoge waarde, laag risico. De meest aantrekkelijke projecten — snel te starten met weinig governance-overhead.</div>
+          <div class="use-cases">
+            <span class="uc-chip" onclick="showUC(event,'uc-mail')">Klantmail drafting</span>
+            <span class="uc-chip" onclick="showUC(event,'uc-samenvatting')">Vergadersamenvatting</span>
+            <span class="uc-chip" onclick="showUC(event,'uc-faq')">FAQ-generatie</span>
+          </div>
+        </div>
+
+        <div class="quad q-careful" id="q-careful" onclick="showQ('careful')">
+          <div class="quad-label">Kwadrant 2</div>
+          <div class="quad-title">Zorgvuldig</div>
+          <div class="quad-desc">Hoge waarde, hoog risico. Aantrekkelijk maar vereist governance: toezicht, logging, conformiteit.</div>
+          <div class="use-cases">
+            <span class="uc-chip" onclick="showUC(event,'uc-cv')">CV-screening</span>
+            <span class="uc-chip" onclick="showUC(event,'uc-krediet')">Kredietbeoordeling</span>
+            <span class="uc-chip" onclick="showUC(event,'uc-churn')">Churn-voorspelling</span>
+          </div>
+        </div>
+
+        <div class="quad q-later" id="q-later" onclick="showQ('later')">
+          <div class="quad-label">Kwadrant 3</div>
+          <div class="quad-title">Later</div>
+          <div class="quad-desc">Lage waarde, laag risico. Geen haast — het kan, maar het levert weinig op. Plan in na kwadrant 1.</div>
+          <div class="use-cases">
+            <span class="uc-chip" onclick="showUC(event,'uc-spell')">Spellingscorrectie</span>
+            <span class="uc-chip" onclick="showUC(event,'uc-vertaling')">Interne vertaaltool</span>
+          </div>
+        </div>
+
+        <div class="quad q-avoid" id="q-avoid" onclick="showQ('avoid')">
+          <div class="quad-label">Kwadrant 4</div>
+          <div class="quad-title">Niet doen</div>
+          <div class="quad-desc">Lage waarde, hoog risico. Slechte investering: hoge governance-lasten voor weinig opbrengst.</div>
+          <div class="use-cases">
+            <span class="uc-chip" onclick="showUC(event,'uc-emotie')">Emotieherkenning medewerkers</span>
+            <span class="uc-chip" onclick="showUC(event,'uc-scoring')">Gedragsscoring klanten</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Beslishulp -->
+  <div class="triage-qs">
+    <h3>Triagecheck — vier vragen per use case</h3>
+    <div class="triage-row"><div class="triage-num">1</div><span><strong>Waarde:</strong> Lost het een reëel probleem op of versnelt het een bestaand proces significant? Schat in: groot / middel / klein.</span></div>
+    <div class="triage-row"><div class="triage-num">2</div><span><strong>Risico:</strong> Heeft de output impact op mensen (rechten, kansen, veiligheid)? Is de data gevoelig? Val het onder hoog-risico (AI Act Annex III)?</span></div>
+    <div class="triage-row"><div class="triage-num">3</div><span><strong>Haalbaarheid:</strong> Hebben we de data, de tooling en het toezicht om dit nu verantwoord te doen?</span></div>
+    <div class="triage-row"><div class="triage-num">4</div><span><strong>Governance-last:</strong> Welke verplichtingen brengt het mee? Conformiteitsbeoordeling, logging, menselijk toezicht, registratie?</span></div>
+  </div>
+</div>
+
+<script>
+const QUADS = {
+  start:{
+    badge:'Kwadrant 1 · Hoge waarde + Laag risico',badgeBg:'#E8F7F1',badgeFg:'#0A3D28',
+    title:'Start hier — snelle winst',sub:'Ideaal voor eerste AI-implementaties',
+    desc:'Use cases in dit kwadrant leveren direct aantoonbare waarde en vereisen weinig governance-overhead. Dit zijn de beste use cases om ervaring op te doen en intern vertrouwen op te bouwen.',
+    do:['Start met één use case, bewijs de waarde, schaal dan op','Stel eenvoudig menselijk toezicht in (HITL of HOTL)','Documenteer de uitkomsten — gebruik als intern leermoment'],
+    check:['Controleer of output altijd door mens wordt gereviewed vóór gebruik','Stel een simpele logging in voor transparantie','Bepaal wie verantwoordelijk is voor de kwaliteit van de output'],
+    rule:'Meeste MKB-organisaties kunnen hier morgen mee beginnen. Zorg voor een reviewstap en een duidelijke eigenaar.',rulebg:'#E8F7F1',rulefg:'#0A3D28'
+  },
+  careful:{
+    badge:'Kwadrant 2 · Hoge waarde + Hoog risico',badgeBg:'#FAEEDA',badgeFg:'#633806',
+    title:'Zorgvuldig — governance first',sub:'Potentieel groot, maar vereist voorbereiding',
+    desc:'De waarde is reëel, maar de risico\'s zijn significant. Implementatie vereist een governance-ontwerp: conformiteitsbeoordeling, menselijk toezicht, logging en transparantie richting betrokkenen.',
+    do:['Voer eerst een risicoanalyse en eventueel DPIA uit','Ontwerp het oversightmodel vóór implementatie (HITL voor hoog-impactbeslissingen)','Registreer het systeem in de EU AI Act-databank als hoog-risico'],
+    check:['Is de leverancier transparant over trainingsdata en bias?','Wie heeft de override-bevoegdheid?','Hoe informeer je betrokkenen (sollicitanten, klanten)?'],
+    rule:'Niet starten zonder governance-ontwerp. De waarde is er — maar haast verhoogt het risico op compliance-problemen disproportioneel.',rulebg:'#FAEEDA',rulefg:'#633806'
+  },
+  later:{
+    badge:'Kwadrant 3 · Lage waarde + Laag risico',badgeBg:'#EBEBEB',badgeFg:'#5A5A56',
+    title:'Later — niet urgent',sub:'Kan, maar levert weinig op',
+    desc:'Weinig risico maar ook weinig toegevoegde waarde. Plan deze use cases in nadat kwadrant 1 en 2 zijn aangepakt. Gebruik ze eventueel als oefenprojecten voor teams die met AI vertrouwd raken.',
+    do:['Plan in na successen in kwadrant 1','Gebruik als laagdrempelige oefencasussen voor teamleden','Evalueer opnieuw als er betere tooling beschikbaar komt'],
+    check:['Is de investering in implementatie het waard?','Zijn er kwadranten-1-alternatieven die meer opleveren?','Wie heeft belang bij dit project — is dat breed?'],
+    rule:'Niet prioriteren boven kwadrant 1. Goede optie voor teams die AI willen verkennen zonder druk.',rulebg:'#EBEBEB',rulefg:'#5A5A56'
+  },
+  avoid:{
+    badge:'Kwadrant 4 · Lage waarde + Hoog risico',badgeBg:'#FCEBEB',badgeFg:'#5C1818',
+    title:'Niet doen — nu niet',sub:'Hoge governance-lasten voor weinig opbrengst',
+    desc:'De combinatie van lage business value en hoge compliance-lasten maakt dit de slechtste investering. Hoog risico vereist conformiteitsbeoordeling, logging, menselijk toezicht en registratie — voor een return die dat niet rechtvaardigt.',
+    do:['Bewust uitsluiten — documenteer de afweging','Periodiek opnieuw evalueren: verandert de waarde?','Communiceer intern waarom dit use case niet wordt opgepakt'],
+    check:['Is er externe druk (klant, partner) die toch implementatie vereist?','Zo ja: ga dan toch door governance-route van kwadrant 2','Is er een alternatief met minder risico voor hetzelfde doel?'],
+    rule:'Niet starten. Documenteer de beslissing met onderbouwing. Als er druk is: herhaal de triageanalyse met stakeholders erbij.',rulebg:'#FCEBEB',rulefg:'#5C1818'
+  }
+};
+
+const UCS = {
+  'uc-mail':{title:'Klantmail drafting',q:'start',desc:'AI schrijft conceptreacties op klantmails op basis van geanonimiseerde situatie. Medewerker reviewt en verstuurt.',waarde:'Hoog — tijdsbesparing, consistentie',risico:'Laag — medewerker reviewt altijd'},
+  'uc-samenvatting':{title:'Vergadersamenvatting',q:'start',desc:'AI vat vergadernotities samen. Geen persoonsgegevens in de prompt. Output wordt door deelnemer gecontroleerd.',waarde:'Middel-hoog',risico:'Laag — geen beslissingsimpact'},
+  'uc-faq':{title:'FAQ-generatie',q:'start',desc:'AI genereert FAQ-antwoorden op basis van productinfo. Medewerker controleert feitelijkheid.',waarde:'Middel',risico:'Laag — publieke content'},
+  'uc-cv':{title:'CV-screening',q:'careful',desc:'AI rangschikt sollicitanten op basis van criteria. Valt onder hoog-risico (AI Act Annex III). Vereist conformiteitsbeoordeling en menselijke eindverantwoordelijkheid.',waarde:'Hoog — schaalvoordeel in recruitment',risico:'Hoog — impact op kansen van mensen'},
+  'uc-krediet':{title:'Kredietbeoordeling',q:'careful',desc:'AI ondersteunt krediet- of verzekeringsbeslissingen. Hoog-risico. GDPR Art. 22 van toepassing (recht op menselijke beoordeling).',waarde:'Hoog',risico:'Hoog — financiële impact op individuen'},
+  'uc-churn':{title:'Churn-voorspelling',q:'careful',desc:'AI voorspelt welke klanten dreigen te vertrekken. Waarde is hoog, maar risico op bias in segmentatie is aanwezig.',waarde:'Hoog',risico:'Middel-hoog — afhankelijk van actie op voorspelling'},
+  'uc-spell':{title:'Spellingscorrectie',q:'later',desc:'AI-spellingscorrectie is al ingebouwd in de meeste tools. Weinig toegevoegde waarde als apart project.',waarde:'Laag',risico:'Laag'},
+  'uc-vertaling':{title:'Interne vertaaltool',q:'later',desc:'AI-vertaling is nuttig maar al breed beschikbaar. Weinig onderscheidende waarde als intern project.',waarde:'Laag-middel',risico:'Laag (mits geen vertrouwelijke documenten)'},
+  'uc-emotie':{title:'Emotieherkenning medewerkers',q:'avoid',desc:'AI herkent emoties van medewerkers via camera of communicatietool. Juridisch zeer risicovol (AVG, AI Act), weinig draagvlak, lage waarde.',waarde:'Laag',risico:'Zeer hoog — grondrechten in geding'},
+  'uc-scoring':{title:'Gedragsscoring klanten',q:'avoid',desc:'AI scoort klanten op basis van gedragsdata. Sociale scoring is verboden voor overheden, voor bedrijven een grijs gebied met hoge AVG-risico\'s.',waarde:'Laag-middel',risico:'Hoog — AVG, reputatierisico'},
+};
+
+const QC={start:{bg:'#E8F7F1',fg:'#0A3D28',dot:'#1A7A52'},careful:{bg:'#FAEEDA',fg:'#633806',dot:'#BA7517'},later:{bg:'#EBEBEB',fg:'#5A5A56',dot:'#9A9A96'},avoid:{bg:'#FCEBEB',fg:'#5C1818',dot:'#A32D2D'}};
+
+let open=null;
+function showQ(key){
+  if(open===key){closeDetail();return;}
+  open=key;
+  document.querySelectorAll('.quad').forEach(q=>q.classList.remove('sel'));
+  document.getElementById('q-'+key).classList.add('sel');
+  const d=QUADS[key];const c=QC[key];
+  const doItems=d.do.map(i=>`<div class="d-item"><div class="d-dot" style="background:${c.dot}"></div><span>${i}</span></div>`).join('');
+  const chItems=d.check.map(i=>`<div class="d-item"><div class="d-dot" style="background:${c.dot}"></div><span>${i}</span></div>`).join('');
+  document.getElementById('d-badge').style.cssText=`background:${d.badgeBg};color:${d.badgeFg}`;
+  document.getElementById('d-badge').textContent=d.badge;
+  document.getElementById('d-title').textContent=d.title;
+  document.getElementById('d-sub').textContent=d.sub;
+  document.getElementById('d-desc').textContent=d.desc;
+  document.getElementById('d-grid').innerHTML=`<div><div class="d-col-lbl">Aanpak</div>${doItems}</div><div><div class="d-col-lbl">Controleer</div>${chItems}</div>`;
+  document.getElementById('d-rule').style.cssText=`background:${d.rulebg};color:${d.rulefg}`;
+  document.getElementById('d-rule').textContent=d.rule;
+  document.getElementById('detail-panel').classList.add('visible');
+}
+function showUC(e,key){
+  e.stopPropagation();
+  const uc=UCS[key];const q=uc.q;const c=QC[q];
+  open=null;
+  document.querySelectorAll('.quad').forEach(q=>q.classList.remove('sel'));
+  document.getElementById('d-badge').style.cssText=`background:${c.bg};color:${c.fg}`;
+  document.getElementById('d-badge').textContent=uc.title;
+  document.getElementById('d-title').textContent=uc.title;
+  document.getElementById('d-sub').textContent=`Kwadrant: ${q}`;
+  document.getElementById('d-desc').textContent=uc.desc;
+  document.getElementById('d-grid').innerHTML=`
+    <div><div class="d-col-lbl">Waarde</div><div class="d-item"><div class="d-dot" style="background:${c.fg}"></div><span>${uc.waarde}</span></div></div>
+    <div><div class="d-col-lbl">Risico</div><div class="d-item"><div class="d-dot" style="background:${c.fg}"></div><span>${uc.risico}</span></div></div>`;
+  document.getElementById('d-rule').style.cssText='display:none';
+  document.getElementById('detail-panel').classList.add('visible');
+}
+function closeDetail(){open=null;document.querySelectorAll('.quad').forEach(q=>q.classList.remove('sel'));document.getElementById('detail-panel').classList.remove('visible');document.getElementById('d-rule').style.cssText='';}
+</script>
+</body>
+</html>

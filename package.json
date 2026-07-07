@@ -2,12 +2,20 @@
   "name": "digidactics-ai-platform",
   "private": true,
   "packageManager": "pnpm@10.33.3",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev:sai": "corepack pnpm --dir apps/sai dev",
     "build:sai": "corepack pnpm --dir apps/sai build",
     "lint:sai": "corepack pnpm --dir apps/sai lint",
     "test:domain": "corepack pnpm --dir packages/domain test",
     "test:e2e:sai": "corepack pnpm --dir apps/sai test:e2e",
-    "test:all": "corepack pnpm test:domain && corepack pnpm lint:sai && corepack pnpm build:sai && corepack pnpm test:e2e:sai"
+    "test:all": "corepack pnpm test:domain && corepack pnpm lint:sai && corepack pnpm build:sai && corepack pnpm test:e2e:sai",
+    "dev:rai": "npm --workspace @digidactics/rai run dev",
+    "build:rai": "npm --workspace @digidactics/rai run build",
+    "test:learning-governance": "npx tsx scripts/verify-learning-governance-metadata.ts && npx tsx scripts/verify-certificate-success-component.tsx && npx tsx scripts/learning-parity-tests.ts",
+    "typecheck": "npm --workspaces --if-present run typecheck"
   }
 }

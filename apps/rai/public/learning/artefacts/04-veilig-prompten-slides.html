@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Veilig prompten — 6 slides</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F5F0;
+  --surface:#FFFFFF;
+  --text:#1A1A18;
+  --text2:#5A5A56;
+  --text3:#9A9A96;
+  --border:rgba(0,0,0,0.08);
+  --r:12px;
+  --accent:#534AB7;
+  --accent-l:#EEEDFE;
+  --accent-d:#3C3489;
+  --teal:#1D9E75;
+  --teal-l:#E1F5EE;
+  --teal-d:#085041;
+  --red:#A32D2D;
+  --red-l:#FCEBEB;
+  --amber:#BA7517;
+  --amber-l:#FAEEDA;
+}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+  padding:24px 16px 48px;
+}
+
+/* Slide wrapper */
+.slide-wrap{
+  max-width:780px;width:100%;
+  background:var(--surface);
+  border:0.5px solid var(--border);
+  border-radius:var(--r);
+  overflow:hidden;
+  min-height:460px;
+}
+
+/* Progress bar */
+.progress-bar{height:3px;background:var(--border);position:relative}
+.progress-fill{height:3px;background:var(--accent);transition:width 0.35s ease}
+
+/* Slide header strip */
+.slide-strip{
+  padding:14px 24px;border-bottom:0.5px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--bg);
+}
+.slide-tag{font-size:11px;font-weight:500;letter-spacing:0.06em;color:var(--text3)}
+.slide-tag span{color:var(--accent);font-weight:500}
+.slide-dots{display:flex;gap:5px}
+.slide-dot{width:6px;height:6px;border-radius:50%;background:var(--border);cursor:pointer;transition:all 0.2s}
+.slide-dot.active{background:var(--accent);width:16px;border-radius:3px}
+.slide-dot.done{background:var(--teal)}
+
+/* Slide content */
+.slide{display:none;padding:32px 30px 24px;animation:fadeSlide 0.25s ease}
+.slide.visible{display:block}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+.slide-label{font-size:11px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
+.slide-title{font-family:'DM Serif Display',serif;font-size:26px;color:var(--text);margin-bottom:10px;line-height:1.2}
+.slide-desc{font-size:14px;color:var(--text2);line-height:1.7;max-width:560px}
+
+/* Slide 1 — callout */
+.reason-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}
+.reason-card{background:var(--bg);border:0.5px solid var(--border);border-radius:8px;padding:14px}
+.reason-icon{font-size:20px;margin-bottom:6px}
+.reason-title{font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px}
+.reason-desc{font-size:11px;color:var(--text3);line-height:1.5}
+
+/* Slide 2 — Never list */
+.never-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:20px}
+.never-item{
+  display:flex;align-items:flex-start;gap:10px;
+  background:var(--red-l);border:0.5px solid #F5C5BE;
+  border-radius:8px;padding:12px 14px;
+}
+.never-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.never-text{font-size:12px;color:var(--red);line-height:1.5;font-weight:500}
+.never-sub{font-size:11px;color:#C23B2A;margin-top:2px;font-weight:400}
+
+/* Slide 3 — MCQ */
+.question{font-size:16px;font-weight:500;color:var(--text);margin:16px 0 20px;line-height:1.5}
+.options{display:flex;flex-direction:column;gap:8px}
+.option{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 16px;border-radius:8px;
+  border:1.5px solid var(--border);background:var(--surface);
+  cursor:pointer;font-size:13px;color:var(--text);
+  transition:all 0.12s;font-family:inherit;text-align:left;
+}
+.option:hover:not(.locked){border-color:var(--accent);background:var(--accent-l)}
+.option.correct{border-color:var(--teal);background:var(--teal-l);color:var(--teal-d)}
+.option.wrong{border-color:var(--red);background:var(--red-l);color:var(--red)}
+.option.locked{cursor:default}
+.opt-letter{
+  width:24px;height:24px;border-radius:50%;
+  border:1.5px solid currentColor;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:500;flex-shrink:0;
+}
+.feedback{
+  margin-top:14px;padding:12px 16px;border-radius:8px;
+  font-size:13px;line-height:1.55;display:none;
+}
+.feedback.show{display:block}
+.feedback.ok{background:var(--teal-l);color:var(--teal-d);border:0.5px solid #8FD4B6}
+.feedback.nok{background:var(--red-l);color:var(--red);border:0.5px solid #F5C5BE}
+
+/* Slide 4 — Compare */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+.compare-col{border-radius:8px;overflow:hidden}
+.compare-head{padding:10px 14px;font-size:12px;font-weight:500}
+.compare-bad .compare-head{background:var(--red-l);color:var(--red)}
+.compare-good .compare-head{background:var(--teal-l);color:var(--teal-d)}
+.prompt-box{
+  padding:14px;font-family:monospace;font-size:12px;
+  line-height:1.7;border:0.5px solid var(--border);
+  border-top:none;border-radius:0 0 8px 8px;
+  background:var(--bg);color:var(--text2);
+}
+.prompt-box mark{background:transparent;font-weight:500}
+.prompt-box mark.bad{color:var(--red)}
+.prompt-box mark.good{color:var(--teal-d)}
+.compare-note{font-size:11px;color:var(--text3);margin-top:6px;font-style:italic;line-height:1.5}
+
+/* Slide 5 — principles list */
+.principles{display:flex;flex-direction:column;gap:8px;margin-top:18px}
+.principle{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:13px 16px;border-radius:8px;
+  background:var(--accent-l);border:0.5px solid rgba(83,74,183,0.2);
+}
+.principle-num{
+  width:24px;height:24px;border-radius:50%;
+  background:var(--accent);color:white;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:500;flex-shrink:0;margin-top:1px;
+}
+.principle-title{font-size:13px;font-weight:500;color:var(--accent-d);margin-bottom:2px}
+.principle-desc{font-size:12px;color:var(--text2);line-height:1.5}
+
+/* Slide 6 — reflection */
+.reflection-prompt{
+  background:var(--accent-l);border:0.5px solid rgba(83,74,183,0.2);
+  border-radius:8px;padding:18px 20px;margin:18px 0;
+}
+.reflection-prompt p{font-size:14px;color:var(--accent-d);line-height:1.65;font-style:italic}
+textarea{
+  width:100%;min-height:100px;
+  border:0.5px solid var(--border);border-radius:8px;
+  padding:12px 14px;font-family:inherit;font-size:13px;
+  color:var(--text);background:var(--surface);
+  resize:vertical;outline:none;
+  transition:border-color 0.15s;
+}
+textarea:focus{border-color:var(--accent)}
+.reflection-note{font-size:11px;color:var(--text3);margin-top:6px;font-style:italic}
+
+/* Navigation */
+.nav-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 24px;border-top:0.5px solid var(--border);
+  background:var(--bg);
+}
+.nav-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:9px 18px;border-radius:8px;
+  border:0.5px solid var(--border);background:var(--surface);
+  font-family:inherit;font-size:13px;font-weight:500;
+  color:var(--text);cursor:pointer;transition:all 0.12s;
+}
+.nav-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.nav-btn:disabled{opacity:0.3;cursor:default}
+.nav-btn.primary{background:var(--accent);border-color:var(--accent);color:white}
+.nav-btn.primary:hover{background:var(--accent-d)}
+.nav-info{font-size:12px;color:var(--text3)}
+</style>
+</head>
+<body>
+
+<div style="max-width:780px;width:100%;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+  <div>
+    <div style="font-size:11px;font-weight:500;letter-spacing:0.06em;color:var(--text3);text-transform:uppercase;margin-bottom:2px">AI Literacy · P7 · Competentie C4</div>
+    <div style="font-size:11px;color:var(--text3)">6 slides · Interactief · Inclusief meerkeuze en reflectie</div>
+  </div>
+</div>
+
+<div class="slide-wrap">
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:16.6%"></div></div>
+
+  <div class="slide-strip">
+    <div class="slide-tag">Veilig prompten &amp; toolgrenzen &nbsp;·&nbsp; <span id="slide-counter">Slide 1 van 6</span></div>
+    <div class="slide-dots" id="slide-dots">
+      <div class="slide-dot active" onclick="goTo(0)"></div>
+      <div class="slide-dot" onclick="goTo(1)"></div>
+      <div class="slide-dot" onclick="goTo(2)"></div>
+      <div class="slide-dot" onclick="goTo(3)"></div>
+      <div class="slide-dot" onclick="goTo(4)"></div>
+      <div class="slide-dot" onclick="goTo(5)"></div>
+    </div>
+  </div>
+
+  <!-- SLIDE 1 -->
+  <div class="slide visible" id="slide-0">
+    <div class="slide-label">Slide 1 — Introductie</div>
+    <h2 class="slide-title">Waarom promptveiligheid?</h2>
+    <p class="slide-desc">Hoe je AI aanstuurt bepaalt niet alleen de kwaliteit van de output — het bepaalt ook of je persoonsgegevens beschermt, bedrijfsinformatie veilig houdt en verantwoord handelt.</p>
+    <div class="reason-grid">
+      <div class="reason-card">
+        <div class="reason-icon">🔒</div>
+        <div class="reason-title">Privacy</div>
+        <div class="reason-desc">Wat je invoert, verlaat mogelijk je organisatie. Data in prompts kan worden gebruikt voor trainingen.</div>
+      </div>
+      <div class="reason-card">
+        <div class="reason-icon">⚖️</div>
+        <div class="reason-title">Verantwoordelijkheid</div>
+        <div class="reason-desc">Als jij de prompt stuurt, ben jij verantwoordelijk voor wat er mee gebeurt — ook als AI het schrijft.</div>
+      </div>
+      <div class="reason-card">
+        <div class="reason-icon">🎯</div>
+        <div class="reason-title">Kwaliteit</div>
+        <div class="reason-desc">Een veilige prompt is ook een betere prompt: concreter, gerichter en met minder hallucination-risico.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2 -->
+  <div class="slide" id="slide-1">
+    <div class="slide-label">Slide 2 — Grenzen</div>
+    <h2 class="slide-title">Wat voer je nooit zomaar in?</h2>
+    <p class="slide-desc">Deze categorieën informatie voer je alleen in een AI-tool als je zeker weet dat de tool is goedgekeurd voor dit gebruik én de data is geanonimiseerd.</p>
+    <div class="never-grid">
+      <div class="never-item">
+        <div class="never-icon">👤</div>
+        <div>
+          <div class="never-text">Klantdata met naam of contactgegevens</div>
+          <div class="never-sub">Namen, e-mailadressen, telefoonnummers, klantnummers</div>
+        </div>
+      </div>
+      <div class="never-item">
+        <div class="never-icon">💼</div>
+        <div>
+          <div class="never-text">Vertrouwelijke bedrijfsinformatie</div>
+          <div class="never-sub">Offertes, contracten, strategische plannen, financiële cijfers</div>
+        </div>
+      </div>
+      <div class="never-item">
+        <div class="never-icon">🏥</div>
+        <div>
+          <div class="never-text">Bijzondere persoonsgegevens</div>
+          <div class="never-sub">Medische info, BSN, religie, politieke voorkeur, seksuele geaardheid</div>
+        </div>
+      </div>
+      <div class="never-item">
+        <div class="never-icon">👥</div>
+        <div>
+          <div class="never-text">Niet-openbare HR-informatie</div>
+          <div class="never-sub">Beoordelingen, salarissen, disciplinaire dossiers, ziekmeldingen</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3 — MCQ -->
+  <div class="slide" id="slide-2">
+    <div class="slide-label">Slide 3 — Kennischeck</div>
+    <h2 class="slide-title">Mag dit in de prompt?</h2>
+    <p class="slide-desc">Een medewerker wil een klantklacht samenvatten. Welke aanpak is het veiligst?</p>
+    <div class="question">Kies de beste aanpak:</div>
+    <div class="options" id="mcq-options">
+      <button class="option" data-correct="false" onclick="answerMCQ(this)">
+        <span class="opt-letter">A</span>
+        De volledige klachtmail inclusief naam, bestelnummer en telefoonnummer plakken in ChatGPT
+      </button>
+      <button class="option" data-correct="false" onclick="answerMCQ(this)">
+        <span class="opt-letter">B</span>
+        Alleen de naam vervangen door "[klant]" en de rest intact laten
+      </button>
+      <button class="option" data-correct="true" onclick="answerMCQ(this)">
+        <span class="opt-letter">C</span>
+        Naam, bestelnummer en contactgegevens verwijderen, daarna samenvatting vragen in de goedgekeurde tool
+      </button>
+      <button class="option" data-correct="false" onclick="answerMCQ(this)">
+        <span class="opt-letter">D</span>
+        De klacht niet samenvatten — AI mag nooit worden ingezet voor klantcommunicatie
+      </button>
+    </div>
+    <div class="feedback" id="mcq-feedback"></div>
+  </div>
+
+  <!-- SLIDE 4 — Compare -->
+  <div class="slide" id="slide-3">
+    <div class="slide-label">Slide 4 — Vergelijking</div>
+    <h2 class="slide-title">Minimaliseer eerst</h2>
+    <p class="slide-desc">Een slechte prompt geeft te veel informatie prijs. Een goede prompt bereikt hetzelfde doel met minimale data.</p>
+    <div class="compare">
+      <div class="compare-col compare-bad">
+        <div class="compare-head">✗ Niet zo</div>
+        <div class="prompt-box">Schrijf een opvolgmail naar <mark class="bad">Jan Jansen</mark> (jan@bedrijf.nl) over zijn klacht van <mark class="bad">gisteren om 14:32</mark>. Hij klaagde dat bestelling <mark class="bad">#A48291</mark> niet is geleverd. Zijn <mark class="bad">telefoonnummer is 06-12345678</mark>.</div>
+      </div>
+      <div class="compare-col compare-good">
+        <div class="compare-head">✓ Zo wel</div>
+        <div class="prompt-box">Schrijf een <mark class="good">professionele opvolgmail</mark> aan een klant die heeft geklaagd over een niet-geleverde bestelling. <mark class="good">Toon empathie</mark>, bevestig ontvangst van de klacht en bied concrete vervolgstap aan. <mark class="good">Gebruik geen naam of persoonlijke details</mark>.</div>
+      </div>
+    </div>
+    <p class="compare-note">Resultaat is vergelijkbaar. De veilige prompt bevat nul persoonsgegevens en kan worden gebruikt in elke goedgekeurde tool.</p>
+  </div>
+
+  <!-- SLIDE 5 -->
+  <div class="slide" id="slide-4">
+    <div class="slide-label">Slide 5 — Vijf principes</div>
+    <h2 class="slide-title">Vijf regels voor veilig prompten</h2>
+    <div class="principles">
+      <div class="principle">
+        <div class="principle-num">1</div>
+        <div>
+          <div class="principle-title">Minimale data</div>
+          <div class="principle-desc">Voer alleen in wat noodzakelijk is voor de taak. Als je de prompt kunt schrijven zonder persoonsgegevens — doe dat.</div>
+        </div>
+      </div>
+      <div class="principle">
+        <div class="principle-num">2</div>
+        <div>
+          <div class="principle-title">Goedgekeurde tooling</div>
+          <div class="principle-desc">Gebruik alleen tools die door jouw organisatie zijn goedgekeurd voor het soort data dat je invoert.</div>
+        </div>
+      </div>
+      <div class="principle">
+        <div class="principle-num">3</div>
+        <div>
+          <div class="principle-title">Vraag om concept, niet om besluit</div>
+          <div class="principle-desc">Gebruik AI als opstap — laat het een concepttekst schrijven. De eindverantwoordelijkheid en het besluit liggen bij jou.</div>
+        </div>
+      </div>
+      <div class="principle">
+        <div class="principle-num">4</div>
+        <div>
+          <div class="principle-title">Vraag AI om aannames te benoemen</div>
+          <div class="principle-desc">Voeg toe aan je prompt: "Benoem je aannames en onzekerheden." Dat maakt de output veel beter te controleren.</div>
+        </div>
+      </div>
+      <div class="principle">
+        <div class="principle-num">5</div>
+        <div>
+          <div class="principle-title">Twijfel = escaleren</div>
+          <div class="principle-desc">Weet je niet of iets mag? Vraag het eerst. Je leidinggevende of de privacycontactpersoon kan altijd helpen.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6 — Reflection -->
+  <div class="slide" id="slide-5">
+    <div class="slide-label">Slide 6 — Reflectie</div>
+    <h2 class="slide-title">Wanneer escaleer jij?</h2>
+    <p class="slide-desc">Denk na over een situatie in jouw eigen werk waarbij je twijfelt of AI-gebruik verstandig of veilig is.</p>
+    <div class="reflection-prompt">
+      <p>"Beschrijf een situatie in jouw werk waarbij je zou overwegen AI te gebruiken — maar waarbij je eerst zou willen controleren of het mag en hoe je het veilig doet."</p>
+    </div>
+    <textarea placeholder="Schrijf hier je antwoord... (minimaal 2 zinnen)" id="reflection-input"></textarea>
+    <p class="reflection-note">Je antwoord wordt opgeslagen als bewijs voor je leertraject. Er is geen fout antwoord — het gaat om jouw eigen werkpraktijk.</p>
+  </div>
+
+  <div class="nav-bar">
+    <button class="nav-btn" id="prev-btn" onclick="prev()" disabled>← Vorige</button>
+    <span class="nav-info" id="nav-info">Slide 1 van 6</span>
+    <button class="nav-btn primary" id="next-btn" onclick="next()">Volgende →</button>
+  </div>
+</div>
+
+<script>
+let current = 0;
+const total = 6;
+let mcqDone = false;
+
+function goTo(i) {
+  document.getElementById('slide-' + current).classList.remove('visible');
+  document.querySelectorAll('.slide-dot')[current].classList.remove('active');
+  if (current < i) document.querySelectorAll('.slide-dot')[current].classList.add('done');
+
+  current = i;
+  document.getElementById('slide-' + current).classList.add('visible');
+
+  const dots = document.querySelectorAll('.slide-dot');
+  dots.forEach((d, idx) => {
+    d.classList.remove('active');
+    if (idx === current) d.classList.add('active');
+  });
+
+  document.getElementById('slide-counter').textContent = `Slide ${current + 1} van ${total}`;
+  document.getElementById('nav-info').textContent = `Slide ${current + 1} van ${total}`;
+  document.getElementById('prev-btn').disabled = current === 0;
+  const nextBtn = document.getElementById('next-btn');
+  if (current === total - 1) {
+    nextBtn.textContent = '✓ Afronden';
+  } else {
+    nextBtn.textContent = 'Volgende →';
+  }
+  document.getElementById('progress-fill').style.width = `${((current + 1) / total) * 100}%`;
+}
+
+function next() { if (current < total - 1) goTo(current + 1); }
+function prev() { if (current > 0) goTo(current - 1); }
+
+function answerMCQ(btn) {
+  if (mcqDone) return;
+  mcqDone = true;
+  const options = document.querySelectorAll('#mcq-options .option');
+  options.forEach(o => o.classList.add('locked'));
+  const correct = btn.dataset.correct === 'true';
+  options.forEach(o => {
+    if (o.dataset.correct === 'true') o.classList.add('correct');
+  });
+  if (!correct) btn.classList.add('wrong');
+  const fb = document.getElementById('mcq-feedback');
+  fb.className = 'feedback show ' + (correct ? 'ok' : 'nok');
+  fb.innerHTML = correct
+    ? '<strong>✓ Correct!</strong> Optie C is de enige veilige aanpak: eerst anonimiseren, dan pas de goedgekeurde tool gebruiken. Optie D is te restrictief — AI mag wel worden ingezet, maar alleen veilig.'
+    : '<strong>✗ Niet helemaal.</strong> Alleen C is volledig veilig: alle persoonsgegevens zijn verwijderd én de goedgekeurde tool wordt gebruikt. B is onvoldoende — bestelnummer en andere gegevens zijn ook persoonsgegevens.';
+}
+</script>
+</body>
+</html>

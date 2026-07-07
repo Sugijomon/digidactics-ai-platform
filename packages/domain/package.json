@@ -8,7 +8,8 @@
     "test": "tsc -p tsconfig.json && node --test dist/test/*.test.js"
   },
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./learning": "./learning.ts"
   },
   "devDependencies": {
     "@types/node": "^20",

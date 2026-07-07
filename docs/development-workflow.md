@@ -106,7 +106,7 @@ Deploy each app as its own Vercel project from the monorepo:
 
 ```txt
 apps/sai -> SAI project
-apps/rai -> RAI project
+apps/rai -> RAI project, starting with the Learning System
 apps/marketing -> marketing project
 ```
 

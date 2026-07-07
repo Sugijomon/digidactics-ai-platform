@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompting met context en criteria</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F5F0;--surface:#FFFFFF;--text:#1A1A18;--text2:#5A5A56;--text3:#9A9A96;
+  --border:rgba(0,0,0,0.08);--r:12px;
+  --accent:#1D9E75;--accent-l:#E1F5EE;--accent-d:#085041;
+  --purple:#534AB7;--purple-l:#EEEDFE;--purple-d:#3C3489;
+  --red:#A32D2D;--red-l:#FCEBEB;
+  --amber:#BA7517;--amber-l:#FAEEDA;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);padding:24px 16px 48px;display:flex;flex-direction:column;align-items:center}
+.meta{max-width:780px;width:100%;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.meta-left{font-size:11px;color:var(--text3)}
+.meta-left strong{color:var(--accent-d)}
+
+.deck{max-width:780px;width:100%;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);overflow:hidden;min-height:480px}
+.progress-bar{height:3px;background:var(--border)}
+.progress-fill{height:3px;background:var(--accent);transition:width 0.35s ease}
+.deck-strip{padding:12px 22px;border-bottom:0.5px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:space-between}
+.deck-label{font-size:11px;font-weight:500;color:var(--text3)}
+.deck-label strong{color:var(--accent)}
+.dots{display:flex;gap:5px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--border);cursor:pointer;transition:all 0.2s}
+.dot.active{background:var(--accent);width:16px;border-radius:3px}
+.dot.done{background:var(--accent-d)}
+
+.slide{display:none;padding:28px 28px 20px;animation:fin 0.22s ease}
+.slide.visible{display:block}
+@keyframes fin{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+.slide-lbl{font-size:11px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+.slide-h{font-family:'DM Serif Display',serif;font-size:24px;color:var(--text);margin-bottom:8px;line-height:1.2}
+.slide-p{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:18px;max-width:580px}
+
+/* Anatomy (slide 1) */
+.anatomy{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:6px}
+.anat-card{background:var(--bg);border:0.5px solid var(--border);border-radius:8px;padding:12px}
+.anat-num{font-size:18px;font-family:'DM Serif Display',serif;color:var(--accent);margin-bottom:4px}
+.anat-title{font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px}
+.anat-desc{font-size:11px;color:var(--text3);line-height:1.4}
+.anat-example{font-size:10px;color:var(--accent-d);font-family:'JetBrains Mono',monospace;margin-top:5px;line-height:1.4;background:var(--accent-l);padding:4px 6px;border-radius:4px}
+
+/* Compare (slide 2) */
+.prompt-compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.prompt-col{}
+.prompt-col-head{padding:9px 14px;border-radius:6px 6px 0 0;font-size:12px;font-weight:500}
+.prompt-col-head.bad{background:var(--red-l);color:var(--red)}
+.prompt-col-head.good{background:var(--accent-l);color:var(--accent-d)}
+.prompt-body{
+  font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.8;
+  padding:14px;background:var(--bg);border:0.5px solid var(--border);
+  border-top:none;border-radius:0 0 6px 6px;color:var(--text2);
+}
+.prompt-body .ann{font-weight:500}
+.prompt-body .ann.bad{color:var(--red)}
+.prompt-body .ann.good{color:var(--accent-d)}
+.prompt-note{font-size:11px;color:var(--text3);margin-top:6px;font-style:italic;line-height:1.5}
+
+/* MCQ (slide 3) */
+.mcq-q{font-size:15px;font-weight:500;color:var(--text);margin:12px 0 16px;line-height:1.5}
+.options{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:flex-start;gap:11px;padding:12px 16px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;font-size:13px;color:var(--text);transition:all 0.12s;font-family:inherit;text-align:left}
+.opt:hover:not(.locked){border-color:var(--accent);background:var(--accent-l);color:var(--accent-d)}
+.opt.correct{border-color:var(--accent);background:var(--accent-l);color:var(--accent-d)}
+.opt.wrong{border-color:var(--red);background:var(--red-l);color:var(--red)}
+.opt.locked{cursor:default}
+.opt-l{width:22px;height:22px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+.feedback{margin-top:12px;padding:11px 15px;border-radius:8px;font-size:13px;line-height:1.55;display:none}
+.feedback.show{display:block}
+.feedback.ok{background:var(--accent-l);color:var(--accent-d);border:0.5px solid var(--accent-d)}
+.feedback.nok{background:var(--red-l);color:var(--red)}
+
+/* Patterns (slide 4) */
+.patterns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.pattern-card{background:var(--bg);border:0.5px solid var(--border);border-radius:8px;padding:14px}
+.pattern-role{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);margin-bottom:6px}
+.pattern-prompt{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);line-height:1.7;background:var(--accent-l);padding:10px 12px;border-radius:6px;margin-bottom:6px}
+.pattern-why{font-size:11px;color:var(--text3);line-height:1.4}
+
+/* Anti-patterns (slide 5) */
+.antipatterns{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.ap{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-radius:8px;background:var(--red-l);border:0.5px solid #F5C5BE}
+.ap-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.ap-title{font-size:13px;font-weight:500;color:var(--red);margin-bottom:3px}
+.ap-prompt{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--red);background:rgba(162,45,45,0.07);padding:5px 8px;border-radius:4px;margin-bottom:4px}
+.ap-fix{font-size:12px;color:var(--text2)}
+
+/* Self-practice (slide 6) */
+.exercise{background:var(--accent-l);border:0.5px solid var(--accent-d);border-radius:8px;padding:16px 18px;margin-top:8px}
+.ex-scenario{font-size:14px;color:var(--accent-d);line-height:1.65;margin-bottom:14px}
+textarea{width:100%;min-height:100px;border:0.5px solid var(--border);border-radius:8px;padding:11px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);background:var(--surface);resize:vertical;outline:none;transition:border-color 0.15s;line-height:1.7}
+textarea:focus{border-color:var(--accent)}
+.ex-hint{font-size:11px;color:var(--text3);margin-top:6px;line-height:1.5}
+
+.nav-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 22px;border-top:0.5px solid var(--border);background:var(--bg)}
+.nav-btn{display:flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;border:0.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;transition:all 0.12s}
+.nav-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.nav-btn:disabled{opacity:0.3;cursor:default}
+.nav-btn.primary{background:var(--accent);border-color:var(--accent);color:white}
+.nav-btn.primary:hover{background:var(--accent-d)}
+.nav-info{font-size:12px;color:var(--text3)}
+</style>
+</head>
+<body>
+
+<div class="meta">
+  <div class="meta-left">AI Proficiency · P03 · <strong>Competentie P3</strong> · 6 slides</div>
+</div>
+
+<div class="deck">
+  <div class="progress-bar"><div class="progress-fill" id="pf" style="width:16.6%"></div></div>
+  <div class="deck-strip">
+    <span class="deck-label">Prompting met context en criteria &nbsp;·&nbsp; <strong id="sc">Slide 1 van 6</strong></span>
+    <div class="dots" id="dots">
+      <div class="dot active" onclick="goTo(0)"></div>
+      <div class="dot" onclick="goTo(1)"></div>
+      <div class="dot" onclick="goTo(2)"></div>
+      <div class="dot" onclick="goTo(3)"></div>
+      <div class="dot" onclick="goTo(4)"></div>
+      <div class="dot" onclick="goTo(5)"></div>
+    </div>
+  </div>
+
+  <!-- S1: Anatomie -->
+  <div class="slide visible" id="s0">
+    <div class="slide-lbl">Slide 1 — Anatomie</div>
+    <h2 class="slide-h">De anatomie van een goede prompt</h2>
+    <p class="slide-p">Een effectieve prompt bevat vijf elementen. Niet alle vijf zijn altijd nodig — maar hoe meer je er bewust inzet, hoe beter en veiliger de output.</p>
+    <div class="anatomy">
+      <div class="anat-card">
+        <div class="anat-num">1</div>
+        <div class="anat-title">Rol</div>
+        <div class="anat-desc">Wie speelt de AI? Geeft context voor toon en expertise.</div>
+        <div class="anat-example">Je bent een ervaren klantenservice-medewerker...</div>
+      </div>
+      <div class="anat-card">
+        <div class="anat-num">2</div>
+        <div class="anat-title">Context</div>
+        <div class="anat-desc">Wat is de situatie? Wat weet de AI al?</div>
+        <div class="anat-example">Een klant heeft een bestelling niet ontvangen en vraagt om uitleg.</div>
+      </div>
+      <div class="anat-card">
+        <div class="anat-num">3</div>
+        <div class="anat-title">Taak</div>
+        <div class="anat-desc">Wat moet de AI concreet doen?</div>
+        <div class="anat-example">Schrijf een reactie van max. 100 woorden.</div>
+      </div>
+      <div class="anat-card">
+        <div class="anat-num">4</div>
+        <div class="anat-title">Outputvorm</div>
+        <div class="anat-desc">Hoe moet de output eruitzien?</div>
+        <div class="anat-example">Gebruik een vriendelijke toon, geen jargon, begin met empathie.</div>
+      </div>
+      <div class="anat-card">
+        <div class="anat-num">5</div>
+        <div class="anat-title">Controle-instructie</div>
+        <div class="anat-desc">Vraag AI om aannames en onzekerheden te benoemen.</div>
+        <div class="anat-example">Geef aan als je een aanname maakt of iets niet zeker weet.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S2: Compare -->
+  <div class="slide" id="s1">
+    <div class="slide-lbl">Slide 2 — Vergelijking</div>
+    <h2 class="slide-h">Zwakke vs. sterke prompt</h2>
+    <p class="slide-p">Dezelfde taak — totaal ander resultaat. De sterke prompt bevat alle vijf elementen én geen persoonsgegevens.</p>
+    <div class="prompt-compare">
+      <div class="prompt-col">
+        <div class="prompt-col-head bad">✗ Zwakke prompt</div>
+        <div class="prompt-body"><span class="ann bad">Schrijf een mail over de klacht van mevrouw De Vries.</span></div>
+        <p class="prompt-note">Geen rol, geen context, geen outputvorm, geen criteria. AI raadt maar wat. En bevat een naam — privacyprobleem.</p>
+      </div>
+      <div class="prompt-col">
+        <div class="prompt-col-head good">✓ Sterke prompt</div>
+        <div class="prompt-body"><span class="ann good">Je bent een klantenservice-medewerker van een webshop.</span><br><br>Een klant heeft geklaagd dat een bestelling niet is geleverd.<br><br><span class="ann good">Schrijf een reactie van maximaal 80 woorden.</span> Gebruik een empathische toon, bevestig ontvangst van de klacht, bied een concrete vervolgstap aan.<br><br><span class="ann good">Gebruik geen namen of bestelnummers. Geef aan als je aannames maakt.</span></div>
+        <p class="prompt-note">Rol ✓ · Context ✓ · Taak ✓ · Outputvorm ✓ · Controle-instructie ✓ · Geen PII ✓</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3: MCQ -->
+  <div class="slide" id="s2">
+    <div class="slide-lbl">Slide 3 — Kennischeck</div>
+    <h2 class="slide-h">Welke prompt is het sterkst?</h2>
+    <p class="slide-p">Je moet een samenvatting schrijven van een interne vergadering voor collega's die niet aanwezig waren.</p>
+    <div class="mcq-q">Welke prompt geeft de beste en veiligste output?</div>
+    <div class="options" id="opts">
+      <button class="opt" data-ok="false" onclick="ans(this)"><span class="opt-l">A</span>Schrijf een samenvatting van onze vergadering van gisteren.</button>
+      <button class="opt" data-ok="false" onclick="ans(this)"><span class="opt-l">B</span>Maak een samenvatting. De vergadering ging over Q3-cijfers, budgetplanning en teamuitbreiding.</button>
+      <button class="opt" data-ok="true" onclick="ans(this)"><span class="opt-l">C</span>Schrijf een beknopte samenvatting (max. 200 woorden) van de volgende vergaderpunten voor collega's die niet aanwezig waren. Gebruik een zakelijke toon. Structuur: beslissingen, actiepunten, volgende stap. Geen namen van aanwezigen. Punten: [lijst van punten].</button>
+      <button class="opt" data-ok="false" onclick="ans(this)"><span class="opt-l">D</span>Je bent een secretaris. Maak een samenvatting van alles wat er is besproken.</button>
+    </div>
+    <div class="feedback" id="fb3"></div>
+  </div>
+
+  <!-- S4: Patterns -->
+  <div class="slide" id="s3">
+    <div class="slide-lbl">Slide 4 — Promptpatronen</div>
+    <h2 class="slide-h">Vier MKB-promptpatronen</h2>
+    <p class="slide-p">Herbruikbare structuren voor veel voorkomende taken. Pas aan naar jouw situatie.</p>
+    <div class="patterns">
+      <div class="pattern-card">
+        <div class="pattern-role">Klantenservice</div>
+        <div class="pattern-prompt">Je bent een klantenservice-medewerker. [Situatie zonder PII]. Schrijf een reactie van [X] woorden met [toon]. Benoem aannames.</div>
+        <div class="pattern-why">Gebruik: klachtafhandeling, vragen beantwoorden, follow-ups</div>
+      </div>
+      <div class="pattern-card">
+        <div class="pattern-role">HR & interne communicatie</div>
+        <div class="pattern-prompt">Schrijf een [type bericht] voor [doelgroep]. Toon: [zakelijk/empathisch]. Max. [X] woorden. Geen namen. Doel: [doel].</div>
+        <div class="pattern-why">Gebruik: aankondigingen, uitnodigingen, updates</div>
+      </div>
+      <div class="pattern-card">
+        <div class="pattern-role">Analyse & rapportage</div>
+        <div class="pattern-prompt">Analyseer de volgende [data type] en geef [3 conclusies / trends / aandachtspunten]. Structuur: bevinding, onderbouwing, actie. Geef aan als data ontbreekt.</div>
+        <div class="pattern-why">Gebruik: dashboardanalyse, rapportage, signalering</div>
+      </div>
+      <div class="pattern-card">
+        <div class="pattern-role">Contentcreatie</div>
+        <div class="pattern-prompt">Schrijf [type content] over [onderwerp] voor [doelgroep]. Stijl: [merkstijl]. Lengte: [X woorden]. Verwerk: [kernboodschappen]. Controleer op: feitelijkheid, toon, inclusiviteit.</div>
+        <div class="pattern-why">Gebruik: social media, nieuwsbrief, productbeschrijving</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S5: Anti-patterns -->
+  <div class="slide" id="s4">
+    <div class="slide-lbl">Slide 5 — Anti-patronen</div>
+    <h2 class="slide-h">Drie prompts die altijd mislukken</h2>
+    <p class="slide-p">Herken deze patronen en weet waarom ze leiden tot slechte, onveilige of oncontroleerbare output.</p>
+    <div class="antipatterns">
+      <div class="ap">
+        <div class="ap-icon">🌫️</div>
+        <div>
+          <div class="ap-title">Te vaag — geen context of criteria</div>
+          <div class="ap-prompt">Schrijf een mail over het project.</div>
+          <div class="ap-fix">Probleem: AI raadt alles. Output is generiek en niet bruikbaar zonder zware revisie. Voeg altijd context en criteria toe.</div>
+        </div>
+      </div>
+      <div class="ap">
+        <div class="ap-icon">🤖</div>
+        <div>
+          <div class="ap-title">Te autoritair — vraagt om beslissing, niet concept</div>
+          <div class="ap-prompt">Beslis welke kandidaat we moeten aannemen op basis van deze CV's.</div>
+          <div class="ap-fix">Probleem: AI neemt de beslissing over. Menselijk toezicht verdwijnt. Gebruik altijd: "Maak een overzicht van de sterktes/zwaktes per kandidaat zodat ik kan beslissen."</div>
+        </div>
+      </div>
+      <div class="ap">
+        <div class="ap-icon">🔓</div>
+        <div>
+          <div class="ap-title">Geen outputkader — AI gaat autonoom verder</div>
+          <div class="ap-prompt">Schrijf een volledig projectplan voor ons nieuwe CRM-systeem met alle benodigde stappen, rollen en tijdslijnen.</div>
+          <div class="ap-fix">Probleem: Output is lang, niet te controleren en bevat aannames over je organisatie. Beperk scope: "Geef een opzet met 5 hoofdfasen, max. 300 woorden. Geef aan welke info je nog nodig hebt."</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S6: Oefening -->
+  <div class="slide" id="s5">
+    <div class="slide-lbl">Slide 6 — Eigen oefening</div>
+    <h2 class="slide-h">Schrijf jouw eigen prompt</h2>
+    <p class="slide-p">Pas de vijf elementen toe op een taak uit jouw eigen werk.</p>
+    <div class="exercise">
+      <div class="ex-scenario">Kies een taak die je regelmatig doet en waarbij AI je zou kunnen helpen. Schrijf een prompt die alle vijf elementen bevat: rol, context, taak, outputvorm en controle-instructie. Gebruik geen persoonsgegevens.</div>
+      <textarea placeholder="Schrijf hier jouw prompt...
+Tip: begin met de rol ('Je bent een...'), voeg daarna context toe, beschrijf de taak, geef een outputvorm en vraag AI om aannames te benoemen."></textarea>
+      <p class="ex-hint">Je prompt wordt bewaard als bewijs voor je leertraject. Controleer: bevat hij alle vijf elementen? Staat er geen persoonsgegevens in?</p>
+    </div>
+  </div>
+
+  <div class="nav-bar">
+    <button class="nav-btn" id="pb" onclick="prev()" disabled>← Vorige</button>
+    <span class="nav-info" id="ni">Slide 1 van 6</span>
+    <button class="nav-btn primary" id="nb" onclick="next()">Volgende →</button>
+  </div>
+</div>
+
+<script>
+let cur=0,total=6,mcqDone=false;
+function goTo(i){
+  document.getElementById('s'+cur).classList.remove('visible');
+  document.querySelectorAll('.dot')[cur].classList.remove('active');
+  if(i>cur)document.querySelectorAll('.dot')[cur].classList.add('done');
+  cur=i;
+  document.getElementById('s'+cur).classList.add('visible');
+  document.querySelectorAll('.dot').forEach((d,idx)=>{d.classList.remove('active');if(idx===cur)d.classList.add('active')});
+  document.getElementById('sc').textContent=`Slide ${cur+1} van ${total}`;
+  document.getElementById('ni').textContent=`Slide ${cur+1} van ${total}`;
+  document.getElementById('pb').disabled=cur===0;
+  document.getElementById('nb').textContent=cur===total-1?'✓ Afronden':'Volgende →';
+  document.getElementById('pf').style.width=`${((cur+1)/total)*100}%`;
+}
+function next(){if(cur<total-1)goTo(cur+1);}
+function prev(){if(cur>0)goTo(cur-1);}
+function ans(btn){
+  if(mcqDone)return;mcqDone=true;
+  document.querySelectorAll('#opts .opt').forEach(o=>o.classList.add('locked'));
+  const ok=btn.dataset.ok==='true';
+  document.querySelectorAll('#opts .opt').forEach(o=>{if(o.dataset.ok==='true')o.classList.add('correct')});
+  if(!ok)btn.classList.add('wrong');
+  const fb=document.getElementById('fb3');
+  fb.className='feedback show '+(ok?'ok':'nok');
+  fb.innerHTML=ok
+    ?'<strong>✓ Correct!</strong> Optie C heeft alle vijf elementen: context, doelgroep, lengte, structuur en een controle-instructie (geen namen). Opties A en B missen structuur en criteria. Optie D heeft een rol maar geen outputvorm of controle.'
+    :'<strong>✗ Niet helemaal.</strong> Optie C is het sterkst: alle vijf elementen zijn aanwezig en er staat een expliciete instructie om geen namen te gebruiken. Kijk nog eens naar welke elementen in de andere opties ontbreken.';
+}
+</script>
+</body>
+</html>

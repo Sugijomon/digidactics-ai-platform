@@ -260,8 +260,8 @@ function InteractiveBlock({
             ))}
           </div>
           {selectedChoice ? (
-            <div className={`answer-feedback ${selectedChoice.is_recommended ? "correct" : "incorrect"}`}>
-              <strong>{selectedChoice.is_recommended ? "Veilige keuze" : "Let op"}</strong>
+            <div className="answer-feedback">
+              <strong>Keuze opgeslagen</strong>
               <p>{selectedChoice.consequence}</p>
             </div>
           ) : (
@@ -333,7 +333,6 @@ function InteractiveBlock({
     case "quiz_multiple_choice": {
       const selected = asText(answer);
       const isAnswered = Boolean(selected);
-      const isCorrect = selected === block.correct_option_id;
 
       return (
         <section className="block practice-block interactive-block">
@@ -354,7 +353,7 @@ function InteractiveBlock({
               </label>
             ))}
           </div>
-          <QuizFeedback isAnswered={isAnswered} isCorrect={isCorrect} text={block.explanation} />
+          <QuizFeedback isAnswered={isAnswered} />
         </section>
       );
     }
@@ -362,7 +361,6 @@ function InteractiveBlock({
     case "quiz_multiple_select": {
       const selected = asArray(answer);
       const isAnswered = selected.length > 0;
-      const isCorrect = sameStringSet(selected, block.correct_option_ids);
 
       return (
         <section className="block practice-block interactive-block">
@@ -392,7 +390,7 @@ function InteractiveBlock({
               );
             })}
           </div>
-          <QuizFeedback isAnswered={isAnswered} isCorrect={isCorrect} text={block.explanation} />
+          <QuizFeedback isAnswered={isAnswered} />
         </section>
       );
     }
@@ -400,7 +398,6 @@ function InteractiveBlock({
     case "quiz_true_false": {
       const selected = asText(answer);
       const isAnswered = selected === "true" || selected === "false";
-      const isCorrect = isAnswered && (selected === "true") === block.correct_answer;
 
       return (
         <section className="block practice-block interactive-block">
@@ -424,7 +421,7 @@ function InteractiveBlock({
               </label>
             ))}
           </div>
-          <QuizFeedback isAnswered={isAnswered} isCorrect={isCorrect} text={block.explanation} />
+          <QuizFeedback isAnswered={isAnswered} />
         </section>
       );
     }
@@ -509,21 +506,17 @@ function InteractiveBlock({
 
 function QuizFeedback({
   isAnswered,
-  isCorrect,
-  text,
 }: {
   isAnswered: boolean;
-  isCorrect: boolean;
-  text?: string;
 }) {
   if (!isAnswered) {
     return <p className="interaction-hint">Kies een antwoord om feedback te zien.</p>;
   }
 
   return (
-    <div className={`answer-feedback ${isCorrect ? "correct" : "incorrect"}`}>
-      <strong>{isCorrect ? "Correct" : "Nog niet juist"}</strong>
-      {isCorrect && text ? <p>{text}</p> : null}
+    <div className="answer-feedback">
+      <strong>Antwoord opgeslagen</strong>
+      <p>Je antwoord wordt meegenomen bij het afronden van deze pagina.</p>
     </div>
   );
 }
@@ -741,12 +734,6 @@ function getAttemptStatusLabel(attempt: LearningAttemptView) {
   }
 
   return "Hervat vanaf je laatste poging";
-}
-
-function sameStringSet(left: string[], right: string[]) {
-  if (left.length !== right.length) return false;
-  const rightSet = new Set(right);
-  return left.every((value) => rightSet.has(value));
 }
 
 function countWords(value: string) {

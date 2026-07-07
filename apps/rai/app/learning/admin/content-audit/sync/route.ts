@@ -1,7 +1,10 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import { requireContentEditor } from "@/lib/learning-admin-data";
-import { syncAllLearningCourseContentFromSource } from "@/lib/learning-content-sync";
+import {
+  syncAllLearningCourseContentFromSource,
+  LEARNING_CORE_CONTENT_SYNC_CONFIRMATION,
+} from "@/lib/learning-content-sync";
 
 export async function POST(request: Request) {
   const { supabase } = await requireContentEditor();
@@ -11,7 +14,10 @@ export async function POST(request: Request) {
   }
 
   try {
-    await syncAllLearningCourseContentFromSource(supabase);
+    const formData = await request.formData();
+    await syncAllLearningCourseContentFromSource(supabase, {
+      confirmOverwrite: String(formData.get("confirmOverwrite") ?? ""),
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Onbekende syncfout";
     const url = new URL("/learning/admin/content-audit", request.url);

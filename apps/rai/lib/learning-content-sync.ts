@@ -10,7 +10,18 @@ import {
 
 type LearningSyncClient = SupabaseClient<any, "public", any>;
 
-export async function syncAllLearningCourseContentFromSource(supabase: LearningSyncClient) {
+export const LEARNING_CORE_CONTENT_SYNC_CONFIRMATION = "git-canonical-overwrite-core-courses";
+
+export async function syncAllLearningCourseContentFromSource(
+  supabase: LearningSyncClient,
+  options: { confirmOverwrite?: string } = {},
+) {
+  if (options.confirmOverwrite !== LEARNING_CORE_CONTENT_SYNC_CONFIRMATION) {
+    throw new Error(
+      "Sync geweigerd: bevestig expliciet dat Git-canonieke cursuscontent bestaande editorcontent mag overschrijven.",
+    );
+  }
+
   await syncCourseContentFromSource(supabase, aiLiteracyPreviewCourse, {
     overwriteExistingContent: true,
   });

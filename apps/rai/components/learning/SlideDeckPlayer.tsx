@@ -239,8 +239,6 @@ function SlideInteraction({
   }
 
   const options = normalizeMultipleChoiceOptions(interaction.options);
-  const selectedNormalizedOption = options.find((option) => option.id === selectedOptionId);
-
   return (
     <div className="slide-deck-interaction">
       <p>{interaction.question || "Welke optie past het best bij deze slide?"}</p>
@@ -256,11 +254,9 @@ function SlideInteraction({
           </button>
         ))}
       </div>
-      {selectedNormalizedOption ? (
-        <div className={selectedNormalizedOption.is_correct ? "slide-deck-feedback correct" : "slide-deck-feedback incorrect"}>
-          {selectedNormalizedOption.is_correct
-            ? interaction.feedback_correct || "Goed gezien."
-            : interaction.feedback_incorrect || "Bekijk de slide nog eens en probeer opnieuw."}
+      {selectedOptionId ? (
+        <div className="slide-deck-feedback">
+          Antwoord opgeslagen. Dit telt mee voor het afronden van de presentatie.
         </div>
       ) : null}
     </div>
@@ -301,11 +297,11 @@ function isSlideSatisfied(
 }
 
 function normalizeMultipleChoiceOptions(
-  options: Array<{ id: string; label: string; is_correct: boolean }>,
+  options: Array<{ id: string; label: string; is_correct?: boolean }>,
 ) {
   const fallback = [
-    { id: "option-a", label: "Optie A", is_correct: true },
-    { id: "option-b", label: "Optie B", is_correct: false },
+    { id: "option-a", label: "Optie A" },
+    { id: "option-b", label: "Optie B" },
   ];
   const cleanOptions = options
     .map((option, index) => ({

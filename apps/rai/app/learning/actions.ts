@@ -39,25 +39,10 @@ interface PageAttemptRow {
   manual_review_required: boolean;
 }
 
-interface LearningAccessRequirementRow {
-  id: string;
-  org_id: string | null;
-  required_certification_code: string;
-  validity_months: number | null;
-}
-
 interface LearningEnrollmentRow {
   id: string;
   status: "not_started" | "in_progress" | "completed" | "expired";
   completed_at: string | null;
-}
-
-interface LearningCertificationIssueResult {
-  certification_id: string;
-  certification_code: string;
-  status: string;
-  issued_at: string;
-  expires_at: string | null;
 }
 
 export async function startAiLiteracyCourse(formData: FormData) {
@@ -144,6 +129,12 @@ export async function completeAiLiteracyPage(formData: FormData) {
 
   if (Object.keys(answers).length > 0) {
     const adminAttemptWriter = getSupabaseAdminClient();
+    if (!adminAttemptWriter && (grading.maxScore > 0 || manualReviewRequired)) {
+      throw new Error(
+        "Antwoorden kunnen niet betrouwbaar worden beoordeeld zonder SUPABASE_SERVICE_ROLE_KEY.",
+      );
+    }
+
     const attemptWriter = adminAttemptWriter ?? supabase;
     const canPersistComputedGrading = Boolean(adminAttemptWriter);
     const { error: attemptError } = await attemptWriter
@@ -237,7 +228,7 @@ export async function issueAiLiteracyCertification(formData: FormData) {
     courseId,
     requiredCount,
     eligibility.completed_required_page_count,
-    true,
+    false,
   );
 
   const { data: enrollment, error: enrollmentError } = await supabase
@@ -251,11 +242,14 @@ export async function issueAiLiteracyCertification(formData: FormData) {
     throw new Error(`Enrollment voor certificaatuitgifte ontbreekt: ${enrollmentError?.message ?? "geen enrollment"}`);
   }
 
-  await issueCertificationAfterEligibility({
-    courseId,
-    enrollmentId: enrollment.id,
-    learner,
-  });
+  const { error: certificationError } = await supabase.rpc(
+    "learning_issue_certification_for_enrollment",
+    { p_enrollment_id: enrollment.id },
+  );
+
+  if (certificationError) {
+    throw new Error(`Certificaat uitgeven is mislukt: ${certificationError.message}`);
+  }
 
   revalidatePath("/learning");
   revalidatePath(`/learning/${courseCode}`);
@@ -433,7 +427,7 @@ async function upsertCourseProgress(
       courseId,
       requiredCount,
       eligibility.completed_required_page_count,
-      eligibility.eligible && eligibility.required_page_count === requiredCount,
+      false,
     );
     return;
   }
@@ -471,7 +465,7 @@ async function upsertCourseProgress(
     courseId,
     requiredCount,
     completedProgress?.length ?? 0,
-    requiredCount > 0 && (completedProgress?.length ?? 0) === requiredCount,
+    false,
   );
 }
 
@@ -606,119 +600,6 @@ function enrichAttemptWithComputedGrading(
   };
 }
 
-async function issueCertificationAfterEligibility({
-  courseId,
-  enrollmentId,
-  learner,
-}: {
-  courseId: string;
-  enrollmentId: string;
-  learner: LearnerContext;
-}): Promise<LearningCertificationIssueResult> {
-  const admin = getSupabaseAdminClient();
-
-  if (!admin) {
-    throw new Error(
-      "Certificaatuitgifte vraagt een vertrouwde serverconfiguratie met SUPABASE_SERVICE_ROLE_KEY.",
-    );
-  }
-
-  const { data: requirements, error: requirementError } = await admin
-    .from("learning_access_requirements")
-    .select("id, org_id, required_certification_code, validity_months")
-    .eq("required_course_id", courseId)
-    .eq("is_active", true);
-
-  if (requirementError) {
-    throw new Error(`Toegangsvereiste ophalen is mislukt: ${requirementError.message}`);
-  }
-
-  const requirement = ((requirements ?? []) as LearningAccessRequirementRow[])
-    .filter((row) => row.org_id === learner.orgId || row.org_id === null)
-    .sort((left, right) => Number(left.org_id === null) - Number(right.org_id === null))[0];
-
-  if (!requirement) {
-    throw new Error("Er is nog geen actief RouteAI access requirement gekoppeld aan deze cursus.");
-  }
-
-  const issuedAt = new Date();
-  const expiresAt =
-    requirement.validity_months && requirement.validity_months > 0
-      ? addMonths(issuedAt, requirement.validity_months).toISOString()
-      : null;
-
-  const { data: existing, error: existingError } = await admin
-    .from("learning_certifications")
-    .select("id")
-    .eq("org_id", learner.orgId)
-    .eq("user_id", learner.userId)
-    .eq("certification_code", requirement.required_certification_code)
-    .eq("status", "active")
-    .maybeSingle<{ id: string }>();
-
-  if (existingError) {
-    throw new Error(`Bestaand certificaat ophalen is mislukt: ${existingError.message}`);
-  }
-
-  if (existing?.id) {
-    const { data, error } = await admin
-      .from("learning_certifications")
-      .update({
-        course_id: courseId,
-        enrollment_id: enrollmentId,
-        issued_at: issuedAt.toISOString(),
-        expires_at: expiresAt,
-        updated_at: issuedAt.toISOString(),
-      })
-      .eq("id", existing.id)
-      .select("id, certification_code, status, issued_at, expires_at")
-      .single();
-
-    if (error || !data) {
-      throw new Error(`Certificaat bijwerken is mislukt: ${error?.message ?? "geen resultaat"}`);
-    }
-
-    return mapCertificationIssueResult(data);
-  }
-
-  const { data, error } = await admin
-    .from("learning_certifications")
-    .insert({
-      org_id: learner.orgId,
-      user_id: learner.userId,
-      course_id: courseId,
-      enrollment_id: enrollmentId,
-      certification_code: requirement.required_certification_code,
-      status: "active",
-      issued_at: issuedAt.toISOString(),
-      expires_at: expiresAt,
-    })
-    .select("id, certification_code, status, issued_at, expires_at")
-    .single();
-
-  if (error || !data) {
-    throw new Error(`Certificaat uitgeven is mislukt: ${error?.message ?? "geen resultaat"}`);
-  }
-
-  return mapCertificationIssueResult(data);
-}
-
-function mapCertificationIssueResult(value: {
-  id: string;
-  certification_code: string;
-  status: string;
-  issued_at: string;
-  expires_at: string | null;
-}): LearningCertificationIssueResult {
-  return {
-    certification_id: value.id,
-    certification_code: value.certification_code,
-    status: value.status,
-    issued_at: value.issued_at,
-    expires_at: value.expires_at,
-  };
-}
-
 function buildEligibilityErrorMessage(
   eligibility: ReturnType<typeof evaluateLearningCertificationEligibility>,
 ) {
@@ -734,13 +615,6 @@ function buildEligibilityErrorMessage(
 
   return `Rijbewijs kan nog niet worden uitgegeven: ${reasons.join("; ") || "eligibility is nog niet compleet"}.`;
 }
-
-function addMonths(date: Date, months: number) {
-  const result = new Date(date);
-  result.setMonth(result.getMonth() + months);
-  return result;
-}
-
 function normalizeCertificationAnswers(value: unknown) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return {};
@@ -791,8 +665,15 @@ async function saveCourseProgress(
   const progressPercentage =
     requiredCount === 0 ? 0 : Math.round((completedCount / requiredCount) * 100);
   const now = new Date().toISOString();
+  const enrollmentWriter = isCompleted ? getSupabaseAdminClient() : supabase;
 
-  const { error: enrollmentError } = await supabase
+  if (!enrollmentWriter) {
+    throw new Error(
+      "Cursusvoltooiing kan niet betrouwbaar worden opgeslagen zonder SUPABASE_SERVICE_ROLE_KEY.",
+    );
+  }
+
+  const { error: enrollmentError } = await enrollmentWriter
     .from("learning_course_enrollments")
     .upsert(
       {

@@ -2,7 +2,10 @@ import "server-only";
 
 import { unstable_noStore as noStore } from "next/cache";
 import { getCurrentUserContext } from "@digidactics/auth";
-import { isLessonContent } from "@digidactics/domain/learning";
+import {
+  isLessonContent,
+  sanitizeLessonContentForLearner,
+} from "@digidactics/domain/learning";
 import {
   aiLiteracyPreviewCourse,
   aiMasteryPreviewCourse,
@@ -306,15 +309,15 @@ export async function getAiLiteracyCourse(courseCode = "ai-literacy-foundation")
 
 function getPreviewCourse(courseCode: string) {
   if (courseCode === aiLiteracyPreviewCourse.course_code) {
-    return applyLocalLearningContentOverrides(aiLiteracyPreviewCourse);
+    return sanitizeLearningCourseForLearner(applyLocalLearningContentOverrides(aiLiteracyPreviewCourse));
   }
 
   if (courseCode === aiProficiencyPreviewCourse.course_code) {
-    return applyLocalLearningContentOverrides(aiProficiencyPreviewCourse);
+    return sanitizeLearningCourseForLearner(applyLocalLearningContentOverrides(aiProficiencyPreviewCourse));
   }
 
   if (courseCode === aiMasteryPreviewCourse.course_code) {
-    return applyLocalLearningContentOverrides(aiMasteryPreviewCourse);
+    return sanitizeLearningCourseForLearner(applyLocalLearningContentOverrides(aiMasteryPreviewCourse));
   }
 
   return null;
@@ -363,7 +366,7 @@ function getPreviewPublishedCourses(): PublishedCourseCatalogItem[] {
 }
 
 function mergePreviewCourseContent(course: LearningCourseView): LearningCourseView {
-  return applyLocalLearningContentOverrides(course);
+  return sanitizeLearningCourseForLearner(applyLocalLearningContentOverrides(course));
 }
 
 export async function getPublishedCourses(): Promise<PublishedCourseCatalogItem[]> {
@@ -576,7 +579,28 @@ export async function getPublishedMicroLearningPage(
     estimated_duration_minutes: lesson.estimated_duration_minutes,
     sequence_order: 1,
     is_required: false,
-    content: lesson.content,
+    content: sanitizeLessonContentForLearner(lesson.content),
+  };
+}
+
+function sanitizeLearningCourseForLearner(course: LearningCourseView): LearningCourseView {
+  const pages = course.pages.map(sanitizeLearningPageForLearner);
+  const pageById = new Map(pages.map((page) => [page.id, page]));
+
+  return {
+    ...course,
+    pages,
+    topics: course.topics.map((topic) => ({
+      ...topic,
+      pages: topic.pages.map((page) => pageById.get(page.id) ?? sanitizeLearningPageForLearner(page)),
+    })),
+  };
+}
+
+function sanitizeLearningPageForLearner(page: LearningPageView): LearningPageView {
+  return {
+    ...page,
+    content: sanitizeLessonContentForLearner(page.content),
   };
 }
 

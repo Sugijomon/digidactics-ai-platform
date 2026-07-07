@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Breadcrumb } from "@/components/learning/admin/Breadcrumb";
 import { ContentEditorShell } from "@/components/learning/admin/ContentEditorShell";
 import { getLearningContentAudit } from "@/lib/learning-admin-data";
+import { LEARNING_CORE_CONTENT_SYNC_CONFIRMATION } from "@/lib/learning-content-sync";
 
 export default async function LearningContentAuditPage({
   searchParams,
@@ -25,13 +26,22 @@ export default async function LearningContentAuditPage({
               { label: "Content audit" },
             ]}
           />
-          <h1>AISA content audit</h1>
+          <h1>RAI content audit</h1>
         </div>
         <div className="actions compact-actions">
           <Link className="button button-secondary" href="/learning">
             Learner bekijken
           </Link>
           <form action="/learning/admin/content-audit/sync" method="post">
+            <label className="sync-confirmation">
+              <input
+                name="confirmOverwrite"
+                required
+                type="checkbox"
+                value={LEARNING_CORE_CONTENT_SYNC_CONFIRMATION}
+              />
+              Git is bron van waarheid; overschrijf live editorcontent.
+            </label>
             <button className="button button-primary" type="submit">
               Sync Literacy + Proficiency + Mastery
             </button>
@@ -84,11 +94,11 @@ export default async function LearningContentAuditPage({
       <section className="admin-table-card">
         <div className="admin-section-heading">
           <div>
-            <h2>Live Supabase content versus AISA bron</h2>
+            <h2>Live Supabase content versus RAI bron</h2>
             <p>
               Deze audit vergelijkt de live contentblokken met de gewenste cursuscontent uit de
-              repo. De sync vult ontbrekende of lege editorpagina's, maar bewaart bestaande
-              afwijkende editorcontent zodat je die bewust kunt beoordelen.
+              repo. De sync behandelt Git als bron van waarheid en overschrijft bestaande
+              editorcontent voor de drie kerncursussen na expliciete bevestiging.
             </p>
           </div>
         </div>

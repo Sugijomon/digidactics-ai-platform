@@ -4413,6 +4413,21 @@ h3 {
   margin-top: 0;
 }
 
+.sync-confirmation {
+  align-items: center;
+  color: var(--editor-muted);
+  display: flex;
+  font-size: 0.86rem;
+  font-weight: 700;
+  gap: 8px;
+}
+
+.sync-confirmation input {
+  accent-color: var(--editor-accent);
+  height: 18px;
+  width: 18px;
+}
+
 .dashboard-workbench {
   display: grid;
   gap: 18px;

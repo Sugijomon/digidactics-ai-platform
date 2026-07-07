@@ -114,6 +114,59 @@ export interface LessonContent {
   blocks: LessonBlock[];
 }
 
+export function sanitizeLessonContentForLearner(content: LessonContent): LessonContent {
+  return {
+    ...content,
+    blocks: content.blocks.map(sanitizeLessonBlockForLearner),
+  };
+}
+
+function sanitizeLessonBlockForLearner(block: LessonBlock): LessonBlock {
+  switch (block.type) {
+    case "scenario":
+      return {
+        ...block,
+        choices: block.choices.map(({ is_recommended: _isRecommended, ...choice }) => choice),
+      } as LessonBlock;
+    case "quiz_multiple_choice": {
+      const { correct_option_id: _correctOptionId, explanation: _explanation, ...safeBlock } = block;
+      return safeBlock as LessonBlock;
+    }
+    case "quiz_multiple_select": {
+      const { correct_option_ids: _correctOptionIds, explanation: _explanation, ...safeBlock } = block;
+      return safeBlock as LessonBlock;
+    }
+    case "quiz_true_false": {
+      const { correct_answer: _correctAnswer, explanation: _explanation, ...safeBlock } = block;
+      return safeBlock as LessonBlock;
+    }
+    case "slide_deck":
+      return {
+        ...block,
+        slides: block.slides.map((slide) => ({
+          ...slide,
+          interaction: sanitizeSlideDeckInteractionForLearner(slide.interaction),
+        })),
+      };
+    default:
+      return block;
+  }
+}
+
+function sanitizeSlideDeckInteractionForLearner(
+  interaction: SlideDeckSlideInteraction | undefined,
+): SlideDeckSlideInteraction | undefined {
+  if (!interaction || interaction.type !== "multiple_choice") {
+    return interaction;
+  }
+
+  return {
+    type: "multiple_choice",
+    question: interaction.question,
+    options: interaction.options.map(({ is_correct: _isCorrect, ...option }) => option),
+  } as SlideDeckSlideInteraction;
+}
+
 export type AiLiteracyCompetencyCode =
   | "C1_AI_HERKENNEN"
   | "C2_CONTEXT_BEGRIJPEN"

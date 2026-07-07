@@ -18,6 +18,10 @@ import {
   isDevContentEditorBypassEnabled,
 } from "@/lib/dev-content-editor-bypass";
 import { writeLocalLearningPageOverride } from "@/lib/learning-local-content-overrides";
+import {
+  syncAllLearningCourseContentFromSource,
+  LEARNING_CORE_CONTENT_SYNC_CONFIRMATION,
+} from "@/lib/learning-content-sync";
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 
 const defaultPageContent = {
@@ -922,20 +926,14 @@ export async function reviewLearningPageAttempt(formData: FormData) {
 export async function syncAiLiteracyContentFromSource() {
   const supabase = await requireLearningAdmin();
 
-  await syncCourseContentFromSource(supabase, aiLiteracyPreviewCourse, {
-    overwriteExistingContent: true,
-  });
-  await syncCourseContentFromSource(supabase, aiProficiencyPreviewCourse, {
-    overwriteExistingContent: true,
-  });
-  await syncCourseContentFromSource(supabase, aiMasteryPreviewCourse, {
-    overwriteExistingContent: true,
+  await syncAllLearningCourseContentFromSource(supabase, {
+    confirmOverwrite: LEARNING_CORE_CONTENT_SYNC_CONFIRMATION,
   });
 
   revalidateTag("learning-admin");
-  revalidateLearningCourse(aiLiteracyPreviewCourse.course_code);
-  revalidateLearningCourse(aiProficiencyPreviewCourse.course_code);
-  revalidateLearningCourse(aiMasteryPreviewCourse.course_code);
+  revalidateLearningCourse("ai-literacy-foundation");
+  revalidateLearningCourse("ai-proficiency");
+  revalidateLearningCourse("ai-mastery");
   revalidatePath("/learning/admin/content-audit");
   redirect("/learning/admin/content-audit");
 }

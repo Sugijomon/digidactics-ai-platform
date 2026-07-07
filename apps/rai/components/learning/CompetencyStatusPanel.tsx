@@ -1,8 +1,6 @@
 import { issueAiLiteracyCertification } from "@/app/learning/actions";
 import { CourseCertificateSuccess } from "@/components/learning/CourseCertificateSuccess";
 import {
-  evaluateLearningCertificationEligibility,
-  isAutoGradableLearningBlock,
   type AiLiteracyCompetencyCode,
   type LessonBlock,
 } from "@digidactics/domain/learning";
@@ -37,22 +35,21 @@ export function CompetencyStatusPanel({
   learnerState: LearnerStateView;
 }) {
   const pages = getCoursePages(course);
-  const eligibility = evaluateLearningCertificationEligibility(
-    pages.map((page) => ({
-      page_id: page.id,
-      is_required: page.is_required,
-      content: page.content,
-      is_completed: getPageStatus(page, learnerState) === "completed",
-      latest_attempt: learnerState.attemptsByPageId[page.id] ?? null,
-    })),
-    course.passing_threshold,
-  );
   const evidenceRows = buildEvidenceRows(pages, learnerState);
+  const satisfiedCompetencyCodes = new Set(
+    evidenceRows
+      .filter((row) => row.status === "satisfied")
+      .flatMap((row) => row.competencyCodes),
+  );
+  const isReadyForCertification =
+    evidenceRows.length > 0 &&
+    evidenceRows.every((row) => row.status === "satisfied") &&
+    COMPETENCIES.every((competency) => satisfiedCompetencyCodes.has(competency.code));
   const activeCertificate = learnerState.accessCheck?.certification_status === "active";
-  const canIssue = learnerState.isAuthenticated && eligibility.eligible && !activeCertificate;
+  const canIssue = learnerState.isAuthenticated && isReadyForCertification && !activeCertificate;
   const mainStatus = activeCertificate
     ? "Rijbewijs actief"
-    : eligibility.eligible
+    : isReadyForCertification
       ? "Bewijs compleet"
       : "Bewijs nog niet compleet";
 
@@ -66,12 +63,12 @@ export function CompetencyStatusPanel({
             Het systeem kijkt niet alleen naar afronden, maar naar aangetoonde evidence per competentie.
           </p>
         </div>
-        <strong className={activeCertificate || eligibility.eligible ? "is-ready" : ""}>{mainStatus}</strong>
+        <strong className={activeCertificate || isReadyForCertification ? "is-ready" : ""}>{mainStatus}</strong>
       </div>
 
       <div className="competency-grid">
         {COMPETENCIES.map((competency) => {
-          const status = getCompetencyStatus(competency.code, eligibility, evidenceRows);
+          const status = getCompetencyStatus(competency.code, evidenceRows);
 
           return (
             <article className={`competency-card ${status.tone}`} key={competency.code}>
@@ -86,13 +83,13 @@ export function CompetencyStatusPanel({
         })}
       </div>
 
-      {eligibility.eligible ? (
+      {isReadyForCertification ? (
         <>
           <CourseCertificateSuccess variant="literacy" />
           <div className="competency-issue-row">
             <p>
-              Alle kritieke competenties voldoen aan de norm van {course.passing_threshold}%. De RouteAI
-              access gate is {activeCertificate ? "actief" : "klaar voor certificaatuitgifte"}.
+              Alle kritieke competenties hebben opgeslagen evidence. De RouteAI access gate is{" "}
+              {activeCertificate ? "actief" : "klaar voor de definitieve certificaatcheck"}.
             </p>
             {canIssue ? (
               <form action={issueAiLiteracyCertification}>
@@ -167,15 +164,14 @@ function buildEvidenceRows(pages: LearningPageView[], learnerState: LearnerState
 
 function getCompetencyStatus(
   code: AiLiteracyCompetencyCode,
-  eligibility: ReturnType<typeof evaluateLearningCertificationEligibility>,
   evidenceRows: EvidenceRow[],
 ) {
-  const result = eligibility.competency_results.find((item) => item.competency_code === code);
   const relatedRows = evidenceRows.filter((row) => row.competencyCodes.includes(code));
+  const satisfiedCount = relatedRows.filter((row) => row.status === "satisfied").length;
 
-  if (result?.satisfied) {
+  if (relatedRows.length > 0 && satisfiedCount === relatedRows.length) {
     return {
-      detail: `${result.satisfied_evidence_count}/${result.required_evidence_count} evidence afgerond`,
+      detail: `${satisfiedCount}/${relatedRows.length} evidence afgerond`,
       label: "Aangetoond",
       tone: "satisfied",
     };
@@ -239,40 +235,15 @@ function getEvidenceStatus(
 
   const answer = attempt.answers[block.id];
 
-  if (isAutoGradableLearningBlock(block) && !isCorrectAnswer(block, answer?.value)) {
-    return { label: "antwoord is nog niet voldoende", status: "failed" };
-  }
-
-  if (!isAutoGradableLearningBlock(block) && attempt.passed === true) {
+  if (attempt.passed === true) {
     return { label: "goedgekeurd", status: "satisfied" };
   }
 
-  return { label: "aangetoond", status: "satisfied" };
-}
-
-function isCorrectAnswer(block: LessonBlock, value: string | string[] | undefined) {
-  switch (block.type) {
-    case "scenario": {
-      const selectedChoice = typeof value === "string"
-        ? block.choices.find((choice) => choice.id === value)
-        : null;
-      return selectedChoice?.is_recommended === true;
-    }
-    case "quiz_multiple_choice":
-      return typeof value === "string" && value === block.correct_option_id;
-    case "quiz_multiple_select":
-      return Array.isArray(value) && sameStringSet(value, block.correct_option_ids);
-    case "quiz_true_false":
-      return typeof value === "string" && (value === "true") === block.correct_answer;
-    default:
-      return false;
+  if (answer?.value) {
+    return { label: "antwoord opgeslagen", status: "satisfied" };
   }
-}
 
-function sameStringSet(left: string[], right: string[]) {
-  if (left.length !== right.length) return false;
-  const rightSet = new Set(right);
-  return left.every((value) => rightSet.has(value));
+  return { label: "antwoord nog indienen", status: "missing" };
 }
 
 function getBlockLabel(block: LessonBlock) {

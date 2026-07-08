@@ -84,6 +84,17 @@ NEXT_PUBLIC_SAI_DEFAULT_WAVE_TOKEN=<empty by default>
 SAI_ENABLE_DEV_ROUTES=<empty or false>
 ```
 
+Manual go/no-go:
+
+- Validate the actual Vercel Preview and Production env configuration against
+  the intended Supabase project refs without printing secret values.
+- Confirm Preview points to staging Supabase and Production points only to
+  production Supabase.
+- Confirm the production default wave token and dev-route flag remain empty or
+  disabled before enabling the production deployment.
+- Treat this as a manual release gate; do not infer approval from local build
+  checks alone.
+
 ## 2. Migration Gate
 
 Apply migrations in timestamp order on staging first:
@@ -242,6 +253,8 @@ Plane check:
 
 ## 6. Report And Export Pipeline Gate
 
+Status: future release scope until a real export generation path is approved.
+
 Minimum production decision before enabling real exports:
 
 - Decide supported formats: PDF, CSV, Excel.
@@ -252,6 +265,9 @@ Minimum production decision before enabling real exports:
 - Record who requested the export, filters/scope, generated version, status,
   retention period, and suppressed small cells.
 - Add an audit event for export requested/generated/downloaded where feasible.
+- Do not claim production export readiness from the current `report_exports`
+  metadata alone; it is a record-plane placeholder until storage, retrieval,
+  retention, and audit behavior are implemented and tested.
 
 Plane check:
 
@@ -267,9 +283,14 @@ Before claiming Voortgang/t=2 production readiness:
 
 - Create a second scan wave in staging.
 - Complete enough t=2 runs to test longitudinal dashboard behavior.
+- Implement and verify wave-scoped delta queries that compare the current wave
+  to a specific previous wave.
 - Verify Voortgang distinguishes current wave, previous wave, and unavailable
   deltas.
 - Confirm small-cell suppression still applies across t=1/t=2 comparisons.
+- Until wave-scoped delta queries exist, Voortgang must remain framed as
+  current-wave/nulmeting state and must not claim "vs vorige ronde" or real
+  longitudinal comparison.
 
 Plane check:
 

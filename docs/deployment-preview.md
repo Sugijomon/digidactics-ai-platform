@@ -85,6 +85,16 @@ staging/demo, configure an explicit staging wave token only after the matching
 For production, keep `SAI_ENABLE_DEV_ROUTES` empty or set to `false` so `/dev`
 routes return 404.
 
+Before production promotion, perform a manual env go/no-go check without
+printing secret values:
+
+- Preview must point to the staging Supabase project.
+- Production must point only to the production Supabase project.
+- `NEXT_PUBLIC_SAI_DEFAULT_WAVE_TOKEN` must be empty in production unless a
+  real production `scan_wave` has been approved for launch.
+- `SAI_ENABLE_DEV_ROUTES` must be empty or `false` in production.
+- Service-role or secret keys must not be configured for browser-visible paths.
+
 ## Supabase Auth URLs
 
 After Vercel creates a preview URL, add the relevant URLs in Supabase Auth

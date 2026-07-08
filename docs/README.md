@@ -8,6 +8,8 @@ Use these documents to transfer context between laptops, Codex sessions, ChatGPT
 
 - `sai-product-readme.md` - compact product overview and truth hierarchy for the Shadow AI Scan / SAI.
 - `architecture.md` - technical architecture and repo structure.
+- `architecture/` - canonical product and information architecture for the shared RouteAI/SAI domain model.
+- `adr/architecture-decision-register.md` - N-numbered product architecture decisions for the promoted architecture canon.
 - `auth-foundation.md` - prepared authentication direction for Next.js App Router and Supabase SSR.
 - `domain-decisions.md` - durable product, domain, compliance, and architecture decisions.
 - `development-workflow.md` - how Codex, ChatGPT, GitHub, Vercel, and Supabase are used together.
@@ -17,6 +19,12 @@ Use these documents to transfer context between laptops, Codex sessions, ChatGPT
 - `survey-flow-spec.md` - respondent survey flow, terminology, and implementation notes.
 - `database-model.md` - active product-level database model before executable migrations.
 - `toolpicker-update-process.md` - maintenance process for toolpicker, mappings, and future risk enrichment.
+- `roadmap/` - future architecture notes that are canonically scoped as roadmap, not current implementation.
+- `reference/` - review and acceptance records that explain why canon changed, without becoming implementation specs.
+
+## Source Of Truth
+
+Architecture canon lives in `docs/architecture/`, with product architecture decisions in `docs/adr/`. Desktop files, downloads, Fable notes, and local working folders are founder drafts unless their content is present here. When repo docs conflict with code or implementation ADRs, the active branch is the implementation truth; report the mismatch and never silently resolve it.
 
 ## Document Governance
 
@@ -25,6 +33,8 @@ Each document should have one primary function. Each domain topic should have on
 Use this rule of thumb:
 
 - product positioning and scope: `sai-product-readme.md`
+- shared product/information architecture: `architecture/`
+- architecture decision register: `adr/architecture-decision-register.md`
 - durable decisions: `domain-decisions.md`
 - technical architecture: `architecture.md`
 - authentication foundation: `auth-foundation.md`

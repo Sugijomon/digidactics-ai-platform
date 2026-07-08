@@ -12,12 +12,17 @@ Apply migrations in timestamp order. The current SAI MVP migration set includes:
 
 ```txt
 supabase/migrations/20260504110000_v8_1_target_schema.sql
+supabase/migrations/20260504115000_pgcrypto_compat_wrappers.sql
 supabase/migrations/20260504120000_rls_policies_v2_1.sql
 supabase/migrations/20260504130000_06_edge_rpcs.sql
 supabase/migrations/20260512100000_make_save_profile_partial.sql
 supabase/migrations/20260522100000_implement_v8_scoring.sql
 supabase/migrations/20260522113000_harden_rpc_grants_and_user_roles_rls.sql
 supabase/migrations/20260522123000_backfill_completed_v8_scores.sql
+supabase/migrations/20260524110000_seed_code_context_references.sql
+supabase/migrations/20260527090000_grant_user_roles_select_to_authenticated.sql
+supabase/migrations/20260527093000_enable_dashboard_read_access.sql
+supabase/migrations/20260528143000_repair_v8_scoring_parity.sql
 ```
 
 The early schema migration creates the V8.1 tables and the original scoring
@@ -95,14 +100,18 @@ Use the DB URL from `supabase status`. Do not commit local database passwords.
 Suggested staging flow:
 
 1. Create or select a staging Supabase project.
-2. Apply the three migration SQL files in order.
-3. Run the seed SQL.
+2. Apply all migration SQL files in timestamp order.
+3. Run the reference/smoke seed SQL only on local or staging.
 4. Run the smoke-test SQL.
 5. Create or link at least one `dpo` dashboard user in `public.user_roles`.
 6. Complete at least one survey through the Next.js UI or the RPC smoke test so
    `risk_result`, `risk_result_tool`, and `dpo_review_items` exist.
 7. Only after all checks pass, connect the future Next.js frontend to this
    staging project.
+
+Do not run `supabase/seed/20260527_sai_dashboard_mock_data.sql` against
+production. It is deterministic dashboard inspection data for local/staging, not
+customer data.
 
 ## Current Scoring Status
 

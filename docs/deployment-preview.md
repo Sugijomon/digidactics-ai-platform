@@ -20,12 +20,21 @@ and E2E checks:
 NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 NEXT_PUBLIC_SUPABASE_ANON_KEY
+NEXT_PUBLIC_SAI_DEFAULT_WAVE_TOKEN
+SAI_ENABLE_DEV_ROUTES
 ```
 
 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` is preferred. The legacy anon key remains
 supported for compatibility.
 
 Do not add a service-role key to GitHub Actions for the frontend CI job.
+
+`NEXT_PUBLIC_SAI_DEFAULT_WAVE_TOKEN` is optional. Leave it empty for production
+unless a customer-specific invite flow deliberately requires a pre-filled access
+code. Do not use the local smoke token in production.
+
+`SAI_ENABLE_DEV_ROUTES` may be set to `true` for staging smoke checks. It must
+remain empty or `false` for production.
 
 For pull-request CI only, the workflow has safe public placeholder fallbacks so
 mocked E2E tests can run before staging secrets are configured. Real preview and
@@ -61,11 +70,20 @@ Set these in Vercel for Preview and Production:
 NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 NEXT_PUBLIC_SUPABASE_ANON_KEY
+NEXT_PUBLIC_SAI_DEFAULT_WAVE_TOKEN
+SAI_ENABLE_DEV_ROUTES
 ```
 
 The publishable key should be the default browser key from the connected
 Supabase project. Do not configure `SUPABASE_SERVICE_ROLE_KEY` unless a future
 server-only route requires it and its use is documented.
+
+For production, keep `NEXT_PUBLIC_SAI_DEFAULT_WAVE_TOKEN` empty by default. For
+staging/demo, configure an explicit staging wave token only after the matching
+`scan_wave` exists in the staging Supabase project.
+
+For production, keep `SAI_ENABLE_DEV_ROUTES` empty or set to `false` so `/dev`
+routes return 404.
 
 ## Supabase Auth URLs
 

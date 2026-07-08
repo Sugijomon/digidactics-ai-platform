@@ -10,9 +10,18 @@ Create `apps/sai/.env.local` for local development:
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SAI_DEFAULT_WAVE_TOKEN=
+SAI_ENABLE_DEV_ROUTES=
 ```
 
 Prefer `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` for new setup. `NEXT_PUBLIC_SUPABASE_ANON_KEY` remains supported for legacy/local compatibility. Do not add a `service_role` key to frontend or client-visible environment files.
+
+`NEXT_PUBLIC_SAI_DEFAULT_WAVE_TOKEN` is optional and should normally stay empty
+for production. Set it only for local/staging smoke flows where pre-filling the
+access code is intentional.
+
+`SAI_ENABLE_DEV_ROUTES=true` enables `/dev/rpc` and `/dev/auth`. Leave it empty
+or set it to `false` for production.
 
 ## Local Development
 
@@ -50,7 +59,11 @@ RLS remains the database security boundary.
 
 Anonymous respondent survey writes must go through the safe RPC flow documented in `docs/rpc-flow-contract.md`. Do not write directly from anon clients to survey tables. The respondent flow should keep `run_id` and `submission_token` only as active survey state and clear the token after completion.
 
-For manual development checks, open `/dev/rpc`. It runs the minimal respondent RPC smoke flow with the default `sai-smoke-wave-token` and masks the submission token in the UI.
+For manual development checks, open `/dev/rpc`. It runs the minimal respondent
+RPC smoke flow and masks the submission token in the UI. Set
+`NEXT_PUBLIC_SAI_DEFAULT_WAVE_TOKEN=sai-smoke-wave-token` locally if you want the
+smoke token pre-filled. In a production build, `/dev/rpc` and `/dev/auth` return
+404 unless `SAI_ENABLE_DEV_ROUTES=true` is explicitly configured.
 
 ## Respondent Survey Status
 
@@ -87,7 +100,11 @@ corepack pnpm --dir apps/sai build
 corepack pnpm --dir apps/sai test:e2e
 ```
 
-The E2E suite mocks Supabase RPC calls and covers the full respondent flow, route guards, resume behavior, validation states, multiple tools, and token hiding.
+The E2E suite mocks Supabase RPC calls and covers the full respondent flow,
+route guards, resume behavior, validation states, multiple tools, and token
+hiding. It starts its own dev server by default; set
+`SAI_E2E_REUSE_SERVER=true` only when you deliberately want to test against an
+already running local server.
 
 For local production-preview QA:
 

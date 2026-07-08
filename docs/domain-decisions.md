@@ -1,5 +1,38 @@
 # Domain Decisions
 
+## 2026-07-08 - SAI Production Readiness Uses Evidence Foundation Planes
+
+SAI production-readiness must now be checked against the Evidence Foundation
+information architecture:
+
+- Record plane: operational scan records, role membership, tool use, risk
+  results, review items, and report metadata.
+- Evidence plane: immutable scoring/config/policy snapshots, audit events,
+  export audit trail, ledger/version pinning, and reproducible evidence for
+  governance decisions.
+- Future intelligence plane: longitudinal learning, richer RouteAI governance,
+  agentic governance, and AI-rijbewijs patterns for agents.
+
+SAI may go to pilot/production when the record plane is stable and the evidence
+plane has enough auditability for scan results, DPO review, scoring versioning,
+and report/export decisions. Future intelligence features remain roadmap unless
+explicitly scoped into implementation.
+
+Evidence ledger and version pinning are the technical bridge from SAI to the
+broader RouteAI/RAI platform. They should be introduced through controlled
+migrations and documented product decisions, not by reshaping current SAI pilot
+tables ad hoc. Agentic governance and an AI-rijbewijs for agents are roadmap
+concepts; current SAI handling of agentic usage remains a risk/exposure signal
+and review trigger, not a full agent governance workflow.
+
+Operational constraints:
+
+- Do not merge PR #3 or Evidence Foundation branches without explicit
+  permission.
+- Do not run production Supabase migrations without an explicit go/no-go.
+- Because the production Supabase migration ledger can differ from the repo
+  ledger, never apply a naive `db push` to production.
+
 ## 2026-05-27 - DPO Dashboard HTML Parity Uses Live Data Equivalents
 
 The SAI DPO dashboard pages should follow the high-fidelity HTML references as

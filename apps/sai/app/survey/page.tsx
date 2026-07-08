@@ -24,9 +24,8 @@ import {
   type StoredSurveySession,
 } from "@/lib/sai-rpc/session";
 import type { RpcError } from "@/lib/sai-rpc/types";
+import { getConfiguredDefaultWaveToken } from "@/lib/sai-rpc/wave-token";
 import { getResumeStep, surveySteps } from "@/lib/sai-survey/flow";
-
-const DEFAULT_WAVE_TOKEN = "sai-smoke-wave-token";
 
 type ResumeSurveyView = {
   completedCount: number;
@@ -39,7 +38,7 @@ type ResumeSurveyView = {
 
 export default function SurveyStartPage() {
   const router = useRouter();
-  const [waveToken, setWaveToken] = useState(DEFAULT_WAVE_TOKEN);
+  const [waveToken, setWaveToken] = useState(getConfiguredDefaultWaveToken);
   const [resumeSurvey, setResumeSurvey] = useState<ResumeSurveyView | null>(
     null,
   );

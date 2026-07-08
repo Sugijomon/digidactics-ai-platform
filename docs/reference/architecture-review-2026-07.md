@@ -3,7 +3,7 @@
 > Status: reference-only (gepromoveerd uit founder-draft, 2026-07-08) - dit document verklaart waarom de canon is aangepast; productarchitectuur staat in `docs/architecture/` en `docs/adr/`.
 
 **Reviewer-rol:** senior product/informatie-architectuur. Geen implementatie: geen SQL, geen migraties, geen schema's.
-**Gegrond in repo-realiteit (geverifieerd vandaag):** `main` @ `724df24` (PR #3 ongemerged, ready-for-review @ `a30b80b`); Evidence Foundation als **gestackte draft-PR** @ `941f214` — de review-findings van eerder zijn daarin verwerkt (actor-envelope kent nu `agent`, pins zijn definer-rights en INSERT-only, classification-veld toegevoegd). Dit feit is beslissend voor spanning #1 hieronder.
+**Gegrond in repo-realiteit (geverifieerd 2026-07-08):** `main` @ `724df24` (PR #3 ongemerged, ready-for-review @ `a30b80b`); Evidence Foundation als **gestackte draft-PR** @ `941f214` — de review-findings van eerder zijn daarin verwerkt (actor-envelope kent nu `agent`, pins zijn definer-rights en INSERT-only, classification-veld toegevoegd). Dit feit is beslissend voor spanning #1 hieronder.
 
 ---
 

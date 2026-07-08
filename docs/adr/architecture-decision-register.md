@@ -26,7 +26,7 @@ Rangorde: repo-ADRs (`ADR-EF-*` en opvolgers) en de code zelf beslechten impleme
 | ADR-N12 | Micro-learning is gedragsinstructie, geen Credential. | Voorkomt extra schijnlicenties en houdt governance schaalbaar. | Canoniek |
 | ADR-N13 | AISA is capability-interventie, geen aparte governancebron. | Menselijke interventies leveren Evidence/Capability input voor RouteAI. | Canoniek |
 | ADR-N14 | Agentic governance is roadmap, niet huidige scope. | Architectuur voorbereiden zonder nu agents, delegation of agent credentials te bouwen. | Canoniek |
-| ADR-N15 | Geen live Supabase plan of productie-migraties vanuit deze documentenset. | Deze map is architectuurreconciliatie, geen implementatiescript. | Canoniek |
+| ADR-N15 | Geen live Supabase plan of productie-migraties vanuit deze documentenset. | Architectuurdocumentatie is geen implementatiescript. | Canoniek |
 | ADR-N16 | Agent heeft later een dubbel gezicht: AIResource en Actor. | Het AIResource-gezicht beschrijft het gedeployde systeem; het Actor-gezicht beschrijft de principal die onder Delegation handelt. | Canoniek roadmapbesluit |
 | ADR-N17 | Geen automatische conflictresolutie op juridische velden. | Tegenstrijdige juridische signalen gaan naar HITL-review; een mens publiceert met rationale. | Canoniek |
 | ADR-N18 | Pinnen betekent verwijzen naar een immutabele versie. | Governance-relevante verwijzingen worden reproduceerbaar doordat updates nieuwe versies maken. | Canoniek |
@@ -62,7 +62,7 @@ Rangorde: repo-ADRs (`ADR-EF-*` en opvolgers) en de code zelf beslechten impleme
 
 1. Gesloten: extern blijven Shadow AI Scan en RouteAI leidend; SAI/RAI zijn interne codes (repo, architectuur).
 2. Pilot-minimum: welke AIResource-velden moeten absoluut aanwezig zijn?
-3. Evidence-minimum: welke events moeten vanaf pilot append-only zijn?
+3. Gesloten voor pilot: het evidence-minimum staat in `docs/architecture/evidence-foundation-principles.md` onder `Pilot-minimum (SAI)`. Open blijft de post-pilot uitbreiding.
 4. AISA: welke interventie-output wordt formeel Capability Evidence?
 5. Typekaart: welke signalen mogen zonder legal review worden gepubliceerd?
 6. Passport: welke detailniveaus zijn intern zichtbaar versus audit/export?

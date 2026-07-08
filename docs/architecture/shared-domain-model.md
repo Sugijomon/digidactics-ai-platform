@@ -12,8 +12,6 @@ RouteAI heeft een gedeeld domeinmodel. SAI, RAI/RouteAI, Learning en AISA zijn w
 
 ## Entiteiten
 
-Policy(Version) is bewust geen negende entiteit: Decisions verwijzen naar de geldende beleids-/logica-versie (version pinning), en Policy-as-data is post-pilot werk.
-
 ### Organization
 
 De juridische of bestuurlijke context waarbinnen AI-gebruik plaatsvindt. Organization draagt beleid, rollen, cataloguskeuzes, reviewritme en bewijsverantwoordelijkheid.
@@ -34,6 +32,8 @@ Voor agents geldt ADR-N16 (dubbel gezicht): zie het besluitregister.
 De AI-capability die gebruikt of beoordeeld wordt. Dit vervangt de oude smalle term "Tool" als kernentiteit. Een AIResource kan een SaaS-tool, model, platform, interne applicatie, workflow, agent of deployment-variant zijn.
 
 AIResource wordt gekoppeld aan Typekaart-versies, org-catalog entries, use-cases en evidence.
+
+Een agent verschijnt hier uitsluitend als AIResource-gezicht (het gedeployde systeem); de handelende principal is het Actor-gezicht - zie ADR-N16.
 
 ### UseCase
 
@@ -65,6 +65,8 @@ Een Organization heeft Actors, AIResources, org-catalog entries, Decisions en Ev
 Een Actor dient UseCases in, voltooit Learning, behaalt Credentials en kan Decisions nemen binnen rolgrenzen.  
 Een UseCase gebruikt een AIResource en leidt tot een Decision.  
 Een Decision verwijst naar Evidence en naar de versies van Typekaart, beslislogica, survey, learning of credential die golden op dat moment.
+
+Policy(Version) is bewust geen negende entiteit: Decisions verwijzen naar de geldende beleids-/logica-versie (version pinning), en Policy-as-data is post-pilot werk.
 
 ## Huidige scope
 

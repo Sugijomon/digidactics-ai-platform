@@ -112,7 +112,7 @@ Kan wachten tot post-pilot: volledige ledger op SAI-paden, hash-chaining voor SA
 
 ## Open vragen
 
-- Welke eventtypes zijn pilot-minimum?
+- Pilot-minimum eventtypes: beantwoord - zie `Pilot-minimum (SAI)`. Open blijft: welke eventtypes komen daar post-pilot bij.
 - Welke events zijn SYSTEM_ONLY?
 - Welke evidence mag worden gecorrigeerd via compensating event in plaats van update?
 - Welke exports tonen evidence detail versus aggregatie?

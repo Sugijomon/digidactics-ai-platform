@@ -56,6 +56,8 @@ Deze map is geen live implementatieplan. Bouw hieruit nu niet:
 - technische enforcement zoals proxy, netwerkblokkade of browsermonitoring;
 - aparte datamodellen per productlijn.
 
+Deze canon vervangt de eerdere `docs/platform-information-architecture-gap.md` wanneer die via een aparte PR arriveert; die note is historische brug, geen canon.
+
 ## Rangorde
 
 Repo-ADRs en de code zelf beslechten implementatieconflicten. Deze architectuurcanon beslecht productarchitectuur. Bij twijfel wordt het conflict zichtbaar gemaakt en niet stil opgelost.

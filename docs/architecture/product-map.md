@@ -71,11 +71,14 @@ AISA kan aanleiding geven tot:
 
 ## Huidige scope
 
-- Extern: Shadow AI Scan en RouteAI. SAI/RAI zijn interne codes (repo, architectuur). Learning en AISA zijn geen zelfstandige datamerken.
 - Productgrenzen scherp trekken.
 - Data als gedeeld domeinmodel beschrijven.
 - Doorstroom altijd menselijk en expliciet houden.
 - AISA-positionering koppelen aan capability, niet aan aparte datalaag.
+
+## Naamgeving
+
+Extern: Shadow AI Scan en RouteAI. SAI/RAI zijn interne codes (repo, architectuur). Learning en AISA zijn geen zelfstandige datamerken.
 
 ## Niet bouwen
 

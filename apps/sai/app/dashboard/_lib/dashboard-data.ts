@@ -275,13 +275,13 @@ export async function getActivationOrgContext(
     .maybeSingle();
 
   return {
-    dpoEmail: userEmail ?? "dpo@testorg.nl",
-    dpoName: userEmail ? userEmail.split("@")[0] ?? "DPO" : "Marianne de Vries",
-    dpoPhone: "+31 6 12345678",
-    employeeCount: 1250,
+    dpoEmail: userEmail ?? "",
+    dpoName: userEmail ? userEmail.split("@")[0] ?? "" : "",
+    dpoPhone: "",
+    employeeCount: 0,
     organizationName:
-      result.error || !result.data ? "SAI Smoke Test Organisatie" : result.data.name,
-    sector: "Financial Services",
+      result.error || !result.data ? "Onbekende organisatie" : result.data.name,
+    sector: "",
   };
 }
 

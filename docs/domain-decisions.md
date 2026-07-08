@@ -3,7 +3,9 @@
 ## 2026-07-08 - SAI Production Readiness Uses Evidence Foundation Planes
 
 SAI production-readiness must now be checked against the Evidence Foundation
-information architecture:
+information architecture documented in
+`docs/architecture/evidence-foundation-principles.md` and governed by
+`docs/adr/architecture-decision-register.md`:
 
 - Record plane: operational scan records, role membership, tool use, risk
   results, review items, and report metadata.

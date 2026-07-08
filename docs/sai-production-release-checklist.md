@@ -2,6 +2,8 @@
 
 Status: first production-hardening checklist, based on the 2026-07-08 repo
 audit and updated for the Evidence Foundation information architecture.
+Canonical references: `docs/architecture/evidence-foundation-principles.md` and
+`docs/adr/architecture-decision-register.md`.
 
 ## Evidence Foundation Frame
 
@@ -105,6 +107,9 @@ Staging validation:
 
 - Run `supabase/smoke-tests/20260504140000_sai_rpc_smoke_tests.sql`.
 - Run `supabase/smoke-tests/20260528143000_v8_scoring_parity_smoke.sql`.
+- Run `supabase/smoke-tests/20260708120000_rls_role_matrix_smoke.sql`
+  against staging with explicit DPO, org-admin, regular-user, and super-admin
+  test identities.
 - Complete one browser survey run against staging.
 - Confirm a completed run writes `risk_result`, `risk_result_tool`,
   `dpo_review_items`, and a `score.calculated` audit event.

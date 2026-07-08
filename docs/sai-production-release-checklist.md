@@ -228,6 +228,9 @@ Not allowed in production:
 - `sai-smoke-wave-token`
 - `dashboard_mock_seed` rows
 - deterministic fake survey runs, fake DPO items, or fake report export rows
+- `SAI Synthetic Pilot Organisatie` (`00000000-0000-0000-0000-000000000301`)
+  and `sai-synthetic-pilot-wave-token` — see
+  `docs/sai-synthetic-pilot-organisatie.md`
 
 Plane check:
 

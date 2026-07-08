@@ -141,3 +141,6 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Claude Code local/personal settings (per-developer, not shared project config)
+.claude/settings.local.json

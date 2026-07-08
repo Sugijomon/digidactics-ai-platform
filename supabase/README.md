@@ -113,6 +113,35 @@ Do not run `supabase/seed/20260527_sai_dashboard_mock_data.sql` against
 production. It is deterministic dashboard inspection data for local/staging, not
 customer data.
 
+## RLS Role Matrix And Synthetic Pilot Organisatie
+
+Two additional local/staging-only resources support production-readiness
+validation beyond the deterministic smoke org above:
+
+- `supabase/smoke-tests/20260708120000_rls_role_matrix_smoke.sql` proves the
+  anon/DPO/org-admin/user/super-admin RLS role matrix. Run it through
+  `supabase/smoke-tests/run-rls-role-matrix-smoke.sh` (refuses to run against
+  a non-local host unless `--i-know-this-is-staging` is passed). Full setup
+  steps, required test users, and required `psql` variables:
+  [`docs/sai-rls-smoke-runbook.md`](../docs/sai-rls-smoke-runbook.md).
+- `SAI Synthetic Pilot Organisatie`
+  (`00000000-0000-0000-0000-000000000301`) is a larger, richer local/staging
+  population for dashboard inspection, with deliberate outliers and clusters
+  below `dashboard_min_cell_size`. Apply
+  `supabase/seed/20260708130000_sai_synthetic_pilot_org_fixture.sql`, then use
+  `corepack pnpm --dir apps/sai seed:synthetic-flow` to fill it through the
+  real RPC flow. That script **defaults to a dry run** (prints the plan, no
+  Supabase calls) and only writes data when both `--target local|staging` and
+  `--confirm` are passed explicitly — see
+  `apps/sai/scripts/synthetic-flow/README.md`. Design and exact expected
+  scores:
+  [`docs/sai-synthetic-pilot-organisatie.md`](../docs/sai-synthetic-pilot-organisatie.md)
+  and
+  [`docs/sai-synthetic-flow-testplan.md`](../docs/sai-synthetic-flow-testplan.md).
+
+Neither of these may ever be created against a production Supabase project —
+see `docs/sai-production-release-checklist.md` section 5.
+
 ## Current Scoring Status
 
 `calculate_v8_score(uuid)` is implemented by

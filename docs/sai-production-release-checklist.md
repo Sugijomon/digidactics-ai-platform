@@ -191,6 +191,30 @@ Explicit non-production confirmations:
 - Full staging HTTP/browser validation was not completed because no staging app
   deployment/env was used and no publishable key was retrieved for the branch.
 
+## 2026-07-09 Staging App Check Preflight
+
+Preflight for the next staging app/browser gate was started after the DB/RLS
+hardening review:
+
+- `git status --short --branch` confirmed
+  `codex/sai-production-readiness...origin/codex/sai-production-readiness`
+  with no local changes at the start of the run.
+- A PR #5 status comment was attempted through the GitHub connector, but the
+  connector returned `403 Resource not accessible by integration`; the comment
+  must be pasted manually or posted by an account with PR comment permission.
+- The local `apps/sai/.env.local` was inspected only for variable names and
+  target classification, not printed values. It points at the known
+  main/production Supabase ref, so it was not used for staging app checks.
+- Vercel inspection found the `digidactics-ai-platform` project, but only an
+  older production deployment from `main`; no preview/staging deployment for
+  `codex/sai-production-readiness` was available.
+
+Result: staging browser and magic-link checks remain blocked until a staging
+app deployment or local app session is configured with the staging/dev-branch
+Supabase public URL/key and optional staging-only dev-route settings. No
+production Supabase project, production Vercel deployment, secrets, magic links,
+or respondent tokens were used.
+
 ## 1. Supabase Project Separation
 
 Required before production:

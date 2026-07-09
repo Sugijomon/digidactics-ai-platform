@@ -35,6 +35,29 @@ Operational constraints:
 - Because the production Supabase migration ledger can differ from the repo
   ledger, never apply a naive `db push` to production.
 
+## 2026-07-09 - Local Supabase Rebuild Represents Legacy User Roles Dependency
+
+The SAI RLS helpers and dashboard role resolution rely on the legacy
+`public.user_roles` table. Live/staging projects already had this table, but a
+clean local Supabase rebuild from repository migrations failed before the RLS
+policy migration because the table was not represented in the migration ledger.
+
+Migration `20260504119000_create_legacy_user_roles_dependency.sql` explicitly
+bootstraps the minimal legacy dependency before RLS policies are applied:
+`id`, `user_id`, `org_id`, `role`, `created_at`, and `UNIQUE (user_id, role)`.
+It also creates the neutral platform administration organization used as the
+default `org_id` for global roles such as `super_admin`.
+
+Migration `20260522113000_harden_rpc_grants_and_user_roles_rls.sql` also keeps
+the legacy `rls_auto_enable()` hardening revoke guarded with `to_regprocedure`.
+Some live-derived environments had that helper; a clean local rebuild from the
+current repo does not.
+
+These changes are not a new permission model and do not broaden production
+access. RLS policies and grants for `user_roles` remain defined by the later
+hardening migrations. The purpose is reproducible local/staging validation from
+GitHub as the source of truth.
+
 ## 2026-05-27 - DPO Dashboard HTML Parity Uses Live Data Equivalents
 
 The SAI DPO dashboard pages should follow the high-fidelity HTML references as

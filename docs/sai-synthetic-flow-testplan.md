@@ -78,8 +78,9 @@ Expected `audit_events`: 1 rij `score.calculated` per run.
 ## Scenario 2 — Goedgekeurde tool, laag risico
 
 Persona: 7× marketing/communicatiemedewerker (`marketing_communicatie`),
-plus hergebruikt als filler in `it_data_development` (5×) en
-`finance_legal` (5×), en als "kleine cluster"-patroon in scenario 8a/8b.
+plus hergebruikt als filler in `it_data_development` (5×),
+`finance_legal` (5×), `hr_recruitment` (2×), `sales_account` (4×), en
+`operations` (4×), en als "kleine cluster"-patroon in scenario 8a/8b.
 
 | Veld | Waarde |
 |---|---|

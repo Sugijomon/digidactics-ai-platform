@@ -115,12 +115,12 @@ wordt daar met exacte antwoorden en verwachte scores uitgewerkt.
 | 7 | HR-medewerker die een goedgekeurde analysetool voor personeelsevaluatie gebruikt | `hr_recruitment` | 2 | Scenario 7 — HR/evaluatie-context-outlier |
 | 8a | Directie — laag-risicogebruik, kleine cluster | `directie_management` | 3 | Scenario 8a — kleine cluster (directie) |
 | 8b | "Anders"-afdeling — laag-risicogebruik, kleine cluster | `anders` | 2 | Scenario 8b — kleine cluster (anders) |
-| filler | Generiek laag-risicogebruik ter opvulling van de cluster | `it_data_development` (5), `finance_legal` (5) | 10 | Scenario 2-patroon (herbruikt) |
+| filler | Generiek laag-risicogebruik ter opvulling van de cluster | `it_data_development` (5), `finance_legal` (5), `hr_recruitment` (2), `sales_account` (4), `operations` (4) | 20 | Scenario 2-patroon (herbruikt) |
 
-Som: 6 + 7 + 4 + 4 + 2 + 3 + 2 + 3 + 2 + 10 = 43 met named/filler patroon +
-resterende 10 vallen samen met de bovenstaande "filler"-rij (`it_data_development`
-5 + `finance_legal` 5) om op de 53 uit de organisatiestructuur-tabel uit te
-komen.
+Som: 6 + 7 + 4 + 4 + 2 + 3 + 2 + 3 + 2 + 20 = 53. De filler-rijen zijn
+expliciet opgenomen in `apps/sai/scripts/synthetic-flow/src/scenarios.ts`,
+zodat de dry-run van `--scenario all` ook daadwerkelijk 53 `survey_run` rows
+plant.
 
 ## Wat dit ontwerp niet is
 

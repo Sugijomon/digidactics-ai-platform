@@ -95,6 +95,88 @@ Explicit non-production confirmations:
 - The synthetic organization and wave token remain local/staging-only testdata
   and are still disallowed in production by section 5.
 
+## 2026-07-09 Staging Branch Rehearsal Evidence
+
+Staging rehearsal was started after explicit approval for staging readiness
+testing and no production actions. The rehearsal used the existing non-default
+Supabase development branch `learning-system-staging-rehearsal`
+(`gpptjkwxqxxdsjgwzhzl`), not the default/main project.
+
+Validated on the staging branch:
+
+- Core SAI tables and RPC functions exist:
+  `organizations`, `scan_wave`, `survey_run`, `user_roles`,
+  `start_survey_run(text)`, `complete_survey_run(uuid,text)`, and
+  `calculate_v8_score(uuid)`.
+- Local/staging-only readiness fixtures were applied to the branch:
+  `SAI Smoke Test Organisatie`, `SAI Synthetic Pilot Organisatie`, the
+  synthetic scan wave, and five synthetic tool-policy rows.
+- A branch-only respondent RPC smoke completed through `SET ROLE anon` and the
+  real RPC boundary: direct insert attempts failed, valid wave token started a
+  run, save RPCs succeeded, invalid token failed, completion burned the token,
+  direct `calculate_v8_score` execution was blocked, and the completed run
+  produced `risk_result`, `risk_result_tool`, and a `score.calculated` audit
+  event.
+- The V8 scoring parity smoke passed on the branch and verified the proportional
+  exposure formula plus additive automation/agentic boosts.
+- The tenant visibility part of the RLS matrix passed: DPO and org-admin could
+  read own-org dashboard rows, cross-org reads were denied, regular `user`
+  could not read dashboard rows, and `super_admin` could read across orgs.
+- Non-Supabase app checks passed:
+  - `corepack pnpm --dir packages/domain test`
+  - `corepack pnpm --dir apps/sai seed:synthetic-flow --scenario all`
+    (dry-run only; 53 planned rows; no Supabase calls)
+  - `corepack pnpm --dir apps/sai lint`
+  - `corepack pnpm --dir apps/sai build`
+
+Staging blockers found and resolved/classified:
+
+- A hardening migration now removes accidental direct `anon`/`authenticated`
+  table writes for the SAI survey tables. Respondents write only through the
+  token-validated RPC flow; `authenticated` keeps the RLS-backed dashboard
+  SELECT surface.
+- Public reference tables now have RLS enabled and keep authenticated read plus
+  super-admin-only write policies.
+- Existing `SECURITY DEFINER` function grants are rebuilt as an explicit API
+  allowlist. `anon` can execute only the respondent RPCs needed for the survey
+  flow. Dashboard/RLS helpers and DPO/admin wrappers remain
+  `authenticated`-only where they validate `auth.uid()` and org role context.
+  Internal token/scoring helpers and the auth trigger are not directly callable
+  by API roles.
+- The SAI `dpo_review_items` foreign-key advisor warnings are fixed with
+  supporting indexes. Learning-system foreign-key advisor warnings were
+  classified as outside the SAI release scope on this branch and should be
+  handled before a learning-system release gate.
+
+Post-hardening branch verification:
+
+- Respondent RPC smoke via `anon` passed: direct table grants were absent, the
+  real RPC flow still worked, invalid/burned tokens failed, and direct scoring
+  execution remained blocked.
+- V8 scoring parity smoke passed.
+- Full RLS role matrix passed, including grant-layer checks for direct table
+  writes and non-respondent `SECURITY DEFINER` exposure.
+- Advisor-equivalent blocker query returned:
+  - 0 reference tables without RLS out of 21 reference tables.
+  - no direct `INSERT` grant on `survey_run` or `survey_tool` for `anon` or
+    `authenticated`.
+  - 0 non-respondent `SECURITY DEFINER` functions executable by `anon`.
+  - 0 SAI `dpo_review_items` foreign-key index gaps.
+- Non-Supabase app checks passed after hardening:
+  - `corepack pnpm --dir packages/domain test`
+  - `corepack pnpm --dir apps/sai lint`
+  - `corepack pnpm --dir apps/sai build`
+
+Explicit non-production confirmations:
+
+- No production Supabase project was mutated.
+- No production migrations, seeds, synthetic organizations, test users, or magic
+  links were created.
+- No Supabase keys, service-role secrets, respondent submission tokens, or magic
+  links were printed or documented.
+- Full staging HTTP/browser validation was not completed because no staging app
+  deployment/env was used and no publishable key was retrieved for the branch.
+
 ## 1. Supabase Project Separation
 
 Required before production:

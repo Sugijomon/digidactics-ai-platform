@@ -160,6 +160,32 @@ DPO/dashboard test users should be created in Supabase Auth and then linked to
 this organization through `public.user_roles`. The dashboard should be inspected
 against persisted Supabase rows, not hard-coded production component mock data.
 
+## 2026-07-09 - SAI Staging Grant And RLS Hardening
+
+SAI production readiness requires the Postgres grant layer to match the RLS
+and RPC design. Respondents must not have direct table write grants on
+`survey_run`, `survey_tool`, or related survey answer tables. Anonymous survey
+writes remain RPC-only through the token-validated respondent functions.
+
+Public reference tables are part of the exposed Supabase `public` schema and
+therefore must have RLS enabled even when the data is low sensitivity.
+Authenticated users may read reference values. Reference writes remain
+super-admin-only through explicit RLS policies.
+
+`SECURITY DEFINER` functions in `public` are treated as an explicit API surface:
+respondent RPCs stay callable by `anon` and `authenticated`; dashboard/RLS
+helpers and DPO/admin wrappers stay `authenticated`-only where they validate
+`auth.uid()` and organization role context; internal token/scoring helpers and
+auth triggers are not directly callable by API roles. Remaining
+`authenticated` advisor warnings for these helpers are accepted for this SAI
+release shape, but moving internal helpers out of the exposed `public` schema
+remains a future hardening path.
+
+SAI `dpo_review_items` foreign keys now have supporting indexes for release
+readiness. Learning-system foreign-key advisor warnings on mixed development
+branches are not SAI production blockers, but they must be handled before a
+learning-system release gate.
+
 ## 2026-05-22 - V8.1 SQL/TypeScript Scoring Parity
 
 The TypeScript risk engine in `packages/domain` and the Supabase

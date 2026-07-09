@@ -37,10 +37,11 @@ Hard constraints:
 
 ## Current Local Baseline
 
-- Branch `main` is aligned with `origin/main`.
-- The only untracked local folder is `ewx-research-framework/`; keep it outside
-  Git and outside release packaging.
-- Last documented green checks remain:
+- Branch `codex/sai-production-readiness` is the active production-readiness
+  hardening branch.
+- `docs/sai-production-readiness-audit.md` is intentionally left untracked until
+  a fresh, current review document is needed.
+- Last documented green app checks remain:
   - `corepack pnpm --dir packages/domain test`
   - `corepack pnpm --dir apps/sai lint`
   - `corepack pnpm --dir apps/sai build`
@@ -51,6 +52,48 @@ Hard constraints:
   - `NEXT_PUBLIC_SAI_DEFAULT_WAVE_TOKEN` as optional local/staging convenience
   - `SAI_ENABLE_DEV_ROUTES` as an explicit staging-only dev route gate
 - No frontend path should receive `SUPABASE_SERVICE_ROLE_KEY`.
+
+## 2026-07-09 Local Readiness Evidence
+
+Local validation was completed against the developer Supabase stack and the SAI
+Next.js app on `127.0.0.1:3000`. This is release evidence for the local phase
+only; it is not staging or production approval.
+
+Validated locally:
+
+- `supabase/seed/20260708130000_sai_synthetic_pilot_org_fixture.sql` was loaded
+  into local Supabase as an opt-in fixture.
+- `corepack pnpm --dir apps/sai seed:synthetic-flow --scenario all` completed
+  as a dry run and reported 53 planned `survey_run` rows.
+- The synthetic flow runner then wrote 53 completed responses through the real
+  respondent RPC flow with explicit local opt-in (`--target local --confirm`).
+- Dashboard routes loaded as a local DPO user:
+  - `/dashboard/activatie`
+  - `/dashboard/tools`
+  - `/dashboard/risicoprofiel`
+  - `/dashboard/governance`
+  - `/dashboard/rapportage`
+  - `/dashboard/voortgang`
+- `/dev/auth` confirmed an authenticated DPO session linked to
+  `SAI Synthetic Pilot Organisatie`
+  (`00000000-0000-0000-0000-000000000301`).
+- `/dashboard/activatie` showed 53 started runs, 53 completed runs, and the
+  synthetic organization context.
+- The local RLS role matrix smoke test passed with DPO, org-admin, regular-user,
+  and super-admin test identities: `RLS role matrix smoke passed`.
+- The local magic-link/email flow passed through Supabase Mailpit/Inbucket:
+  magic link requested from the app, local email received, callback completed,
+  `/dev/auth` authenticated the DPO role, and dashboard access succeeded.
+
+Explicit non-production confirmations:
+
+- No production Supabase project was contacted.
+- No production migrations, seeds, synthetic organizations, test users, or magic
+  links were created.
+- No service-role keys, tokens, or magic links were printed into the docs or
+  release evidence.
+- The synthetic organization and wave token remain local/staging-only testdata
+  and are still disallowed in production by section 5.
 
 ## 1. Supabase Project Separation
 
@@ -102,6 +145,7 @@ Apply migrations in timestamp order on staging first:
 ```txt
 20260504110000_v8_1_target_schema.sql
 20260504115000_pgcrypto_compat_wrappers.sql
+20260504119000_create_legacy_user_roles_dependency.sql
 20260504120000_rls_policies_v2_1.sql
 20260504130000_06_edge_rpcs.sql
 20260512100000_make_save_profile_partial.sql
@@ -322,6 +366,39 @@ Release only after these pass:
 - No smoke/mock seed rows are present in production.
 - A rollback note exists: which Vercel deployment to restore and which Supabase
   migration state was last known good.
+
+Staging execution plan, not to be run without explicit approval:
+
+1. Confirm Supabase project separation manually: Preview/staging project ref is
+   distinct from production; Production points only to the production Supabase
+   project.
+2. Confirm Vercel env vars without printing values:
+   `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`,
+   optional legacy `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+   `NEXT_PUBLIC_SAI_DEFAULT_WAVE_TOKEN`, and `SAI_ENABLE_DEV_ROUTES`.
+3. Apply the approved migration set to staging in timestamp order and capture
+   the staging migration ledger.
+4. Create staging-only Auth users for DPO, org-admin, regular-user, and
+   super-admin; link them through `public.user_roles` as described in
+   `docs/sai-rls-smoke-runbook.md`.
+5. Apply the synthetic pilot fixture only to staging, never production:
+   `supabase/seed/20260708130000_sai_synthetic_pilot_org_fixture.sql`.
+6. Run the synthetic flow against staging only after dry-run:
+   `corepack pnpm --dir apps/sai seed:synthetic-flow --scenario all`, then
+   `--target staging --confirm --i-know-this-is-staging` with the staging
+   Supabase URL/key supplied through the expected frontend env vars or CLI
+   flags.
+7. Inspect staging dashboard routes as the staging DPO and verify the synthetic
+   organization, outliers, DPO review items, small-cell behavior, and t=1-only
+   Voortgang framing.
+8. Run the guarded RLS role matrix smoke test through
+   `supabase/smoke-tests/run-rls-role-matrix-smoke.sh` with
+   `--i-know-this-is-staging`.
+9. Test staging magic-link/email delivery and callback for at least the DPO
+   role, confirming it returns to the intended dashboard URL.
+10. Make a merge/go-no-go decision only after staging evidence is captured and
+    production is confirmed free of synthetic orgs, smoke/mock seeds, test
+    tokens, and enabled dev routes.
 
 ## 9. After First Real Pilot
 

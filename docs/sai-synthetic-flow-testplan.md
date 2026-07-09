@@ -293,10 +293,10 @@ them as identifiable groups — see `docs/domain-decisions.md`,
 psql "<db-url>" -f supabase/seed/20260708130000_sai_synthetic_pilot_org_fixture.sql
 
 # 3. Preview the plan first (dry run — default, no Supabase calls, no env needed):
-corepack pnpm --dir apps/sai seed:synthetic-flow -- --scenario all
+corepack pnpm --dir apps/sai seed:synthetic-flow --scenario all
 
 # 4. Then actually write, with explicit opt-in:
-corepack pnpm --dir apps/sai seed:synthetic-flow -- \
+corepack pnpm --dir apps/sai seed:synthetic-flow \
   --wave-token sai-synthetic-pilot-wave-token \
   --target local --confirm \
   --scenario all

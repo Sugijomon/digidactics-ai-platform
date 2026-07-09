@@ -30,7 +30,7 @@ the planned scenario runs (which scenarios, how many, which departments) and
 makes zero Supabase calls — no env vars are even required:
 
 ```bash
-corepack pnpm --dir apps/sai seed:synthetic-flow -- --scenario all
+corepack pnpm --dir apps/sai seed:synthetic-flow --scenario all
 ```
 
 To actually write data, you must pass **both** `--target local|staging`
@@ -41,13 +41,13 @@ mismatch between the declared `--target` and the Supabase URL's host (e.g.
 
 ```bash
 # Local Supabase (supabase start), explicit opt-in required:
-corepack pnpm --dir apps/sai seed:synthetic-flow -- \
+corepack pnpm --dir apps/sai seed:synthetic-flow \
   --wave-token sai-synthetic-pilot-wave-token \
   --target local --confirm \
   --scenario all
 
 # Staging, explicit opt-in required twice:
-corepack pnpm --dir apps/sai seed:synthetic-flow -- \
+corepack pnpm --dir apps/sai seed:synthetic-flow \
   --wave-token sai-synthetic-pilot-wave-token \
   --target staging --confirm --i-know-this-is-staging \
   --scenario all
@@ -56,12 +56,12 @@ corepack pnpm --dir apps/sai seed:synthetic-flow -- \
 This runs `tsc -p scripts/synthetic-flow/tsconfig.json` (compiles
 `src/*.ts` to `dist/*.js`, following the same tsc-then-node convention as
 `packages/domain`) and then `node scripts/synthetic-flow/dist/run.js` with
-whatever arguments follow `--`.
+the arguments passed after the script name.
 
 Run a single scenario, with an overridden respondent count:
 
 ```bash
-corepack pnpm --dir apps/sai seed:synthetic-flow -- \
+corepack pnpm --dir apps/sai seed:synthetic-flow \
   --wave-token sai-synthetic-pilot-wave-token \
   --target staging --confirm --i-know-this-is-staging \
   --scenario approved-low-risk \

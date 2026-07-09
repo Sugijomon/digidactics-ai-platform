@@ -13,6 +13,7 @@ Apply migrations in timestamp order. The current SAI MVP migration set includes:
 ```txt
 supabase/migrations/20260504110000_v8_1_target_schema.sql
 supabase/migrations/20260504115000_pgcrypto_compat_wrappers.sql
+supabase/migrations/20260504119000_create_legacy_user_roles_dependency.sql
 supabase/migrations/20260504120000_rls_policies_v2_1.sql
 supabase/migrations/20260504130000_06_edge_rpcs.sql
 supabase/migrations/20260512100000_make_save_profile_partial.sql

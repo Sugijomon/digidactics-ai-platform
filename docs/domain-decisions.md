@@ -176,15 +176,27 @@ super-admin-only through explicit RLS policies.
 respondent RPCs stay callable by `anon` and `authenticated`; dashboard/RLS
 helpers and DPO/admin wrappers stay `authenticated`-only where they validate
 `auth.uid()` and organization role context; internal token/scoring helpers and
-auth triggers are not directly callable by API roles. Remaining
-`authenticated` advisor warnings for these helpers are accepted for this SAI
-release shape, but moving internal helpers out of the exposed `public` schema
-remains a future hardening path.
+auth triggers are not directly callable by API roles. Learning-system functions
+that are not defined in this repository are not granted by the SAI allowlist;
+their API surface must be re-established only by a reviewed learning-system
+release migration. Remaining `authenticated` advisor warnings for reviewed SAI
+helpers are accepted for this SAI release shape, but moving internal helpers
+out of the exposed `public` schema remains a future hardening path.
+
+Ambassador opt-in e-mail rows contain respondent contact data and are not
+directly readable through the API in this release shape. They are written by the
+token-validated respondent RPC and reserved for service-role or a future
+explicit DPO/admin workflow. Direct API deletion of survey runs is also out of
+scope for this release shape.
 
 SAI `dpo_review_items` foreign keys now have supporting indexes for release
 readiness. Learning-system foreign-key advisor warnings on mixed development
 branches are not SAI production blockers, but they must be handled before a
 learning-system release gate.
+
+Synthetic pilot fixture data must remain local/staging opt-in. The fixture now
+requires `app.environment` to be set to `local` or `staging` in the SQL session
+and must fail closed when copied into an unmarked database session.
 
 ## 2026-05-22 - V8.1 SQL/TypeScript Scoring Parity
 

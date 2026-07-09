@@ -21,6 +21,14 @@
 -- Idempotent: safe to re-run.
 -- =============================================================================
 
+DO $$
+BEGIN
+  IF COALESCE(current_setting('app.environment', true), '') NOT IN ('local', 'staging') THEN
+    RAISE EXCEPTION
+      'Refusing to load SAI synthetic pilot fixture without app.environment=local or staging';
+  END IF;
+END $$;
+
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- -----------------------------------------------------------------------------

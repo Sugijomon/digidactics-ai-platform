@@ -289,8 +289,11 @@ them as identifiable groups — see `docs/domain-decisions.md`,
 
 ```bash
 # 1. Apply migrations + the reference seed (once per local/staging DB).
-# 2. Apply the org/wave/tool-policy fixture:
-psql "<db-url>" -f supabase/seed/20260708130000_sai_synthetic_pilot_org_fixture.sql
+# 2. Apply the org/wave/tool-policy fixture with an explicit environment guard:
+psql "<db-url>" -v ON_ERROR_STOP=1 \
+  -c "SET app.environment = 'local';" \
+  -f supabase/seed/20260708130000_sai_synthetic_pilot_org_fixture.sql
+# Use app.environment = 'staging' against staging.
 
 # 3. Preview the plan first (dry run — default, no Supabase calls, no env needed):
 corepack pnpm --dir apps/sai seed:synthetic-flow --scenario all

@@ -129,7 +129,8 @@ validation beyond the deterministic smoke org above:
   (`00000000-0000-0000-0000-000000000301`) is a larger, richer local/staging
   population for dashboard inspection, with deliberate outliers and clusters
   below `dashboard_min_cell_size`. Apply
-  `supabase/seed/20260708130000_sai_synthetic_pilot_org_fixture.sql`, then use
+  `supabase/seed/20260708130000_sai_synthetic_pilot_org_fixture.sql` only after
+  setting `app.environment` to `local` or `staging`, then use
   `corepack pnpm --dir apps/sai seed:synthetic-flow` to fill it through the
   real RPC flow. That script **defaults to a dry run** (prints the plan, no
   Supabase calls) and only writes data when both `--target local|staging` and

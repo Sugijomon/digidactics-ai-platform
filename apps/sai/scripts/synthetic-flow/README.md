@@ -20,7 +20,8 @@ uses. No service-role key is read anywhere in this script.
 1. Apply all `supabase/migrations/*` in order.
 2. Apply the reference seed:
    `supabase/seed/20260505_v8_1_reference_seed.sql`.
-3. Apply the org/wave/tool-policy fixture:
+3. Apply the org/wave/tool-policy fixture after setting the DB session guard to
+   `local` or `staging`:
    `supabase/seed/20260708130000_sai_synthetic_pilot_org_fixture.sql`.
 
 ## Build and run

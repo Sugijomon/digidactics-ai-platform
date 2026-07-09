@@ -144,3 +144,6 @@ vite.config.ts.timestamp-*
 
 # Claude Code local/personal settings (per-developer, not shared project config)
 .claude/settings.local.json
+
+# Local readiness notes are intentionally not committed.
+docs/sai-production-readiness-audit.md

@@ -143,10 +143,19 @@ Staging blockers found and resolved/classified:
   `authenticated`-only where they validate `auth.uid()` and org role context.
   Internal token/scoring helpers and the auth trigger are not directly callable
   by API roles.
+- Learning-system `SECURITY DEFINER` functions that exist only on mixed
+  development branches are not part of the SAI allowlist and fail closed unless
+  a learning-system release migration grants them after its own review.
+- `survey_run_ambassador_opt_in` is service-role/RPC-only for this release
+  shape; direct API SELECT is not granted and the stale read policy is removed.
+  Direct API deletion of `survey_run` rows is also not part of this release
+  shape.
 - The SAI `dpo_review_items` foreign-key advisor warnings are fixed with
   supporting indexes. Learning-system foreign-key advisor warnings were
   classified as outside the SAI release scope on this branch and should be
   handled before a learning-system release gate.
+- The synthetic pilot fixture now has a runtime guard and refuses to load unless
+  the SQL session sets `app.environment` to `local` or `staging`.
 
 Post-hardening branch verification:
 
@@ -166,6 +175,11 @@ Post-hardening branch verification:
   - `corepack pnpm --dir packages/domain test`
   - `corepack pnpm --dir apps/sai lint`
   - `corepack pnpm --dir apps/sai build`
+- Independent offline review of commit `9870c5a` found no critical or high
+  findings and gave go for the next staging app checks. Follow-up hardening
+  closed the review's cheap pre-production findings around learning-function
+  grants, ambassador opt-in read posture, the local audit doc ignore rule, and
+  the synthetic fixture guard.
 
 Explicit non-production confirmations:
 
@@ -463,7 +477,8 @@ Staging execution plan, not to be run without explicit approval:
 4. Create staging-only Auth users for DPO, org-admin, regular-user, and
    super-admin; link them through `public.user_roles` as described in
    `docs/sai-rls-smoke-runbook.md`.
-5. Apply the synthetic pilot fixture only to staging, never production:
+5. Apply the synthetic pilot fixture only to staging, never production, with
+   `app.environment` set to `staging` before running
    `supabase/seed/20260708130000_sai_synthetic_pilot_org_fixture.sql`.
 6. Run the synthetic flow against staging only after dry-run:
    `corepack pnpm --dir apps/sai seed:synthetic-flow --scenario all`, then

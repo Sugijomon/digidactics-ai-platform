@@ -233,6 +233,12 @@ CREATE POLICY ssc_delete_super_admin ON public.scan_scoring_config
   FOR DELETE TO authenticated
   USING (public.is_super_admin(auth.uid()));
 
+-- These tables intentionally have no API role grants after hardening. Remove
+-- stale policies so the policy catalog does not suggest a direct API path that
+-- no longer exists.
+DROP POLICY IF EXISTS ambassador_optin_select ON public.survey_run_ambassador_opt_in;
+DROP POLICY IF EXISTS survey_run_delete_super_admin ON public.survey_run;
+
 -- Existing SECURITY DEFINER functions may still have inherited PUBLIC execute
 -- grants from older/default project privileges. Treat public functions as an
 -- explicit API surface: respondent RPCs remain callable by anon/authenticated;
@@ -262,12 +268,9 @@ DECLARE
     'dpo_risk_clusters_v2(p_org_id uuid)',
     'get_user_org_id(_user_id uuid)',
     'is_dpo(_user_id uuid)',
-    'is_learning_admin_for(_org_id uuid)',
     'is_org_admin(_user_id uuid)',
     'is_org_admin_or_dpo_for(_org_id uuid)',
     'is_super_admin(_user_id uuid)',
-    'learning_check_capability_access(p_capability_code text)',
-    'learning_issue_certification_for_enrollment(p_enrollment_id uuid)',
     'recalculate_v8_score(p_run_id uuid)',
     'survey_run_is_open(_run_id uuid)',
     'survey_run_org(_run_id uuid)',

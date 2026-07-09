@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type { ReactNode } from "react";
 import {
   Building2,
@@ -41,130 +41,8 @@ type OrgForm = {
   sector: string;
 };
 
-const ACTIVATION_TEST_ROSTER: Participant[] = [
-  {
-    department: "Research",
-    email: "e.vance@company.com",
-    invitedAt: "12 apr 2024",
-    name: "Elena Vance",
-    status: "Afgerond",
-  },
-  {
-    department: "Macro Data",
-    email: "m.scout@company.com",
-    invitedAt: "12 apr 2024",
-    name: "Mark Scout",
-    status: "Verzonden",
-  },
-  {
-    department: "Operations",
-    email: "i.bailiff@company.com",
-    invitedAt: "13 apr 2024",
-    name: "Irving B.",
-    status: "Afgerond",
-  },
-  {
-    department: "Finance",
-    email: "h.riggs@company.com",
-    invitedAt: "13 apr 2024",
-    name: "Helly R.",
-    status: "Herinnering",
-  },
-  {
-    department: "Marketing",
-    email: "d.george@company.com",
-    invitedAt: "14 apr 2024",
-    name: "Dylan G.",
-    status: "Verzonden",
-  },
-  {
-    department: "Design",
-    email: "b.goodman@company.com",
-    invitedAt: "14 apr 2024",
-    name: "Burt G.",
-    status: "Afgerond",
-  },
-  {
-    department: "Wellness",
-    email: "c.p@company.com",
-    invitedAt: "15 apr 2024",
-    name: "Casey P.",
-    status: "Verzonden",
-  },
-  {
-    department: "HR",
-    email: "m.s@company.com",
-    invitedAt: "15 apr 2024",
-    name: "Milchick S.",
-    status: "Afgerond",
-  },
-  {
-    department: "Legal",
-    email: "n.carter@company.com",
-    invitedAt: "16 apr 2024",
-    name: "Natalie C.",
-    status: "Afgerond",
-  },
-  {
-    department: "IT",
-    email: "d.parks@company.com",
-    invitedAt: "16 apr 2024",
-    name: "Devon P.",
-    status: "Verzonden",
-  },
-  {
-    department: "Finance",
-    email: "j.lane@company.com",
-    invitedAt: "17 apr 2024",
-    name: "Jordan L.",
-    status: "Herinnering",
-  },
-  {
-    department: "Operations",
-    email: "p.nair@company.com",
-    invitedAt: "17 apr 2024",
-    name: "Priya N.",
-    status: "Afgerond",
-  },
-  {
-    department: "Marketing",
-    email: "s.meyer@company.com",
-    invitedAt: "18 apr 2024",
-    name: "Sofia M.",
-    status: "Verzonden",
-  },
-  {
-    department: "Research",
-    email: "l.turner@company.com",
-    invitedAt: "18 apr 2024",
-    name: "Liam T.",
-    status: "Afgerond",
-  },
-  {
-    department: "HR",
-    email: "e.ross@company.com",
-    invitedAt: "19 apr 2024",
-    name: "Emma R.",
-    status: "Herinnering",
-  },
-];
-
-const RESPONSE_FALLBACK: [string, number][] = [
-  ["IT, Data & Development", 34],
-  ["Operations & Support", 29],
-  ["Marketing & Communicatie", 25],
-  ["HR & Recruitment", 22],
-  ["Finance & Legal", 19],
-  ["Sales & Accountmanagement", 17],
-  ["Directie & Management", 11],
-  ["Anders", 6],
-];
-
-const DEFAULT_MESSAGE = `Hoi [voornaam],
-
-[manager_naam] heeft je uitgenodigd voor een korte inventarisatie van de AI-tools die jij gebruikt in je werk.
-
-Welkom! Bouw mee aan onze AI-toekomst.`;
+const ACTIVATION_PARTICIPANTS: Participant[] = [];
+const EMPTY_INVITATION_MESSAGE = "";
 
 export function ActivationDashboardClient({
   metrics,
@@ -187,57 +65,48 @@ export function ActivationDashboardClient({
     status: "",
   });
   const [orgForm, setOrgForm] = useState({
-    disclosureEnd: toDateInput(metrics.latestWaveEndsAt) ?? "2026-04-20",
-    disclosureStart: toDateInput(metrics.latestWaveStartsAt) ?? "2026-04-12",
+    disclosureEnd: toDateInput(metrics.latestWaveEndsAt) ?? "",
+    disclosureStart: toDateInput(metrics.latestWaveStartsAt) ?? "",
     dpoEmail: orgContext.dpoEmail,
     dpoName: orgContext.dpoName,
     dpoPhone: orgContext.dpoPhone,
-    employeeCount: String(orgContext.employeeCount),
+    employeeCount: orgContext.employeeCount > 0 ? String(orgContext.employeeCount) : "",
     organizationName: orgContext.organizationName,
     sector: orgContext.sector,
   });
   const [template, setTemplate] = useState({
-    message: DEFAULT_MESSAGE,
-    signature: "Het Data Protection Office",
-    subject: `Korte AI-inventarisatie voor [org_name] - 20 minuten`,
+    message: EMPTY_INVITATION_MESSAGE,
+    signature: "",
+    subject: "",
   });
 
-  const filteredParticipants = useMemo(
-    () =>
-      ACTIVATION_TEST_ROSTER.filter((participant) => {
-        const nameMatch = participant.name
-          .toLowerCase()
-          .includes(filters.name.toLowerCase());
-        const emailMatch = participant.email
-          .toLowerCase()
-          .includes(filters.email.toLowerCase());
-        const departmentMatch =
-          !filters.department || participant.department === filters.department;
-        const statusMatch = !filters.status || participant.status === filters.status;
-        const invitedMatch = participant.invitedAt
-          .toLowerCase()
-          .includes(filters.invitedAt.toLowerCase());
+  const filteredParticipants = ACTIVATION_PARTICIPANTS.filter((participant) => {
+    const nameMatch = participant.name
+      .toLowerCase()
+      .includes(filters.name.toLowerCase());
+    const emailMatch = participant.email
+      .toLowerCase()
+      .includes(filters.email.toLowerCase());
+    const departmentMatch =
+      !filters.department || participant.department === filters.department;
+    const statusMatch = !filters.status || participant.status === filters.status;
+    const invitedMatch = participant.invitedAt
+      .toLowerCase()
+      .includes(filters.invitedAt.toLowerCase());
 
-        return nameMatch && emailMatch && departmentMatch && statusMatch && invitedMatch;
-      }),
-    [filters],
-  );
-
+    return nameMatch && emailMatch && departmentMatch && statusMatch && invitedMatch;
+  });
   const participantDepartments = Array.from(
-    new Set(ACTIVATION_TEST_ROSTER.map((participant) => participant.department)),
+    new Set(ACTIVATION_PARTICIPANTS.map((participant) => participant.department)),
   );
   const allVisibleSelected =
     filteredParticipants.length > 0 &&
     filteredParticipants.every((participant) => selectedRows.includes(participant.email));
   const notResponded = Math.max(metrics.invitedRuns - metrics.completedRuns, 0);
-  const responseRows =
-    progress.departments.length > 0
-      ? progress.departments.slice(0, 8).map(([code, count]) => [formatCode(code), count] as [string, number])
-      : RESPONSE_FALLBACK;
-  const responseTotal =
-    progress.totalCompleted > 0
-      ? progress.totalCompleted
-      : responseRows.reduce((sum, [, count]) => sum + count, 0);
+  const responseRows = progress.departments
+    .slice(0, 8)
+    .map(([code, count]) => [formatCode(code), count] as [string, number]);
+  const responseTotal = progress.totalCompleted;
 
   function toggleVisibleRows() {
     if (allVisibleSelected) {
@@ -275,7 +144,7 @@ export function ActivationDashboardClient({
 
       <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,.8)] md:p-5">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-5">
-          <KpiCard helper="Doel bereikt" label="Uitgenodigd" value={metrics.invitedRuns} />
+          <KpiCard helper="Survey-sessies" label="Gestart" value={metrics.startedRuns} />
           <KpiCard
             helper="Totaal ontvangen reacties"
             label="Afgerond"
@@ -289,16 +158,12 @@ export function ActivationDashboardClient({
             suffix="%"
             value={metrics.responseRate}
           />
-          <KpiCard
-            actionLabel="Herinnering sturen"
-            label="Niet gereageerd"
-            value={notResponded}
-          />
+          <KpiCard helper="Gestart maar niet afgerond" label="Nog open" value={notResponded} />
           <KpiCard
             accent="#D08212"
-            helper="Laatst verstuurd: 2 uur geleden"
-            label="Herinneringen"
-            value={metrics.reminderCount}
+            helper="Scanrondes met status open"
+            label="Actieve rondes"
+            value={metrics.activeWaves}
           />
         </div>
       </section>
@@ -382,14 +247,16 @@ export function ActivationDashboardClient({
         <div className="border-b border-slate-100 p-6">
           <SectionTitle
             icon={<Users className="h-7 w-7" />}
-            subtitle="Beheer hier de uitnodigingslijst. Deelname-status is alleen voor reminders en responsopvolging, niet voor naamgerichte rapportage van scaninhoud."
+            subtitle="Uitnodigingsbeheer wordt pas getoond wanneer er een duurzame roster- of invitebron aan de scanronde is gekoppeld."
             title="Medewerkers"
           />
           <div className="mt-4 flex flex-wrap gap-2">
-            <ActionButton icon={<Plus className="h-4 w-4" />}>
+            <ActionButton disabled icon={<Plus className="h-4 w-4" />}>
               Medewerker toevoegen
             </ActionButton>
-            <ActionButton icon={<Upload className="h-4 w-4" />}>Bulk uploaden</ActionButton>
+            <ActionButton disabled icon={<Upload className="h-4 w-4" />}>
+              Bulk uploaden
+            </ActionButton>
           </div>
         </div>
         <div className="w-full overflow-hidden">
@@ -502,6 +369,16 @@ export function ActivationDashboardClient({
                     </td>
                   </tr>
                 ))}
+                {filteredParticipants.length === 0 ? (
+                  <tr>
+                    <td
+                      className="px-6 py-10 text-center text-sm font-medium text-slate-500"
+                      colSpan={6}
+                    >
+                      Nog geen uitnodigingslijst gekoppeld.
+                    </td>
+                  </tr>
+                ) : null}
               </tbody>
             </table>
           </div>
@@ -537,7 +414,10 @@ export function ActivationDashboardClient({
                   <button
                     className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors hover:text-slate-700"
                     onClick={() =>
-                      setTemplate((current) => ({ ...current, message: DEFAULT_MESSAGE }))
+                      setTemplate((current) => ({
+                        ...current,
+                        message: EMPTY_INVITATION_MESSAGE,
+                      }))
                     }
                     type="button"
                   >
@@ -591,7 +471,8 @@ export function ActivationDashboardClient({
                     Preview
                   </button>
                   <button
-                    className="rounded-lg bg-[#0E5A75] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0A4B61]"
+                    className="rounded-lg bg-slate-300 px-4 py-3 text-sm font-semibold text-white shadow-sm"
+                    disabled
                     type="button"
                   >
                     Template opslaan
@@ -628,6 +509,7 @@ export function ActivationDashboardClient({
                   }`}
                   key={mode}
                   onClick={() => setInviteMode(mode)}
+                  disabled
                   type="button"
                 >
                   {mode}
@@ -636,7 +518,8 @@ export function ActivationDashboardClient({
             </div>
             <div className="pt-5">
               <button
-                className="w-full rounded-lg bg-[#0E5A75] py-3 text-sm font-bold text-white shadow-md transition-colors hover:bg-[#0A4B61]"
+                className="w-full rounded-lg bg-slate-300 py-3 text-sm font-bold text-white shadow-md"
+                disabled
                 type="button"
               >
                 Verstuur uitnodigingen
@@ -650,10 +533,30 @@ export function ActivationDashboardClient({
         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="mb-6 font-headline text-lg font-bold">Tijdlijn</h2>
           <div className="relative space-y-6 before:absolute before:bottom-2 before:left-[11px] before:top-2 before:w-px before:bg-slate-200">
-            <TimelineItem active icon={<Check className="h-3.5 w-3.5" />} label="Eerste uitnodiging verstuurd" text="12 Apr 2024 · 09:00 AM" />
-            <TimelineItem active icon={<Check className="h-3.5 w-3.5" />} label="Eerste herinnering (automatisch)" text="15 Apr 2024 · 10:30 AM" />
-            <TimelineItem icon={<Mail className="h-3.5 w-3.5" />} label="Laatste herinnering gepland" primary text="21 Apr 2024 · 09:00 AM" />
-            <TimelineItem disabled icon={<LockKeyhole className="h-3.5 w-3.5" />} label="Scan sluit en wordt vergrendeld" text="23 Apr 2024 · 11:59 PM" />
+            <TimelineItem
+              active={Boolean(metrics.latestWaveStartsAt)}
+              icon={<Check className="h-3.5 w-3.5" />}
+              label="Scanronde gestart"
+              text={formatDutchDateTime(metrics.latestWaveStartsAt)}
+            />
+            <TimelineItem
+              active={metrics.completedRuns > 0}
+              icon={<Check className="h-3.5 w-3.5" />}
+              label="Reacties ontvangen"
+              text={`${metrics.completedRuns} afgerond`}
+            />
+            <TimelineItem
+              icon={<Mail className="h-3.5 w-3.5" />}
+              label="Open survey-sessies"
+              primary={notResponded > 0}
+              text={`${notResponded} nog open`}
+            />
+            <TimelineItem
+              disabled={!metrics.latestWaveEndsAt}
+              icon={<LockKeyhole className="h-3.5 w-3.5" />}
+              label="Scanronde eindigt"
+              text={formatDutchDateTime(metrics.latestWaveEndsAt)}
+            />
           </div>
         </div>
 
@@ -856,6 +759,7 @@ function OrgCard({
                   onChange={(event) => onChange(key, event.target.value)}
                   value={form[key]}
                 >
+                  <option value="">Niet ingesteld</option>
                   {[
                     "Financial Services",
                     "Healthcare",
@@ -877,7 +781,7 @@ function OrgCard({
               )
             ) : (
               <div className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-800">
-                {type === "date" ? formatDutchDate(form[key]) : form[key]}
+                {formatOrgFieldValue(form[key], type)}
               </div>
             )}
           </div>
@@ -890,14 +794,21 @@ function OrgCard({
 
 function ActionButton({
   children,
+  disabled = false,
   icon,
 }: {
   children: ReactNode;
+  disabled?: boolean;
   icon: ReactNode;
 }) {
   return (
     <button
-      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 transition-all hover:bg-slate-50"
+      className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold transition-all ${
+        disabled
+          ? "cursor-not-allowed bg-slate-100 text-slate-400"
+          : "bg-white text-slate-700 hover:bg-slate-50"
+      }`}
+      disabled={disabled}
       type="button"
     >
       {icon}
@@ -1044,4 +955,21 @@ function formatDutchDate(value: string) {
     month: "long",
     year: "numeric",
   }).format(new Date(year, month - 1, day));
+}
+
+function formatOrgFieldValue(value: string, type: string) {
+  if (!value) return "Niet ingesteld";
+  return type === "date" ? formatDutchDate(value) : value;
+}
+
+function formatDutchDateTime(value: string | null) {
+  if (!value) return "Nog niet gepland";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+
+  return new Intl.DateTimeFormat("nl-NL", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
 }

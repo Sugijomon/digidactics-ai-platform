@@ -1,7 +1,8 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 const SUPABASE_RPC_ROUTE = "**/rest/v1/rpc/**";
 const SURVEY_SESSION_STORAGE_KEY = "sai.respondent.session";
+const E2E_WAVE_TOKEN = "sai-smoke-wave-token";
 
 test("respondent can complete the current SAI survey flow with one tool", async ({
   page,
@@ -11,7 +12,7 @@ test("respondent can complete the current SAI survey flow with one tool", async 
   await mockSupabaseRpc(page);
   await page.goto("/survey");
   await page.evaluate(() => window.sessionStorage.clear());
-  await page.getByRole("button", { name: "Start de scan" }).click();
+  await startSurvey(page);
 
   await expect(page).toHaveURL(/\/survey\/profile$/, { timeout: 30_000 });
   await page.locator('input[value="marketing_communicatie"]').check();
@@ -145,7 +146,7 @@ test("respondent with no current AI tools skips the toolpicker", async ({
   await mockSupabaseRpc(page);
   await page.goto("/survey");
   await page.evaluate(() => window.sessionStorage.clear());
-  await page.getByRole("button", { name: "Start de scan" }).click();
+  await startSurvey(page);
 
   await expect(page).toHaveURL(/\/survey\/profile$/, { timeout: 30_000 });
   await page.locator('input[value="operations"]').check();
@@ -190,7 +191,7 @@ test("respondent can resume an active scan from the start page", async ({
   await mockSupabaseRpc(page);
   await page.goto("/survey");
   await page.evaluate(() => window.sessionStorage.clear());
-  await page.getByRole("button", { name: "Start de scan" }).click();
+  await startSurvey(page);
 
   await expect(page).toHaveURL(/\/survey\/profile$/, { timeout: 30_000 });
   await page.locator('input[value="operations"]').check();
@@ -231,7 +232,7 @@ test("start page explains inactive or expired access codes", async ({
 
   await page.goto("/survey");
   await page.evaluate(() => window.sessionStorage.clear());
-  await page.getByRole("button", { name: "Start de scan" }).click();
+  await startSurvey(page, "inactive-wave-token");
 
   await expect(
     page.getByText("Deze toegangscode is niet actief of verlopen."),
@@ -297,6 +298,11 @@ async function seedCompletedSurveySession(page: import("@playwright/test").Page)
       }),
     );
   }, SURVEY_SESSION_STORAGE_KEY);
+}
+
+async function startSurvey(page: Page, waveToken = E2E_WAVE_TOKEN) {
+  await page.getByLabel("Toegangscode").fill(waveToken);
+  await page.getByRole("button", { name: "Start de scan" }).click();
 }
 
 async function mockSupabaseRpc(page: import("@playwright/test").Page) {

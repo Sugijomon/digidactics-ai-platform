@@ -1,5 +1,63 @@
 # Domain Decisions
 
+## 2026-07-08 - SAI Production Readiness Uses Evidence Foundation Planes
+
+SAI production-readiness must now be checked against the Evidence Foundation
+information architecture documented in
+`docs/architecture/evidence-foundation-principles.md` and governed by
+`docs/adr/architecture-decision-register.md`:
+
+- Record plane: operational scan records, role membership, tool use, risk
+  results, review items, and report metadata.
+- Evidence plane: immutable scoring/config/policy snapshots, audit events,
+  export audit trail, ledger/version pinning, and reproducible evidence for
+  governance decisions.
+- Future intelligence plane: longitudinal learning, richer RouteAI governance,
+  agentic governance, and AI-rijbewijs patterns for agents.
+
+SAI may go to pilot/production when the record plane is stable and the evidence
+plane has enough auditability for scan results, DPO review, scoring versioning,
+and report/export decisions. Future intelligence features remain roadmap unless
+explicitly scoped into implementation.
+
+Evidence ledger and version pinning are the technical bridge from SAI to the
+broader RouteAI/RAI platform. They should be introduced through controlled
+migrations and documented product decisions, not by reshaping current SAI pilot
+tables ad hoc. Agentic governance and an AI-rijbewijs for agents are roadmap
+concepts; current SAI handling of agentic usage remains a risk/exposure signal
+and review trigger, not a full agent governance workflow.
+
+Operational constraints:
+
+- Do not merge PR #3 or Evidence Foundation branches without explicit
+  permission.
+- Do not run production Supabase migrations without an explicit go/no-go.
+- Because the production Supabase migration ledger can differ from the repo
+  ledger, never apply a naive `db push` to production.
+
+## 2026-07-09 - Local Supabase Rebuild Represents Legacy User Roles Dependency
+
+The SAI RLS helpers and dashboard role resolution rely on the legacy
+`public.user_roles` table. Live/staging projects already had this table, but a
+clean local Supabase rebuild from repository migrations failed before the RLS
+policy migration because the table was not represented in the migration ledger.
+
+Migration `20260504119000_create_legacy_user_roles_dependency.sql` explicitly
+bootstraps the minimal legacy dependency before RLS policies are applied:
+`id`, `user_id`, `org_id`, `role`, `created_at`, and `UNIQUE (user_id, role)`.
+It also creates the neutral platform administration organization used as the
+default `org_id` for global roles such as `super_admin`.
+
+Migration `20260522113000_harden_rpc_grants_and_user_roles_rls.sql` also keeps
+the legacy `rls_auto_enable()` hardening revoke guarded with `to_regprocedure`.
+Some live-derived environments had that helper; a clean local rebuild from the
+current repo does not.
+
+These changes are not a new permission model and do not broaden production
+access. RLS policies and grants for `user_roles` remain defined by the later
+hardening migrations. The purpose is reproducible local/staging validation from
+GitHub as the source of truth.
+
 ## 2026-05-27 - DPO Dashboard HTML Parity Uses Live Data Equivalents
 
 The SAI DPO dashboard pages should follow the high-fidelity HTML references as
@@ -101,6 +159,44 @@ org_id:       00000000-0000-0000-0000-000000000101
 DPO/dashboard test users should be created in Supabase Auth and then linked to
 this organization through `public.user_roles`. The dashboard should be inspected
 against persisted Supabase rows, not hard-coded production component mock data.
+
+## 2026-07-09 - SAI Staging Grant And RLS Hardening
+
+SAI production readiness requires the Postgres grant layer to match the RLS
+and RPC design. Respondents must not have direct table write grants on
+`survey_run`, `survey_tool`, or related survey answer tables. Anonymous survey
+writes remain RPC-only through the token-validated respondent functions.
+
+Public reference tables are part of the exposed Supabase `public` schema and
+therefore must have RLS enabled even when the data is low sensitivity.
+Authenticated users may read reference values. Reference writes remain
+super-admin-only through explicit RLS policies.
+
+`SECURITY DEFINER` functions in `public` are treated as an explicit API surface:
+respondent RPCs stay callable by `anon` and `authenticated`; dashboard/RLS
+helpers and DPO/admin wrappers stay `authenticated`-only where they validate
+`auth.uid()` and organization role context; internal token/scoring helpers and
+auth triggers are not directly callable by API roles. Learning-system functions
+that are not defined in this repository are not granted by the SAI allowlist;
+their API surface must be re-established only by a reviewed learning-system
+release migration. Remaining `authenticated` advisor warnings for reviewed SAI
+helpers are accepted for this SAI release shape, but moving internal helpers
+out of the exposed `public` schema remains a future hardening path.
+
+Ambassador opt-in e-mail rows contain respondent contact data and are not
+directly readable through the API in this release shape. They are written by the
+token-validated respondent RPC and reserved for service-role or a future
+explicit DPO/admin workflow. Direct API deletion of survey runs is also out of
+scope for this release shape.
+
+SAI `dpo_review_items` foreign keys now have supporting indexes for release
+readiness. Learning-system foreign-key advisor warnings on mixed development
+branches are not SAI production blockers, but they must be handled before a
+learning-system release gate.
+
+Synthetic pilot fixture data must remain local/staging opt-in. The fixture now
+requires `app.environment` to be set to `local` or `staging` in the SQL session
+and must fail closed when copied into an unmarked database session.
 
 ## 2026-05-22 - V8.1 SQL/TypeScript Scoring Parity
 

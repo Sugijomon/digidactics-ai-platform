@@ -398,6 +398,31 @@ Supabase Auth must allow the local callback URL during development:
 http://localhost:3010/auth/callback
 ```
 
+### Canonical local URL and learning routes
+
+The RAI app uses `http://localhost:3010` as the canonical local base URL in
+documentation, bookmarks, test instructions, and Supabase Auth configuration.
+Start the app on that port with:
+
+```powershell
+npm --workspace @digidactics/rai run dev -- -p 3010
+```
+
+The learner routes distinguish the course landing page from the lesson player:
+
+- `/learning` is the course and microlearning catalog.
+- `/learning/[courseCode]` is a course landing page with course structure and
+  learner progress.
+- `/learning/[courseCode]/[lessonCode]` is the lesson player for one course
+  page.
+
+The brackets indicate route parameters and are not part of a real URL. For
+example, the Human in the Loop lesson is available locally at
+`http://localhost:3010/learning/ai-literacy-foundation/human-in-the-loop`.
+
+The maintained route overview, including admin and content-editor routes, is in
+[`docs/rai-learning-system-urls.md`](./rai-learning-system-urls.md).
+
 Once login succeeds, the Learning System can write enrollments and lesson
 progress through the existing server actions.
 

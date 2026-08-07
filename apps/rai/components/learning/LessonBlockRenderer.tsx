@@ -1,5 +1,8 @@
 import type { ReactNode } from "react";
-import type { LessonBlock } from "@digidactics/domain/learning";
+import type {
+  LessonBlock,
+  OrganizationContextBlock,
+} from "@digidactics/domain/learning";
 import { AudioBlockPlayer } from "@/components/learning/AudioBlockPlayer";
 import { DownloadBlockPlayer } from "@/components/learning/DownloadBlockPlayer";
 import { IframeBlockPlayer } from "@/components/learning/IframeBlockPlayer";
@@ -498,9 +501,135 @@ export function LessonBlockRenderer({ block }: { block: LessonBlock }) {
     case "slide_deck":
       return <SlideDeckPlayer block={block} />;
 
+    case "organization_context":
+      return <OrganizationContextPanel block={block} />;
+
     default:
       return null;
   }
+}
+
+function OrganizationContextPanel({ block }: { block: OrganizationContextBlock }) {
+  const content = getOrganizationContextPresentation(block);
+  const hasContext = block.resolved_context != null;
+
+  return (
+    <section className={`block organization-context-block${hasContext ? " is-resolved" : " is-fallback"}`}>
+      <div className="organization-context-heading">
+        <span className="organization-context-label">Jouw organisatie</span>
+        {block.context_pack_release ? (
+          <span className="organization-context-version">
+            Contextversie {block.context_pack_release.version}
+          </span>
+        ) : null}
+      </div>
+      <h2>{content.title}</h2>
+      {content.description ? <p>{content.description}</p> : null}
+      {content.items.length ? (
+        <ul>
+          {content.items.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      ) : null}
+      {content.link ? (
+        <a href={content.link.url} rel="noreferrer" target="_blank">
+          {content.link.label}
+        </a>
+      ) : null}
+      {block.acknowledgement_required && hasContext && block.context_pack_release ? (
+        <label className="organization-context-acknowledgement">
+          <input
+            name="contextAcknowledgement"
+            required
+            type="checkbox"
+            value={block.context_pack_release.id}
+          />
+          <span>Ik heb deze organisatieafspraken gelezen en weet waar ik vragen of twijfel meld.</span>
+        </label>
+      ) : null}
+    </section>
+  );
+}
+
+function getOrganizationContextPresentation(block: OrganizationContextBlock): {
+  title: string;
+  description: string;
+  items: string[];
+  link: { label: string; url: string } | null;
+} {
+  const fallback = {
+    title: organizationContextTitle(block.slot),
+    description: block.fallback,
+    items: [],
+    link: null,
+  };
+
+  if (!block.resolved_context) {
+    return fallback;
+  }
+
+  switch (block.slot) {
+    case "approved_tools": {
+      const tools = block.resolved_context as Array<{ name: string; guidance?: string }>;
+      return {
+        ...fallback,
+        description: "Gebruik voor je werk alleen de hieronder vastgelegde AI-tools en voorwaarden.",
+        items: tools.map((tool) => tool.guidance ? `${tool.name} - ${tool.guidance}` : tool.name),
+      };
+    }
+    case "data_rules":
+    case "oversight_roles":
+      return { ...fallback, description: "", items: block.resolved_context as string[] };
+    case "policy_link": {
+      const policy = block.resolved_context as { label: string; url: string };
+      return { ...fallback, description: "Open het actuele interne beleid.", link: policy };
+    }
+    case "escalation_route": {
+      const route = block.resolved_context as {
+        summary?: string;
+        steps?: string[];
+        contact_role?: string;
+        contact_email?: string;
+      };
+      const contact = [route.contact_role, route.contact_email].filter(Boolean).join(": ");
+      return {
+        ...fallback,
+        description: route.summary ?? "Volg bij twijfel de interne meld- en escalatieroute.",
+        items: [...(route.steps ?? []), ...(contact ? [contact] : [])],
+      };
+    }
+    case "sector_case": {
+      const sectorCase = block.resolved_context as { title: string; description: string };
+      return { ...fallback, title: sectorCase.title, description: sectorCase.description };
+    }
+    case "role_cases": {
+      const roleCases = block.resolved_context as Array<{
+        role: string;
+        title: string;
+        description: string;
+      }>;
+      return {
+        ...fallback,
+        description: "Kies de situatie die het beste bij jouw rol of afdeling past.",
+        items: roleCases.map((roleCase) => `${roleCase.role} - ${roleCase.title}: ${roleCase.description}`),
+      };
+    }
+  }
+}
+
+function organizationContextTitle(slot: OrganizationContextBlock["slot"]) {
+  const labels: Record<OrganizationContextBlock["slot"], string> = {
+    approved_tools: "Goedgekeurde AI-tools",
+    data_rules: "Interne data-afspraken",
+    policy_link: "Intern AI-beleid",
+    escalation_route: "Melden en escaleren",
+    oversight_roles: "Rollen voor menselijk toezicht",
+    sector_case: "Praktijkcase uit jouw organisatie",
+    role_cases: "Cases voor rollen en afdelingen",
+  };
+
+  return labels[slot];
 }
 
 function Heading({ children, level }: { children: ReactNode; level: 1 | 2 | 3 | 4 | 5 | 6 }) {

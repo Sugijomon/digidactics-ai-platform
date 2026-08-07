@@ -97,6 +97,7 @@ export async function completeAiLiteracyPage(formData: FormData) {
 
   const supabase = await requireSupabaseClient();
   const learner = await requireLearnerContext(supabase);
+  await ensureCourseEnrollment(supabase, learner, courseId);
 
   const { data: page, error: pageError } = await supabase
     .from("learning_pages")
@@ -190,6 +191,14 @@ export async function completeAiLiteracyPage(formData: FormData) {
   }
 
   await upsertCourseProgress(supabase, learner, courseId);
+  await persistOrganizationContextAcknowledgement({
+    supabase,
+    learner,
+    courseId,
+    pageId,
+    formData,
+    content: page.content,
+  });
 
   revalidatePath("/learning");
   revalidatePath(`/learning/${courseCode}`);
@@ -200,6 +209,97 @@ export async function completeAiLiteracyPage(formData: FormData) {
   }
 
   redirect(`/learning/${courseCode}`);
+}
+
+async function ensureCourseEnrollment(
+  supabase: SupabaseClient,
+  learner: LearnerContext,
+  courseId: string,
+) {
+  const { data: existingEnrollment, error: selectError } = await supabase
+    .from("learning_course_enrollments")
+    .select("id")
+    .eq("user_id", learner.userId)
+    .eq("course_id", courseId)
+    .maybeSingle<{ id: string }>();
+
+  if (selectError) {
+    throw new Error(`Cursusinschrijving controleren is mislukt: ${selectError.message}`);
+  }
+
+  if (existingEnrollment?.id) {
+    return;
+  }
+
+  const { error: insertError } = await supabase.from("learning_course_enrollments").insert({
+    org_id: learner.orgId,
+    user_id: learner.userId,
+    course_id: courseId,
+    status: "in_progress",
+    source: "onboarding",
+    started_at: new Date().toISOString(),
+    progress_percentage: 0,
+  });
+
+  if (insertError && insertError.code !== "23505") {
+    throw new Error(`Cursusinschrijving aanmaken is mislukt: ${insertError.message}`);
+  }
+}
+
+async function persistOrganizationContextAcknowledgement({
+  supabase,
+  learner,
+  courseId,
+  pageId,
+  formData,
+  content,
+}: {
+  supabase: SupabaseClient;
+  learner: LearnerContext;
+  courseId: string;
+  pageId: string;
+  formData: FormData;
+  content: LessonContent;
+}) {
+  const acknowledgementBlock = content.blocks.find(
+    (block) =>
+      block.type === "organization_context" && block.acknowledgement_required === true,
+  );
+  const acknowledgedContextPackId = String(formData.get("contextAcknowledgement") ?? "");
+
+  if (!acknowledgementBlock || !acknowledgedContextPackId) {
+    return;
+  }
+
+  const { data: enrollment, error: enrollmentError } = await supabase
+    .from("learning_course_enrollments")
+    .select("id, context_pack_release_id")
+    .eq("user_id", learner.userId)
+    .eq("course_id", courseId)
+    .maybeSingle<{ id: string; context_pack_release_id: string | null }>();
+
+  if (enrollmentError || !enrollment?.id) {
+    throw new Error("De organisatiebevestiging kan niet zonder enrollment worden opgeslagen.");
+  }
+
+  if (enrollment.context_pack_release_id !== acknowledgedContextPackId) {
+    throw new Error("De bevestigde organisatiecontext hoort niet bij deze cursusinschrijving.");
+  }
+
+  const { error } = await supabase.from("learning_context_acknowledgements").insert({
+    org_id: learner.orgId,
+    user_id: learner.userId,
+    enrollment_id: enrollment.id,
+    context_pack_release_id: acknowledgedContextPackId,
+    evidence_snapshot: {
+      page_id: pageId,
+      acknowledgement_block_id: acknowledgementBlock.id,
+    },
+  });
+
+  if (error && error.code !== "23505") {
+    throw new Error(`Organisatiebevestiging opslaan is mislukt: ${error.message}`);
+  }
 }
 
 export async function issueAiLiteracyCertification(formData: FormData) {
@@ -512,6 +612,7 @@ async function getCourseCertificationEligibility(
     .from("learning_pages")
     .select("id, content, is_required")
     .eq("course_id", courseId)
+    .eq("status", "published")
     .eq("is_required", true);
 
   if (pagesError) {

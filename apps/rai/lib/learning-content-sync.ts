@@ -41,12 +41,12 @@ async function syncCourseContentFromSource(
 ) {
   const { data: course, error: courseError } = await supabase
     .from("learning_courses")
-    .select("id, org_id")
+    .select("id, org_id, version")
     .eq("course_code", sourceCourse.course_code)
     .neq("status", "archived")
     .order("updated_at", { ascending: false })
     .limit(1)
-    .maybeSingle<{ id: string; org_id: string | null }>();
+    .maybeSingle<{ id: string; org_id: string | null; version: number }>();
 
   if (courseError || !course) {
     throw new Error(`${sourceCourse.title} cursus niet gevonden: ${courseError?.message ?? "geen cursus"}`);
@@ -111,7 +111,7 @@ async function syncCourseContentFromSource(
 
   const { data: existingPages, error: existingPagesError } = await supabase
     .from("learning_pages")
-    .select("id, topic_id, page_code, sequence_order, content")
+    .select("id, topic_id, page_code, sequence_order, content, version")
     .eq("course_id", course.id)
     .order("sequence_order", { ascending: true });
 
@@ -131,6 +131,7 @@ async function syncCourseContentFromSource(
       page_code: string;
       sequence_order: number;
       content: { blocks?: unknown[] } | null;
+      version: number;
     }>).map((page) => [page.page_code, page]),
   );
 
@@ -147,6 +148,11 @@ async function syncCourseContentFromSource(
         : [];
       const shouldBackfillContent = !existingPage || existingBlocks.length === 0;
       const shouldOverwriteContent = options.overwriteExistingContent || shouldBackfillContent;
+      const contentChanged = shouldOverwriteContent &&
+        stableJsonStringify(existingBlocks) !== stableJsonStringify(page.content.blocks);
+      const nextVersion = existingPage
+        ? existingPage.version + (contentChanged ? 1 : 0)
+        : 1;
 
       return {
         course_id: course.id,
@@ -163,10 +169,12 @@ async function syncCourseContentFromSource(
         content_schema_version: 1,
         content: shouldOverwriteContent
           ? {
-              version: 1,
+              version: nextVersion,
               blocks: page.content.blocks,
             }
           : existingPage.content,
+        version: nextVersion,
+        content_changed: contentChanged,
         updated_at: new Date().toISOString(),
       };
     }),
@@ -174,10 +182,25 @@ async function syncCourseContentFromSource(
 
   const { error: pageError } = await supabase
     .from("learning_pages")
-    .upsert(pageRows, { onConflict: "course_id,page_code" });
+    .upsert(
+      pageRows.map(({ content_changed: _contentChanged, ...row }) => row),
+      { onConflict: "course_id,page_code" },
+    );
 
   if (pageError) {
     throw new Error(`Pagina's synchroniseren is mislukt: ${pageError.message}`);
+  }
+
+  if (pageRows.some((page) => page.content_changed)) {
+    const { error: courseVersionError } = await supabase
+      .from("learning_courses")
+      .update({ version: course.version + 1, updated_at: new Date().toISOString() })
+      .eq("id", course.id)
+      .eq("version", course.version);
+
+    if (courseVersionError) {
+      throw new Error(`Cursusversie verhogen is mislukt: ${courseVersionError.message}`);
+    }
   }
 
   await archiveExtraPages(supabase, course.id, sourceCourse);
@@ -206,6 +229,7 @@ async function recordLearningContentSyncEvent(
   if (error) {
     throw new Error(`Content-sync event vastleggen is mislukt: ${error.message}`);
   }
+
 }
 
 function buildLearningContentSyncEvidence(sourceCourse: LearningCourseView) {

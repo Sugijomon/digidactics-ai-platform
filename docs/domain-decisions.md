@@ -1,5 +1,29 @@
 # Domain Decisions
 
+## 2026-08-05 - AI Literacy Uses A Fixed Core Plus Pinned Organization Context
+
+AI Literacy keeps one Git-canonical platform course. Customer-specific tools,
+data rules, policy links, escalation routes, oversight roles, and cases are not
+written into or forked from that core. They are published as immutable
+`learning_context_pack_releases` and composed into explicit
+`organization_context` slots at runtime.
+
+`learning_catalog.active_context_pack_id` selects the release for new learners.
+An enrollment pins that release in `context_pack_release_id`; later catalog
+changes do not change an in-progress learner's context. Core assessment,
+competencies, passing threshold, and certification meaning remain platform
+controlled. Reading the local policy is recorded separately in
+`learning_context_acknowledgements` and does not alter the core assessment.
+
+Attempts and certifications snapshot the core hash, Context Pack release/hash,
+used slots, and a deterministic composition-manifest hash. Certification rejects
+latest attempts whose core page hash or Context Pack pin no longer matches the
+enrollment. Rendered HTML is deliberately not hashed.
+
+Deferred: free-form page overrides, customer course forks, multiple packs per
+enrollment, sector-pack libraries, semantic version infrastructure, automatic
+effective-date workflows, and individual adaptive learning paths.
+
 ## 2026-05-27 - DPO Dashboard HTML Parity Uses Live Data Equivalents
 
 The SAI DPO dashboard pages should follow the high-fidelity HTML references as

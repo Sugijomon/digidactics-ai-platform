@@ -3,8 +3,11 @@ import "server-only";
 import { unstable_noStore as noStore } from "next/cache";
 import { getCurrentUserContext } from "@digidactics/auth";
 import {
+  applyOrganizationContextToContent,
+  isOrganizationContextPackContent,
   isLessonContent,
   sanitizeLessonContentForLearner,
+  type OrganizationContextPackRelease,
 } from "@digidactics/domain/learning";
 import {
   aiLiteracyPreviewCourse,
@@ -140,6 +143,13 @@ interface AttemptRow {
   submitted_at: string | null;
 }
 
+interface ContextPackRow {
+  id: string;
+  version: number;
+  content_hash: string;
+  context_json: unknown;
+}
+
 export async function getAiLiteracyCourse(courseCode = "ai-literacy-foundation"): Promise<LearningCourseView> {
   noStore();
   const previewCourse = getPreviewCourse(courseCode);
@@ -248,10 +258,13 @@ export async function getAiLiteracyCourse(courseCode = "ai-literacy-foundation")
       throw new Error("Learning pages could not be loaded.");
     }
 
-    return mergePreviewCourseContent({
+    return applyOrganizationContextToCourse(
+      mergePreviewCourseContent({
       ...course,
       ...mapTopicPageRows(topics, pageRows as unknown as PageRow[]),
-    });
+      }),
+      await getOrganizationContextPack(supabase, course.id),
+    );
   }
 
   const { data: legacyCourseLessonRows, error: legacyCourseLessonsError } =
@@ -298,13 +311,16 @@ export async function getAiLiteracyCourse(courseCode = "ai-literacy-foundation")
     throw new Error("Learning lesson content could not be loaded.");
   }
 
-  return mergePreviewCourseContent({
+  return applyOrganizationContextToCourse(
+    mergePreviewCourseContent({
     ...course,
     ...mapLegacyLessonRows(
       legacyCourseLessonRows as CourseLessonRow[],
       lessonRows as LessonRow[],
     ),
-  });
+    }),
+    await getOrganizationContextPack(supabase, course.id),
+  );
 }
 
 function getPreviewCourse(courseCode: string) {
@@ -367,6 +383,91 @@ function getPreviewPublishedCourses(): PublishedCourseCatalogItem[] {
 
 function mergePreviewCourseContent(course: LearningCourseView): LearningCourseView {
   return sanitizeLearningCourseForLearner(applyLocalLearningContentOverrides(course));
+}
+
+async function getOrganizationContextPack(
+  supabase: NonNullable<Awaited<ReturnType<typeof getSupabaseServerClient>>>,
+  courseId: string,
+): Promise<OrganizationContextPackRelease | null> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return null;
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("org_id")
+    .eq("id", user.id)
+    .maybeSingle<{ org_id: string | null }>();
+
+  if (!profile?.org_id) {
+    return null;
+  }
+
+  const { data: enrollment } = await supabase
+    .from("learning_course_enrollments")
+    .select("context_pack_release_id")
+    .eq("user_id", user.id)
+    .eq("course_id", courseId)
+    .maybeSingle<{ context_pack_release_id: string | null }>();
+
+  let contextPackId = enrollment?.context_pack_release_id ?? null;
+
+  if (!enrollment) {
+    const { data: catalog } = await supabase
+      .from("learning_catalog")
+      .select("active_context_pack_id")
+      .eq("org_id", profile.org_id)
+      .eq("course_id", courseId)
+      .eq("is_enabled", true)
+      .maybeSingle<{ active_context_pack_id: string | null }>();
+    contextPackId = catalog?.active_context_pack_id ?? null;
+  }
+
+  if (!contextPackId) {
+    return null;
+  }
+
+  const { data: contextPack } = await supabase
+    .from("learning_context_pack_releases")
+    .select("id, version, content_hash, context_json")
+    .eq("id", contextPackId)
+    .maybeSingle<ContextPackRow>();
+
+  if (!contextPack || !isOrganizationContextPackContent(contextPack.context_json)) {
+    return null;
+  }
+
+  return {
+    id: contextPack.id,
+    version: contextPack.version,
+    content_hash: contextPack.content_hash,
+    context_json: contextPack.context_json,
+  };
+}
+
+function applyOrganizationContextToCourse(
+  course: LearningCourseView,
+  contextPack: OrganizationContextPackRelease | null,
+): LearningCourseView {
+  const pages = course.pages.map((page) => ({
+    ...page,
+    content: applyOrganizationContextToContent(page.content, contextPack),
+  }));
+  const pageById = new Map(pages.map((page) => [page.id, page]));
+
+  return {
+    ...course,
+    context_pack_release: contextPack,
+    pages,
+    topics: course.topics.map((topic) => ({
+      ...topic,
+      pages: topic.pages.map((page) => pageById.get(page.id) ?? page),
+    })),
+  };
 }
 
 export async function getPublishedCourses(): Promise<PublishedCourseCatalogItem[]> {
@@ -670,7 +771,7 @@ export async function getLearnerState(
 
   const { data: enrollment } = await supabase
     .from("learning_course_enrollments")
-    .select("id, status, progress_percentage, started_at, completed_at")
+    .select("id, status, progress_percentage, started_at, completed_at, context_pack_release_id")
     .eq("course_id", course.id)
     .eq("user_id", user.id)
     .maybeSingle<LearningEnrollmentView>();

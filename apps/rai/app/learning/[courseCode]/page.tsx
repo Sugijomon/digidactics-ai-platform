@@ -153,6 +153,14 @@ function AiLiteracyFoundationLandingPage({
   const pages = getCoursePages(course);
   const remainingMinutes = Math.max(totalMinutes - Math.round((totalMinutes * progressPercent) / 100), 0);
   const startLabel = hasProgress ? "Ga verder met de training" : "Start direct met de training";
+  const progressStatusLabel =
+    learnerState.enrollment?.status === "completed"
+      ? "Intern rijbewijs behaald"
+      : progressPercent >= 100
+        ? "Training afgerond — review nodig"
+        : hasProgress
+          ? "Training gestart"
+          : "Nog niet gestart";
   const foundationSteps = [
     {
       title: "Wat is AI?",
@@ -226,7 +234,7 @@ function AiLiteracyFoundationLandingPage({
                 <span>RouteAI rijbewijs - verplicht</span>
                 <h2>AI-geletterdheid <span>certificaat</span></h2>
               </div>
-              <strong>{progressPercent >= 100 ? "Intern rijbewijs behaald" : hasProgress ? "Training gestart" : "Nog niet gestart"}</strong>
+              <strong>{progressStatusLabel}</strong>
             </div>
             <div>
               <div className="ai-license-progress-meta ai-license-progress-meta-spread">

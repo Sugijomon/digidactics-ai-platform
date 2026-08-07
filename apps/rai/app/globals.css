@@ -20131,3 +20131,60 @@ h6,
     display: none;
   }
 }
+
+.organization-context-block {
+  border: 1px solid #b9d8e5;
+  border-left: 5px solid #00658b;
+  border-radius: 18px;
+  background: #f3fbff;
+  padding: 22px 24px;
+}
+
+.organization-context-block.is-fallback {
+  border-color: #d7dee3;
+  border-left-color: #73808a;
+  background: #f7f9fa;
+}
+
+.organization-context-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.organization-context-label,
+.organization-context-version {
+  color: #00658b;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.organization-context-block ul {
+  margin: 14px 0 0;
+  padding-left: 22px;
+}
+
+.organization-context-block a {
+  display: inline-flex;
+  margin-top: 12px;
+  color: #00658b;
+  font-weight: 750;
+}
+
+.organization-context-acknowledgement {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 18px;
+  border-top: 1px solid #c9e2ec;
+  padding-top: 16px;
+  font-weight: 650;
+}
+
+.organization-context-acknowledgement input {
+  margin-top: 4px;
+}

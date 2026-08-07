@@ -1,12 +1,10 @@
 -- =============================================================================
--- Draft sync: AI Literacy Foundation 15-page content
+-- Generated sync: AI Literacy Foundation 15-page content
 -- =============================================================================
 -- Generated from apps/rai/lib/ai-literacy-foundation-content.ts.
 -- Purpose:
---   Reviewable concept-phase SQL for aligning Supabase learning_topics and
---   learning_pages with the current Course -> Topic -> Page -> JSONB blocks
---   AI Literacy design. Move this into supabase/migrations only after product
---   review of docs/learning-system-ai-literacy-audit.md.
+--   Align Supabase learning_topics and learning_pages with the current
+--   Course -> Topic -> Page -> JSONB blocks AI Literacy design.
 -- =============================================================================
 
 WITH course AS (
@@ -17,8 +15,10 @@ WITH course AS (
          difficulty_level = 'foundation',
          required_for_onboarding = true,
          passing_threshold = 80,
+         version = version + 1,
          updated_at = now()
    WHERE course_code = 'ai-literacy-foundation'
+     AND org_id IS NULL
    RETURNING id
 ),
 topic_seed AS (
@@ -110,6 +110,7 @@ WITH course AS (
   SELECT id
     FROM public.learning_courses
    WHERE course_code = 'ai-literacy-foundation'
+     AND org_id IS NULL
    LIMIT 1
 ),
 topics AS (
@@ -145,8 +146,40 @@ page_seed AS (
           "markdown": "Deze cursus is er omdat AI al in veel dagelijkse tools en processen zit. Je leert geen programmeercursus, maar een praktische basis: wat AI is, wanneer gebruik verstandig is, welke data je beschermt en hoe je output controleert voordat je die gebruikt."
         },
         {
+          "id": "p1-audience",
+          "type": "callout",
+          "tone": "info",
+          "markdown": "Deze basis geldt voor iedereen die namens de organisatie met AI werkt: medewerkers, leidinggevenden, tijdelijke krachten, freelancers, consultants en externe partners die AI gebruiken in onze processen of communicatie."
+        },
+        {
+          "id": "p1-offloading",
+          "type": "knowledge_cards",
+          "cards": [
+            {
+              "id": "concept",
+              "title": "AI-output is concept, geen besluit",
+              "text": "Een AI-antwoord kan bruikbaar klinken en toch fouten, aannames of ontbrekende context bevatten. Behandel output als concept dat jij controleert."
+            },
+            {
+              "id": "offloading",
+              "title": "Let op cognitieve ontlasting",
+              "text": "Onder tijdsdruk is het verleidelijk om denkwerk aan AI over te laten. Juist dan check je feiten, data, impact en bevoegdheid."
+            },
+            {
+              "id": "accountability",
+              "title": "Jij blijft aanspreekbaar",
+              "text": "Wie output gebruikt in werk, blijft verantwoordelijk voor de keuze om die output wel, niet of aangepast te gebruiken."
+            }
+          ]
+        },
+        {
           "id": "p1-baseline",
           "type": "progress_check",
+          "competency_codes": [
+            "C1_AI_HERKENNEN",
+            "C2_CONTEXT_BEGRIJPEN"
+          ],
+          "evidence_kind": "self_check",
           "question": "Ik kan AI in mijn werk al veilig gebruiken.",
           "scale": 5,
           "label_low": "Ik twijfel vaak",
@@ -248,6 +281,50 @@ page_seed AS (
           "right_color": "#e7f8f5"
         },
         {
+          "id": "p2-rich-html-wel-geen-ai-schema",
+          "type": "iframe",
+          "title": "Interactief schema: wel of geen AI?",
+          "url": "/learning/artefacts/05-wel-geen-ai-schema.html",
+          "height": 560,
+          "caption": "Gebruik dit schema om AI, automatisering en gewone software sneller uit elkaar te houden.",
+          "provider": "Digidactics HTML",
+          "allow_fullscreen": true,
+          "evidence_kind": "none",
+          "required_for_certificate": false,
+          "source_status": "internal_standard"
+        },
+        {
+          "id": "p2-ai-classifier",
+          "type": "scenario",
+          "competency_codes": [
+            "C1_AI_HERKENNEN",
+            "C2_CONTEXT_BEGRIJPEN"
+          ],
+          "evidence_kind": "self_check",
+          "situation": "Je ziet drie tools: een spellingcorrector met vaste regels, een CRM dat klantkans voorspelt en een AI-schrijfassistent die zelf tekst genereert.",
+          "question": "Welke reactie laat zien dat je AI in de werkcontext herkent?",
+          "choices": [
+            {
+              "id": "all-ai",
+              "label": "Alles met slimme software is AI.",
+              "consequence": "Te breed. Niet elke automatisering gebruikt AI of leert uit patronen.",
+              "is_recommended": false
+            },
+            {
+              "id": "context",
+              "label": "Ik kijk of de tool voorspelt, genereert, classificeert of keuzes beinvloedt.",
+              "consequence": "Goed. Je kijkt naar de werking en invloed op werk, niet alleen naar de marketingnaam.",
+              "is_recommended": true
+            },
+            {
+              "id": "chatbot-only",
+              "label": "Alleen chatbots tellen als AI.",
+              "consequence": "Te smal. AI kan ook in CRM, HR, planning, dashboards of supporttools zitten.",
+              "is_recommended": false
+            }
+          ]
+        },
+        {
           "id": "p2-paragraph",
           "type": "paragraph",
           "markdown": "AI is niet alleen een chatbot. Ook een CRM dat kansen voorspelt, een HR-tool die kandidaten rangschikt of een supporttool die klantvragen prioriteert kan AI bevatten. De eerste vaardigheid is herkennen wanneer software invloed krijgt op keuzes, prioriteiten of mensen."
@@ -288,6 +365,11 @@ page_seed AS (
         {
           "id": "p2-checklist",
           "type": "checklist",
+          "competency_codes": [
+            "C1_AI_HERKENNEN",
+            "C2_CONTEXT_BEGRIJPEN"
+          ],
+          "evidence_kind": "self_check",
           "title": "Signalen dat er AI in het spel kan zijn",
           "items": [
             {
@@ -387,6 +469,32 @@ page_seed AS (
           "right_color": "#e7f8f5"
         },
         {
+          "id": "p3-role-chain",
+          "type": "knowledge_cards",
+          "cards": [
+            {
+              "id": "provider",
+              "title": "Provider",
+              "text": "De partij die een AI-systeem ontwikkelt, aanbiedt of onder eigen naam op de markt brengt."
+            },
+            {
+              "id": "deployer",
+              "title": "Deployer",
+              "text": "De organisatie die een AI-systeem inzet in een eigen werkproces. Veel MKB-organisaties zijn vooral deployer."
+            },
+            {
+              "id": "user",
+              "title": "Gebruiker",
+              "text": "De medewerker of externe die AI concreet gebruikt voor een taak namens de organisatie."
+            },
+            {
+              "id": "owner",
+              "title": "Proceseigenaar",
+              "text": "De persoon die doel, datagrens, review en escalatie voor een AI-use case organiseert."
+            }
+          ]
+        },
+        {
           "id": "p3-risk",
           "type": "progress_check",
           "question": "Ik weet wanneer ik met AI moet stoppen of escaleren.",
@@ -406,6 +514,12 @@ page_seed AS (
           "placeholder": "Bijvoorbeeld privacy, verkeerde output, toon, HR-impact of klantimpact.",
           "min_words": 15,
           "guidance": "Een goed antwoord benoemt een concreet risico in jouw eigen werkcontext."
+        },
+        {
+          "id": "p3-org-tools",
+          "type": "organization_context",
+          "slot": "approved_tools",
+          "fallback": "Je organisatie heeft hier nog geen tooloverzicht gepubliceerd. Vraag welke AI-tools en accounts voor jouw werk zijn goedgekeurd."
         },
         {
           "id": "p3-takeaways",
@@ -441,19 +555,117 @@ page_seed AS (
         {
           "id": "p4-paragraph",
           "type": "paragraph",
+          "source_ids": [
+            "SRC-EU-AIACT-NL",
+            "SRC-EC-QA"
+          ],
+          "source_status": "current_law",
+          "last_verified_at": "2026-05-29",
+          "legal_review_required": true,
+          "target_cefr": "B1+",
           "markdown": "Article 4 van de EU AI Act vraagt van organisaties dat mensen die AI gebruiken voldoende AI literacy hebben. Wat voldoende is, hangt af van rol, ervaring, context, risico en de personen op wie AI invloed kan hebben."
         },
         {
-          "id": "p4-image",
-          "type": "image",
-          "url": "/learning/ai-act-risk-pyramid.svg",
-          "alt": "Risicopiramide met verboden, hoog-risico, transparantie en laag risico",
-          "caption": "Hoe hoger de impact, hoe zwaarder toezicht en controle.",
-          "width": "full"
+          "id": "p4-ai-act-timeline",
+          "type": "timeline",
+          "source_ids": [
+            "SRC-EU-AIACT-NL",
+            "SRC-EC-QA",
+            "SRC-EP-OMNIBUS",
+            "SRC-COUNCIL-OMNIBUS"
+          ],
+          "source_status": "provisional_agreement",
+          "last_verified_at": "2026-05-29",
+          "provisional": true,
+          "legal_review_required": true,
+          "title": "AI Act status en planning",
+          "items": [
+            {
+              "id": "article-4-start",
+              "date": "2 feb 2025",
+              "title": "AI literacy verplichting van toepassing",
+              "description": "Organisaties moeten passende AI-geletterdheidsmaatregelen organiseren voor wie namens hen met AI werkt.",
+              "highlight": true
+            },
+            {
+              "id": "enforcement",
+              "date": "2 aug 2026",
+              "title": "Toezicht en handhaving breder actief",
+              "description": "Gebruik dit als planningsanker voor aantoonbaarheid, training en Evidence Dossier.",
+              "highlight": true
+            },
+            {
+              "id": "provisional-high-risk-standalone",
+              "date": "Voorlopig: 2 dec 2027",
+              "title": "Stand-alone high-risk planning",
+              "description": "Voorlopig Omnibus-akkoord; nog laten valideren na formele adoptie/publicatie.",
+              "highlight": false
+            },
+            {
+              "id": "provisional-high-risk-embedded",
+              "date": "Voorlopig: 2 aug 2028",
+              "title": "Product-embedded high-risk planning",
+              "description": "Voorlopig Omnibus-akkoord; niet als definitieve wettekst gebruiken.",
+              "highlight": false
+            }
+          ]
+        },
+        {
+          "id": "p4-risicopiramide-embed",
+          "type": "iframe",
+          "title": "Risicopiramide: klik op een laag",
+          "url": "/learning/artefacts/01-risicopiramide.html",
+          "height": 380,
+          "caption": "Klik door de risiconiveaus en koppel ze aan voorbeelden uit de werkcontext.",
+          "provider": "Digidactics HTML",
+          "allow_fullscreen": true,
+          "evidence_kind": "none",
+          "required_for_certificate": false,
+          "source_status": "internal_standard"
+        },
+        {
+          "id": "p4-risk-pyramid-layers",
+          "type": "accordion",
+          "source_ids": [
+            "SRC-EU-AIACT-NL",
+            "SRC-EC-QA"
+          ],
+          "source_status": "current_law",
+          "last_verified_at": "2026-05-29",
+          "legal_review_required": true,
+          "target_cefr": "B1+",
+          "title": "Risicopiramide in gewone taal",
+          "allow_multiple_open": true,
+          "items": [
+            {
+              "id": "prohibited",
+              "question": "Verboden: stop en escaleer",
+              "answer": "Toepassingen die mensen manipuleren, kwetsbaarheid uitbuiten of verboden vormen van beoordeling gebruiken horen niet in een los experiment thuis. Medewerkers stoppen en schakelen de aangewezen route in."
+            },
+            {
+              "id": "high-risk",
+              "question": "Hoog risico: alleen met duidelijke waarborgen",
+              "answer": "Denk aan HR, toegang tot diensten, krediet, onderwijs of andere situaties met serieuze impact op personen. Hier zijn beleid, controle, documentatie en menselijk toezicht nodig."
+            },
+            {
+              "id": "transparency",
+              "question": "Transparantie: mensen moeten weten waar ze aan toe zijn",
+              "answer": "Bij chatbots, gegenereerde content of AI-ondersteunde communicatie kan het nodig zijn duidelijk te maken dat AI is gebruikt of dat output gecontroleerd moet worden."
+            },
+            {
+              "id": "minimal",
+              "question": "Laag of minimaal risico: nog steeds controleren",
+              "answer": "Een algemene tekst verbeteren of ideeen ordenen is vaak lager risico, maar privacy, broncheck en menselijke verantwoordelijkheid blijven gelden."
+            }
+          ]
         },
         {
           "id": "p4-comparison",
           "type": "comparison",
+          "competency_codes": [
+            "C2_CONTEXT_BEGRIJPEN",
+            "C3_RISICO_ROLBEWUSTZIJN"
+          ],
           "title": "Van wettelijk minimum naar dagelijkse praktijk",
           "left_label": "AI Act vraagt",
           "right_label": "Jij doet",
@@ -529,6 +741,20 @@ page_seed AS (
         {
           "id": "p5-cards",
           "type": "knowledge_cards",
+          "source_ids": [
+            "SRC-EU-AIACT-NL",
+            "SRC-EP-OMNIBUS",
+            "SRC-COUNCIL-OMNIBUS"
+          ],
+          "source_status": "provisional_agreement",
+          "last_verified_at": "2026-05-29",
+          "provisional": true,
+          "legal_review_required": true,
+          "review_required": true,
+          "review_tags": [
+            "legal",
+            "ai_act"
+          ],
           "cards": [
             {
               "id": "prohibited",
@@ -546,9 +772,69 @@ page_seed AS (
               "text": "Soms moeten mensen weten dat AI is gebruikt, bijvoorbeeld bij interactie, content of besluitondersteuning."
             },
             {
+              "id": "deepfake-misuse",
+              "title": "Nooit: intieme of misleidende beelden",
+              "text": "AI inzetten om intieme beelden te maken, bewerken of verspreiden zonder toestemming, of om mensen misleidend na te bootsen, is een directe stop- en escalatiesituatie."
+            },
+            {
               "id": "low",
               "title": "Laag of minimaal risico",
               "text": "Bijvoorbeeld een algemene tekst verbeteren zonder gevoelige data of impact op mensen. Ook dan blijft outputcontrole nodig."
+            }
+          ]
+        },
+        {
+          "id": "p5-rich-html-verboden-hoog-risico-transparantie",
+          "type": "iframe",
+          "title": "Infographic: verboden, hoog risico en transparantie",
+          "url": "/learning/artefacts/07-verboden-hoog-risico-transparantie.html",
+          "height": 520,
+          "caption": "Een visuele samenvatting van de drie categorieen die medewerkers in de praktijk moeten herkennen.",
+          "provider": "Digidactics HTML",
+          "allow_fullscreen": true,
+          "evidence_kind": "none",
+          "required_for_certificate": false,
+          "source_status": "internal_standard"
+        },
+        {
+          "id": "p5-risk-columns",
+          "type": "accordion",
+          "source_ids": [
+            "SRC-EU-AIACT-NL",
+            "SRC-EP-OMNIBUS",
+            "SRC-COUNCIL-OMNIBUS"
+          ],
+          "source_status": "provisional_agreement",
+          "last_verified_at": "2026-05-29",
+          "provisional": true,
+          "legal_review_required": true,
+          "review_required": true,
+          "review_tags": [
+            "legal",
+            "ai_act"
+          ],
+          "title": "Verboden, hoog-risico of transparantie?",
+          "allow_multiple_open": true,
+          "items": [
+            {
+              "id": "article-5",
+              "question": "Verboden rode vlaggen",
+              "answer": "Voorbeelden: sociale scoring door overheid, manipulatieve technieken, kwetsbaarheid uitbuiten of emoties herkennen op de werkvloer/onderwijscontext waar dat verboden of zeer risicovol is. Als medewerker: niet zelf doorzetten, maar stoppen en escaleren."
+            },
+            {
+              "id": "high-risk",
+              "question": "Mogelijk hoog-risico",
+              "answer": "Voorbeelden: AI in werving/selectie, beoordeling van medewerkers, toegang tot krediet, onderwijs of essentiële diensten. Als medewerker: beleid, risicobeoordeling, menselijke controle en goedkeuring nodig."
+            },
+            {
+              "id": "transparency",
+              "question": "Transparantieplicht",
+              "answer": "Voorbeelden: chatbotcontact, AI-gegenereerde content of deepfake-achtige media. Als medewerker: maak AI-gebruik waar nodig duidelijk en controleer of communicatie niet misleidt."
+            },
+            {
+              "id": "non-consensual-media",
+              "question": "Non-consensuele of misleidende media",
+              "answer": "AI gebruiken voor intieme beelden zonder toestemming, identiteitsmisbruik of misleidende deepfake-achtige content hoort niet thuis in werkprocessen. Stop, deel niet verder en escaleer via de afgesproken route."
             }
           ]
         },
@@ -580,6 +866,11 @@ page_seed AS (
         {
           "id": "p5-reflection",
           "type": "reflection",
+          "competency_codes": [
+            "C3_RISICO_ROLBEWUSTZIJN",
+            "C8_ESCALATIE_BEWIJS"
+          ],
+          "evidence_kind": "reflection",
           "prompt": "Welke rode vlag zou in jouw afdeling kunnen voorkomen?",
           "placeholder": "Denk aan HR, klanten, gevoelige data, juridische context of financiele impact.",
           "min_words": 25,
@@ -598,6 +889,11 @@ page_seed AS (
         {
           "id": "p5-scenario",
           "type": "scenario",
+          "competency_codes": [
+            "C3_RISICO_ROLBEWUSTZIJN",
+            "C8_ESCALATIE_BEWIJS"
+          ],
+          "evidence_kind": "scenario",
           "situation": "Een collega wil AI gebruiken om sollicitanten automatisch te rangschikken en alleen de top 5 door te sturen.",
           "question": "Wat is de beste eerste reactie?",
           "choices": [
@@ -624,6 +920,11 @@ page_seed AS (
         {
           "id": "p5-ms",
           "type": "quiz_multiple_select",
+          "competency_codes": [
+            "C3_RISICO_ROLBEWUSTZIJN",
+            "C8_ESCALATIE_BEWIJS"
+          ],
+          "evidence_kind": "quiz",
           "question": "Welke signalen zijn rode vlaggen?",
           "options": [
             {
@@ -683,6 +984,66 @@ page_seed AS (
           "markdown": "Gebruik alleen goedgekeurde tools en voer geen ongeoorloofde persoonsgegevens, klantdata of vertrouwelijke bedrijfsinformatie in. Namen weghalen is niet automatisch genoeg."
         },
         {
+          "id": "p6-data-matrix",
+          "type": "knowledge_cards",
+          "review_required": true,
+          "review_tags": [
+            "privacy",
+            "dpo",
+            "toolscope"
+          ],
+          "target_cefr": "B1+",
+          "competency_codes": [
+            "C4_DATA_PRIVACY"
+          ],
+          "evidence_kind": "self_check",
+          "cards": [
+            {
+              "id": "names",
+              "title": "Niet invoeren: namen en contactgegevens",
+              "text": "E-mail, telefoon, adres of klantnaam zijn direct herleidbaar. Gebruik placeholders zoals [klant] of [organisatie]."
+            },
+            {
+              "id": "ids",
+              "title": "Niet invoeren: nummers en dossiers",
+              "text": "BSN, klantnummers, personeelsnummers, bestelcodes en dossiers kunnen personen of contracten herleidbaar maken."
+            },
+            {
+              "id": "hr-health",
+              "title": "Extra gevoelig: HR en gezondheid",
+              "text": "Beoordelingen, salaris, verzuim, medische gegevens en medewerkerdossiers vragen altijd beleid en specialistische review."
+            },
+            {
+              "id": "anonymous",
+              "title": "Wel mogelijk: geanonimiseerde of fictieve context",
+              "text": "Gebruik alleen wat nodig is, verwijder herleidbare details en controleer of de gekozen tool hiervoor is goedgekeurd."
+            },
+            {
+              "id": "public",
+              "title": "Wel mogelijk: openbare of eigen conceptinformatie",
+              "text": "Publieke bronnen en eigen conceptteksten zonder klant-, HR- of vertrouwelijke data zijn meestal lager risico."
+            },
+            {
+              "id": "approved",
+              "title": "Alleen binnen scope: goedgekeurde data",
+              "text": "Een tool kan goedgekeurd zijn voor sommige data, maar niet voor alles. Scope, doel en verwerkersafspraken blijven leidend."
+            }
+          ]
+        },
+        {
+          "id": "p6-rich-html-privacy-data-matrix",
+          "type": "iframe",
+          "title": "Privacy en data: do/don't matrix",
+          "url": "/learning/artefacts/06-privacy-data-matrix.html",
+          "height": 620,
+          "caption": "Oefen met datatypes, AVG-principes en wat je wel of niet in AI-tools zet.",
+          "provider": "Digidactics HTML",
+          "allow_fullscreen": true,
+          "evidence_kind": "none",
+          "required_for_certificate": false,
+          "source_status": "internal_standard"
+        },
+        {
           "id": "p6-comparison",
           "type": "comparison",
           "title": "Denk in noodzaak en herleidbaarheid",
@@ -729,6 +1090,10 @@ page_seed AS (
         {
           "id": "p6-checklist",
           "type": "checklist",
+          "competency_codes": [
+            "C4_DATA_PRIVACY"
+          ],
+          "evidence_kind": "self_check",
           "title": "Data-minimalisatie voor AI-gebruik",
           "items": [
             {
@@ -760,6 +1125,18 @@ page_seed AS (
           "require_all": true
         },
         {
+          "id": "p6-org-data-rules",
+          "type": "organization_context",
+          "slot": "data_rules",
+          "fallback": "Raadpleeg de interne privacy-, informatiebeveiligings- en dataclassificatieregels voordat je werkgegevens in een AI-tool gebruikt."
+        },
+        {
+          "id": "p6-org-approved-tools",
+          "type": "organization_context",
+          "slot": "approved_tools",
+          "fallback": "Controleer in het interne beleid welke AI-tools en accounts voor deze gegevens zijn toegestaan."
+        },
+        {
           "id": "p6-takeaways",
           "type": "key_takeaways",
           "title": "Dit gaat vaak mis",
@@ -772,6 +1149,10 @@ page_seed AS (
         {
           "id": "p6-tf",
           "type": "quiz_true_false",
+          "competency_codes": [
+            "C4_DATA_PRIVACY"
+          ],
+          "evidence_kind": "quiz",
           "question": "Als je een naam verwijdert, is data automatisch geen persoonsgegeven meer.",
           "correct_answer": false,
           "explanation": "Ook context, combinatie van gegevens of herleidbaarheid via andere bronnen kan maken dat data nog steeds persoonsgegeven of vertrouwelijk is."
@@ -806,6 +1187,19 @@ page_seed AS (
         {
           "id": "p7-slides",
           "type": "slide_deck",
+          "review_required": true,
+          "review_tags": [
+            "privacy",
+            "dpo",
+            "toolscope"
+          ],
+          "target_cefr": "B1+",
+          "competency_codes": [
+            "C4_DATA_PRIVACY",
+            "C5_OUTPUTCONTROLE",
+            "C8_ESCALATIE_BEWIJS"
+          ],
+          "evidence_kind": "self_check",
           "title": "Veilige prompts in zes stappen",
           "show_thumbnails": true,
           "slides": [
@@ -814,7 +1208,7 @@ page_seed AS (
               "title": "Waarom promptveiligheid?",
               "url": "/learning/slide-placeholder.svg",
               "alt": "Slide over promptveiligheid",
-              "notes": "Promptveiligheid gaat over privacy, kwaliteit en verantwoordelijkheid.",
+              "notes": "Hoe je AI aanstuurt bepaalt niet alleen de kwaliteit van de output. Het bepaalt ook of je persoonsgegevens beschermt, bedrijfsinformatie veilig houdt en verantwoord handelt.",
               "interaction": {
                 "type": "none"
               }
@@ -824,27 +1218,29 @@ page_seed AS (
               "title": "Wat voer je nooit blind in?",
               "url": "/learning/slide-placeholder.svg",
               "alt": "Slide over datagrens",
-              "notes": "Vermijd klantdata, HR-data, contractinformatie en interne cijfers zonder goedgekeurde route.",
+              "notes": "Voer klantdata, HR-data, medische gegevens, contractinformatie en interne cijfers alleen in als tool, doel en data expliciet zijn goedgekeurd. Gebruik bij twijfel fictieve of geminimaliseerde context.",
               "interaction": {
                 "type": "multiple_choice",
-                "question": "Welke input is het veiligst voor een oefenprompt?",
+                "question": "Een medewerker wil een klantklacht samenvatten. Welke aanpak is het veiligst?",
                 "options": [
                   {
                     "id": "a",
-                    "label": "Een fictief voorbeeld zonder herleidbare details",
-                    "is_correct": true
+                    "label": "De volledige klantmail in een publieke tool plakken.",
+                    "is_correct": false
                   },
                   {
                     "id": "b",
-                    "label": "Een volledige klantmail met ordernummer",
+                    "label": "Alleen de naam verwijderen en de rest gebruiken.",
                     "is_correct": false
                   },
                   {
                     "id": "c",
-                    "label": "Een personeelsdossier zonder naam",
-                    "is_correct": false
+                    "label": "Herleidbare details verwijderen en werken in een goedgekeurde omgeving.",
+                    "is_correct": true
                   }
-                ]
+                ],
+                "feedback_correct": "Goed: toolkeuze en dataminimalisatie horen bij elkaar.",
+                "feedback_incorrect": "Kijk opnieuw naar toolstatus, persoonsgegevens en indirecte herleidbaarheid."
               }
             },
             {
@@ -852,6 +1248,7 @@ page_seed AS (
               "title": "Minimaliseer eerst",
               "url": "/learning/slide-placeholder.svg",
               "alt": "Slide over dataminimalisatie",
+              "notes": "Een slechte prompt geeft te veel informatie prijs. Een veilige prompt bereikt hetzelfde doel met minimale data, placeholders en duidelijke grenzen.",
               "interaction": {
                 "type": "reflection",
                 "prompt": "Welke details zou jij weglaten voordat je AI om hulp vraagt?"
@@ -862,6 +1259,7 @@ page_seed AS (
               "title": "Vraag om concept, niet om besluit",
               "url": "/learning/slide-placeholder.svg",
               "alt": "Slide over conceptoutput",
+              "notes": "Formuleer AI-output als concept, suggestie of controlelijst. Besluiten over klanten, medewerkers, geld, contracten of juridische kwesties blijven menselijk.",
               "interaction": {
                 "type": "none"
               }
@@ -871,7 +1269,7 @@ page_seed AS (
               "title": "Controle hoort bij prompten",
               "url": "/learning/slide-placeholder.svg",
               "alt": "Slide over controle",
-              "notes": "Vraag AI om aannames, onzekerheden en ontbrekende informatie te noemen.",
+              "notes": "Vraag AI om aannames, onzekerheden en ontbrekende informatie te noemen. Controleer daarna zelf feiten, bronbasis, toon, privacy en impact voordat je output gebruikt.",
               "interaction": {
                 "type": "none"
               }
@@ -881,12 +1279,26 @@ page_seed AS (
               "title": "Wanneer escaleer je?",
               "url": "/learning/slide-placeholder.svg",
               "alt": "Slide over escalatie",
+              "notes": "Escaleren is professioneel gedrag bij gevoelige data, HR-context, klantimpact, juridische taal, twijfel over toolbeleid of output die als besluit kan werken.",
               "interaction": {
                 "type": "reflection",
                 "prompt": "Wanneer schakel jij een tweede paar ogen of specialist in?"
               }
             }
           ]
+        },
+        {
+          "id": "p7-rich-html-veilig-prompten",
+          "type": "iframe",
+          "title": "Slides: veilig prompten",
+          "url": "/learning/artefacts/04-veilig-prompten-slides.html",
+          "height": 620,
+          "caption": "Een compacte visuele herhaling van veilige promptgrenzen.",
+          "provider": "Digidactics HTML",
+          "allow_fullscreen": true,
+          "evidence_kind": "none",
+          "required_for_certificate": false,
+          "source_status": "internal_standard"
         },
         {
           "id": "p7-download",
@@ -964,6 +1376,12 @@ page_seed AS (
           "type": "callout",
           "tone": "warning",
           "markdown": "Bij claims, boetes, contractdreiging, gevoelige data of juridische taal haak je een leidinggevende, DPO, legal of andere specialist aan voordat je AI-output gebruikt."
+        },
+        {
+          "id": "p8-org-sector-case",
+          "type": "organization_context",
+          "slot": "sector_case",
+          "fallback": "Pas het scenario toe op een vergelijkbare situatie uit jouw eigen werk en gebruik daarbij fictieve of geminimaliseerde gegevens."
         },
         {
           "id": "p8-takeaways",
@@ -1046,6 +1464,10 @@ page_seed AS (
         {
           "id": "p9-progress",
           "type": "progress_check",
+          "competency_codes": [
+            "C5_OUTPUTCONTROLE"
+          ],
+          "evidence_kind": "self_check",
           "question": "Ik controleer AI-output systematisch voor gebruik.",
           "scale": 5,
           "label_low": "Nog niet",
@@ -1065,6 +1487,10 @@ page_seed AS (
         {
           "id": "p9-tf",
           "type": "quiz_true_false",
+          "competency_codes": [
+            "C5_OUTPUTCONTROLE"
+          ],
+          "evidence_kind": "quiz",
           "question": "AI-output die professioneel klinkt, is meestal voldoende betrouwbaar om direct te gebruiken.",
           "correct_answer": false,
           "explanation": "Professionele toon zegt niets over juistheid. Controle op feiten, context, bron, toon en impact blijft nodig."
@@ -1091,53 +1517,53 @@ page_seed AS (
           "subtitle": "AI levert concepten; jij levert kwaliteit."
         },
         {
-          "id": "p10-timeline",
-          "type": "timeline",
-          "title": "De vijfstaps controlelus",
-          "items": [
+          "id": "p10-control-loop-snapshot",
+          "type": "knowledge_cards",
+          "cards": [
             {
               "id": "task",
-              "date": "1",
-              "title": "Taak klopt",
-              "description": "Past de output bij de vraag en het doel?",
-              "highlight": true
+              "title": "1. Taak",
+              "text": "Past de output bij de vraag en het doel?"
             },
             {
               "id": "data",
-              "date": "2",
-              "title": "Data klopt",
-              "description": "Was de input toegestaan, minimaal en niet herleidbaar waar dat nodig is?",
-              "highlight": true
+              "title": "2. Data",
+              "text": "Was de input toegestaan, minimaal en niet herleidbaar waar nodig?"
             },
             {
               "id": "facts",
-              "date": "3",
-              "title": "Feiten kloppen",
-              "description": "Zijn claims, cijfers en bronnen gecontroleerd?",
-              "highlight": true
+              "title": "3. Feiten",
+              "text": "Kloppen claims, cijfers en bronnen?"
             },
             {
               "id": "policy",
-              "date": "4",
-              "title": "Beleid klopt",
-              "description": "Past dit bij interne afspraken, toon en grenzen?",
-              "highlight": true
+              "title": "4. Beleid",
+              "text": "Past toon, beleid en context?"
             },
             {
               "id": "impact",
-              "date": "5",
-              "title": "Impact klopt",
-              "description": "Raakt dit klanten, medewerkers, geld, HR of juridische kwesties?",
-              "highlight": true
+              "title": "5. Impact",
+              "text": "Raakt dit klanten, HR, geld of juridische kwesties?"
             },
             {
               "id": "review",
-              "date": "6",
-              "title": "Review klopt",
-              "description": "Is een tweede paar ogen of escalatie nodig?",
-              "highlight": true
+              "title": "6. Review",
+              "text": "Is een tweede paar ogen of escalatie nodig?"
             }
           ]
+        },
+        {
+          "id": "p10-rich-html-controlelus",
+          "type": "iframe",
+          "title": "Interactieve controlelus voor AI-output",
+          "url": "/learning/artefacts/03-controlelus-tijdlijn.html",
+          "height": 760,
+          "caption": "Doorloop de zes stappen waarmee je output controleert voordat je die gebruikt.",
+          "provider": "Digidactics HTML",
+          "allow_fullscreen": true,
+          "evidence_kind": "none",
+          "required_for_certificate": false,
+          "source_status": "internal_standard"
         },
         {
           "id": "p10-comparison",
@@ -1199,6 +1625,11 @@ page_seed AS (
         {
           "id": "p10-checklist",
           "type": "checklist",
+          "competency_codes": [
+            "C5_OUTPUTCONTROLE",
+            "C8_ESCALATIE_BEWIJS"
+          ],
+          "evidence_kind": "self_check",
           "title": "Voordat ik AI-output gebruik",
           "items": [
             "Begrijp ik wat de taak is?",
@@ -1329,6 +1760,9 @@ page_seed AS (
         {
           "id": "p12-comparison",
           "type": "comparison",
+          "competency_codes": [
+            "C6_HUMAN_OVERSIGHT"
+          ],
           "title": "Drie vormen van toezicht",
           "left_label": "Vorm",
           "right_label": "Wanneer gebruiken",
@@ -1344,6 +1778,62 @@ page_seed AS (
           ],
           "left_color": "#e7f5ff",
           "right_color": "#e7f8f5"
+        },
+        {
+          "id": "p12-rich-html-hitl-hotl-hic",
+          "type": "iframe",
+          "title": "Tabs: HITL, HOTL en HIC",
+          "url": "/learning/artefacts/02-hitl-hotl-hic.html",
+          "height": 620,
+          "caption": "Vergelijk drie vormen van menselijke controle en wanneer ze passend zijn.",
+          "provider": "Digidactics HTML",
+          "allow_fullscreen": true,
+          "evidence_kind": "none",
+          "required_for_certificate": false,
+          "source_status": "internal_standard"
+        },
+        {
+          "id": "p12-rich-html-hitl-hotl-hic-vergelijking",
+          "type": "iframe",
+          "title": "Vergelijking: human oversight modellen",
+          "url": "/learning/artefacts/02-hitl-hotl-hic-vergelijking.html",
+          "height": 205,
+          "caption": "Compact overzicht van het verschil tussen HITL, HOTL en HIC.",
+          "provider": "Digidactics HTML",
+          "allow_fullscreen": true,
+          "evidence_kind": "none",
+          "required_for_certificate": false,
+          "source_status": "internal_standard"
+        },
+        {
+          "id": "p12-oversight-scenario",
+          "type": "scenario",
+          "competency_codes": [
+            "C6_HUMAN_OVERSIGHT"
+          ],
+          "evidence_kind": "self_check",
+          "situation": "AI geeft een risicoscore voor klantvragen. Een lage score betekent dat iemand later wordt geholpen. De score is niet volledig uitlegbaar.",
+          "question": "Welke vorm van menselijk toezicht past het best?",
+          "choices": [
+            {
+              "id": "no-review",
+              "label": "Geen extra toezicht: AI heeft waarschijnlijk meer data gezien.",
+              "consequence": "Onveilig. Onuitlegbare scores met klantimpact vragen menselijke beoordeling.",
+              "is_recommended": false
+            },
+            {
+              "id": "hitl",
+              "label": "HITL: een mens beoordeelt de score voordat prioriteit verandert.",
+              "consequence": "Goed. Bij directe klantimpact keurt een mens mee voor gebruik.",
+              "is_recommended": true
+            },
+            {
+              "id": "hide",
+              "label": "De score niet tonen aan klanten, maar wel automatisch gebruiken.",
+              "consequence": "Onvoldoende. Transparantie alleen lost het toezicht- en impactrisico niet op.",
+              "is_recommended": false
+            }
+          ]
         },
         {
           "id": "p12-image",
@@ -1390,6 +1880,18 @@ page_seed AS (
             "Monitor ook achteraf waar output vaker wordt gebruikt.",
             "Twijfel betekent stoppen, checken of escaleren."
           ]
+        },
+        {
+          "id": "p12-org-oversight",
+          "type": "organization_context",
+          "slot": "oversight_roles",
+          "fallback": "Vraag wie binnen jouw organisatie reviewer, approver en proceseigenaar is voor AI-toepassingen met impact."
+        },
+        {
+          "id": "p12-org-escalation",
+          "type": "organization_context",
+          "slot": "escalation_route",
+          "fallback": "Gebruik bij twijfel de bestaande privacy-, security- of managementroute en leg vast waarom je bent gestopt of geëscaleerd."
         }
       ]
     }
@@ -1482,6 +1984,14 @@ page_seed AS (
         {
           "id": "p14-cases",
           "type": "accordion",
+          "review_required": true,
+          "review_tags": [
+            "privacy",
+            "dpo",
+            "hr",
+            "finance"
+          ],
+          "target_cefr": "B1+",
           "title": "Mini-cases voor afdelingen",
           "items": [
             {
@@ -1520,10 +2030,22 @@ page_seed AS (
         {
           "id": "p14-reflection",
           "type": "reflection",
+          "competency_codes": [
+            "C2_CONTEXT_BEGRIJPEN",
+            "C5_OUTPUTCONTROLE",
+            "C8_ESCALATIE_BEWIJS"
+          ],
+          "evidence_kind": "reflection",
           "prompt": "Kies een rolcase en formuleer een teamafspraak die AI-gebruik veiliger maakt.",
           "placeholder": "Voor mijn team spreken we af dat...",
           "min_words": 30,
           "save_personal": true
+        },
+        {
+          "id": "p14-org-role-cases",
+          "type": "organization_context",
+          "slot": "role_cases",
+          "fallback": "Kies hierboven de algemene rolcase die het beste bij jouw afdeling past en vertaal die naar een concrete teamafspraak."
         },
         {
           "id": "p14-download",
@@ -1568,6 +2090,36 @@ page_seed AS (
           "id": "p15-instruction",
           "type": "paragraph",
           "markdown": "De toets combineert kennisvragen, samengestelde signalen, juist/onjuist-checks, korte open antwoorden en een mini-case. De norm is minimaal 75/100 totaal, met voldoende score op privacy/data, human oversight en escalatie. Essay en open antwoorden kunnen handmatig worden beoordeeld."
+        },
+        {
+          "id": "p15-evidence-dossier",
+          "type": "callout",
+          "tone": "info",
+          "source_ids": [
+            "SRC-EC-QA"
+          ],
+          "source_status": "official_guidance",
+          "last_verified_at": "2026-05-29",
+          "review_required": true,
+          "review_tags": [
+            "evidence_dossier",
+            "privacy",
+            "dpo"
+          ],
+          "evidence_dossier_fields": [
+            "learner_id",
+            "org_id",
+            "course_code",
+            "course_version",
+            "started_at",
+            "completed_at",
+            "attempts",
+            "score_summary",
+            "manual_review_status",
+            "certificate_status",
+            "last_verified_at"
+          ],
+          "markdown": "Het Evidence Dossier bewaart cursusversie, voortgang, attempts, toetsresultaten, reviewstatus en certificaatstatus. Dat helpt de organisatie aantonen welke ondersteuning is geboden en welke bekwaamheid is getoond. Het vervangt geen juridisch advies of formele externe licentie."
         },
         {
           "id": "p15-mcq-1",
@@ -1680,6 +2232,15 @@ page_seed AS (
         {
           "id": "p15-ms-1",
           "type": "quiz_multiple_select",
+          "source_ids": [
+            "SRC-EU-AIACT-NL",
+            "SRC-EP-OMNIBUS",
+            "SRC-COUNCIL-OMNIBUS"
+          ],
+          "source_status": "provisional_agreement",
+          "last_verified_at": "2026-05-29",
+          "provisional": true,
+          "legal_review_required": true,
           "competency_codes": [
             "C3_RISICO_ROLBEWUSTZIJN",
             "C4_DATA_PRIVACY",
@@ -1706,6 +2267,10 @@ page_seed AS (
               "label": "Ongeautoriseerde invoer van klantdata"
             },
             {
+              "id": "deepfake",
+              "label": "AI gebruiken voor intieme of misleidende beelden zonder toestemming"
+            },
+            {
               "id": "fiction",
               "label": "Een fictieve oefencase samenvatten"
             }
@@ -1714,7 +2279,8 @@ page_seed AS (
             "emotions",
             "hr",
             "legal",
-            "customer-data"
+            "customer-data",
+            "deepfake"
           ],
           "explanation": "Rode vlaggen hangen samen met mensen, gevoelige data, juridische impact en ontbrekend toezicht."
         },
@@ -1820,6 +2386,13 @@ page_seed AS (
             "Escalatie minimaal voldoende.",
             "Eindadvies mag niet evident onveilig zijn."
           ]
+        },
+        {
+          "id": "p15-org-policy-acknowledgement",
+          "type": "organization_context",
+          "slot": "policy_link",
+          "fallback": "Er is nog geen organisatiebeleid aan deze cursus gekoppeld. Vraag waar je de geldende interne AI-afspraken kunt vinden.",
+          "acknowledgement_required": true
         }
       ]
     }
@@ -1879,6 +2452,11 @@ ON CONFLICT (course_id, page_code) DO UPDATE
       sequence_order = EXCLUDED.sequence_order,
       is_required = EXCLUDED.is_required,
       content_schema_version = EXCLUDED.content_schema_version,
-      content = EXCLUDED.content,
+      content = jsonb_set(
+        EXCLUDED.content,
+        '{version}',
+        to_jsonb(public.learning_pages.version + 1),
+        true
+      ),
       version = public.learning_pages.version + 1,
       updated_at = now();

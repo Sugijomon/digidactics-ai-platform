@@ -1,4 +1,7 @@
-import type { LessonContent } from "@digidactics/domain/learning";
+import type {
+  LessonContent,
+  OrganizationContextPackRelease,
+} from "@digidactics/domain/learning";
 import { aiLiteracyFoundationTopicSeeds } from "./ai-literacy-foundation-content";
 import { aiMasteryCourseTopicSeeds } from "./ai-mastery-content";
 import { aiProficiencyCourseTopicSeeds } from "./ai-proficiency-content";
@@ -12,6 +15,7 @@ export interface LearningCourseView {
   difficulty_level: string;
   required_for_onboarding: boolean;
   passing_threshold: number;
+  context_pack_release?: OrganizationContextPackRelease | null;
   topics: LearningTopicView[];
   pages: LearningPageView[];
 }
@@ -22,6 +26,7 @@ export interface LearningEnrollmentView {
   progress_percentage: number;
   started_at: string | null;
   completed_at: string | null;
+  context_pack_release_id?: string | null;
 }
 
 export interface LearningProgressView {

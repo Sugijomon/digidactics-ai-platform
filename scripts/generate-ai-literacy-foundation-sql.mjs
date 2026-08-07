@@ -1,4 +1,5 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { existsSync, readFileSync } from "node:fs";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import vm from "node:vm";
 import { createRequire } from "node:module";
@@ -9,32 +10,18 @@ const ts = require("typescript");
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const sourcePath = path.join(repoRoot, "apps", "rai", "lib", "ai-literacy-foundation-content.ts");
-const outputPath = path.join(
-  repoRoot,
-  "supabase",
-  "drafts",
-  "20260528_ai_literacy_foundation_15_page_content.sql",
-);
+const outputPath = process.argv[2]
+  ? path.resolve(repoRoot, process.argv[2])
+  : path.join(
+      repoRoot,
+      "supabase",
+      "drafts",
+      "20260528_ai_literacy_foundation_15_page_content.sql",
+    );
 
-const source = await readFile(sourcePath, "utf8");
-const transpiled = ts.transpileModule(source, {
-  compilerOptions: {
-    module: ts.ModuleKind.CommonJS,
-    target: ts.ScriptTarget.ES2020,
-    esModuleInterop: true,
-  },
-}).outputText;
-
-const sandbox = {
-  exports: {},
-  module: { exports: {} },
-  require,
-};
-
-vm.runInNewContext(transpiled, sandbox, { filename: sourcePath });
-
-const topics = sandbox.module.exports.aiLiteracyFoundationTopicSeeds ??
-  sandbox.exports.aiLiteracyFoundationTopicSeeds;
+const moduleCache = new Map();
+const sourceModule = loadTypeScriptModule(sourcePath);
+const topics = sourceModule.aiLiteracyFoundationTopicSeeds;
 
 if (!Array.isArray(topics)) {
   throw new Error("Could not load aiLiteracyFoundationTopicSeeds from TS source.");
@@ -65,14 +52,12 @@ const pageRows = topics.flatMap((topic) =>
 );
 
 const sql = `-- =============================================================================
--- Draft sync: AI Literacy Foundation 15-page content
+-- Generated sync: AI Literacy Foundation 15-page content
 -- =============================================================================
 -- Generated from apps/rai/lib/ai-literacy-foundation-content.ts.
 -- Purpose:
---   Reviewable concept-phase SQL for aligning Supabase learning_topics and
---   learning_pages with the current Course -> Topic -> Page -> JSONB blocks
---   AI Literacy design. Move this into supabase/migrations only after product
---   review of docs/learning-system-ai-literacy-audit.md.
+--   Align Supabase learning_topics and learning_pages with the current
+--   Course -> Topic -> Page -> JSONB blocks AI Literacy design.
 -- =============================================================================
 
 WITH course AS (
@@ -83,8 +68,10 @@ WITH course AS (
          difficulty_level = 'foundation',
          required_for_onboarding = true,
          passing_threshold = 80,
+         version = version + 1,
          updated_at = now()
    WHERE course_code = 'ai-literacy-foundation'
+     AND org_id IS NULL
    RETURNING id
 ),
 topic_seed AS (
@@ -139,6 +126,7 @@ WITH course AS (
   SELECT id
     FROM public.learning_courses
    WHERE course_code = 'ai-literacy-foundation'
+     AND org_id IS NULL
    LIMIT 1
 ),
 topics AS (
@@ -204,7 +192,12 @@ ON CONFLICT (course_id, page_code) DO UPDATE
       sequence_order = EXCLUDED.sequence_order,
       is_required = EXCLUDED.is_required,
       content_schema_version = EXCLUDED.content_schema_version,
-      content = EXCLUDED.content,
+      content = jsonb_set(
+        EXCLUDED.content,
+        '{version}',
+        to_jsonb(public.learning_pages.version + 1),
+        true
+      ),
       version = public.learning_pages.version + 1,
       updated_at = now();
 `;
@@ -218,4 +211,45 @@ console.log(`Pages: ${pageRows.length}`);
 
 function json(value) {
   return JSON.stringify(value, null, 2).replaceAll("$topic_seed$", "$ topic_seed $").replaceAll("$page_seed$", "$ page_seed $");
+}
+
+function loadTypeScriptModule(filePath) {
+  const resolvedPath = path.resolve(filePath);
+  if (moduleCache.has(resolvedPath)) {
+    return moduleCache.get(resolvedPath).exports;
+  }
+
+  const source = readFileSync(resolvedPath, "utf8");
+  const transpiled = ts.transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2020,
+      esModuleInterop: true,
+    },
+  }).outputText;
+  const loadedModule = { exports: {} };
+  moduleCache.set(resolvedPath, loadedModule);
+
+  const localRequire = (specifier) => {
+    if (!specifier.startsWith(".")) {
+      return require(specifier);
+    }
+
+    const basePath = path.resolve(path.dirname(resolvedPath), specifier);
+    const candidate = [basePath, `${basePath}.ts`, `${basePath}.js`].find(existsSync);
+    if (!candidate) {
+      throw new Error(`Cannot resolve ${specifier} from ${resolvedPath}`);
+    }
+
+    return candidate.endsWith(".ts") ? loadTypeScriptModule(candidate) : require(candidate);
+  };
+
+  const sandbox = {
+    exports: loadedModule.exports,
+    module: loadedModule,
+    require: localRequire,
+  };
+
+  vm.runInNewContext(transpiled, sandbox, { filename: resolvedPath });
+  return loadedModule.exports;
 }

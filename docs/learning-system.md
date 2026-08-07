@@ -40,10 +40,11 @@ and `learning_lesson_attempts` remain for legacy compatibility and the
 microlearning library. They are not the preferred structure for the AI Literacy
 foundation course.
 
-The local development fallback for the current AI Literacy design is
-`apps/rai/lib/ai-literacy-foundation-content.ts`. That file is intentionally
-richer than the older AISA SQL seed at the moment and should be treated as the
-candidate product design until the seed is aligned.
+The Git-canonical AI Literacy design is
+`apps/rai/lib/ai-literacy-foundation-content.ts`. Migration
+`20260805092242_align_ai_literacy_core_content.sql` promotes its 6-topic,
+15-page structure to the database runtime. The local preview uses the same
+source when Supabase is unavailable.
 
 For review, `scripts/generate-ai-literacy-foundation-sql.mjs` can generate a
 draft SQL sync from that TypeScript source into `supabase/drafts/`. Drafts are
@@ -151,6 +152,88 @@ This supports:
 - customer-specific policy training
 - future partner-created modules
 
+AI Literacy customer context does not use organization-owned page copies.
+Instead, published `learning_context_pack_releases` fill a limited set of
+`organization_context` slots in the platform pages. Supported slots are:
+
+- `approved_tools`
+- `data_rules`
+- `policy_link`
+- `escalation_route`
+- `oversight_roles`
+- `sector_case`
+- `role_cases`
+
+`learning_catalog.active_context_pack_id` is the release offered to new
+learners. `learning_course_enrollments.context_pack_release_id` pins it for the
+duration of an enrollment. Published releases are immutable, remain readable
+to learners pinned to an archived release, and are protected by org-scoped RLS.
+Organizations without a Context Pack see explicit generic fallbacks.
+
+The core assessment remains unchanged. A separate organization acknowledgement
+records that the learner read the applicable local policy and escalation route;
+it does not change core scoring or the meaning of the certificate.
+
+## Context Pack Pilot Operations
+
+Context Packs are managed as release records, not by editing course pages. The
+first pilot deliberately uses SQL instead of a general-purpose admin screen.
+`supabase/seed/20260805094000_learning_context_pack_pilot.sql` is the reference
+fixture. It is clearly fictitious, fills every supported slot, uses deterministic
+ids, and may only be loaded into local or staging environments.
+
+Safe release flow:
+
+1. Insert a new `draft` release for the platform AI Literacy course with a new
+   integer version. Never reuse a released version.
+2. Have privacy, security, HR/L&D and a representative user review the JSON and
+   policy link.
+3. Change the approved draft to `published`. Publication pins its content hash
+   and timestamp; released content is immutable.
+4. Set `learning_catalog.active_context_pack_id` to the published release. Only
+   new enrollments receive this active release.
+5. Verify that an existing enrollment still points to its old release and that
+   a new enrollment points to the replacement.
+6. Archive the old release only after the catalog points to its replacement.
+   Learners pinned to the archived release retain read access.
+
+Rollback is therefore a forward release, not a mutation: publish a corrected
+new version and make that version active for future enrollments. Existing
+enrollments remain auditable against their original release. Changing an
+existing enrollment pin or editing/deleting a published release is rejected by
+database triggers.
+
+Enrollments that already existed before Context Packs were introduced keep a
+null pin and continue to receive neutral fallbacks. A routine progress update
+must never attach the current catalog release retroactively. If an organization
+later wants those learners to receive local context, handle that as an explicit
+reviewed migration or start a new enrollment; do not silently rewrite evidence.
+
+Run the transaction-based validation after migrations and before an app pilot:
+
+```powershell
+psql "<local-or-staging-database-url>" -v ON_ERROR_STOP=1 `
+  -f supabase/smoke-tests/20260805093000_learning_context_packs_smoke.sql
+```
+
+The smoke test rolls back its fixtures and validates release immutability,
+organization A/B isolation, learner/admin visibility, draft protection,
+version pinning, archived-release access, acknowledgement evidence, page
+attempt evidence and certification evidence. Run it as the database owner so it
+can switch to the `authenticated` role for RLS assertions.
+
+Current limitations:
+
+- there is no Context Pack management UI yet;
+- the pilot supports one active pack per organization/course and one pinned
+  pack per enrollment;
+- changing context for an in-progress enrollment is intentionally unsupported;
+- the database migrations, pilot seed and transaction-based Context Pack smoke
+  test passed on Supabase preview branch `learning-system-staging-rehearsal` on
+  2026-08-05;
+- the signed-in staging learner walkthrough passed for all 15 AI Literacy pages;
+  manual review and certification issuance remain separate follow-up checks.
+
 ## RouteAI Learning Gate
 
 The Learning System exists first as an AI Literacy training and access gate for RouteAI.
@@ -191,18 +274,19 @@ High-level access:
 - Org admin/DPO: can read org progress for governance dashboards.
 - Recommendation rules: platform or own-org readable; managed by learning admins.
 
-## Current Seed Drift
+## Resolved AI Literacy Seed Drift
 
-There are currently two AI Literacy content layers that need reconciliation:
+The repository previously contained two AI Literacy content layers:
 
 1. The SQL migrations seed an older AISA-oriented structure.
 2. The TypeScript preview content contains the newer 6-topic, 15-page AI
    Literacy product design.
 
-Until this is reconciled, local preview mode and Supabase-backed mode can show
-different course content. The next content migration should align Supabase with
-the TypeScript design, or deliberately replace the TypeScript design with the
-SQL version after product review.
+Migration `20260805092242_align_ai_literacy_core_content.sql` resolves this by
+making the TypeScript-authored 6-topic, 15-page design the database seed. The
+generator now accepts a migration target and keeps JSON content versions aligned
+with page versions. Runtime sync increments page and course versions only when
+authored block content changes.
 
 The older SQL seed adds:
 

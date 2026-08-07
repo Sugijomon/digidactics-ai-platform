@@ -81,6 +81,30 @@ attempt.
 The certification trigger snapshots the required published pages and the latest
 attempts used to support the certificate.
 
+### Organization Context Pinning
+
+AI Literacy attempts additionally pin:
+
+- `context_pack_release_id`
+- Context Pack version and content hash
+- the `organization_context` slots present on the page
+- a deterministic `composition_manifest_hash`
+
+The manifest hash covers the core page/course hash, Context Pack release/hash,
+and used slots. It does not cover rendered HTML or styling. The immutable
+Context Pack release remains stored so the hash is reproducible rather than
+being the only surviving evidence.
+
+The Context Pack is pinned on `learning_course_enrollments`. Activating a newer
+release in the organization catalog therefore affects only new enrollments.
+Certification rejects required evidence when the latest attempt hash differs
+from the current core page or when the attempt used a different Context Pack
+than the enrollment.
+
+`learning_context_acknowledgements` is append-only learner evidence that the
+local organization policy was read. It is kept separate from the platform core
+assessment and is included in the certification evidence snapshot when present.
+
 ## Decision Rationale
 
 Learning manual reviews persist `decision_rationale` alongside existing

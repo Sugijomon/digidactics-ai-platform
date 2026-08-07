@@ -38,12 +38,16 @@ assert.deepEqual(
 assert(DPO_REVIEW_CHECKLIST.length >= 4, "DPO-reviewchecklist mist privacy/HR/toolscope/evidence punten.");
 
 const blocksById = new Map<string, Record<string, unknown>>();
+const organizationContextBlocks: Array<Record<string, unknown>> = [];
 
 for (const course of courses) {
   for (const topic of course.topics) {
     for (const page of topic.pages) {
       for (const block of page.blocks) {
         blocksById.set(String(block.id), block);
+        if (block.type === "organization_context") {
+          organizationContextBlocks.push(block);
+        }
         validateSourceMetadata(block);
         validateReviewMetadata(block);
         validateRolePathMetadata(block);
@@ -136,6 +140,42 @@ expectBlock("p08-case", (block) => {
   assert.equal(block.role_path_requirement, "role_required");
 });
 
+const expectedOrganizationContextSlots = new Map([
+  ["p3-org-tools", "approved_tools"],
+  ["p6-org-data-rules", "data_rules"],
+  ["p6-org-approved-tools", "approved_tools"],
+  ["p8-org-sector-case", "sector_case"],
+  ["p12-org-oversight", "oversight_roles"],
+  ["p12-org-escalation", "escalation_route"],
+  ["p14-org-role-cases", "role_cases"],
+  ["p15-org-policy-acknowledgement", "policy_link"],
+]);
+
+assert.equal(
+  organizationContextBlocks.length,
+  expectedOrganizationContextSlots.size,
+  "AI Literacy moet alleen de afgesproken organisatiecontextblokken bevatten.",
+);
+
+for (const [blockId, slot] of expectedOrganizationContextSlots) {
+  expectBlock(blockId, (block) => {
+    assert.equal(block.type, "organization_context");
+    assert.equal(block.slot, slot, `${blockId} gebruikt niet het afgesproken Context Pack-slot.`);
+    assert.equal(typeof block.fallback, "string", `${blockId} mist een neutrale fallback.`);
+    assert(String(block.fallback).length > 0, `${blockId} heeft een lege fallback.`);
+  });
+}
+
+expectBlock("p15-org-policy-acknowledgement", (block) => {
+  assert.equal(block.acknowledgement_required, true);
+});
+
+assert.equal(
+  organizationContextBlocks.filter((block) => block.acknowledgement_required === true).length,
+  1,
+  "Alleen de beleidscontext op pagina 15 mag acknowledgement vereisen.",
+);
+
 console.log(
   JSON.stringify(
     {
@@ -144,6 +184,7 @@ console.log(
       sources: LEARNING_SOURCE_REFERENCES.length,
       reviewBlocks: [...blocksById.values()].filter((block) => block.review_required === true).length,
       provisionalBlocks: [...blocksById.values()].filter((block) => block.provisional === true).length,
+      organizationContextBlocks: organizationContextBlocks.length,
       masteryArtefactsChecked: [
         "m02-triage-matrix",
         "m03-chain-flow",

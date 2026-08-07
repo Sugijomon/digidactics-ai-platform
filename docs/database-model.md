@@ -617,3 +617,32 @@ High-level principles:
 - Decide whether `review_trigger_codes` is stored as `text[]` or `jsonb`.
 - Decide whether `work_domain_code` should reference `ref_work_domain(code)` or remain free-coded in MVP.
 - Confirm campaign/invitation model from existing Lovable implementation.
+## Learning Organization Context Packs
+
+AI Literacy customer context is modeled as immutable releases rather than as
+customer-owned copies of `learning_courses`, `learning_topics`, or
+`learning_pages`.
+
+```txt
+learning_courses (platform core)
+  -> learning_catalog.active_context_pack_id
+  -> learning_context_pack_releases
+  -> learning_course_enrollments.context_pack_release_id
+  -> learning_context_acknowledgements
+```
+
+`learning_context_pack_releases` is unique by `(org_id, course_id, version)`.
+Its validated JSON supports organization metadata plus approved tools, data
+rules, a policy link, escalation, oversight roles, a sector case, and role
+cases. A database trigger calculates `content_hash` and prevents published
+content, scope, version, hash, or publication time from changing.
+
+The catalog points to a published release for the same organization and course.
+An enrollment trigger copies that reference when the learner starts and rejects
+later replacement. Attempts and certifications retain the release foreign key
+and a composition-manifest hash. `learning_context_acknowledgements` links the
+learner, enrollment, and exact Context Pack release.
+
+Both new tables have RLS. Organization members can read their published or
+enrollment-pinned releases; learning admins, organization admins, DPOs, and
+super admins receive the existing scoped management/read capabilities.

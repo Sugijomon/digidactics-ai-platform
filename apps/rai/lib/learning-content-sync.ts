@@ -1,5 +1,6 @@
 import "server-only";
 
+import { createHash } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   aiLiteracyPreviewCourse,
@@ -40,12 +41,12 @@ async function syncCourseContentFromSource(
 ) {
   const { data: course, error: courseError } = await supabase
     .from("learning_courses")
-    .select("id, org_id")
+    .select("id, org_id, version")
     .eq("course_code", sourceCourse.course_code)
     .neq("status", "archived")
     .order("updated_at", { ascending: false })
     .limit(1)
-    .maybeSingle<{ id: string; org_id: string | null }>();
+    .maybeSingle<{ id: string; org_id: string | null; version: number }>();
 
   if (courseError || !course) {
     throw new Error(`${sourceCourse.title} cursus niet gevonden: ${courseError?.message ?? "geen cursus"}`);
@@ -110,7 +111,7 @@ async function syncCourseContentFromSource(
 
   const { data: existingPages, error: existingPagesError } = await supabase
     .from("learning_pages")
-    .select("id, topic_id, page_code, sequence_order, content")
+    .select("id, topic_id, page_code, sequence_order, content, version")
     .eq("course_id", course.id)
     .order("sequence_order", { ascending: true });
 
@@ -130,6 +131,7 @@ async function syncCourseContentFromSource(
       page_code: string;
       sequence_order: number;
       content: { blocks?: unknown[] } | null;
+      version: number;
     }>).map((page) => [page.page_code, page]),
   );
 
@@ -146,6 +148,11 @@ async function syncCourseContentFromSource(
         : [];
       const shouldBackfillContent = !existingPage || existingBlocks.length === 0;
       const shouldOverwriteContent = options.overwriteExistingContent || shouldBackfillContent;
+      const contentChanged = shouldOverwriteContent &&
+        stableJsonStringify(existingBlocks) !== stableJsonStringify(page.content.blocks);
+      const nextVersion = existingPage
+        ? existingPage.version + (contentChanged ? 1 : 0)
+        : 1;
 
       return {
         course_id: course.id,
@@ -162,10 +169,12 @@ async function syncCourseContentFromSource(
         content_schema_version: 1,
         content: shouldOverwriteContent
           ? {
-              version: 1,
+              version: nextVersion,
               blocks: page.content.blocks,
             }
           : existingPage.content,
+        version: nextVersion,
+        content_changed: contentChanged,
         updated_at: new Date().toISOString(),
       };
     }),
@@ -173,13 +182,124 @@ async function syncCourseContentFromSource(
 
   const { error: pageError } = await supabase
     .from("learning_pages")
-    .upsert(pageRows, { onConflict: "course_id,page_code" });
+    .upsert(
+      pageRows.map(({ content_changed: _contentChanged, ...row }) => row),
+      { onConflict: "course_id,page_code" },
+    );
 
   if (pageError) {
     throw new Error(`Pagina's synchroniseren is mislukt: ${pageError.message}`);
   }
 
+  if (pageRows.some((page) => page.content_changed)) {
+    const { error: courseVersionError } = await supabase
+      .from("learning_courses")
+      .update({ version: course.version + 1, updated_at: new Date().toISOString() })
+      .eq("id", course.id)
+      .eq("version", course.version);
+
+    if (courseVersionError) {
+      throw new Error(`Cursusversie verhogen is mislukt: ${courseVersionError.message}`);
+    }
+  }
+
   await archiveExtraPages(supabase, course.id, sourceCourse);
+  await recordLearningContentSyncEvent(supabase, course.id, sourceCourse);
+}
+
+async function recordLearningContentSyncEvent(
+  supabase: LearningSyncClient,
+  courseId: string,
+  sourceCourse: LearningCourseView,
+) {
+  const evidenceSnapshot = buildLearningContentSyncEvidence(sourceCourse);
+  const { error } = await supabase.rpc("record_learning_content_sync_event", {
+    p_course_id: courseId,
+    p_content_version_hash: evidenceSnapshot.content_version_hash,
+    p_evidence_snapshot: evidenceSnapshot,
+    p_payload: {
+      source: "git-canonical",
+      course_code: sourceCourse.course_code,
+      topic_count: evidenceSnapshot.topic_count,
+      page_count: evidenceSnapshot.page_count,
+      block_count: evidenceSnapshot.block_count,
+    },
+  });
+
+  if (error) {
+    throw new Error(`Content-sync event vastleggen is mislukt: ${error.message}`);
+  }
+
+}
+
+function buildLearningContentSyncEvidence(sourceCourse: LearningCourseView) {
+  const topicCount = sourceCourse.topics.length;
+  const pages = sourceCourse.topics.flatMap((topic) => topic.pages);
+  const blockCount = pages.reduce(
+    (total, page) => total + page.content.blocks.length,
+    0,
+  );
+  const canonicalPayload = {
+    source: "git-canonical",
+    course_code: sourceCourse.course_code,
+    topics: sourceCourse.topics.map((topic) => ({
+      topic_code: topic.topic_code,
+      title: topic.title,
+      pages: topic.pages.map((page) => ({
+        page_code: page.page_code,
+        title: page.title,
+        page_type: page.page_type,
+        is_required: page.is_required,
+        content_schema_version: 1,
+        content: {
+          version: 1,
+          blocks: page.content.blocks,
+        },
+      })),
+    })),
+  };
+
+  return {
+    content_source: "git-canonical",
+    course_code: sourceCourse.course_code,
+    topic_count: topicCount,
+    page_count: pages.length,
+    block_count: blockCount,
+    content_version_hash: hashJson(canonicalPayload),
+  };
+}
+
+function hashJson(value: unknown) {
+  return createHash("sha256").update(stableJsonStringify(value)).digest("hex");
+}
+
+function stableJsonStringify(value: unknown): string {
+  if (
+    value === undefined ||
+    typeof value === "function" ||
+    typeof value === "symbol"
+  ) {
+    return "null";
+  }
+
+  if (value === null || typeof value !== "object") {
+    return JSON.stringify(value) ?? "null";
+  }
+
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => stableJsonStringify(item)).join(",")}]`;
+  }
+
+  const record = value as Record<string, unknown>;
+
+  return `{${Object.keys(record)
+    .sort()
+    .filter((key) => {
+      const item = record[key];
+      return item !== undefined && typeof item !== "function" && typeof item !== "symbol";
+    })
+    .map((key) => `${JSON.stringify(key)}:${stableJsonStringify(record[key])}`)
+    .join(",")}}`;
 }
 
 async function moveTopicsToTemporaryOrder(

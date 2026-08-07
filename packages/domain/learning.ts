@@ -107,7 +107,8 @@ export type LessonBlock =
   | VideoBlock
   | AudioBlock
   | SlideDeckBlock
-  | DownloadBlock;
+  | DownloadBlock
+  | OrganizationContextBlock;
 
 export interface LessonContent {
   version: number;
@@ -220,6 +221,44 @@ export type LearningRolePathRequirement =
   | "role_required"
   | "role_optional";
 
+export const ORGANIZATION_CONTEXT_SLOTS = [
+  "approved_tools",
+  "data_rules",
+  "policy_link",
+  "escalation_route",
+  "oversight_roles",
+  "sector_case",
+  "role_cases",
+] as const;
+
+export type OrganizationContextSlot = (typeof ORGANIZATION_CONTEXT_SLOTS)[number];
+
+export interface OrganizationContextPackContent {
+  organization?: {
+    name?: string;
+    sector?: string;
+  };
+  approved_tools?: Array<{ name: string; guidance?: string }>;
+  data_rules?: string[];
+  policy_link?: { label: string; url: string };
+  escalation_route?: {
+    summary?: string;
+    steps?: string[];
+    contact_role?: string;
+    contact_email?: string;
+  };
+  oversight_roles?: string[];
+  sector_case?: { title: string; description: string };
+  role_cases?: Array<{ role: string; title: string; description: string }>;
+}
+
+export interface OrganizationContextPackRelease {
+  id: string;
+  version: number;
+  content_hash: string;
+  context_json: OrganizationContextPackContent;
+}
+
 export interface BaseBlock {
   id: string;
   type: string;
@@ -240,6 +279,15 @@ export interface BaseBlock {
   role_path_ids?: LearningRolePathId[];
   role_path_requirement?: LearningRolePathRequirement;
   evidence_dossier_fields?: string[];
+}
+
+export interface OrganizationContextBlock extends BaseBlock {
+  type: "organization_context";
+  slot: OrganizationContextSlot;
+  fallback: string;
+  acknowledgement_required?: boolean;
+  resolved_context?: OrganizationContextPackContent[OrganizationContextSlot] | null;
+  context_pack_release?: Pick<OrganizationContextPackRelease, "id" | "version" | "content_hash">;
 }
 
 export interface ReviewRubricCriterion {
@@ -561,7 +609,164 @@ export function isLessonBlock(value: unknown): value is LessonBlock {
 
   const block = value as Partial<LessonBlock>;
 
-  return typeof block.id === "string" && typeof block.type === "string";
+  if (typeof block.id !== "string" || typeof block.type !== "string") {
+    return false;
+  }
+
+  if (block.type === "organization_context") {
+    const contextBlock = value as Partial<OrganizationContextBlock>;
+    return (
+      isOrganizationContextSlot(contextBlock.slot) &&
+      typeof contextBlock.fallback === "string" &&
+      (contextBlock.acknowledgement_required === undefined ||
+        typeof contextBlock.acknowledgement_required === "boolean")
+    );
+  }
+
+  return true;
+}
+
+export function isOrganizationContextSlot(value: unknown): value is OrganizationContextSlot {
+  return (
+    typeof value === "string" &&
+    (ORGANIZATION_CONTEXT_SLOTS as readonly string[]).includes(value)
+  );
+}
+
+export function isOrganizationContextPackContent(
+  value: unknown,
+): value is OrganizationContextPackContent {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return false;
+  }
+
+  const context = value as Record<string, unknown>;
+  const allowedKeys = new Set([
+    "organization",
+    ...ORGANIZATION_CONTEXT_SLOTS,
+  ]);
+  if (!Object.keys(context).every((key) => allowedKeys.has(key))) {
+    return false;
+  }
+
+  if (context.organization !== undefined && !isOptionalStringRecord(context.organization, ["name", "sector"])) {
+    return false;
+  }
+  if (
+    context.approved_tools !== undefined &&
+    (!Array.isArray(context.approved_tools) ||
+      !context.approved_tools.every(
+        (tool) => isRequiredStringRecord(tool, ["name"], ["guidance"]),
+      ))
+  ) {
+    return false;
+  }
+  if (context.data_rules !== undefined && !isStringArray(context.data_rules)) return false;
+  if (context.oversight_roles !== undefined && !isStringArray(context.oversight_roles)) return false;
+  if (
+    context.policy_link !== undefined &&
+    !isRequiredStringRecord(context.policy_link, ["label", "url"])
+  ) {
+    return false;
+  }
+  if (
+    context.escalation_route !== undefined &&
+    (!context.escalation_route ||
+      typeof context.escalation_route !== "object" ||
+      Array.isArray(context.escalation_route) ||
+      !Object.keys(context.escalation_route).every((key) =>
+        ["summary", "steps", "contact_role", "contact_email"].includes(key),
+      ) ||
+      !["summary", "contact_role", "contact_email"].every((key) => {
+        const item = (context.escalation_route as Record<string, unknown>)[key];
+        return item === undefined || typeof item === "string";
+      }) ||
+      ("steps" in context.escalation_route &&
+        !isStringArray((context.escalation_route as Record<string, unknown>).steps)))
+  ) {
+    return false;
+  }
+  if (
+    context.sector_case !== undefined &&
+    !isRequiredStringRecord(context.sector_case, ["title", "description"])
+  ) {
+    return false;
+  }
+  if (
+    context.role_cases !== undefined &&
+    (!Array.isArray(context.role_cases) ||
+      !context.role_cases.every((roleCase) =>
+        isRequiredStringRecord(roleCase, ["role", "title", "description"]),
+      ))
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === "string");
+}
+
+function isOptionalStringRecord(value: unknown, allowedKeys: string[]) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const record = value as Record<string, unknown>;
+  return (
+    Object.keys(record).every((key) => allowedKeys.includes(key)) &&
+    Object.values(record).every((item) => typeof item === "string")
+  );
+}
+
+function isRequiredStringRecord(
+  value: unknown,
+  requiredKeys: string[],
+  optionalKeys: string[] = [],
+) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const record = value as Record<string, unknown>;
+  const allowedKeys = [...requiredKeys, ...optionalKeys];
+  return (
+    Object.keys(record).every((key) => allowedKeys.includes(key)) &&
+    requiredKeys.every(
+      (key) => typeof record[key] === "string" && String(record[key]).length > 0,
+    ) &&
+    optionalKeys.every((key) => record[key] === undefined || typeof record[key] === "string")
+  );
+}
+
+export function getOrganizationContextSlots(content: LessonContent): OrganizationContextSlot[] {
+  return content.blocks
+    .filter((block): block is OrganizationContextBlock => block.type === "organization_context")
+    .map((block) => block.slot);
+}
+
+export function applyOrganizationContextToContent(
+  content: LessonContent,
+  release: OrganizationContextPackRelease | null,
+): LessonContent {
+  return {
+    ...content,
+    blocks: content.blocks.map((block) => {
+      if (block.type !== "organization_context") {
+        return block;
+      }
+
+      const resolvedContext = release?.context_json[block.slot] ?? null;
+
+      return {
+        ...block,
+        resolved_context: resolvedContext,
+        context_pack_release: release
+          ? {
+              id: release.id,
+              version: release.version,
+              content_hash: release.content_hash,
+            }
+          : undefined,
+      };
+    }),
+  };
 }
 
 export function getQuizBlockIds(content: LessonContent): string[] {

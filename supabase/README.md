@@ -34,6 +34,14 @@ supabase/migrations/20260527090000_grant_user_roles_select_to_authenticated.sql
 supabase/migrations/20260527093000_enable_dashboard_read_access.sql
 supabase/migrations/20260528143000_repair_v8_scoring_parity.sql
 supabase/migrations/20260529120000_learning_pilot_hardening.sql
+supabase/migrations/20260707190000_evidence_foundation.sql
+supabase/migrations/20260805092242_align_ai_literacy_core_content.sql
+supabase/migrations/20260805092255_add_learning_context_pack_releases.sql
+supabase/migrations/20260805110413_grant_learning_context_policy_helpers.sql
+supabase/migrations/20260805110534_grant_learning_certification_issue_to_authenticated.sql
+supabase/migrations/20260805110717_fix_learning_certification_issue_ambiguity.sql
+supabase/migrations/20260805111011_optimize_learning_context_pack_rls_and_indexes.sql
+supabase/migrations/20260805114500_secure_context_hash_triggers.sql
 ```
 
 The early schema migration creates the V8.1 tables and the original scoring
@@ -59,6 +67,8 @@ content editor audit page.
 supabase/seed/20260504141000_sai_smoke_seed.sql
 supabase/seed/20260527_sai_dashboard_mock_data.sql
 supabase/smoke-tests/20260504140000_sai_rpc_smoke_tests.sql
+supabase/seed/20260805094000_learning_context_pack_pilot.sql
+supabase/smoke-tests/20260805093000_learning_context_packs_smoke.sql
 ```
 
 The seed file creates a deterministic smoke-test organization, one active scan
@@ -103,6 +113,13 @@ The smoke-test file validates:
 - completion burns the submission token
 - direct scoring remains blocked
 
+The Context Pack pilot seed is fictitious local/staging data. It fills every
+approved organization-context slot and activates release v1 for a deterministic
+example organization. The Context Pack smoke test is transaction-based and
+rolls back all of its own fixtures. It validates immutable releases, old/new
+enrollment pinning, archived-release reads, acknowledgement evidence,
+organization A/B RLS isolation, and attempt/certification evidence hashes.
+
 ## Local Supabase Flow
 
 Suggested local flow:
@@ -113,6 +130,8 @@ supabase db reset
 psql "<local-db-url>" -f supabase/seed/20260504141000_sai_smoke_seed.sql
 psql "<local-db-url>" -f supabase/seed/20260527_sai_dashboard_mock_data.sql
 psql "<local-db-url>" -f supabase/smoke-tests/20260504140000_sai_rpc_smoke_tests.sql
+psql "<local-db-url>" -v ON_ERROR_STOP=1 -f supabase/seed/20260805094000_learning_context_pack_pilot.sql
+psql "<local-db-url>" -v ON_ERROR_STOP=1 -f supabase/smoke-tests/20260805093000_learning_context_packs_smoke.sql
 ```
 
 Use the DB URL from `supabase status`. Do not commit local database passwords.
@@ -131,6 +150,11 @@ Suggested staging flow:
    `risk_result`, `risk_result_tool`, and `dpo_review_items` exist.
 7. Only after all checks pass, connect the future Next.js frontend to this
    staging project.
+
+For the AI Literacy Context Pack pilot, also load
+`20260805094000_learning_context_pack_pilot.sql` and run
+`20260805093000_learning_context_packs_smoke.sql`. Do not load the fictitious
+pilot seed into production.
 
 ## RouteAI Learning Post-Migration Step
 

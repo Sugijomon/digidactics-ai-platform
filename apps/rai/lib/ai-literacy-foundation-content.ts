@@ -319,6 +319,13 @@ const aiLiteracyFoundationTopicSeedsBase: AiLiteracyTopicSeed[] = [
             guidance: "Een goed antwoord benoemt een concreet risico in jouw eigen werkcontext.",
           },
           {
+            id: "p3-org-tools",
+            type: "organization_context",
+            slot: "approved_tools",
+            fallback:
+              "Je organisatie heeft hier nog geen tooloverzicht gepubliceerd. Vraag welke AI-tools en accounts voor jouw werk zijn goedgekeurd.",
+          },
+          {
             id: "p3-takeaways",
             type: "key_takeaways",
             title: "Naar het volgende onderwerp",
@@ -779,6 +786,20 @@ const aiLiteracyFoundationTopicSeedsBase: AiLiteracyTopicSeed[] = [
             require_all: true,
           },
           {
+            id: "p6-org-data-rules",
+            type: "organization_context",
+            slot: "data_rules",
+            fallback:
+              "Raadpleeg de interne privacy-, informatiebeveiligings- en dataclassificatieregels voordat je werkgegevens in een AI-tool gebruikt.",
+          },
+          {
+            id: "p6-org-approved-tools",
+            type: "organization_context",
+            slot: "approved_tools",
+            fallback:
+              "Controleer in het interne beleid welke AI-tools en accounts voor deze gegevens zijn toegestaan.",
+          },
+          {
             id: "p6-takeaways",
             type: "key_takeaways",
             title: "Dit gaat vaak mis",
@@ -966,6 +987,13 @@ const aiLiteracyFoundationTopicSeedsBase: AiLiteracyTopicSeed[] = [
             tone: "warning",
             markdown:
               "Bij claims, boetes, contractdreiging, gevoelige data of juridische taal haak je een leidinggevende, DPO, legal of andere specialist aan voordat je AI-output gebruikt.",
+          },
+          {
+            id: "p8-org-sector-case",
+            type: "organization_context",
+            slot: "sector_case",
+            fallback:
+              "Pas het scenario toe op een vergelijkbare situatie uit jouw eigen werk en gebruik daarbij fictieve of geminimaliseerde gegevens.",
           },
           {
             id: "p8-takeaways",
@@ -1301,6 +1329,20 @@ const aiLiteracyFoundationTopicSeedsBase: AiLiteracyTopicSeed[] = [
             title: "Drie regels voor toezicht",
             items: ["Bij hoge impact beslist de mens.", "Monitor ook achteraf waar output vaker wordt gebruikt.", "Twijfel betekent stoppen, checken of escaleren."],
           },
+          {
+            id: "p12-org-oversight",
+            type: "organization_context",
+            slot: "oversight_roles",
+            fallback:
+              "Vraag wie binnen jouw organisatie reviewer, approver en proceseigenaar is voor AI-toepassingen met impact.",
+          },
+          {
+            id: "p12-org-escalation",
+            type: "organization_context",
+            slot: "escalation_route",
+            fallback:
+              "Gebruik bij twijfel de bestaande privacy-, security- of managementroute en leg vast waarom je bent gestopt of geëscaleerd.",
+          },
         ],
       },
       {
@@ -1400,6 +1442,13 @@ const aiLiteracyFoundationTopicSeedsBase: AiLiteracyTopicSeed[] = [
             placeholder: "Voor mijn team spreken we af dat...",
             min_words: 30,
             save_personal: true,
+          },
+          {
+            id: "p14-org-role-cases",
+            type: "organization_context",
+            slot: "role_cases",
+            fallback:
+              "Kies hierboven de algemene rolcase die het beste bij jouw afdeling past en vertaal die naar een concrete teamafspraak.",
           },
           {
             id: "p14-download",
@@ -1619,6 +1668,14 @@ const aiLiteracyFoundationTopicSeedsBase: AiLiteracyTopicSeed[] = [
               "Escalatie minimaal voldoende.",
               "Eindadvies mag niet evident onveilig zijn.",
             ],
+          },
+          {
+            id: "p15-org-policy-acknowledgement",
+            type: "organization_context",
+            slot: "policy_link",
+            fallback:
+              "Er is nog geen organisatiebeleid aan deze cursus gekoppeld. Vraag waar je de geldende interne AI-afspraken kunt vinden.",
+            acknowledgement_required: true,
           },
         ],
       },

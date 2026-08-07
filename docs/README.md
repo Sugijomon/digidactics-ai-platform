@@ -10,6 +10,7 @@ Use these documents to transfer context between laptops, Codex sessions, ChatGPT
 - `architecture.md` - technical architecture and repo structure.
 - `auth-foundation.md` - prepared authentication direction for Next.js App Router and Supabase SSR.
 - `domain-decisions.md` - durable product, domain, compliance, and architecture decisions.
+- `adr/` - focused architecture decision records for decisions that should stay stable across PRs.
 - `development-workflow.md` - how Codex, ChatGPT, GitHub, Vercel, and Supabase are used together.
 - `sai-build-plan.md` - practical build sequence and implementation checklist for SAI.
 - `risk-engine-spec.md` - Shadow AI Scan scoring and risk logic.
@@ -20,6 +21,7 @@ Use these documents to transfer context between laptops, Codex sessions, ChatGPT
 - `learning-system.md` - current RouteAI Learning System architecture and integration notes.
 - `learning-system-ai-literacy-audit.md` - concept audit for AI Literacy source-of-truth, coverage, and cleanup decisions.
 - `learning-system-product-spec.md` - product logic for AI Literacy access gating, certification, and microlearning direction.
+- `evidence-foundation.md` - post-PR #3 evidence ledger, version pinning, and rationale bridge.
 - `supabase-staging-rehearsal.md` - safe staging checklist for merging RAI Learning with the live SAI Supabase database.
 
 ## Document Governance
@@ -30,6 +32,7 @@ Use this rule of thumb:
 
 - product positioning and scope: `sai-product-readme.md`
 - durable decisions: `domain-decisions.md`
+- architecture decision records: `adr/`
 - technical architecture: `architecture.md`
 - authentication foundation: `auth-foundation.md`
 - survey flow: `survey-flow-spec.md`
@@ -42,6 +45,7 @@ Use this rule of thumb:
 - RouteAI Learning architecture: `learning-system.md`
 - AI Literacy content/source audit: `learning-system-ai-literacy-audit.md`
 - AI Literacy gate and certification product rules: `learning-system-product-spec.md`
+- Evidence Foundation bridge: `evidence-foundation.md`
 - Supabase staging rehearsal and live migration guards: `supabase-staging-rehearsal.md`
 
 Supabase migration and validation notes live in `supabase/README.md`.

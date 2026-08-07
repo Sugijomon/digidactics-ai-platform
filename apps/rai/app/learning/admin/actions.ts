@@ -884,7 +884,16 @@ export async function reviewLearningPageAttempt(formData: FormData) {
   const courseCode = readRequired(formData, "courseCode");
   const userId = readRequired(formData, "userId");
   const decision = readRequired(formData, "decision");
-  const reviewerNotes = String(formData.get("reviewerNotes") ?? "").trim() || null;
+  const reviewerNotes = String(formData.get("reviewerNotes") ?? "").trim();
+
+  if (decision !== "approve" && decision !== "reject") {
+    throw new Error("Ongeldige reviewbeslissing.");
+  }
+
+  if (!reviewerNotes) {
+    throw new Error("Een beslisgrond is verplicht bij goedkeuren en afwijzen.");
+  }
+
   const {
     data: { user },
   } = await supabase.auth.getUser();

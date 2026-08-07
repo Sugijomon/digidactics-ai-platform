@@ -120,12 +120,18 @@ export default async function LearningReviewsPage() {
                 <input name="courseCode" type="hidden" value={review.course_code} />
                 <input name="userId" type="hidden" value={review.user_id} />
                 <label className="field">
-                  <span>Reviewer notes</span>
+                  <span>Beslisgrond (verplicht)</span>
                   <textarea
+                    aria-describedby={`review-rationale-help-${review.id}`}
                     name="reviewerNotes"
-                    placeholder="Leg kort vast waarom deze poging is goedgekeurd of afgewezen."
+                    placeholder="Leg concreet vast waarom deze poging wordt goedgekeurd of afgewezen."
+                    required
                     rows={3}
                   />
+                  <small id={`review-rationale-help-${review.id}`}>
+                    Vermeld de beoordelingsgrond en geen bijzondere persoonsgegevens of gegevens van
+                    derden. Deze verantwoording wordt als onveranderbaar bewijs vastgelegd.
+                  </small>
                 </label>
                 <div className="review-actions">
                   <button className="button button-secondary" name="decision" type="submit" value="reject">

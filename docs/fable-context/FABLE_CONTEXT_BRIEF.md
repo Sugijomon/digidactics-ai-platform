@@ -122,7 +122,8 @@ The implementation branch passed locally before this brief was added:
 
 A staging learner walkthrough recorded 15/15 pages complete, 13
 evidence-bearing latest attempts, one context acknowledgement, and 14 ledger
-events. Seven pages still require human review; no certificate has been issued.
+events. Seven of those latest attempts still require human review; no
+certificate has been issued.
 Manual reviewer approval/rejection and final certificate issuance therefore
 remain the principal hands-on acceptance tests.
 

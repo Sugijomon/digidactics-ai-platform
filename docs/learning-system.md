@@ -274,6 +274,26 @@ High-level access:
 - Org admin/DPO: can read org progress for governance dashboards.
 - Recommendation rules: platform or own-org readable; managed by learning admins.
 
+Reviewer authorization currently follows the same learning-admin helper as
+content management. A `super_admin` can review platform-wide. A
+`content_editor` with an organization binding can review that organization;
+an organization-less `content_editor` currently has platform-wide review
+authority. This is an explicit pre-production product/security decision point:
+retain that central reviewer model, or introduce a separate org-scoped reviewer
+role before rollout. Do not infer organization-wide grading authority merely
+from the content-authoring role name.
+
+The development-only content-editor bypass is guarded by both
+`NODE_ENV !== "production"` and `RAI_DEV_CONTENT_EDITOR_BYPASS=true`. Never set
+that flag in staging, production, or another production-like environment; it
+uses an administrative client and is intended only for isolated local UI work.
+
+AI Literacy Foundation is currently the only course configured as a RouteAI
+access gate with certificate-required assessment blocks. AI Proficiency and AI
+Mastery are complete learning experiences, but do not yet have their own
+certificate/access requirements. Adding those requirements is a product
+decision, not an implied part of the current pilot.
+
 ## Resolved AI Literacy Seed Drift
 
 The repository previously contained two AI Literacy content layers:

@@ -2,6 +2,15 @@ import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { isAppRole, type AppRole } from "@/lib/supabase/roles";
 
+const ROLE_PRIORITY: AppRole[] = [
+  "super_admin",
+  "org_admin",
+  "dpo",
+  "manager",
+  "content_editor",
+  "user",
+];
+
 type UserRoleRecord = {
   role: string | null;
   org_id: string | null;
@@ -40,14 +49,11 @@ export async function getUserRole(): Promise<UserRoleState> {
     };
   }
 
-  // Future roles: manager, content_editor, juridisch.
-  // Add routing and permissions when RouteAI Platform functionality is active.
   const { data, error: roleError } = await supabase
     .from("user_roles")
     .select("role, org_id")
     .eq("user_id", user.id)
-    .limit(1)
-    .maybeSingle<UserRoleRecord>();
+    .returns<UserRoleRecord[]>();
 
   if (roleError) {
     return {
@@ -58,10 +64,29 @@ export async function getUserRole(): Promise<UserRoleState> {
     };
   }
 
+  const selectedRole = selectHighestPriorityRole(data ?? []);
+
   return {
     user,
-    role: isAppRole(data?.role) ? data.role : null,
-    orgId: data?.org_id ?? null,
+    role: selectedRole?.role ?? null,
+    orgId: selectedRole?.org_id ?? null,
     error: null,
   };
+}
+
+function selectHighestPriorityRole(records: UserRoleRecord[]) {
+  return records
+    .filter(
+      (record): record is UserRoleRecord & { role: AppRole } =>
+        isAppRole(record.role),
+    )
+    .sort((a, b) => {
+      const roleDiff = rolePriority(a.role) - rolePriority(b.role);
+      if (roleDiff !== 0) return roleDiff;
+      return (a.org_id ?? "").localeCompare(b.org_id ?? "");
+    })[0];
+}
+
+function rolePriority(role: AppRole) {
+  return ROLE_PRIORITY.indexOf(role);
 }

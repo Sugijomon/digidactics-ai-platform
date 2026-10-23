@@ -14,6 +14,9 @@ const eslintConfig = defineConfig([
     "playwright-report/**",
     "test-results/**",
     "next-env.d.ts",
+    // Compiled output of the standalone synthetic-flow script (tsc, not
+    // part of the Next.js app bundle).
+    "scripts/synthetic-flow/dist/**",
   ]),
 ]);
 

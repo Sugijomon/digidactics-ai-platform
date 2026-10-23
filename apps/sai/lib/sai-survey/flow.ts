@@ -5,6 +5,7 @@ export type SurveyStepId =
   | "motivations"
   | "tools"
   | "useCases"
+  | "application"
   | "data"
   | "accounts"
   | "literacy"
@@ -28,16 +29,45 @@ export const surveySteps = [
   { id: "complete", label: "Afronden", href: "/survey/complete" },
 ] satisfies SurveyStep[];
 
+export const aiFotoSurveySteps = [
+  { id: "profile", label: "Werkplek", href: "/survey/profile" },
+  { id: "motivations", label: "Frequentie", href: "/survey/motivations" },
+  { id: "tools", label: "Tools", href: "/survey/tools" },
+  {
+    id: "application",
+    label: "Toepassing",
+    href: "/survey/application",
+  },
+  { id: "data", label: "Data", href: "/survey/data" },
+  { id: "accounts", label: "Account", href: "/survey/accounts" },
+  { id: "literacy", label: "Spelregels", href: "/survey/literacy" },
+  { id: "future", label: "Toekomst", href: "/survey/future" },
+  { id: "complete", label: "Afronden", href: "/survey/complete" },
+] satisfies SurveyStep[];
+
+export function getSurveySteps(session?: Pick<StoredSurveySession, "productCode"> | null) {
+  return isAiFotoSession(session) ? aiFotoSurveySteps : surveySteps;
+}
+
 export function getSurveyStep(stepId: SurveyStepId) {
-  return surveySteps.find((step) => step.id === stepId) ?? surveySteps[0];
+  return (
+    [...surveySteps, ...aiFotoSurveySteps].find((step) => step.id === stepId) ??
+    surveySteps[0]
+  );
 }
 
 export function canAccessSurveyStep(
   session: StoredSurveySession,
   stepId: SurveyStepId,
 ) {
+  const steps = getSurveySteps(session);
+
   if (stepId === "profile") {
     return true;
+  }
+
+  if (stepId === "application" && !isAiFotoSession(session)) {
+    return false;
   }
 
   if (
@@ -51,29 +81,35 @@ export function canAccessSurveyStep(
   }
 
   if (
-    (stepId === "useCases" || stepId === "accounts") &&
+    (stepId === "useCases" || stepId === "application" || stepId === "accounts") &&
     !hasPendingTool(session)
   ) {
     return false;
   }
 
-  const requestedIndex = getStepIndex(stepId);
+  const requestedIndex = getStepIndex(steps, stepId);
   const priorSteps = session.noToolsExitPath
-    ? surveySteps
+    ? steps
         .slice(0, requestedIndex)
         .filter(
           (step) =>
-            !["tools", "useCases", "data", "accounts", "literacy"].includes(
-              step.id,
-            ),
+            ![
+              "tools",
+              "useCases",
+              "application",
+              "data",
+              "accounts",
+              "literacy",
+            ].includes(step.id),
         )
-    : surveySteps.slice(0, requestedIndex);
+    : steps.slice(0, requestedIndex);
 
   return priorSteps.every((step) => session.completedSteps?.includes(step.id));
 }
 
 export function getResumeStep(session: StoredSurveySession) {
-  const firstIncompleteStep = surveySteps.find(
+  const steps = getSurveySteps(session);
+  const firstIncompleteStep = steps.find(
     (step) => !session.completedSteps?.includes(step.id),
   );
 
@@ -91,7 +127,7 @@ export function getResumeStep(session: StoredSurveySession) {
 
   if (
     session.noToolsExitPath &&
-    ["tools", "useCases", "data", "accounts", "literacy"].includes(
+    ["tools", "useCases", "application", "data", "accounts", "literacy"].includes(
       firstIncompleteStep.id,
     )
   ) {
@@ -109,6 +145,12 @@ function hasPendingTool(session: StoredSurveySession) {
   return Boolean(session.pendingTool || (session.pendingTools?.length ?? 0) > 0);
 }
 
-function getStepIndex(stepId: SurveyStepId) {
-  return surveySteps.findIndex((step) => step.id === stepId);
+function getStepIndex(steps: SurveyStep[], stepId: SurveyStepId) {
+  return steps.findIndex((step) => step.id === stepId);
+}
+
+function isAiFotoSession(
+  session?: Pick<StoredSurveySession, "productCode"> | null,
+) {
+  return session?.productCode === "ai_foto";
 }

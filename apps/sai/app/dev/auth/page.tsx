@@ -1,8 +1,14 @@
+import { notFound } from "next/navigation";
+import { areDevRoutesEnabled } from "@/lib/dev-routes";
 import { getUserRole } from "@/lib/supabase/get-user-role";
 
 export const dynamic = "force-dynamic";
 
 export default async function DevAuthPage() {
+  if (!areDevRoutesEnabled()) {
+    notFound();
+  }
+
   const { user, role, orgId, error } = await getUserRole();
 
   return (

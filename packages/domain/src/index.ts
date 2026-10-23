@@ -1,4 +1,27 @@
 export {
+  aggregateSupportedPatterns,
+  buildAiFotoAttentionCardDraft,
+  buildAiFotoGeneratedCardDraft,
+  clampAiFotoEvidenceLevel,
+  countAiFotoRespondents,
+  getSupportedAiFotoPatterns,
+  findAiFotoLegalBlockedTerms,
+  getAiFotoAttentionLevel,
+  getAiFotoClusterKey,
+  getAiFotoEvidenceCeiling,
+  validateAiFotoCardItemApproval,
+  type AiFotoCardItemApprovalInput,
+  type AiFotoCardItemApprovalValidation,
+  type AiFotoApplicationSignalInput,
+  type AiFotoAttentionLevel,
+  type AiFotoCardItemDraft,
+  type AiFotoCardItemStatus,
+  type AiFotoCardType,
+  type AiFotoEvidenceLevel,
+  type AiFotoSourceKind,
+} from "./ai-foto-analysis.js";
+
+export {
   aggregateRiskResults,
   calculateExposureScore,
   calculatePriorityScore,

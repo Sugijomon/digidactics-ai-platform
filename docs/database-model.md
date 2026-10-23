@@ -104,6 +104,38 @@ tables instead of embedded as mock data in production React components.
 
 ## Scan Campaigns And Runs
 
+### Product And Method Variant
+
+SAI and AI-Foto share the same platform foundation. A scan wave identifies
+which respondent method is active:
+
+```txt
+scan_wave.product_code       sai | ai_foto
+scan_wave.method_version     sai-v8.1 | ai-foto-scan-v1
+```
+
+Each run stores a snapshot so historical answers remain interpretable even if a
+wave is edited later:
+
+```txt
+survey_run.product_code_snapshot
+survey_run.method_version_snapshot
+```
+
+Default behavior remains SAI:
+
+```txt
+product_code = sai
+method_version = sai-v8.1
+```
+
+AI-Foto uses:
+
+```txt
+product_code = ai_foto
+method_version = ai-foto-scan-v1
+```
+
 ### `scan_campaigns`
 
 Represents an invitation or scan campaign for one organization.
@@ -275,6 +307,179 @@ created_at
 ```
 
 Data boost is calculated from the highest data sensitivity reported in the run.
+
+## AI-Foto Application Layer
+
+Controlled pilot integrity (2026-10-23): card approval and same-org/same-wave
+source validation are enforced by database triggers. Approved cards are
+immutable; editing a reviewed card returns it to draft. Audit events are written
+transactionally. Counts use distinct completed runs and a minimum of five (or
+the larger configured cell threshold). Survey-only evidence cannot be marked
+`aangetoond`. See migration `20261023100645_harden_ai_foto_pilot_integrity.sql`.
+
+PDF exports reuse `report_exports` with `export_type = ai_foto_pdf`,
+`export_status = generated`, `view_or_query_version = ai-foto-a3-v1`, file size,
+row count and privacy threshold. `filters` contains SHA-256, approved item IDs,
+generation timestamp, method/analysis/template versions and source limitations.
+`record_ai_foto_pdf_export` checks caller membership, same-wave approved sources,
+all three card types and the current threshold, then inserts the export row and
+`ai_foto.pdf_generated` audit event in one transaction. No new table or storage
+bucket is introduced. A generated record does not attest successful receipt.
+
+AI-Foto adds a concrete application layer without changing the SAI V8.1 scoring
+tables. The core analysis unit is:
+
+```txt
+respondent segment
++ tool/function
++ concrete application
++ data
++ account/environment
++ output destination
++ human control
++ people impact
++ value, attention, and skills signals
+```
+
+### `survey_application`
+
+One primary and optionally one secondary concrete application per respondent.
+It links to existing SAI tool/use-case records:
+
+```txt
+id
+survey_run_id                  -> survey_run.id
+survey_tool_id                 -> survey_tool.id
+survey_tool_use_case_id         -> survey_tool_use_case.id, nullable
+depth_rank                     -> primary | secondary
+task_description_limited        -> short controlled free text, max 500 chars
+application_frequency_code      -> ref_application_frequency.code
+account_environment_code        -> ref_application_account_environment.code
+output_destination_code         -> ref_output_destination.code
+output_control_code             -> ref_output_control.code
+deviation_authority_code        -> ref_deviation_authority.code
+  people_impact_code              -> ref_people_impact.code
+  ai_visibility_code               -> ref_ai_visibility.code
+  transparency_code               -> ref_ai_transparency.code
+  beneficiary_code                -> ref_value_beneficiary.code
+  net_effect_code                 -> ref_net_effect.code
+  control_rework_code             -> ref_control_rework.code
+  shareability_code               -> ref_shareability.code
+  value_evidence_code             -> ref_value_evidence.code
+  escalation_route_awareness_code -> ref_escalation_route_awareness.code
+  created_at
+  updated_at
+```
+
+Constraints:
+
+- `survey_tool_id` must belong to the same `survey_run_id`.
+- `survey_tool_use_case_id`, when present, must belong to the same tool.
+- one row per `(survey_run_id, depth_rank)`.
+- short free text is not a scoring input and must not be copied into score
+  breakdowns or default customer outputs without aggregation/review.
+
+### AI-Foto Multi-Choice Child Tables
+
+```txt
+survey_application_data_type
+survey_application_value_type
+survey_application_condition_need
+survey_application_near_miss_signal
+survey_application_support_need
+survey_application_skill_response
+```
+
+These tables collect application-level signals for the three AI-Foto cards:
+
+- Waardekaart: value type, beneficiary, net effect, control/rework,
+  shareability, value evidence indication, conditions.
+- Aandachtspuntenkaart: data, account/environment, output destination, control,
+  people impact, factual AI visibility, reporting awareness, near-miss signals,
+  escalation awareness.
+- Vaardighedenkaart: skill-domain scenario answers, support needs, data and
+  output-control behavior.
+
+### AI-Foto Reference Tables
+
+AI-Foto runtime answer codes live in dedicated reference tables where the
+answers are not existing SAI runtime options:
+
+```txt
+ref_application_frequency
+ref_application_account_environment
+ref_output_destination
+ref_output_control
+ref_deviation_authority
+ref_people_impact
+ref_ai_visibility
+ref_ai_transparency
+ref_value_type
+ref_value_beneficiary
+ref_net_effect
+ref_control_rework
+ref_shareability
+ref_value_evidence
+ref_condition_need
+ref_near_miss_signal
+ref_escalation_route_awareness
+ref_skill_domain
+ref_skill_response
+ref_ai_foto_doubt_scenario
+```
+
+These are runtime survey options and signal labels, not legal classifications
+or SAI risk-engine inputs.
+
+### AI-Foto Run-Level Scenario Signal
+
+AI-Foto may store one run-level handling scenario on `survey_profile`:
+
+```txt
+ai_foto_doubt_scenario_code -> ref_ai_foto_doubt_scenario.code
+```
+
+This is a Vaardighedenkaart signal only. It is not a SAI V8.1 scoring input and
+must not alter risk-result calculation.
+
+### `card_item`
+
+AI-Foto analysis adds a persistent item between raw scan records and exported
+customer cards:
+
+```txt
+id
+org_id
+scan_wave_id
+card_type                waarde | aandacht | vaardigheid
+source_kind              application_cluster | run_aggregate | derived_signal
+cluster_key              stable tool/use-case/segment key
+title
+observation              structured observation, no unsupported facts
+respondent_count
+segment_spread           jsonb, min-cell suppressed
+evidence_level           gesteld | aannemelijk | aangetoond
+evidence_refs            jsonb array of source ids and field codes
+interpretation
+open_questions           text[]
+precaution
+follow_up_direction      stable direction code
+proposed_owner_role      management | dpo | it | hr | proceseigenaar
+review_date
+related_card_item_ids    uuid[]
+status                   draft | ai_suggested | consultant_reviewed | approved
+analysis_version
+created_by
+approved_by
+approved_at
+created_at
+updated_at
+```
+
+`card_item` is org-scoped and RLS-protected. Authenticated DPO/org-admin users
+may read and manage items for their organization; super admins may manage all
+items. No anonymous role receives direct table access. Customer-card export may
+select only `approved` items.
 
 ## Reference Tables
 

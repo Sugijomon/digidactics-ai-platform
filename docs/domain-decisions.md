@@ -1,5 +1,256 @@
 # Domain Decisions
 
+## 2026-10-23 - Controlled Pilot Privacy And Approval Integrity
+
+The SAI risk dashboard also aggregates identical structured reporting patterns
+on the server, counts distinct respondents, and suppresses patterns below five
+or the larger configured minimum before sending drilldown rows to the client.
+Free-text department names and individual result IDs are not reporting labels.
+The prior synthetic trend labels have been replaced by `Niet gemeten`; the
+ambiguous `Gem.` column now reports the actual maximum exposure score. These
+are reporting corrections, not changes to stored SAI scoring.
+
+AI-Foto's `ai-foto-a3-v1` template exports only an approved, same-wave set of
+the three card types. The authenticated server downloads bytes directly after
+the database atomically records SHA-256, source IDs, actor, versions and an audit
+event. No public storage bucket, persistent file archive or signing service is
+added. Migration `20261023101819_add_ai_foto_pdf_export_registration.sql` was
+applied only to the verified staging branch. The current handover and test
+record are in `controlled-pilot-2026-10-23.md`.
+
+AI-Foto dashboard signals use completed primary applications (one per run).
+Individual task descriptions are never fetched for the dashboard. Candidate
+previews group identical structured patterns and suppress groups below the
+configured minimum; the controlled pilot uses a privacy floor of five distinct
+respondents. Card generation may use primary and secondary applications but
+counts distinct survey runs, not application rows. These changes affect
+AI-Foto presentation only, not SAI V8.1 scoring.
+
+Human-reviewed drafts are not regenerated. Editing a reviewed draft requires
+review again. Approval is a database-enforced transition from reviewed to
+approved, with same-org/same-wave completed source records, minimum distinct
+respondents, required interpretation, and neutral wording in all output fields.
+Approved items are immutable, including through direct Data API requests.
+Card mutations and their audit events commit in the same database transaction.
+
+This pilot workbench captures survey evidence only: evidence may be `gesteld`
+or `aannemelijk`. A checkbox alone is not independent triangulation evidence;
+`aangetoond` requires a future separately specified evidence workflow. Existing
+approved items are preserved; new approvals must satisfy these requirements.
+Export preparation derives method and wave metadata from stored selected items,
+requires one wave, and applies the same minimum-cell floor. The workbench shows
+the latest AI-Foto wave rather than combining approved items from different waves.
+
+Migration: `20261023100645_harden_ai_foto_pilot_integrity.sql`. Applied only to
+the verified non-default staging branch `gpptjkwxqxxdsjgwzhzl`; production was
+not mutated. Current browser/API/PDF evidence and production gates are recorded
+in `controlled-pilot-2026-10-23.md`; historical tests do not certify production.
+
+## 2026-08-05 - AI-Foto Fable Feedback Stays A Variant, Adds Analysis Plane
+
+The Fable design feedback is accepted as a refinement of the existing
+AI-Foto scan variant. It does not create a separate repository, copied app,
+copied schema, or separate SAI risk engine. The governing boundary remains:
+
+```txt
+SAI product surface and V8.1 scoring: unchanged by default
+AI-Foto respondent and analysis surface: variant-gated by product_code = ai_foto
+AI-Foto method version: ai-foto-scan-v1 until a later documented method bump
+```
+
+The respondent change is a rhythm and interpretation change, not a new legal
+method. The application step should be reshaped from a compact form wizard into
+a sequence of short beats around a concrete practice example:
+
+- practice-example selection;
+- an application data-flow screen that connects data, tool/work environment,
+  output destination, and output control;
+- a people-impact and human-deviation screen;
+- a value screen that keeps net effect and control/rework together;
+- a visible rules and follow-up screen for visibility, reporting awareness,
+  escalation awareness, conditions, near misses, shareability, and support.
+
+The shared SAI run-level data question remains analytically useful for SAI
+scoring and broad exposure. For AI-Foto, the copy must make the level
+difference explicit by asking about data use besides the saved practice example
+and by showing application-level data categories as already noted context. The
+stored application answer is displayed for orientation only and must not be used
+as a pre-filled answer for the run-level SAI data question.
+
+AI-Foto adds two lightweight respondent signals:
+
+- a value evidence indication at application level, capped at survey evidence;
+- one run-level scenario answer about what the respondent does when they doubt
+  an AI answer.
+
+These signals feed AI-Foto cards and skills/attention interpretation only. They
+must not change `shadow_score`, `exposure_score`, `priority_score`,
+`risk_result`, `risk_result_tool`, or SAI review triggers.
+
+AI-Foto also adds a persistent analysis plane centered on `card_item`. A
+`card_item` is an analysis artifact between raw `survey_application` records
+and customer-facing cards. It stores card type, source kind, cluster key,
+structured observation, respondent count, evidence references, evidence level,
+human interpretation fields, status, analysis version, and audit metadata.
+
+Automatic analysis may propose deterministic draft items and bounded text
+concepts, but customer-card export is blocked unless selected items are
+`approved` by an authenticated DPO/org-admin/super-admin role. Evidence level
+is capped by available sources: survey-only output can be `gesteld` or, when a
+survey respondent indicates a concrete example or measurable signal,
+`aannemelijk`; `aangetoond` is manual only after triangulation outside the
+survey.
+
+The next AI-Foto layer is implemented as a dashboard workbench over this same
+`card_item` plane. Draft generation is deterministic and idempotent per
+organization, scan wave, analysis version, card type, source kind, and cluster
+key. Regenerating may refresh draft or AI-suggested items, but it must not
+overwrite `approved` items. Export preparation stays in the existing evidence
+plane: approved-only selections are recorded as preview-ready
+`report_exports` with selected card item ids, method version, analysis version,
+min-cell metadata, and an audit event.
+
+AI-Foto cards and exports remain aggregated decision preparation. They are not
+a legal opinion, DPIA, EU AI Act classification, employee performance view,
+audit, complete AI register, compliance guarantee, or replacement for
+specialist review.
+
+## 2026-08-03 - AI-Foto Scan Variant Extends SAI Without Forking It
+
+AI-Foto is implemented as a scan variant on top of the existing SAI platform
+foundation, not as a copied app, copied schema, or separate risk engine.
+
+The durable product marker is stored at wave/run level:
+
+- `scan_wave.product_code`
+- `scan_wave.method_version`
+- `survey_run.product_code_snapshot`
+- `survey_run.method_version_snapshot`
+
+Initial values are:
+
+```txt
+sai      / sai-v8.1
+ai_foto  / ai-foto-scan-v1
+```
+
+The first AI-Foto-specific record-plane extension is
+`survey_application`: one primary, and optionally one secondary, concrete
+application selected by the respondent. It connects an existing
+`survey_tool` and `survey_tool_use_case` to AI-Foto signal fields for value,
+attention points, skills, output destination, human control, transparency,
+people impact, near misses, support needs, and conditions for responsible use.
+
+The first respondent UI slice is variant-gated in the existing `apps/sai`
+survey flow. SAI continues from broad tool/use-case selection directly to the
+data step. AI-Foto continues from broad tool/use-case selection to
+`/survey/application`, saves the concrete application through
+`save_survey_application(...)`, and then rejoins the shared data/account/
+literacy/future/complete flow.
+
+The first AI-Foto dashboard output preview is `/dashboard/ai-foto`. It
+aggregates `survey_application` records into:
+
+- Waardekaart
+- Aandachtspuntenkaart
+- Vaardighedenkaart
+- kandidaat-AI-inventaris
+- maximaal vijf besluitpunten
+- 30/60/90-route
+
+The AI-Foto respondent deep-dive step is kept as an MVP survey step rather than
+a full consultant interview. The UI uses neutral inventory language, makes
+sensitive blocks optional, shows near-miss privacy reassurance, and presents
+the page as a local three-part wizard to reduce cognitive load. It asks the
+human-deviation question only when the selected people-impact answer makes that
+context relevant. Free-text application descriptions must steer respondents
+away from names, e-mail addresses, dossier numbers, and customer details.
+Application-specific skill-response fields remain in the schema/RPC for future
+use, but the MVP respondent screen no longer asks a per-application skill
+matrix; broader skill signals should be collected once at survey or training
+level if reintroduced. Until then, the AI-Foto dashboard may derive
+Vaardighedenkaart signals from behavior and context signals such as data-rule
+needs, output-control gaps, near-miss categories, and transparency uncertainty.
+Those derived signals are adoption/support signals, not individual skill
+assessments.
+
+SAI V8.1 scoring is intentionally unchanged. AI-Foto application-level fields
+do not silently affect `shadow_score`, `exposure_score`, `priority_score`,
+`risk_result`, or `risk_result_tool`. Existing SAI scores may be used as one
+triage input for the AI-Foto Aandachtspuntenkaart, but they are not a legal
+classification and not the only AI-Foto analysis lens.
+
+Respondent writes for AI-Foto follow the existing SAI security posture:
+
+- no direct anonymous table writes;
+- token-validated `SECURITY DEFINER` RPC;
+- org context derived from `survey_run`;
+- cross-run validation for linked tool and use-case records;
+- DPO/org-admin dashboard reads only through authenticated, org-scoped RLS.
+
+AI-Foto output remains aggregated, decision-preparatory signal output. The
+dashboard preview may rank signals and suggest route items, but it does not
+produce an audit, legal opinion, DPIA, EU AI Act classification, compliance
+guarantee, employee performance view, or complete AI register.
+
+## 2026-07-08 - SAI Production Readiness Uses Evidence Foundation Planes
+
+SAI production-readiness must now be checked against the Evidence Foundation
+information architecture documented in
+`docs/architecture/evidence-foundation-principles.md` and governed by
+`docs/adr/architecture-decision-register.md`:
+
+- Record plane: operational scan records, role membership, tool use, risk
+  results, review items, and report metadata.
+- Evidence plane: immutable scoring/config/policy snapshots, audit events,
+  export audit trail, ledger/version pinning, and reproducible evidence for
+  governance decisions.
+- Future intelligence plane: longitudinal learning, richer RouteAI governance,
+  agentic governance, and AI-rijbewijs patterns for agents.
+
+SAI may go to pilot/production when the record plane is stable and the evidence
+plane has enough auditability for scan results, DPO review, scoring versioning,
+and report/export decisions. Future intelligence features remain roadmap unless
+explicitly scoped into implementation.
+
+Evidence ledger and version pinning are the technical bridge from SAI to the
+broader RouteAI/RAI platform. They should be introduced through controlled
+migrations and documented product decisions, not by reshaping current SAI pilot
+tables ad hoc. Agentic governance and an AI-rijbewijs for agents are roadmap
+concepts; current SAI handling of agentic usage remains a risk/exposure signal
+and review trigger, not a full agent governance workflow.
+
+Operational constraints:
+
+- Do not merge PR #3 or Evidence Foundation branches without explicit
+  permission.
+- Do not run production Supabase migrations without an explicit go/no-go.
+- Because the production Supabase migration ledger can differ from the repo
+  ledger, never apply a naive `db push` to production.
+
+## 2026-07-09 - Local Supabase Rebuild Represents Legacy User Roles Dependency
+
+The SAI RLS helpers and dashboard role resolution rely on the legacy
+`public.user_roles` table. Live/staging projects already had this table, but a
+clean local Supabase rebuild from repository migrations failed before the RLS
+policy migration because the table was not represented in the migration ledger.
+
+Migration `20260504119000_create_legacy_user_roles_dependency.sql` explicitly
+bootstraps the minimal legacy dependency before RLS policies are applied:
+`id`, `user_id`, `org_id`, `role`, `created_at`, and `UNIQUE (user_id, role)`.
+It also creates the neutral platform administration organization used as the
+default `org_id` for global roles such as `super_admin`.
+
+Migration `20260522113000_harden_rpc_grants_and_user_roles_rls.sql` also keeps
+the legacy `rls_auto_enable()` hardening revoke guarded with `to_regprocedure`.
+Some live-derived environments had that helper; a clean local rebuild from the
+current repo does not.
+
+These changes are not a new permission model and do not broaden production
+access. RLS policies and grants for `user_roles` remain defined by the later
+hardening migrations. The purpose is reproducible local/staging validation from
+GitHub as the source of truth.
+
 ## 2026-05-27 - DPO Dashboard HTML Parity Uses Live Data Equivalents
 
 The SAI DPO dashboard pages should follow the high-fidelity HTML references as
@@ -101,6 +352,44 @@ org_id:       00000000-0000-0000-0000-000000000101
 DPO/dashboard test users should be created in Supabase Auth and then linked to
 this organization through `public.user_roles`. The dashboard should be inspected
 against persisted Supabase rows, not hard-coded production component mock data.
+
+## 2026-07-09 - SAI Staging Grant And RLS Hardening
+
+SAI production readiness requires the Postgres grant layer to match the RLS
+and RPC design. Respondents must not have direct table write grants on
+`survey_run`, `survey_tool`, or related survey answer tables. Anonymous survey
+writes remain RPC-only through the token-validated respondent functions.
+
+Public reference tables are part of the exposed Supabase `public` schema and
+therefore must have RLS enabled even when the data is low sensitivity.
+Authenticated users may read reference values. Reference writes remain
+super-admin-only through explicit RLS policies.
+
+`SECURITY DEFINER` functions in `public` are treated as an explicit API surface:
+respondent RPCs stay callable by `anon` and `authenticated`; dashboard/RLS
+helpers and DPO/admin wrappers stay `authenticated`-only where they validate
+`auth.uid()` and organization role context; internal token/scoring helpers and
+auth triggers are not directly callable by API roles. Learning-system functions
+that are not defined in this repository are not granted by the SAI allowlist;
+their API surface must be re-established only by a reviewed learning-system
+release migration. Remaining `authenticated` advisor warnings for reviewed SAI
+helpers are accepted for this SAI release shape, but moving internal helpers
+out of the exposed `public` schema remains a future hardening path.
+
+Ambassador opt-in e-mail rows contain respondent contact data and are not
+directly readable through the API in this release shape. They are written by the
+token-validated respondent RPC and reserved for service-role or a future
+explicit DPO/admin workflow. Direct API deletion of survey runs is also out of
+scope for this release shape.
+
+SAI `dpo_review_items` foreign keys now have supporting indexes for release
+readiness. Learning-system foreign-key advisor warnings on mixed development
+branches are not SAI production blockers, but they must be handled before a
+learning-system release gate.
+
+Synthetic pilot fixture data must remain local/staging opt-in. The fixture now
+requires `app.environment` to be set to `local` or `staging` in the SQL session
+and must fail closed when copied into an unmarked database session.
 
 ## 2026-05-22 - V8.1 SQL/TypeScript Scoring Parity
 

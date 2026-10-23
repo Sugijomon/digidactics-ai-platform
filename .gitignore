@@ -141,3 +141,13 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Claude Code local/personal settings (per-developer, not shared project config)
+.claude/settings.local.json
+
+# Local readiness notes are intentionally not committed.
+docs/sai-production-readiness-audit.md
+
+# Local tools and generated review artifacts (source lives in apps/ and docs/).
+.codex-tools/
+output/

@@ -441,6 +441,18 @@ export const toolOptions = [
     description: "Wordt voorlopig als nieuw ontdekte tool opgeslagen.",
   },
   {
+    id: "teams_copilot",
+    name: "Copilot in Teams",
+    category: "Werkplek",
+    description: "Ingebouwde AI-functie in Microsoft Teams.",
+  },
+  {
+    id: "copilot_for_excel",
+    name: "Copilot in Excel",
+    category: "Werkplek",
+    description: "Ingebouwde AI-functie in Microsoft Excel.",
+  },
+  {
     id: "google_workspace_ai",
     name: "Google Workspace AI",
     category: "Werkplek",
@@ -639,6 +651,24 @@ export const toolOptions = [
     description: "Wordt voorlopig als nieuw ontdekte tool opgeslagen.",
   },
   {
+    id: "workday_ai",
+    name: "Workday AI",
+    category: "HR en recruitment",
+    description: "Ingebouwde AI-functies in Workday.",
+  },
+  {
+    id: "linkedin_recruiter_ai",
+    name: "LinkedIn Recruiter AI",
+    category: "HR en recruitment",
+    description: "Ingebouwde AI-functies in recruitment tooling.",
+  },
+  {
+    id: "ats_ai",
+    name: "AI in ATS of recruitmentsoftware",
+    category: "HR en recruitment",
+    description: "Gebruik dit als de AI-functie in een ATS zit.",
+  },
+  {
     id: "custom",
     name: "Andere tool",
     category: "Zelf invullen",
@@ -722,4 +752,231 @@ export const accountTypeOptions = [
   { code: "prive_betaald", label: "Priveaccount - betaald" },
   { code: "both", label: "Beide" },
   { code: "beide", label: "Beide" },
+] satisfies SurveyOption[];
+
+export const applicationFrequencyOptions = [
+  { code: "daily", label: "Dagelijks" },
+  { code: "weekly", label: "Wekelijks" },
+  { code: "monthly", label: "Maandelijks" },
+  { code: "rarely", label: "Incidenteel of enkele keren geprobeerd" },
+  { code: "unknown", label: "Weet ik niet zeker" },
+] satisfies SurveyOption[];
+
+export const applicationAccountEnvironmentOptions = [
+  { code: "business_license", label: "Zakelijke licentie of beheeromgeving" },
+  {
+    code: "embedded_business_system",
+    label: "Ingebouwde AI-functie in een bedrijfssysteem",
+  },
+  { code: "personal_free", label: "Persoonlijk gratis account" },
+  { code: "personal_paid", label: "Persoonlijk betaald account" },
+  { code: "multiple", label: "Meerdere omgevingen" },
+  { code: "unknown", label: "Weet ik niet zeker" },
+] satisfies SurveyOption[];
+
+export const outputDestinationOptions = [
+  { code: "personal_inspiration", label: "Alleen inspiratie of ruwe opzet" },
+  { code: "internal_document", label: "Intern werkdocument" },
+  { code: "colleague_communication", label: "Communicatie met collega's" },
+  {
+    code: "customer_public_communication",
+    label: "Klant- of publiekscommunicatie",
+  },
+  { code: "other_system_input", label: "Invoer in een ander systeem" },
+  { code: "advice_decision_support", label: "Advies of beslisondersteuning" },
+  { code: "person_decision", label: "Besluit of advies over een persoon" },
+  { code: "unknown", label: "Weet ik niet zeker" },
+] satisfies SurveyOption[];
+
+export const outputControlOptions = [
+  { code: "full_manual_check", label: "Ik controleer inhoud en bronnen volledig" },
+  {
+    code: "important_parts_check",
+    label: "Ik controleer alleen belangrijke onderdelen",
+  },
+  {
+    code: "colleague_or_expert_check",
+    label: "Een collega of deskundige controleert",
+  },
+  {
+    code: "automatic_processing",
+    label: "Het systeem verwerkt de output automatisch verder",
+  },
+  { code: "usually_no_check", label: "Meestal geen afzonderlijke controle" },
+  { code: "varies", label: "Dat verschilt sterk" },
+  { code: "unknown", label: "Weet ik niet zeker" },
+] satisfies SurveyOption[];
+
+export const deviationAuthorityOptions = [
+  { code: "always", label: "Ja, altijd" },
+  { code: "usually", label: "Meestal" },
+  { code: "sometimes", label: "Soms" },
+  { code: "hardly", label: "Vrijwel niet" },
+  { code: "not_applicable", label: "Niet van toepassing" },
+  { code: "unknown", label: "Weet ik niet zeker" },
+] satisfies SurveyOption[];
+
+export const peopleImpactOptions = [
+  { code: "none_visible", label: "Geen directe invloed op personen zichtbaar" },
+  {
+    code: "customers_or_clients",
+    label: "Kan klanten, clienten of inwoners raken",
+  },
+  {
+    code: "employees_or_candidates",
+    label: "Kan medewerkers of kandidaten raken",
+  },
+  {
+    code: "important_decision",
+    label: "Kan een belangrijk advies of besluit beinvloeden",
+  },
+  { code: "unknown", label: "Weet ik niet zeker" },
+] satisfies SurveyOption[];
+
+export const aiTransparencyOptions = [
+  { code: "yes", label: "Ja" },
+  { code: "sometimes", label: "Soms" },
+  { code: "no", label: "Nee" },
+  { code: "not_relevant", label: "Niet relevant" },
+  { code: "unknown_relevance", label: "Ik weet niet wanneer dat relevant is" },
+] satisfies SurveyOption[];
+
+export const valueTypeOptions = [
+  { code: "time_saving", label: "Tijdwinst" },
+  { code: "first_quality", label: "Betere eerste opzet" },
+  { code: "final_quality", label: "Betere eindkwaliteit" },
+  { code: "workload_reduction", label: "Lagere werkdruk" },
+  { code: "faster_service", label: "Snellere interne of klantdienstverlening" },
+  { code: "new_capability", label: "Nieuwe mogelijkheid" },
+  { code: "no_clear_value", label: "Geen duidelijke waarde zichtbaar" },
+  { code: "negative_effect", label: "Levert juist extra werk of risico op" },
+  { code: "unknown", label: "Weet ik niet zeker" },
+] satisfies SurveyOption[];
+
+export const valueBeneficiaryOptions = [
+  { code: "respondent", label: "Voor mijzelf in mijn werk" },
+  { code: "team", label: "Voor het team" },
+  { code: "customers_or_clients", label: "Voor klanten, clienten of inwoners" },
+  { code: "organization", label: "Voor de organisatie als geheel" },
+  {
+    code: "unclear_or_shifted_work",
+    label: "Onduidelijk of werk verschuift vooral naar anderen",
+  },
+  { code: "unknown", label: "Weet ik niet zeker" },
+] satisfies SurveyOption[];
+
+export const netEffectOptions = [
+  { code: "clearly_positive", label: "Duidelijk positief" },
+  { code: "somewhat_positive", label: "Enigszins positief" },
+  { code: "neutral", label: "Ongeveer gelijk" },
+  { code: "mixed", label: "Gemengd: winst maar ook extra controle" },
+  { code: "negative", label: "Eerder negatief" },
+  { code: "unknown", label: "Weet ik niet zeker" },
+] satisfies SurveyOption[];
+
+export const controlReworkOptions = [
+  { code: "little", label: "Weinig extra controle of herstelwerk" },
+  { code: "normal", label: "Normale controle zoals bij ander werk" },
+  { code: "substantial", label: "Aanzienlijke controle of correctie nodig" },
+  { code: "often_rework", label: "Regelmatig herstelwerk nodig" },
+  { code: "unknown", label: "Weet ik niet zeker" },
+] satisfies SurveyOption[];
+
+export const shareabilityOptions = [
+  { code: "yes_same_task", label: "Ja, voor collega's met dezelfde taak" },
+  { code: "maybe_with_conditions", label: "Misschien, met voorwaarden" },
+  { code: "no_context_specific", label: "Nee, te context- of persoonsgebonden" },
+  { code: "unknown", label: "Weet ik niet zeker" },
+] satisfies SurveyOption[];
+
+export const valueEvidenceOptions = [
+  { code: "feeling_estimate", label: "Vooral gevoel of inschatting" },
+  { code: "concrete_example", label: "Concreet voorbeeld uit mijn werk" },
+  { code: "measurable", label: "Dit is meetbaar of gemeten" },
+  { code: "unknown", label: "Weet ik niet zeker" },
+] satisfies SurveyOption[];
+
+export const aiVisibilityOptions = [
+  {
+    code: "visible_to_recipient",
+    label: "Ontvanger of collega ziet dat AI is gebruikt",
+  },
+  {
+    code: "visible_if_asked",
+    label: "Alleen zichtbaar als iemand ernaar vraagt",
+  },
+  { code: "not_visible", label: "Meestal niet zichtbaar" },
+  { code: "not_relevant", label: "Niet relevant voor deze toepassing" },
+  { code: "unknown", label: "Weet ik niet zeker" },
+] satisfies SurveyOption[];
+
+export const conditionNeedOptions = [
+  { code: "clear_data_rules", label: "Duidelijkere gegevensregels" },
+  { code: "business_tooling", label: "Zakelijke tooling of licentie" },
+  { code: "better_output_control", label: "Betere outputcontrole" },
+  { code: "clear_ownership", label: "Duidelijk eigenaarschap" },
+  { code: "supplier_information", label: "Leveranciersinformatie" },
+  { code: "transparency_agreements", label: "Transparantieafspraken" },
+  { code: "training_support", label: "Training of ondersteuning" },
+  { code: "specialist_review", label: "Specialistische beoordeling" },
+  { code: "nothing_visible", label: "Niets aanvullends zichtbaar" },
+  { code: "unknown", label: "Weet ik niet zeker" },
+] satisfies SurveyOption[];
+
+export const nearMissSignalOptions = [
+  { code: "none", label: "Nee" },
+  { code: "incorrect_or_invented", label: "Onjuiste of verzonnen informatie" },
+  { code: "biased_or_unwanted", label: "Ongewenste of bevooroordeelde output" },
+  { code: "sensitive_data_entered", label: "Gevoelige informatie ingevoerd" },
+  { code: "wrong_account_environment", label: "Verkeerd account of omgeving" },
+  { code: "output_almost_used_wrongly", label: "Output bijna onjuist gebruikt" },
+  { code: "other", label: "Anders" },
+  { code: "prefer_not_to_answer", label: "Wil ik niet beantwoorden" },
+] satisfies SurveyOption[];
+
+export const escalationRouteAwarenessOptions = [
+  { code: "clear", label: "Ja, dat is duidelijk" },
+  { code: "partial", label: "Gedeeltelijk" },
+  { code: "not_clear", label: "Nee" },
+  { code: "no_owner_visible", label: "Er is geen aangewezen eigenaar zichtbaar" },
+  { code: "unknown", label: "Weet ik niet zeker" },
+] satisfies SurveyOption[];
+
+export const skillDomainOptions = [
+  { code: "data_use", label: "Veilig gegevensgebruik" },
+  { code: "output_check", label: "Outputcontrole" },
+  { code: "hallucination_bias", label: "Hallucinaties en bias herkennen" },
+  { code: "transparency", label: "Transparantie over AI-gebruik" },
+] satisfies SurveyOption[];
+
+export const skillResponseOptions = [
+  { code: "preferred_action", label: "Ik weet wat de veilige aanpak is" },
+  { code: "partial_action", label: "Ik weet het deels" },
+  { code: "risky_action", label: "Ik kies soms risicovol of op gevoel" },
+  { code: "does_not_know", label: "Ik weet niet wat ik moet doen" },
+  { code: "not_applicable", label: "Niet van toepassing" },
+] satisfies SurveyOption[];
+
+export const aiFotoDoubtScenarioOptions = [
+  {
+    code: "check_sources",
+    label: "Ik controleer bronnen of feiten voordat ik het gebruik",
+  },
+  {
+    code: "ask_colleague",
+    label: "Ik vraag een collega of deskundige mee te kijken",
+  },
+  {
+    code: "use_as_draft_only",
+    label: "Ik gebruik het alleen als ruwe opzet of inspiratie",
+  },
+  {
+    code: "use_anyway",
+    label: "Ik gebruik het meestal toch als het plausibel klinkt",
+  },
+  {
+    code: "stop_or_report",
+    label: "Ik stop en meld of bespreek het via de juiste route",
+  },
+  { code: "unknown", label: "Ik weet niet goed wat ik dan moet doen" },
 ] satisfies SurveyOption[];

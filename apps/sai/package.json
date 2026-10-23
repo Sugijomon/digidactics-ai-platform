@@ -4,16 +4,22 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "dev:pilot": "node scripts/pilot-dev.mjs",
+    "build": "corepack pnpm --dir ../../packages/domain build && next build",
     "start": "next start",
     "lint": "eslint",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:pilot": "playwright test --config playwright.pilot.config.ts",
+    "seed:synthetic-flow": "tsc -p scripts/synthetic-flow/tsconfig.json && node scripts/synthetic-flow/dist/run.js"
   },
   "dependencies": {
+    "@digidactics/database": "workspace:*",
+    "@digidactics/domain": "workspace:*",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.105.3",
     "lucide-react": "^1.16.0",
     "next": "16.2.4",
+    "pdf-lib": "1.17.1",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },

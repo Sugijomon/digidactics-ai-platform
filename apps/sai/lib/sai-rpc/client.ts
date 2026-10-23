@@ -9,6 +9,7 @@ import type {
   RpcResult,
   SaveMotivationItem,
   SaveProfilePayload,
+  SaveSurveyApplicationPayload,
   SaveToolPayload,
   SurveySession,
 } from "@/lib/sai-rpc/types";
@@ -19,6 +20,8 @@ const DEFAULT_UNEXPECTED_ERROR: RpcError = {
 };
 
 type StartSurveyRunRow = {
+  method_version?: string;
+  product_code?: string;
   run_id: string;
   submission_token: string;
 };
@@ -113,6 +116,9 @@ export async function startSurveyRun(
     data: {
       runId: firstRow.run_id,
       submissionToken: firstRow.submission_token,
+      productCode:
+        firstRow.product_code === "ai_foto" ? "ai_foto" : "sai",
+      methodVersion: firstRow.method_version,
     },
   };
 }
@@ -330,6 +336,31 @@ export async function registerToolDiscovery(
     p_token: session.submissionToken,
     p_survey_tool_id: surveyToolId,
     p_raw_tool_name: rawToolName,
+  });
+
+  if (error) {
+    return { ok: false, error: mapSupabaseError(error) };
+  }
+
+  return typeof data === "string"
+    ? { ok: true, data }
+    : { ok: false, error: DEFAULT_UNEXPECTED_ERROR };
+}
+
+export async function saveSurveyApplication(
+  session: SurveySession,
+  payload: SaveSurveyApplicationPayload,
+): Promise<RpcResult<string>> {
+  const client = createRpcClient();
+
+  if (!client.ok) {
+    return client;
+  }
+
+  const { data, error } = await client.data.rpc("save_survey_application", {
+    p_run_id: session.runId,
+    p_token: session.submissionToken,
+    p_payload: toJsonValue(payload),
   });
 
   if (error) {

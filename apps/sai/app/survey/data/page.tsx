@@ -53,6 +53,8 @@ export default function SurveyDataPage() {
   const [surveySession, setSurveySession] = useState<SurveySession | null>(null);
   const [runId, setRunId] = useState<string | null>(null);
   const [completedSteps, setCompletedSteps] = useState<SurveyStepId[]>([]);
+  const [isAiFoto, setIsAiFoto] = useState(false);
+  const [applicationDataTypeCodes, setApplicationDataTypeCodes] = useState<string[]>([]);
   const [selectedDataTypes, setSelectedDataTypes] = useState<string[]>([]);
   const [dataAwarenessCode, setDataAwarenessCode] = useState("");
   const [anonymizationBehaviorCode, setAnonymizationBehaviorCode] = useState("");
@@ -82,6 +84,8 @@ export default function SurveyDataPage() {
       });
       setRunId(storedSession.runId);
       setCompletedSteps(storedSession.completedSteps ?? []);
+      setIsAiFoto(storedSession.productCode === "ai_foto");
+      setApplicationDataTypeCodes(storedSession.aiFotoApplicationDataTypeCodes ?? []);
     });
   }, [router]);
 
@@ -165,7 +169,11 @@ export default function SurveyDataPage() {
       eyebrow="Data & risico"
       intro=""
       maxWidthClassName="max-w-3xl"
-      title="Welk type informatie voer je wel eens in bij AI-tools?"
+      title={
+        isAiFoto
+          ? "Naast je praktijkvoorbeeld: welke informatie voer je wel eens in bij AI-tools?"
+          : "Welk type informatie voer je wel eens in bij AI-tools?"
+      }
     >
       <form
         className="grid gap-6"
@@ -175,9 +183,21 @@ export default function SurveyDataPage() {
         }}
       >
         <p className="w-max max-w-full rounded-lg border border-[#bfc7cf]/30 bg-[#f1f4f6] px-3 py-1.5 text-sm leading-6 text-[#40484e]">
+          {isAiFoto
+            ? "Je praktijkvoorbeeld is al apart genoteerd. Deze vraag gaat over je bredere AI-gebruik. "
+            : ""}
           Meerdere antwoorden mogelijk. Kies bij overlappende informatie altijd de{" "}
           <strong>meest gevoelige</strong> categorie.
         </p>
+
+        {isAiFoto && applicationDataTypeCodes.length > 0 ? (
+          <aside className="rounded-[1.25rem] border border-[#c4e7ff] bg-[#f3fbff] px-4 py-3 text-sm leading-6 text-[#40484e]">
+            <strong className="text-[#00658b]">Al genoteerd bij je praktijkvoorbeeld:</strong>{" "}
+            {applicationDataTypeCodes
+              .map((code) => getDataTypeOption(code).label)
+              .join(", ")}
+          </aside>
+        ) : null}
 
         <details className="group rounded-[1.25rem] border border-[#bfc7cf]/30 bg-[#f1f4f6] p-4">
           <summary className="flex cursor-pointer items-center gap-2">
@@ -242,7 +262,7 @@ export default function SurveyDataPage() {
         <div className="flex items-center justify-between border-t border-[#bfc7cf]/20 pt-6">
           <a
             className="inline-flex items-center gap-2 text-sm font-semibold text-[#40484e] transition hover:text-[#00658b]"
-            href="/survey/tools"
+            href={isAiFoto ? "/survey/application" : "/survey/tools"}
           >
             <span className="text-lg leading-none">‹</span>
             Vorige

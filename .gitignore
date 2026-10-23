@@ -147,3 +147,7 @@ vite.config.ts.timestamp-*
 
 # Local readiness notes are intentionally not committed.
 docs/sai-production-readiness-audit.md
+
+# Local tools and generated review artifacts (source lives in apps/ and docs/).
+.codex-tools/
+output/

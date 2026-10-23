@@ -318,3 +318,19 @@ Smaller clusters should be suppressed, merged, or shown only as qualitative sign
 Survey answers can produce social and governance insights, such as awareness gaps, uncertainty, training needs, or unmet internal tooling needs.
 
 These are not score components unless explicitly defined in the formula. They should feed dashboard interpretation, governance planning, training, and later RouteAI workflows without silently changing `shadow_score` or `exposure_score`.
+
+## AI-Foto Application Signals
+
+AI-Foto adds application-level survey records in `survey_application` and child
+tables. These records provide value, attention-point, skills, output,
+transparency, people-impact, near-miss, support, and condition signals for the
+AI-Foto cards and decision agenda.
+
+These fields are not SAI V8.1 scoring inputs. They must not change
+`shadow_score`, `exposure_score`, `priority_score`, `score_tier`, or
+`review_class` unless a future documented scoring-method version explicitly
+adds them and updates both the SQL scorer and `packages/domain` parity tests.
+
+Existing `risk_result`, `risk_result_tool`, and `dpo_review_items` may be used
+as triage input for AI-Foto analysis, especially the Aandachtspuntenkaart, but
+they remain operational signals rather than legal classifications.

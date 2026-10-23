@@ -415,6 +415,8 @@ export default function SurveyToolsPage() {
 
       updateSurveyCurrentStep("tools");
       setSurveySession({
+        methodVersion: storedSession.methodVersion,
+        productCode: storedSession.productCode,
         runId: storedSession.runId,
         submissionToken: storedSession.submissionToken,
       });
@@ -679,6 +681,12 @@ export default function SurveyToolsPage() {
     setError(null);
     markSurveyStepCompleted("tools");
     markSurveyStepCompleted("useCases");
+    if (surveySession?.productCode === "ai_foto") {
+      updateSurveyCurrentStep("application");
+      router.push("/survey/application");
+      return;
+    }
+
     updateSurveyCurrentStep("data");
     router.push("/survey/data");
   }

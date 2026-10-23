@@ -5,6 +5,7 @@ const visualStepBySurveyStep: Record<SurveyStepId, number> = {
   motivations: 2,
   tools: 3,
   useCases: 3,
+  application: 3,
   data: 3,
   accounts: 4,
   literacy: 4,

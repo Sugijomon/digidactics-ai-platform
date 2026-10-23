@@ -1,4 +1,20 @@
+import { getAiFotoAttentionLevel as deriveAiFotoAttentionLevel } from "@digidactics/domain";
 import { createClient } from "@/lib/supabase/server";
+import {
+  aiVisibilityOptions,
+  conditionNeedOptions,
+  dataTypeOptions,
+  escalationRouteAwarenessOptions,
+  nearMissSignalOptions,
+  netEffectOptions,
+  outputControlOptions,
+  outputDestinationOptions,
+  peopleImpactOptions,
+  skillDomainOptions,
+  useCaseOptions,
+  valueBeneficiaryOptions,
+  valueTypeOptions,
+} from "@/lib/sai-survey/options";
 
 export type ActivationMetrics = {
   activeWaves: number;
@@ -163,6 +179,100 @@ export type ProgressSummary = {
   weeklyStarts: [string, number][];
 };
 
+export type AiFotoCardSignal = {
+  code: string;
+  count: number;
+  label: string;
+};
+
+export type AiFotoApplicationPreview = {
+  attentionLevel: "basis" | "hoog" | "middel";
+  conditionLabels: string[];
+  dataLabels: string[];
+  id: string;
+  netEffectLabel: string;
+  outputDestinationLabel: string;
+  peopleImpactLabel: string;
+  taskDescription: string;
+  toolName: string;
+  useCaseLabel: string;
+  valueLabels: string[];
+};
+
+export type AiFotoPreviewSummary = {
+  applicationCount: number;
+  attentionSignals: AiFotoCardSignal[];
+  cardItemCounts: {
+    approved: number;
+    aiSuggested: number;
+    consultantReviewed: number;
+    draft: number;
+    total: number;
+  };
+  completedRuns: number;
+  decisionPoints: string[];
+  outputDestinations: AiFotoCardSignal[];
+  routeItems: Array<{
+    horizon: "30" | "60" | "90";
+    items: string[];
+    title: string;
+  }>;
+  skillSignals: AiFotoCardSignal[];
+  topApplications: AiFotoApplicationPreview[];
+  valueBeneficiaries: AiFotoCardSignal[];
+  valueSignals: AiFotoCardSignal[];
+};
+
+export type AiFotoCardItemStatus =
+  | "ai_suggested"
+  | "approved"
+  | "consultant_reviewed"
+  | "draft";
+
+export type AiFotoCardItemRow = {
+  analysis_version: string;
+  approved_at: string | null;
+  card_type: "aandacht" | "vaardigheid" | "waarde";
+  cluster_key: string;
+  created_at: string | null;
+  evidence_level: "aangetoond" | "aannemelijk" | "gesteld";
+  evidence_refs: unknown;
+  follow_up_direction: string | null;
+  id: string;
+  interpretation: string | null;
+  observation: string;
+  open_questions: string[] | null;
+  precaution: string | null;
+  proposed_owner_role: string | null;
+  respondent_count: number | null;
+  review_date: string | null;
+  scan_wave_id: string | null;
+  source_kind: string;
+  status: AiFotoCardItemStatus;
+  title: string;
+  updated_at: string | null;
+};
+
+export type AiFotoExportPreview = {
+  approvedItems: AiFotoCardItemRow[];
+  latestExport: {
+    created_at: string | null;
+    export_status: string;
+    id: string;
+  } | null;
+  methodVersion: string;
+  organizationName: string;
+  readiness: "incomplete_metadata" | "no_approved_items" | "ready";
+  scanWaveId: string | null;
+  scanWaveName: string;
+  selectedItemIds: string[];
+};
+
+export type AiFotoWorkbenchData = {
+  cardItems: AiFotoCardItemRow[];
+  exportPreview: AiFotoExportPreview;
+};
+
 type SurveyToolRow = {
   eu_ai_act_flag_code_snapshot: string | null;
   id: string;
@@ -189,6 +299,44 @@ type ProfileRow = {
 };
 
 type CodeRow = { [key: string]: string | null };
+
+type AiFotoApplicationRow = {
+  account_environment_code: string | null;
+  ai_visibility_code: string | null;
+  beneficiary_code: string | null;
+  control_rework_code: string | null;
+  deviation_authority_code: string | null;
+  escalation_route_awareness_code: string | null;
+  id: string;
+  net_effect_code: string | null;
+  output_control_code: string | null;
+  output_destination_code: string | null;
+  people_impact_code: string | null;
+  shareability_code: string | null;
+  survey_application_condition_need:
+    | { condition_need_code: string | null }[]
+    | null;
+  survey_application_data_type: { data_type_code: string | null }[] | null;
+  survey_application_near_miss_signal:
+    | { near_miss_signal_code: string | null }[]
+    | null;
+  survey_application_skill_response:
+    | {
+        skill_domain_code: string | null;
+        skill_response_code: string | null;
+      }[]
+    | null;
+  survey_application_support_need:
+    | { support_need_code: string | null }[]
+    | null;
+  survey_application_value_type: { value_type_code: string | null }[] | null;
+  survey_run: { completed_at: string | null; org_id: string } | null;
+  survey_tool: { tool_name: string | null } | null;
+  survey_tool_use_case: { use_case_code: string | null } | null;
+  task_description_limited: string | null;
+  transparency_code: string | null;
+  value_evidence_code: string | null;
+};
 
 export const SCORE_BANDS: ScoreBand[] = ["low", "elevated", "high", "critical"];
 
@@ -659,6 +807,332 @@ export async function getProgressSummary(orgId: string): Promise<ProgressSummary
   };
 }
 
+export async function getAiFotoPreviewSummary(
+  orgId: string,
+): Promise<AiFotoPreviewSummary> {
+  const supabase = await createClient();
+  const [applicationsResult, completedRunsResult, cardItemsResult] = await Promise.all([
+    supabase
+      .from("survey_application")
+      .select(
+        `
+          id,
+          task_description_limited,
+          account_environment_code,
+          output_destination_code,
+          output_control_code,
+          deviation_authority_code,
+          people_impact_code,
+          ai_visibility_code,
+          transparency_code,
+          beneficiary_code,
+          net_effect_code,
+          control_rework_code,
+          shareability_code,
+          value_evidence_code,
+          escalation_route_awareness_code,
+          survey_run!inner(org_id, product_code_snapshot, completed_at),
+          survey_tool(tool_name),
+          survey_tool_use_case(use_case_code),
+          survey_application_data_type(data_type_code),
+          survey_application_value_type(value_type_code),
+          survey_application_condition_need(condition_need_code),
+          survey_application_near_miss_signal(near_miss_signal_code),
+          survey_application_support_need(support_need_code),
+          survey_application_skill_response(skill_domain_code, skill_response_code)
+        `,
+      )
+      .eq("survey_run.org_id", orgId)
+      .eq("survey_run.product_code_snapshot", "ai_foto")
+      .returns<AiFotoApplicationRow[]>(),
+    supabase
+      .from("survey_run")
+      .select("id", { count: "exact", head: true })
+      .eq("org_id", orgId)
+      .eq("product_code_snapshot", "ai_foto")
+      .not("completed_at", "is", null),
+    supabase
+      .from("card_item")
+      .select("status")
+      .eq("org_id", orgId)
+      .eq("analysis_version", "ai-foto-analysis-v1"),
+  ]);
+
+  const applications =
+    applicationsResult.error || !applicationsResult.data
+      ? []
+      : applicationsResult.data;
+  const cardItemCounts = countAiFotoCardItemStatuses(
+    cardItemsResult.error || !cardItemsResult.data
+      ? []
+      : (cardItemsResult.data as { status: string | null }[]),
+  );
+  const valueSignals = toSignals(
+    countValues(
+      applications.flatMap((row) =>
+        extractCodes(row.survey_application_value_type, "value_type_code"),
+      ),
+    ),
+    valueTypeOptions,
+  );
+  const valueBeneficiaries = toSignals(
+    countValues(applications.map((row) => row.beneficiary_code)),
+    valueBeneficiaryOptions,
+  );
+  const conditionSignals = toSignals(
+    countValues(
+      applications.flatMap((row) =>
+        extractCodes(row.survey_application_condition_need, "condition_need_code"),
+      ),
+    ),
+    conditionNeedOptions,
+  );
+  const nearMissSignals = toSignals(
+    countValues(
+      applications.flatMap((row) =>
+        extractCodes(row.survey_application_near_miss_signal, "near_miss_signal_code"),
+      ),
+    ).filter(([code]) => code !== "none" && code !== "prefer_not_to_answer"),
+    nearMissSignalOptions,
+  );
+  const outputDestinations = toSignals(
+    countValues(applications.map((row) => row.output_destination_code)),
+    outputDestinationOptions,
+  );
+  const skillSignals = buildSkillSignals(applications);
+  const topApplications = applications
+    .map(toAiFotoApplicationPreview)
+    .sort((a, b) => attentionRank(b.attentionLevel) - attentionRank(a.attentionLevel))
+    .slice(0, 6);
+  const attentionSignals = [
+    ...conditionSignals,
+    ...nearMissSignals,
+    ...toSignals(
+      countValues(
+        applications
+          .filter((row) =>
+            [
+              "automatic_processing",
+              "usually_no_check",
+              "important_parts_check",
+            ].includes(row.output_control_code ?? ""),
+          )
+          .map((row) => row.output_control_code),
+      ),
+      outputControlOptions,
+    ),
+    ...toSignals(
+      countValues(
+        applications
+          .filter((row) =>
+            ["important_decision", "employees_or_candidates"].includes(
+              row.people_impact_code ?? "",
+            ),
+          )
+          .map((row) => row.people_impact_code),
+      ),
+      peopleImpactOptions,
+    ),
+    ...toSignals(
+      countValues(
+        applications
+          .filter((row) =>
+            ["not_visible", "unknown"].includes(row.ai_visibility_code ?? ""),
+          )
+          .map((row) => row.ai_visibility_code),
+      ),
+      aiVisibilityOptions,
+    ),
+    ...toSignals(
+      countValues(
+        applications
+          .filter((row) =>
+            ["no_owner_visible", "not_clear", "unknown"].includes(
+              row.escalation_route_awareness_code ?? "",
+            ),
+          )
+          .map((row) => row.escalation_route_awareness_code),
+      ),
+      escalationRouteAwarenessOptions,
+    ),
+  ]
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8);
+
+  return {
+    applicationCount: applications.length,
+    attentionSignals,
+    cardItemCounts,
+    completedRuns: completedRunsResult.error
+      ? 0
+      : (completedRunsResult.count ?? 0),
+    decisionPoints: buildAiFotoDecisionPoints(
+      valueSignals,
+      attentionSignals,
+      skillSignals,
+      topApplications,
+    ),
+    outputDestinations,
+    routeItems: buildAiFotoRouteItems(
+      valueSignals,
+      attentionSignals,
+      skillSignals,
+      topApplications,
+    ),
+    skillSignals,
+    topApplications,
+    valueBeneficiaries,
+    valueSignals,
+  };
+}
+
+export async function getAiFotoWorkbenchData(
+  orgId: string,
+  statusFilter: AiFotoCardItemStatus | "all" = "all",
+): Promise<AiFotoWorkbenchData> {
+  const supabase = await createClient();
+  const cardItemsQuery = supabase
+    .from("card_item")
+    .select(
+      `
+        id,
+        scan_wave_id,
+        card_type,
+        source_kind,
+        cluster_key,
+        title,
+        observation,
+        respondent_count,
+        evidence_level,
+        evidence_refs,
+        interpretation,
+        open_questions,
+        precaution,
+        follow_up_direction,
+        proposed_owner_role,
+        review_date,
+        status,
+        analysis_version,
+        approved_at,
+        created_at,
+        updated_at
+      `,
+    )
+    .eq("org_id", orgId)
+    .eq("analysis_version", "ai-foto-analysis-v1")
+    .order("card_type", { ascending: true })
+    .order("updated_at", { ascending: false });
+
+  if (statusFilter !== "all") {
+    cardItemsQuery.eq("status", statusFilter);
+  }
+
+  const [
+    cardItemsResult,
+    approvedItemsResult,
+    organizationResult,
+    waveResult,
+    exportResult,
+  ] = await Promise.all([
+    cardItemsQuery.returns<AiFotoCardItemRow[]>(),
+    supabase
+      .from("card_item")
+      .select(
+        `
+          id,
+          scan_wave_id,
+          card_type,
+          source_kind,
+          cluster_key,
+          title,
+          observation,
+          respondent_count,
+          evidence_level,
+          evidence_refs,
+          interpretation,
+          open_questions,
+          precaution,
+          follow_up_direction,
+          proposed_owner_role,
+          review_date,
+          status,
+          analysis_version,
+          approved_at,
+          created_at,
+          updated_at
+        `,
+      )
+      .eq("org_id", orgId)
+      .eq("analysis_version", "ai-foto-analysis-v1")
+      .eq("status", "approved")
+      .order("card_type", { ascending: true })
+      .order("updated_at", { ascending: false })
+      .returns<AiFotoCardItemRow[]>(),
+    supabase.from("organizations").select("name").eq("id", orgId).maybeSingle(),
+    supabase
+      .from("scan_wave")
+      .select("id, name, method_version")
+      .eq("org_id", orgId)
+      .eq("product_code", "ai_foto")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("report_exports")
+      .select("id, export_status, created_at")
+      .eq("org_id", orgId)
+      .eq("export_type", "ai_foto_cards")
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+
+  const cardItems = cardItemsResult.error || !cardItemsResult.data
+    ? []
+    : cardItemsResult.data;
+  const approvedItems =
+    approvedItemsResult.error || !approvedItemsResult.data
+      ? []
+      : approvedItemsResult.data;
+  const scanWaveId = waveResult.error ? null : (waveResult.data?.id ?? null);
+  const methodVersion = waveResult.error
+    ? "ai-foto-scan-v1"
+    : (waveResult.data?.method_version ?? "ai-foto-scan-v1");
+  const organizationName = organizationResult.error
+    ? "Onbekende organisatie"
+    : (organizationResult.data?.name ?? "Onbekende organisatie");
+  const readiness =
+    approvedItems.length === 0
+      ? "no_approved_items"
+      : !scanWaveId || !methodVersion
+        ? "incomplete_metadata"
+        : "ready";
+
+  return {
+    cardItems,
+    exportPreview: {
+      approvedItems,
+      latestExport:
+        exportResult.error || !exportResult.data
+          ? null
+          : {
+              created_at: exportResult.data.created_at ?? null,
+              export_status: exportResult.data.export_status ?? "unknown",
+              id: exportResult.data.id,
+            },
+      methodVersion,
+      organizationName,
+      readiness,
+      scanWaveId,
+      scanWaveName: waveResult.error
+        ? "AI-Foto scanronde"
+        : (waveResult.data?.name ?? "AI-Foto scanronde"),
+      selectedItemIds: approvedItems.map((item) => item.id),
+    },
+  };
+}
+
 export function getInventoryMetrics(inventory: ToolInventoryRow[]) {
   const totalUses = inventory.reduce((sum, row) => sum + row.totalUses, 0);
   const privateUses = inventory.reduce(
@@ -1067,4 +1541,266 @@ function toRecord(entries: [string, number][]) {
     acc[key] = value;
     return acc;
   }, {});
+}
+
+function toSignals(
+  entries: [string, number][],
+  options: { code: string; label: string }[],
+): AiFotoCardSignal[] {
+  return entries
+    .filter(([code]) => code !== "onbekend")
+    .map(([code, count]) => ({
+      code,
+      count,
+      label: getOptionLabel(options, code),
+    }))
+    .sort((a, b) => b.count - a.count);
+}
+
+function countAiFotoCardItemStatuses(rows: { status: string | null }[]) {
+  const counts = rows.reduce(
+    (acc, row) => {
+      const status = row.status ?? "draft";
+
+      if (status === "approved") acc.approved += 1;
+      else if (status === "ai_suggested") acc.aiSuggested += 1;
+      else if (status === "consultant_reviewed") acc.consultantReviewed += 1;
+      else acc.draft += 1;
+
+      acc.total += 1;
+      return acc;
+    },
+    {
+      approved: 0,
+      aiSuggested: 0,
+      consultantReviewed: 0,
+      draft: 0,
+      total: 0,
+    },
+  );
+
+  return counts;
+}
+
+function buildSkillSignals(rows: AiFotoApplicationRow[]): AiFotoCardSignal[] {
+  const explicitResponses = rows.flatMap((row) =>
+    (row.survey_application_skill_response ?? [])
+      .filter((item) =>
+        ["partial_action", "risky_action", "does_not_know"].includes(
+          item.skill_response_code ?? "",
+        ),
+      )
+      .map((item) => item.skill_domain_code),
+  );
+  const inferredSignals = rows.flatMap((row) => {
+    const conditionCodes = extractCodes(
+      row.survey_application_condition_need,
+      "condition_need_code",
+    );
+    const nearMissCodes = extractCodes(
+      row.survey_application_near_miss_signal,
+      "near_miss_signal_code",
+    );
+    const dataCodes = extractCodes(row.survey_application_data_type, "data_type_code");
+    const signals: string[] = [];
+
+    if (
+      dataCodes.some(
+        (code) => !["none", "unsure", "public_information"].includes(code),
+      ) ||
+      conditionCodes.includes("clear_data_rules")
+    ) {
+      signals.push("data_use");
+    }
+
+    if (
+      ["important_parts_check", "usually_no_check", "automatic_processing"].includes(
+        row.output_control_code ?? "",
+      ) ||
+      conditionCodes.includes("better_output_control")
+    ) {
+      signals.push("output_check");
+    }
+
+    if (
+      nearMissCodes.some((code) =>
+        ["incorrect_or_invented", "biased_or_unwanted", "output_almost_used_wrongly"].includes(
+          code,
+        ),
+      )
+    ) {
+      signals.push("hallucination_bias");
+    }
+
+    if (
+      ["not_visible", "unknown"].includes(row.ai_visibility_code ?? "") ||
+      ["no", "sometimes", "unknown_relevance"].includes(row.transparency_code ?? "") ||
+      conditionCodes.includes("transparency_agreements")
+    ) {
+      signals.push("transparency");
+    }
+
+    return signals;
+  });
+
+  return toSignals(
+    countValues([...explicitResponses, ...inferredSignals]),
+    skillDomainOptions,
+  );
+}
+
+function toAiFotoApplicationPreview(
+  row: AiFotoApplicationRow,
+): AiFotoApplicationPreview {
+  const valueLabels = extractCodes(
+    row.survey_application_value_type,
+    "value_type_code",
+  ).map((code) => getOptionLabel(valueTypeOptions, code));
+  const conditionLabels = extractCodes(
+    row.survey_application_condition_need,
+    "condition_need_code",
+  ).map((code) => getOptionLabel(conditionNeedOptions, code));
+  const dataLabels = extractCodes(
+    row.survey_application_data_type,
+    "data_type_code",
+  ).map((code) => getOptionLabel(dataTypeOptions, code));
+
+  return {
+    attentionLevel: deriveAiFotoAttentionLevel({
+      accountEnvironmentCode: row.account_environment_code,
+      aiVisibilityCode: row.ai_visibility_code,
+      controlReworkCode: row.control_rework_code,
+      escalationRouteAwarenessCode: row.escalation_route_awareness_code,
+      nearMissSignalCodes: extractCodes(
+        row.survey_application_near_miss_signal,
+        "near_miss_signal_code",
+      ),
+      outputControlCode: row.output_control_code,
+      peopleImpactCode: row.people_impact_code,
+      transparencyCode: row.transparency_code,
+    }),
+    conditionLabels,
+    dataLabels,
+    id: row.id,
+    netEffectLabel: getOptionLabel(netEffectOptions, row.net_effect_code),
+    outputDestinationLabel: getOptionLabel(
+      outputDestinationOptions,
+      row.output_destination_code,
+    ),
+    peopleImpactLabel: getOptionLabel(peopleImpactOptions, row.people_impact_code),
+    taskDescription: row.task_description_limited ?? "Geen omschrijving",
+    toolName: row.survey_tool?.tool_name ?? "Onbekende tool",
+    useCaseLabel: getOptionLabel(
+      useCaseOptions,
+      row.survey_tool_use_case?.use_case_code,
+    ),
+    valueLabels,
+  };
+}
+
+function buildAiFotoDecisionPoints(
+  valueSignals: AiFotoCardSignal[],
+  attentionSignals: AiFotoCardSignal[],
+  skillSignals: AiFotoCardSignal[],
+  applications: AiFotoApplicationPreview[],
+) {
+  const points: string[] = [];
+  const strongestValue = valueSignals[0];
+  const strongestAttention = attentionSignals[0];
+  const strongestSkill = skillSignals[0];
+  const topApplication = applications[0];
+
+  if (strongestValue) {
+    points.push(
+      `Waar standaardiseren we toepassingen met duidelijke waarde rond ${strongestValue.label.toLowerCase()}?`,
+    );
+  }
+
+  if (strongestAttention) {
+    points.push(
+      `Welke randvoorwaarde pakken we eerst op: ${strongestAttention.label.toLowerCase()}?`,
+    );
+  }
+
+  if (topApplication) {
+    points.push(
+      `Is ${topApplication.toolName} geschikt als kandidaat voor een beheerde werkwijze of zakelijke licentie?`,
+    );
+  }
+
+  if (strongestSkill) {
+    points.push(
+      `Welke korte vaardigheidsinterventie is nodig rond ${strongestSkill.label.toLowerCase()}?`,
+    );
+  }
+
+  points.push(
+    "Welke signalen vragen specialistische beoordeling voordat ze als beleid worden vastgelegd?",
+  );
+
+  return points.slice(0, 5);
+}
+
+function buildAiFotoRouteItems(
+  valueSignals: AiFotoCardSignal[],
+  attentionSignals: AiFotoCardSignal[],
+  skillSignals: AiFotoCardSignal[],
+  applications: AiFotoApplicationPreview[],
+): AiFotoPreviewSummary["routeItems"] {
+  const topValue = valueSignals[0]?.label ?? "zichtbare waardesignalen";
+  const topAttention =
+    attentionSignals[0]?.label ?? "gegevensregels, controle en eigenaarschap";
+  const topSkill = skillSignals[0]?.label ?? "veilig gegevensgebruik";
+  const topTool = applications[0]?.toolName ?? "de meest genoemde kandidaat-tool";
+
+  return [
+    {
+      horizon: "30",
+      items: [
+        `Valideer de top-3 concrete toepassingen en hun eigenaar.`,
+        `Leg randvoorwaarde "${topAttention}" vast als eerste besluitpunt.`,
+        `Markeer juridische of specialistische signalen als review, niet als conclusie.`,
+      ],
+      title: "Ordenen en duiden",
+    },
+    {
+      horizon: "60",
+      items: [
+        `Werk een beheerde werkwijze uit voor ${topTool}.`,
+        `Ontwerp korte ondersteuning rond ${topSkill.toLowerCase()}.`,
+        `Bundel toepassingen met waarde rond ${topValue.toLowerCase()} tot kandidaat-pilots.`,
+      ],
+      title: "Pilot en randvoorwaarden",
+    },
+    {
+      horizon: "90",
+      items: [
+        "Beslis welke toepassingen naar beleid, training of toolbeheer gaan.",
+        "Maak meetpunten voor herhaalmeting en effect op de drie kaarten.",
+        "Vertaal geaccepteerde toepassingen naar kandidaat-AI-inventaris.",
+      ],
+      title: "Besluiten en borgen",
+    },
+  ];
+}
+
+function attentionRank(level: AiFotoApplicationPreview["attentionLevel"]) {
+  return { basis: 0, middel: 1, hoog: 2 }[level];
+}
+
+function extractCodes<K extends string>(
+  rows: Array<Record<K, string | null>> | null,
+  key: K,
+) {
+  return (rows ?? [])
+    .map((row) => row[key])
+    .filter((value): value is string => typeof value === "string" && value.length > 0);
+}
+
+function getOptionLabel(
+  options: { code: string; label: string }[],
+  code: string | null | undefined,
+) {
+  if (!code) return "Onbekend";
+  return options.find((option) => option.code === code)?.label ?? formatCode(code);
 }

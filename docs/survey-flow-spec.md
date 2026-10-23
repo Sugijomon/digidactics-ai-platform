@@ -16,6 +16,106 @@ The survey is the respondent experience:
 
 The DPO dashboard is a separate analysis and triage experience.
 
+## Product Variants
+
+The default respondent flow remains the SAI / Shadow AI Scan V8.1 flow.
+
+AI-Foto is a scan variant that reuses the SAI foundation and adds a concrete
+application-depth layer. The variant is selected by the active `scan_wave`
+through:
+
+```txt
+product_code = ai_foto
+method_version = ai-foto-scan-v1
+```
+
+SAI V8.1 keeps:
+
+- broad tool inventory;
+- use-case selection;
+- data/account/frequency/automation/literacy questions;
+- trusted server-side V8.1 scoring;
+- DPO triage output.
+
+AI-Foto adds, after broad tool/use-case selection, a primary concrete
+application step. The respondent selects one chosen tool/use-case combination
+that is most important, frequent, or relevant to deepen. A secondary application
+may be added later only if the flow remains short enough.
+
+The AI-Foto application step collects:
+
+- short concrete task description;
+- application-specific frequency;
+- value type, beneficiary, net effect, control/rework, and shareability;
+- application-specific data categories and account/environment;
+- output destination, output control, and ability to deviate from AI output;
+- people impact and transparency;
+- near-miss or extra-correction signals;
+- escalation-route awareness;
+- application-specific support needs;
+- short scenario-style skill responses.
+
+These answers feed AI-Foto analysis cards and decision preparation. They do not
+silently change SAI V8.1 scoring.
+
+Implemented variant routing:
+
+- `/survey/tools` remains the shared broad tool/use-case selection screen.
+- For `productCode = sai`, continuing from `/survey/tools` goes directly to
+  `/survey/data`.
+- For `productCode = ai_foto`, continuing from `/survey/tools` goes to
+  `/survey/application`.
+- `/survey/application` stores the primary concrete application through
+  `save_survey_application(...)`, then continues to `/survey/data`.
+- Existing SAI sessions do not see or require the AI-Foto application step.
+
+AI-Foto application-step UX rules:
+
+- Keep the respondent-facing step shorter than the full consultant interview.
+- Present the application step as a sequence of short beats, not as one
+  repeated form pattern:
+  `Praktijkvoorbeeld`, `Datastroom`, `Mensimpact`, `Waarde`, and
+  `Afronding`.
+- Use compact answer cards and a single application-flow diagram in this step
+  to reduce perceived length and to show why data, environment, output, and
+  control belong together.
+- The selected tool/use-case may be preselected from the toolpicker. Content
+  answers such as frequency, account environment, data categories, value, and
+  near-miss signals must not be pre-filled because defaults can steer answers.
+- Required fields are limited to concrete application, frequency, account or
+  work environment, output destination, output control, data categories, people
+  impact, core value signals, control/rework, and value evidence indication.
+- The deviation question is conditionally shown only when the respondent says
+  the output can affect customers, colleagues, candidates, inhabitants, or an
+  important decision.
+- Conditions, near-miss signals, support needs, shareability, visibility,
+  reporting awareness, and escalation-route awareness are visible in the flow
+  but may remain optional with "weet ik niet" or neutral non-answer choices
+  where appropriate. They must no longer be hidden under a consultant/DPO
+  accordion.
+- Near-miss copy must explicitly say that answers are used for pattern
+  detection and are not shown as individual employee records.
+- Free-text task descriptions must ask for general wording and avoid names,
+  dossier numbers, e-mail addresses, or customer details. The UI may show soft
+  warnings for obvious personal-data patterns.
+- Application-level skill responses are not asked in this MVP step. The
+  Vaardighedenkaart may infer support signals from data, output-control,
+  near-miss, visibility, and transparency answers. One run-level
+  AI-Foto-only scenario question may be asked in the literacy step to give the
+  Vaardighedenkaart a positive handling signal. Do not reintroduce a
+  per-application skill matrix.
+
+AI-Foto shared data-step rule:
+
+- `/survey/data` remains the shared SAI run-level data screen and still feeds
+  SAI V8.1 data boosts.
+- For `productCode = ai_foto`, the screen copy must make the level difference
+  explicit: "Naast je praktijkvoorbeeld: welke soorten informatie voer je wel
+  eens in bij AI-tools?"
+- The application-level data categories selected in `/survey/application` may
+  be shown as "al genoteerd bij je praktijkvoorbeeld", but they must not be
+  used as pre-filled answers for the run-level data question.
+
 ## Current Screens
 
 The current HTML reference screens live in `design-html/sai/survey/`:
@@ -44,6 +144,7 @@ intro/access code
 werkplek
 frequentie + motivatie
 toolpicker with use-case selection
+AI-Foto only: concrete application depth step
 datatype + data awareness + anonymization
 account matrix + browser extensions + agents/automation
 vaardigheid + spelregels + tool preference + output handling

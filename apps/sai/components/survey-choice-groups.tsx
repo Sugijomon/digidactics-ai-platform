@@ -1,6 +1,7 @@
 import type { SurveyOption } from "@/lib/sai-survey/options";
 
 export function SurveyCheckboxGroup({
+  compact = false,
   helpText,
   isDisabled = false,
   label,
@@ -11,6 +12,7 @@ export function SurveyCheckboxGroup({
   supportingNote,
   validationError,
 }: {
+  compact?: boolean;
   helpText: string;
   isDisabled?: boolean;
   label: string;
@@ -37,7 +39,9 @@ export function SurveyCheckboxGroup({
     <fieldset
       aria-describedby={[helpId, errorId].filter(Boolean).join(" ")}
       aria-invalid={validationError ? true : undefined}
-      className="grid min-w-0 max-w-full gap-4 rounded-[1.35rem] border border-white/80 bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)]"
+      className={`grid min-w-0 max-w-full rounded-[1.35rem] border border-white/80 bg-white/75 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
+        compact ? "gap-3 p-3" : "gap-4 p-4"
+      }`}
     >
       <legend className="sr-only">Keuzegroep</legend>
       <div className="min-w-0">
@@ -69,7 +73,9 @@ export function SurveyCheckboxGroup({
       <div className="grid min-w-0 gap-2 md:grid-cols-2">
         {options.map((option) => (
           <label
-            className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:shadow-[0_4px_12px_rgba(0,101,139,0.06)] ${
+            className={`flex cursor-pointer items-start gap-3 rounded-xl border transition hover:-translate-y-0.5 hover:border-[#00658b] hover:shadow-[0_4px_12px_rgba(0,101,139,0.06)] ${
+              compact ? "px-3 py-2.5" : "px-4 py-3"
+            } ${
               selectedCodes.includes(option.code)
                 ? "border-[#00658b] bg-[#f1f4f6]"
                 : "border-[#bfc7cf] bg-white"
@@ -86,7 +92,11 @@ export function SurveyCheckboxGroup({
               value={option.code}
             />
             <span className="min-w-0">
-              <span className="block text-base font-normal leading-[1.35] text-[#181c1e]">
+              <span
+                className={`block font-normal leading-[1.35] text-[#181c1e] ${
+                  compact ? "text-sm" : "text-base"
+                }`}
+              >
                 {option.label}
               </span>
               {option.description ? (
@@ -103,6 +113,7 @@ export function SurveyCheckboxGroup({
 }
 
 export function SurveyRadioGroup({
+  compact = false,
   helpText,
   isDisabled = false,
   label,
@@ -112,6 +123,7 @@ export function SurveyRadioGroup({
   selectedCode,
   validationError,
 }: {
+  compact?: boolean;
   helpText: string;
   isDisabled?: boolean;
   label: string;
@@ -129,7 +141,9 @@ export function SurveyRadioGroup({
     <fieldset
       aria-describedby={[helpId, errorId].filter(Boolean).join(" ")}
       aria-invalid={validationError ? true : undefined}
-      className="grid min-w-0 max-w-full gap-4 rounded-[1.35rem] border border-white/80 bg-white/75 p-4 shadow-[0_4px_14px_rgba(0,101,139,0.035)]"
+      className={`grid min-w-0 max-w-full rounded-[1.35rem] border border-white/80 bg-white/75 shadow-[0_4px_14px_rgba(0,101,139,0.035)] ${
+        compact ? "gap-3 p-3" : "gap-4 p-4"
+      }`}
     >
       <legend className="sr-only">Keuzegroep</legend>
       <div className="min-w-0">
@@ -149,7 +163,9 @@ export function SurveyRadioGroup({
       <div className="grid min-w-0 gap-2 md:grid-cols-2">
         {options.map((option) => (
           <label
-            className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition hover:-translate-y-0.5 hover:border-[#00658b] hover:shadow-[0_4px_12px_rgba(0,101,139,0.06)] ${
+            className={`flex cursor-pointer items-start gap-3 rounded-xl border transition hover:-translate-y-0.5 hover:border-[#00658b] hover:shadow-[0_4px_12px_rgba(0,101,139,0.06)] ${
+              compact ? "px-3 py-2.5" : "px-4 py-3"
+            } ${
               selectedCode === option.code
                 ? "border-[#00658b] bg-[#f1f4f6]"
                 : "border-[#bfc7cf] bg-white"
@@ -166,7 +182,11 @@ export function SurveyRadioGroup({
               value={option.code}
             />
             <span className="min-w-0">
-              <span className="block text-base font-normal leading-[1.35] text-[#181c1e]">
+              <span
+                className={`block font-normal leading-[1.35] text-[#181c1e] ${
+                  compact ? "text-sm" : "text-base"
+                }`}
+              >
                 {option.label}
               </span>
               {option.description ? (

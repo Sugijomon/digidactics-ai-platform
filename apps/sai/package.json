@@ -4,13 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "corepack pnpm --dir ../../packages/domain build && next build",
     "start": "next start",
     "lint": "eslint",
     "test:e2e": "playwright test",
     "seed:synthetic-flow": "tsc -p scripts/synthetic-flow/tsconfig.json && node scripts/synthetic-flow/dist/run.js"
   },
   "dependencies": {
+    "@digidactics/domain": "workspace:*",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.105.3",
     "lucide-react": "^1.16.0",

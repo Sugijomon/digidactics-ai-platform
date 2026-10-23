@@ -25,6 +25,7 @@ import {
   type SurveyStepId,
 } from "@/lib/sai-survey/flow";
 import {
+  aiFotoDoubtScenarioOptions,
   aiPolicyAwarenessOptions,
   aiSkillLevelOptions,
   preferenceReasonOptions,
@@ -36,10 +37,12 @@ export default function SurveyLiteracyPage() {
   const [surveySession, setSurveySession] = useState<SurveySession | null>(null);
   const [runId, setRunId] = useState<string | null>(null);
   const [completedSteps, setCompletedSteps] = useState<SurveyStepId[]>([]);
+  const [isAiFoto, setIsAiFoto] = useState(false);
   const [policyCode, setPolicyCode] = useState("");
   const [preferenceReasonCode, setPreferenceReasonCode] = useState("");
   const [skillCode, setSkillCode] = useState("");
   const [outputCode, setOutputCode] = useState("");
+  const [doubtScenarioCode, setDoubtScenarioCode] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -66,6 +69,7 @@ export default function SurveyLiteracyPage() {
       });
       setRunId(storedSession.runId);
       setCompletedSteps(storedSession.completedSteps ?? []);
+      setIsAiFoto(storedSession.productCode === "ai_foto");
     });
   }, [router]);
 
@@ -75,7 +79,13 @@ export default function SurveyLiteracyPage() {
       return;
     }
 
-    if (!policyCode || !preferenceReasonCode || !skillCode || !outputCode) {
+    if (
+      !policyCode ||
+      !preferenceReasonCode ||
+      !skillCode ||
+      !outputCode ||
+      (isAiFoto && !doubtScenarioCode)
+    ) {
       setError("Beantwoord alle vragen voordat je doorgaat.");
       return;
     }
@@ -86,6 +96,7 @@ export default function SurveyLiteracyPage() {
     const profileResult = await saveProfile(surveySession, {
       ai_policy_awareness_code: policyCode,
       ai_skill_level_code: skillCode,
+      ai_foto_doubt_scenario_code: isAiFoto ? doubtScenarioCode : undefined,
       processing_output_code: outputCode,
     });
 
@@ -178,6 +189,19 @@ export default function SurveyLiteracyPage() {
           selectedCode={outputCode}
           validationError={!outputCode ? "Kies een antwoord." : undefined}
         />
+
+        {isAiFoto ? (
+          <SurveyRadioGroup
+            helpText="Kies wat het meest lijkt op wat je meestal doet. Dit helpt de Vaardighedenkaart zonder je individuele antwoord te beoordelen."
+            isDisabled={isSaving}
+            label="Wat doe je als je twijfelt aan een AI-antwoord?"
+            name="ai_foto_doubt_scenario"
+            onChange={setDoubtScenarioCode}
+            options={aiFotoDoubtScenarioOptions}
+            selectedCode={doubtScenarioCode}
+            validationError={!doubtScenarioCode ? "Kies een antwoord." : undefined}
+          />
+        ) : null}
 
         <SelfDirectionDetails />
 

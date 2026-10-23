@@ -1,5 +1,152 @@
 # Domain Decisions
 
+## 2026-08-05 - AI-Foto Fable Feedback Stays A Variant, Adds Analysis Plane
+
+The Fable design feedback is accepted as a refinement of the existing
+AI-Foto scan variant. It does not create a separate repository, copied app,
+copied schema, or separate SAI risk engine. The governing boundary remains:
+
+```txt
+SAI product surface and V8.1 scoring: unchanged by default
+AI-Foto respondent and analysis surface: variant-gated by product_code = ai_foto
+AI-Foto method version: ai-foto-scan-v1 until a later documented method bump
+```
+
+The respondent change is a rhythm and interpretation change, not a new legal
+method. The application step should be reshaped from a compact form wizard into
+a sequence of short beats around a concrete practice example:
+
+- practice-example selection;
+- an application data-flow screen that connects data, tool/work environment,
+  output destination, and output control;
+- a people-impact and human-deviation screen;
+- a value screen that keeps net effect and control/rework together;
+- a visible rules and follow-up screen for visibility, reporting awareness,
+  escalation awareness, conditions, near misses, shareability, and support.
+
+The shared SAI run-level data question remains analytically useful for SAI
+scoring and broad exposure. For AI-Foto, the copy must make the level
+difference explicit by asking about data use besides the saved practice example
+and by showing application-level data categories as already noted context. The
+stored application answer is displayed for orientation only and must not be used
+as a pre-filled answer for the run-level SAI data question.
+
+AI-Foto adds two lightweight respondent signals:
+
+- a value evidence indication at application level, capped at survey evidence;
+- one run-level scenario answer about what the respondent does when they doubt
+  an AI answer.
+
+These signals feed AI-Foto cards and skills/attention interpretation only. They
+must not change `shadow_score`, `exposure_score`, `priority_score`,
+`risk_result`, `risk_result_tool`, or SAI review triggers.
+
+AI-Foto also adds a persistent analysis plane centered on `card_item`. A
+`card_item` is an analysis artifact between raw `survey_application` records
+and customer-facing cards. It stores card type, source kind, cluster key,
+structured observation, respondent count, evidence references, evidence level,
+human interpretation fields, status, analysis version, and audit metadata.
+
+Automatic analysis may propose deterministic draft items and bounded text
+concepts, but customer-card export is blocked unless selected items are
+`approved` by an authenticated DPO/org-admin/super-admin role. Evidence level
+is capped by available sources: survey-only output can be `gesteld` or, when a
+survey respondent indicates a concrete example or measurable signal,
+`aannemelijk`; `aangetoond` is manual only after triangulation outside the
+survey.
+
+The next AI-Foto layer is implemented as a dashboard workbench over this same
+`card_item` plane. Draft generation is deterministic and idempotent per
+organization, scan wave, analysis version, card type, source kind, and cluster
+key. Regenerating may refresh draft or AI-suggested items, but it must not
+overwrite `approved` items. Export preparation stays in the existing evidence
+plane: approved-only selections are recorded as preview-ready
+`report_exports` with selected card item ids, method version, analysis version,
+min-cell metadata, and an audit event.
+
+AI-Foto cards and exports remain aggregated decision preparation. They are not
+a legal opinion, DPIA, EU AI Act classification, employee performance view,
+audit, complete AI register, compliance guarantee, or replacement for
+specialist review.
+
+## 2026-08-03 - AI-Foto Scan Variant Extends SAI Without Forking It
+
+AI-Foto is implemented as a scan variant on top of the existing SAI platform
+foundation, not as a copied app, copied schema, or separate risk engine.
+
+The durable product marker is stored at wave/run level:
+
+- `scan_wave.product_code`
+- `scan_wave.method_version`
+- `survey_run.product_code_snapshot`
+- `survey_run.method_version_snapshot`
+
+Initial values are:
+
+```txt
+sai      / sai-v8.1
+ai_foto  / ai-foto-scan-v1
+```
+
+The first AI-Foto-specific record-plane extension is
+`survey_application`: one primary, and optionally one secondary, concrete
+application selected by the respondent. It connects an existing
+`survey_tool` and `survey_tool_use_case` to AI-Foto signal fields for value,
+attention points, skills, output destination, human control, transparency,
+people impact, near misses, support needs, and conditions for responsible use.
+
+The first respondent UI slice is variant-gated in the existing `apps/sai`
+survey flow. SAI continues from broad tool/use-case selection directly to the
+data step. AI-Foto continues from broad tool/use-case selection to
+`/survey/application`, saves the concrete application through
+`save_survey_application(...)`, and then rejoins the shared data/account/
+literacy/future/complete flow.
+
+The first AI-Foto dashboard output preview is `/dashboard/ai-foto`. It
+aggregates `survey_application` records into:
+
+- Waardekaart
+- Aandachtspuntenkaart
+- Vaardighedenkaart
+- kandidaat-AI-inventaris
+- maximaal vijf besluitpunten
+- 30/60/90-route
+
+The AI-Foto respondent deep-dive step is kept as an MVP survey step rather than
+a full consultant interview. The UI uses neutral inventory language, makes
+sensitive blocks optional, shows near-miss privacy reassurance, and presents
+the page as a local three-part wizard to reduce cognitive load. It asks the
+human-deviation question only when the selected people-impact answer makes that
+context relevant. Free-text application descriptions must steer respondents
+away from names, e-mail addresses, dossier numbers, and customer details.
+Application-specific skill-response fields remain in the schema/RPC for future
+use, but the MVP respondent screen no longer asks a per-application skill
+matrix; broader skill signals should be collected once at survey or training
+level if reintroduced. Until then, the AI-Foto dashboard may derive
+Vaardighedenkaart signals from behavior and context signals such as data-rule
+needs, output-control gaps, near-miss categories, and transparency uncertainty.
+Those derived signals are adoption/support signals, not individual skill
+assessments.
+
+SAI V8.1 scoring is intentionally unchanged. AI-Foto application-level fields
+do not silently affect `shadow_score`, `exposure_score`, `priority_score`,
+`risk_result`, or `risk_result_tool`. Existing SAI scores may be used as one
+triage input for the AI-Foto Aandachtspuntenkaart, but they are not a legal
+classification and not the only AI-Foto analysis lens.
+
+Respondent writes for AI-Foto follow the existing SAI security posture:
+
+- no direct anonymous table writes;
+- token-validated `SECURITY DEFINER` RPC;
+- org context derived from `survey_run`;
+- cross-run validation for linked tool and use-case records;
+- DPO/org-admin dashboard reads only through authenticated, org-scoped RLS.
+
+AI-Foto output remains aggregated, decision-preparatory signal output. The
+dashboard preview may rank signals and suggest route items, but it does not
+produce an audit, legal opinion, DPIA, EU AI Act classification, compliance
+guarantee, employee performance view, or complete AI register.
+
 ## 2026-07-08 - SAI Production Readiness Uses Evidence Foundation Planes
 
 SAI production-readiness must now be checked against the Evidence Foundation

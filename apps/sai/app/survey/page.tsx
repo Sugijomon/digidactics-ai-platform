@@ -25,7 +25,7 @@ import {
 } from "@/lib/sai-rpc/session";
 import type { RpcError } from "@/lib/sai-rpc/types";
 import { getConfiguredDefaultWaveToken } from "@/lib/sai-rpc/wave-token";
-import { getResumeStep, surveySteps } from "@/lib/sai-survey/flow";
+import { getResumeStep, getSurveySteps } from "@/lib/sai-survey/flow";
 
 type ResumeSurveyView = {
   completedCount: number;
@@ -275,7 +275,7 @@ function getResumeSurveyView(
     savedToolCount: storedSession.savedTools?.length ?? 0,
     startedAtLabel: formatStartedAt(storedSession.startedAt),
     stepLabel: resumeStep.label,
-    totalSteps: surveySteps.length,
+    totalSteps: getSurveySteps(storedSession).length,
   };
 }
 

@@ -32,6 +32,7 @@ export type PendingSurveyTool = {
 export type StoredSurveySession = SurveySession & {
   startedAt: string;
   currentStep: SurveyStepId;
+  aiFotoApplicationDataTypeCodes?: string[];
   completedSteps?: SurveyStepId[];
   noToolsExitPath?: boolean;
   surveyToolId?: string;
@@ -53,10 +54,17 @@ function isStoredSurveySession(value: unknown): value is StoredSurveySession {
   return (
     typeof candidate.runId === "string" &&
     typeof candidate.submissionToken === "string" &&
+    (candidate.productCode === undefined ||
+      candidate.productCode === "sai" ||
+      candidate.productCode === "ai_foto") &&
+    (candidate.methodVersion === undefined ||
+      typeof candidate.methodVersion === "string") &&
     typeof candidate.startedAt === "string" &&
     isSurveyStepId(candidate.currentStep) &&
     (candidate.completedSteps === undefined ||
       isSurveyStepIds(candidate.completedSteps)) &&
+    (candidate.aiFotoApplicationDataTypeCodes === undefined ||
+      isStringArray(candidate.aiFotoApplicationDataTypeCodes)) &&
     (candidate.noToolsExitPath === undefined ||
       typeof candidate.noToolsExitPath === "boolean") &&
     (candidate.pendingTool === undefined ||
@@ -74,6 +82,7 @@ function isSurveyStepId(value: unknown): value is SurveyStepId {
     value === "data" ||
     value === "tools" ||
     value === "useCases" ||
+    value === "application" ||
     value === "accounts" ||
     value === "literacy" ||
     value === "future" ||
@@ -205,6 +214,9 @@ export function updateSurveySession(
       | "surveyToolId"
       | "surveyToolUseCaseId"
       | "savedTools"
+      | "productCode"
+      | "methodVersion"
+      | "aiFotoApplicationDataTypeCodes"
     >
   >,
 ) {

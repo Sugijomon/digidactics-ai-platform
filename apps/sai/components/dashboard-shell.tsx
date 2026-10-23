@@ -17,6 +17,7 @@ import {
   CircleHelp,
   ClipboardCheck,
   Clock3,
+  Camera,
   Database,
   Eye,
   EyeOff,
@@ -60,6 +61,7 @@ export type DashboardAccessState =
 
 type DashboardNavKey =
   | "activatie"
+  | "aiFoto"
   | "tools"
   | "risicoprofiel"
   | "governance"
@@ -73,6 +75,7 @@ const navItems: {
   label: string;
 }[] = [
   { href: "/dashboard/activatie", icon: "play_circle", key: "activatie", label: "Activatie" },
+  { href: "/dashboard/ai-foto", icon: "camera", key: "aiFoto", label: "AI-Foto" },
   { href: "/dashboard/tools", icon: "grid_view", key: "tools", label: "Tool Inventaris" },
   {
     href: "/dashboard/risicoprofiel",
@@ -564,6 +567,7 @@ const materialIconMap: Record<string, LucideIcon> = {
   analytics: BarChart3,
   bar_chart: BarChart3,
   business_center: BriefcaseBusiness,
+  camera: Camera,
   check: Check,
   crisis_alert: ShieldAlert,
   dashboard: LayoutDashboard,

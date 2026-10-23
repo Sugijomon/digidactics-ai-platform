@@ -10,6 +10,9 @@ importers:
 
   apps/sai:
     dependencies:
+      '@digidactics/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
       '@supabase/ssr':
         specifier: ^0.10.2
         version: 0.10.2(@supabase/supabase-js@2.105.3)

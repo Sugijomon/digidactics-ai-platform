@@ -28,7 +28,8 @@ Respondents do not write directly to tables.
 Flow:
 
 1. Client calls `start_survey_run(wave_token)`.
-2. Database returns `run_id` and one-time `submission_token`.
+2. Database returns `run_id`, one-time `submission_token`, `product_code`, and
+   `method_version`.
 3. Client stores token only for the active survey session.
 4. Client calls `save_*` RPCs with `(run_id, submission_token, payload)`.
 5. Client calls `complete_survey_run(run_id, submission_token)`.
@@ -47,7 +48,7 @@ respondent survey tables remain blocked.
 Existing from RLS migration:
 
 ```txt
-start_survey_run(p_wave_token text)
+start_survey_run(p_wave_token text) -> table(run_id uuid, submission_token text, product_code text, method_version text)
 complete_survey_run(p_run_id uuid, p_token text)
 set_ambassador_optin(p_run_id uuid, p_token text, p_email text)
 ```
@@ -68,6 +69,51 @@ save_tool_use_case_context(p_run_id uuid, p_token text, p_survey_tool_use_case_i
 save_tool_account(p_run_id uuid, p_token text, p_survey_tool_id uuid, p_account_type_code text)
 register_tool_discovery(p_run_id uuid, p_token text, p_survey_tool_id uuid, p_raw_tool_name text) -> uuid
 ```
+
+Added for the AI-Foto scan variant:
+
+```txt
+save_survey_application(p_run_id uuid, p_token text, p_payload jsonb) -> uuid
+```
+
+This RPC stores one primary, and later optionally one secondary, concrete
+application for AI-Foto. It follows the same respondent-write contract:
+
+- validate `(run_id, submission_token)`;
+- derive organization context from `survey_run`;
+- reject links to tools or use-cases outside the same run;
+- store short, controlled free text separately from scoring output;
+- replace child-table multi-select answers idempotently for the application.
+
+The payload may include:
+
+```txt
+survey_tool_id
+survey_tool_use_case_id
+depth_rank
+task_description_limited
+application_frequency_code
+account_environment_code
+output_destination_code
+output_control_code
+deviation_authority_code
+people_impact_code
+transparency_code
+beneficiary_code
+net_effect_code
+control_rework_code
+shareability_code
+escalation_route_awareness_code
+data_type_codes
+value_type_codes
+condition_need_codes
+near_miss_signal_codes
+support_need_codes
+skill_responses
+```
+
+`save_survey_application` is not part of the SAI V8.1 scoring boundary.
+`complete_survey_run` still calls `calculate_v8_score` for SAI triage output.
 
 ## Frontend Refactor Notes
 
@@ -93,6 +139,8 @@ The frontend should keep a small survey session state:
 ```txt
 runId
 submissionToken
+productCode
+methodVersion
 startedAt
 currentStep
 ```
@@ -106,6 +154,7 @@ Manual smoke-test notes live in:
 
 ```txt
 supabase/smoke-tests/20260504140000_sai_rpc_smoke_tests.sql
+supabase/smoke-tests/20260803121000_ai_foto_application_rpc_smoke.sql
 ```
 
 Minimum checks:

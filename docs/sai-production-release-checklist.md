@@ -1,6 +1,6 @@
 # SAI Production Release Checklist
 
-## 2026-10-23 Controlled Pilot Goal — In Progress
+## 2026-10-23 Controlled Pilot — Verified Staging Chain
 
 The current goal covers the existing SAI survey plus the AI-Foto variant,
 card review workbench, and a real three-card A3/PDF export. Production changes,
@@ -9,15 +9,15 @@ configuration, migrations, and explicitly identified fixtures are authorized.
 
 Milestones (check only against current evidence):
 
-- [ ] Preserve and review the existing AI-Foto working changes; commit and push
+- [x] Preserve and review the existing AI-Foto working changes; commit and push
   them on the existing work branch and update draft PR #5.
-- [ ] Prove the full SAI and AI-Foto browser/database flows in a verified
+- [x] Prove the full SAI and AI-Foto browser/database flows in a verified
   non-production environment, including resume, completion, scoring and dashboards.
-- [ ] Verify org/role isolation, token lifecycle, small-cell suppression,
+- [x] Verify org/role isolation, token lifecycle, small-cell suppression,
   generation idempotency, editing, review and approval.
-- [ ] Implement and verify an authorized, approved-only three-card A3/PDF
+- [x] Implement and verify an authorized, approved-only three-card A3/PDF
   export with source/version metadata and export audit registration.
-- [ ] Run current tests, lint, typecheck and production build; capture a demo
+- [x] Run current tests, lint, typecheck and production build; capture a demo
   path, limitations and production go/no-go handover.
 
 Initial inventory: branch `codex/sai-production-readiness`, baseline `f8398b9`.
@@ -27,10 +27,18 @@ three migrations, SQL smoke tests, analysis logic and the card workbench.
 utilities/output and are preserved locally but excluded from source commits.
 The initial preservation commit is not a claim of pilot readiness.
 
-Review focus for the next milestone: distinct respondents versus application
-counts, approval integrity during concurrent edits/regeneration, and export
-selection scope/metadata. Current browser/database and PDF evidence is pending;
-historical checks below do not certify this version.
+Current evidence, exact commands, sample PDF hash/export ID, demonstration path,
+known limitations and production go/no-go checklist:
+[`controlled-pilot-2026-10-23.md`](controlled-pilot-2026-10-23.md).
+21 domain tests, 7 mocked browser tests, 11 real-staging chain tests and 2 focused
+final dashboard/privacy checks passed. Lint, typecheck and production build passed.
+The real PDF has three inspected A3 pages and a verified database/audit registration.
+The work remains on draft PR #5; no main merge, production change or invitation.
+
+The verified scope is a local application connected to isolated hosted staging.
+Production is NO-GO until its explicit deployment, migration, privacy and access
+checks in the handover have been performed. The older sections below are retained
+as historical context and do not override this dated verification.
 
 Status: first production-hardening checklist, based on the 2026-07-08 repo
 audit and updated for the Evidence Foundation information architecture.

@@ -740,7 +740,7 @@ function TopClusterTable({ items }: { items: ReviewQueueItem[] }) {
       <table className="w-full min-w-[760px] border-separate border-spacing-0 text-left">
         <thead>
           <tr>
-            {["#", "Cluster", "n", "Max priority", "Gem.", "Top trigger", "Trend"].map((head) => (
+            {["#", "Cluster", "n", "Max priority", "Max exposure", "Top trigger", "Trend"].map((head) => (
               <th
                 className="border-b border-slate-200 bg-slate-50 px-3 py-3 text-[11px] font-extrabold uppercase tracking-[.06em] text-slate-500"
                 key={head}
@@ -753,7 +753,6 @@ function TopClusterTable({ items }: { items: ReviewQueueItem[] }) {
         <tbody>
           {items.map((item, index) => {
             const trigger = primaryTrigger(item);
-            const trend = trendFor(index);
             return (
               <tr className="hover:bg-slate-50/80" key={item.clusterId}>
                 <td className="border-b border-slate-100 px-3 py-3 font-extrabold text-slate-700">
@@ -775,7 +774,7 @@ function TopClusterTable({ items }: { items: ReviewQueueItem[] }) {
                   <TriggerTag label={formatScore(item.priorityScore)} tone={item.priorityScore >= 75 ? "hard" : "warn"} />
                 </td>
                 <td className="border-b border-slate-100 px-3 py-3 text-sm font-semibold text-slate-700">
-                  {formatScore((item.priorityScore + item.exposureScore) / 2)}
+                  {formatScore(item.exposureScore)}
                 </td>
                 <td className="border-b border-slate-100 px-3 py-3">
                   {trigger === "none" ? (
@@ -784,8 +783,8 @@ function TopClusterTable({ items }: { items: ReviewQueueItem[] }) {
                     <TriggerTag code={trigger} />
                   )}
                 </td>
-                <td className={`border-b border-slate-100 px-3 py-3 text-sm font-bold ${trend.className}`}>
-                  {trend.label}
+                <td className="border-b border-slate-100 px-3 py-3 text-sm text-slate-500">
+                  Niet gemeten
                 </td>
               </tr>
             );
@@ -1492,17 +1491,6 @@ function primaryTrigger(item: ReviewQueueItem) {
     "dpo_attention_note",
   ];
   return order.find((trigger) => item.triggers.includes(trigger)) ?? item.triggers[0] ?? "none";
-}
-
-function trendFor(index: number) {
-  const trends = [
-    { className: "text-red-700", label: "+8pp" },
-    { className: "text-amber-700", label: "stabiel" },
-    { className: "text-green-700", label: "-3pp" },
-    { className: "text-red-700", label: "+5pp" },
-    { className: "text-green-700", label: "-6pp" },
-  ];
-  return trends[index] ?? { className: "text-amber-700", label: "stabiel" };
 }
 
 function priorityFormula(item: ReviewQueueItem) {

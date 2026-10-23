@@ -374,6 +374,19 @@ export function countAiFotoRespondents(
   return new Set(applications.map((row) => row.surveyRunId).filter(Boolean)).size;
 }
 
+/** Count independent respondents for an exact structured reporting pattern. */
+export function aggregateSupportedPatterns<T>(rows: Array<{ respondentId: string; pattern: T }>, minimum: number) {
+  const groups = new Map<string, { pattern: T; respondents: Set<string> }>();
+  for (const row of rows) {
+    const key = JSON.stringify(row.pattern);
+    const group = groups.get(key) ?? { pattern: row.pattern, respondents: new Set<string>() };
+    if (row.respondentId) group.respondents.add(row.respondentId);
+    groups.set(key, group);
+  }
+  return [...groups.values()].filter((group) => group.respondents.size >= Math.max(5, minimum))
+    .map((group) => ({ pattern: group.pattern, respondentCount: group.respondents.size }));
+}
+
 /** Only repeated, identical structured patterns are suitable for a preview.
  * Callers must omit respondent identifiers and free text before grouping.
  */

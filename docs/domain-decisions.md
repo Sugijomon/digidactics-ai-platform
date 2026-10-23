@@ -2,6 +2,22 @@
 
 ## 2026-10-23 - Controlled Pilot Privacy And Approval Integrity
 
+The SAI risk dashboard also aggregates identical structured reporting patterns
+on the server, counts distinct respondents, and suppresses patterns below five
+or the larger configured minimum before sending drilldown rows to the client.
+Free-text department names and individual result IDs are not reporting labels.
+The prior synthetic trend labels have been replaced by `Niet gemeten`; the
+ambiguous `Gem.` column now reports the actual maximum exposure score. These
+are reporting corrections, not changes to stored SAI scoring.
+
+AI-Foto's `ai-foto-a3-v1` template exports only an approved, same-wave set of
+the three card types. The authenticated server downloads bytes directly after
+the database atomically records SHA-256, source IDs, actor, versions and an audit
+event. No public storage bucket, persistent file archive or signing service is
+added. Migration `20261023101819_add_ai_foto_pdf_export_registration.sql` was
+applied only to the verified staging branch. The current handover and test
+record are in `controlled-pilot-2026-10-23.md`.
+
 AI-Foto dashboard signals use completed primary applications (one per run).
 Individual task descriptions are never fetched for the dashboard. Candidate
 previews group identical structured patterns and suppress groups below the
@@ -27,7 +43,8 @@ the latest AI-Foto wave rather than combining approved items from different wave
 
 Migration: `20261023100645_harden_ai_foto_pilot_integrity.sql`. Applied only to
 the verified non-default staging branch `gpptjkwxqxxdsjgwzhzl`; production was
-not mutated. Browser/API regression evidence is still required before release.
+not mutated. Current browser/API/PDF evidence and production gates are recorded
+in `controlled-pilot-2026-10-23.md`; historical tests do not certify production.
 
 ## 2026-08-05 - AI-Foto Fable Feedback Stays A Variant, Adds Analysis Plane
 

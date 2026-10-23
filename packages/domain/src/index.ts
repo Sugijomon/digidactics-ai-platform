@@ -1,4 +1,5 @@
 export {
+  aggregateSupportedPatterns,
   buildAiFotoAttentionCardDraft,
   buildAiFotoGeneratedCardDraft,
   clampAiFotoEvidenceLevel,

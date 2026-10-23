@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  aggregateSupportedPatterns,
   countAiFotoRespondents,
   getSupportedAiFotoPatterns,
   buildAiFotoAttentionCardDraft,
@@ -12,6 +13,15 @@ import {
   getAiFotoEvidenceCeiling,
   validateAiFotoCardItemApproval,
 } from "../src/ai-foto-analysis.js";
+
+test("reporting suppresses small exact patterns and duplicate respondent contributions", () => {
+  const common = { department: "A", tool: "ChatGPT", score: 39 };
+  const rows = Array.from({ length: 5 }, (_, index) => ({ respondentId: String(index), pattern: common }));
+  const rare = { ...common, department: "B" };
+  assert.deepEqual(aggregateSupportedPatterns([...rows, ...rows, { respondentId: "0", pattern: rare }], 5), [{ pattern: common, respondentCount: 5 }]);
+  assert.deepEqual(aggregateSupportedPatterns(Array(10).fill(rows[0]), 5), []);
+  assert.deepEqual(aggregateSupportedPatterns(rows, 6), []);
+});
 
 test("AI-Foto privacy counts unique respondents, not primary and secondary applications", () => {
   assert.equal(countAiFotoRespondents([

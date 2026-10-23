@@ -1,4 +1,4 @@
-import { getAiFotoAttentionLevel as deriveAiFotoAttentionLevel, getSupportedAiFotoPatterns } from "@digidactics/domain";
+import { aggregateSupportedPatterns, getAiFotoAttentionLevel as deriveAiFotoAttentionLevel, getSupportedAiFotoPatterns } from "@digidactics/domain";
 import { createClient } from "@/lib/supabase/server";
 import {
   aiVisibilityOptions,
@@ -554,9 +554,12 @@ export async function getRiskSummary(orgId: string): Promise<RiskSummary> {
     getMinCellSizeQuery(orgId),
   ]);
 
-  const runs = runsResult.error || !runsResult.data ? [] : runsResult.data;
+  for (const result of [runsResult, toolsResult, minCellResult]) {
+    if (result.error) throw new Error(result.error.message);
+  }
+  const runs = runsResult.data ?? [];
   const toolRows = toolsResult.error || !toolsResult.data ? [] : toolsResult.data;
-  const minCellSize = getMinCellSize(minCellResult);
+  const minCellSize = Math.max(5, getMinCellSize(minCellResult));
   const enrichment = await getRiskToolEnrichment(toolRows);
   const visibleToolNames = getVisibleToolNames(toolRows, minCellSize);
   const tierCounts = countTiers(runs);
@@ -564,9 +567,13 @@ export async function getRiskSummary(orgId: string): Promise<RiskSummary> {
     ...runs.flatMap((row) => row.review_trigger_codes ?? []),
     ...toolRows.flatMap((row) => row.trigger_codes ?? []),
   ]);
-  const clusterItems = toolRows
-    .map((row) => toReviewQueueItem(row, enrichment))
-    .filter((item) => visibleToolNames.has(item.toolName))
+  const clusterItems = aggregateSupportedPatterns(toolRows.map((row) => {
+    const item = toReviewQueueItem(row, enrichment);
+    const { clusterId, respondentCount, ...pattern } = item;
+    void clusterId; void respondentCount;
+    return { respondentId: row.survey_run_id, pattern: { ...pattern, triggers: [...pattern.triggers].sort() } };
+  }), minCellSize)
+    .map(({ pattern, respondentCount }, index) => ({ ...pattern, respondentCount, clusterId: `report-pattern-${index + 1}` }))
     .sort((a, b) => b.priorityScore - a.priorityScore);
   const allReviewItems = clusterItems.filter(
     (item) => item.priorityScore >= 40 || item.triggers.length > 0,
@@ -1495,7 +1502,7 @@ function toReviewQueueItem(
   const toolName = row.survey_tool?.tool_name ?? "Onbekende tool";
   const profile = enrichment.profiles.get(row.survey_run_id);
   const department =
-    profile?.department_other_text || profile?.department_code || "Organisatiebreed";
+    profile?.department_code || "Organisatiebreed";
   const useCase = firstMeaningful(enrichment.useCasesByTool.get(row.survey_tool_id), "Onbekend");
   const context = firstMeaningful(enrichment.contextsByTool.get(row.survey_tool_id), "Niet gespecificeerd");
   const dataType = firstMeaningful(enrichment.dataTypesByRun.get(row.survey_run_id), "Onbekend");

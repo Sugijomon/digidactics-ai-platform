@@ -24,7 +24,6 @@ import {
   approveAiFotoCardItem,
   generateAiFotoCardItems,
   markAiFotoCardItemReviewed,
-  recordAiFotoExportPreview,
   updateAiFotoCardItem,
 } from "./actions";
 
@@ -88,7 +87,7 @@ export default async function AiFotoDashboardPage({
 
         {summary.applicationCount === 0 ? (
           <EmptyDashboardState
-            text="Vul eerst een AI-Foto scan in met de toegangscode ai-foto-preview. Zodra concrete toepassingen zijn opgeslagen, verschijnen hier de drie kaarten."
+            text="Zodra AI-Foto scans zijn afgerond, verschijnen hier geaggregeerde signalen. Patronen worden alleen getoond bij voldoende respondenten."
             title="Nog geen AI-Foto toepassingen"
           />
         ) : (
@@ -568,17 +567,9 @@ function CardItemEditor({ item }: { item: AiFotoCardItemRow }) {
               options={[
                 ["gesteld", "Gesteld"],
                 ["aannemelijk", "Aannemelijk"],
-                ["aangetoond", "Aangetoond"],
               ]}
             />
-            <label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-600">
-              <input
-                className="h-4 w-4 rounded border-slate-300 text-[#0E5A75]"
-                name="allow_triangulated_evidence"
-                type="checkbox"
-              />
-              Triangulatie beschikbaar
-            </label>
+            <p className="text-xs leading-5 text-slate-500">Scanantwoorden onderbouwen maximaal ‘aannemelijk’. Onafhankelijke bewijsvoering valt buiten deze pilotwerkbank.</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <button
@@ -750,12 +741,12 @@ function ExportReadiness({
             Exports
           </h2>
           <p className="mt-1 text-sm leading-6 text-[#566166]">
-            Kaarten worden straks uitsluitend opgebouwd uit approved
-            kaartitems met auditmetadata.
+            Download drie A3-kaarten op basis van goedgekeurde kaartitems.
+            Elke export krijgt bronvermelding en een registratie in het auditlog.
           </p>
         </div>
         <StatusPill tone={isReady ? "green" : "amber"}>
-          {isReady ? "Export-preview gereed" : exportReadinessLabel(exportPreview.readiness)}
+          {isReady ? "PDF-export gereed" : exportReadinessLabel(exportPreview.readiness)}
         </StatusPill>
       </div>
       <div className="grid gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
@@ -785,7 +776,7 @@ function ExportReadiness({
             {exportPreview.latestExport ? (
               <div>
                 <dt className="font-bold uppercase tracking-wide text-slate-400">
-                  Laatste preview
+                  Laatste PDF
                 </dt>
                 <dd>
                   {exportPreview.latestExport.export_status} op{" "}
@@ -794,7 +785,7 @@ function ExportReadiness({
               </div>
             ) : null}
           </dl>
-          <form action={recordAiFotoExportPreview} className="mt-4">
+          <form action="/dashboard/ai-foto/export" method="post" className="mt-4">
             <input
               name="method_version"
               type="hidden"
@@ -816,7 +807,7 @@ function ExportReadiness({
               type="submit"
             >
               <MaterialIcon className="text-[18px]">inventory</MaterialIcon>
-              Registreer preview
+              Download A3/PDF
             </button>
           </form>
         </div>
@@ -960,9 +951,9 @@ function statusTone(status: AiFotoCardItemStatus) {
 
 function exportReadinessLabel(readiness: AiFotoExportPreview["readiness"]) {
   return {
-    incomplete_metadata: "Metadata incompleet",
+    incomplete_metadata: "Nog geen complete set van drie kaarten",
     no_approved_items: "Nog geen approved items",
-    ready: "Export-preview gereed",
+    ready: "PDF-export gereed",
   }[readiness];
 }
 

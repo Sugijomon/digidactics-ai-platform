@@ -154,9 +154,13 @@ plane (`report_exports` and/or `audit_events`). The template includes the fixed
 disclaimer: signalering en besluitvoorbereiding, geen juridische classificatie,
 audit of compliancegarantie.
 
-The first export step is a preview registration only: it records an
-approved-only selection in `report_exports` with `export_status =
-preview_ready`, without creating a final PDF/A3 file.
+The controlled pilot now implements the `ai-foto-a3-v1` PDF template. It requires
+approved items for all three card types from a single wave, records SHA-256,
+file size, selected source IDs, actor and version metadata in `report_exports`
+with `export_status = generated`, and inserts the audit event atomically.
+The PDF is delivered directly with no-store headers after successful
+registration. Historical `preview_ready` entries are previews, not generated
+PDFs. See [current pilot evidence](controlled-pilot-2026-10-23.md).
 
 Staging validation is documented in
 [`docs/ai-foto-staging-smoke-runbook.md`](ai-foto-staging-smoke-runbook.md).

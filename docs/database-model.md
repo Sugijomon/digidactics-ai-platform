@@ -317,6 +317,15 @@ transactionally. Counts use distinct completed runs and a minimum of five (or
 the larger configured cell threshold). Survey-only evidence cannot be marked
 `aangetoond`. See migration `20261023100645_harden_ai_foto_pilot_integrity.sql`.
 
+PDF exports reuse `report_exports` with `export_type = ai_foto_pdf`,
+`export_status = generated`, `view_or_query_version = ai-foto-a3-v1`, file size,
+row count and privacy threshold. `filters` contains SHA-256, approved item IDs,
+generation timestamp, method/analysis/template versions and source limitations.
+`record_ai_foto_pdf_export` checks caller membership, same-wave approved sources,
+all three card types and the current threshold, then inserts the export row and
+`ai_foto.pdf_generated` audit event in one transaction. No new table or storage
+bucket is introduced. A generated record does not attest successful receipt.
+
 AI-Foto adds a concrete application layer without changing the SAI V8.1 scoring
 tables. The core analysis unit is:
 

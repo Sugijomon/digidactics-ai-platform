@@ -1,7 +1,11 @@
 # AI-Foto Staging Smoke Runbook
 
-Status: staging/local runbook for the AI-Foto card item workbench and export
-preview layer.
+Status: the current pilot procedure and real browser/PDF suite are documented
+in [the 23 October pilot handover](controlled-pilot-2026-10-23.md).
+The SQL examples below describe the earlier preview layer; direct approval
+without review and real completed source references is intentionally rejected
+by the October integrity migration. Do not treat those historical smoke
+examples as current release evidence.
 
 Do not run these steps against production.
 
@@ -16,8 +20,8 @@ and customer-card export preparation:
 - approved-only export-preview registration;
 - audit evidence in `audit_events` and `report_exports`.
 
-It does not validate a final A3/PDF export, because that export template is the
-next build layer after staging validation.
+The current `test:pilot` suite also validates the actual A3/PDF download and
+export audit registration. The earlier preview procedure below does not.
 
 ## 1. Migration Preflight
 

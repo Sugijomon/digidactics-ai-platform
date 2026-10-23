@@ -310,6 +310,13 @@ Data boost is calculated from the highest data sensitivity reported in the run.
 
 ## AI-Foto Application Layer
 
+Controlled pilot integrity (2026-10-23): card approval and same-org/same-wave
+source validation are enforced by database triggers. Approved cards are
+immutable; editing a reviewed card returns it to draft. Audit events are written
+transactionally. Counts use distinct completed runs and a minimum of five (or
+the larger configured cell threshold). Survey-only evidence cannot be marked
+`aangetoond`. See migration `20261023100645_harden_ai_foto_pilot_integrity.sql`.
+
 AI-Foto adds a concrete application layer without changing the SAI V8.1 scoring
 tables. The core analysis unit is:
 

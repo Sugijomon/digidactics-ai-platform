@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  countAiFotoRespondents,
+  getSupportedAiFotoPatterns,
   buildAiFotoAttentionCardDraft,
   buildAiFotoGeneratedCardDraft,
   clampAiFotoEvidenceLevel,
@@ -10,6 +12,25 @@ import {
   getAiFotoEvidenceCeiling,
   validateAiFotoCardItemApproval,
 } from "../src/ai-foto-analysis.js";
+
+test("AI-Foto privacy counts unique respondents, not primary and secondary applications", () => {
+  assert.equal(countAiFotoRespondents([
+    { surveyRunId: "one" }, { surveyRunId: "one" }, { surveyRunId: "two" }, {},
+  ]), 2);
+});
+
+test("AI-Foto preview suppresses rare combinations even when individual fields are common", () => {
+  const common = { tool: "A", data: "public", output: "internal" };
+  const rare = { tool: "A", data: "sensitive", output: "internal" };
+  assert.deepEqual(getSupportedAiFotoPatterns([...Array(5).fill(common), ...Array(4).fill(rare)], 5), [common]);
+  assert.deepEqual(getSupportedAiFotoPatterns(Array(5).fill(common), 6), []);
+});
+
+test("AI-Foto approval rejects malformed evidence and legal claims in follow-up text", () => {
+  const input = { title: "Titel", observation: "Observatie", interpretation: "Duiding", analysisVersion: "v1", respondentCount: 5 };
+  assert.equal(validateAiFotoCardItemApproval({ ...input, evidenceRefs: [null] }).ok, false);
+  assert.equal(validateAiFotoCardItemApproval({ ...input, evidenceRefs: [{ field: "x", value: "y" }], additionalText: ["Dit is compliant"] }).ok, false);
+});
 
 test("AI-Foto attention stays basis for controlled business use", () => {
   const level = getAiFotoAttentionLevel({

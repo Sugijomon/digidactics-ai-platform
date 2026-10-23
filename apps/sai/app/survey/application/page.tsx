@@ -773,11 +773,11 @@ function ApplicationWizardActions({
       )}
 
       {isFinalSection ? (
-        <PrimarySurveyButton disabled={isBusy} isBusy={isBusy} type="submit">
+        <PrimarySurveyButton key="save-application" disabled={isBusy} isBusy={isBusy} type="submit">
           {isBusy ? "Opslaan..." : "Verder naar data"}
         </PrimarySurveyButton>
       ) : (
-        <PrimarySurveyButton disabled={isBusy} onClick={onNext} type="button">
+        <PrimarySurveyButton key="next-section" disabled={isBusy} onClick={onNext} type="button">
           Volgende stap
         </PrimarySurveyButton>
       )}

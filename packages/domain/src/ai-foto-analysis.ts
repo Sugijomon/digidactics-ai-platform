@@ -26,6 +26,7 @@ export type AiFotoApplicationSignalInput = {
   outputControlCode?: string | null;
   peopleImpactCode?: string | null;
   surveyApplicationId?: string;
+  surveyRunId?: string;
   toolName?: string | null;
   transparencyCode?: string | null;
   useCaseCode?: string | null;
@@ -56,6 +57,7 @@ export type AiFotoCardItemApprovalInput = {
   observation?: string | null;
   respondentCount?: number | null;
   title?: string | null;
+  additionalText?: Array<string | null | undefined>;
 };
 
 export type AiFotoCardItemApprovalValidation = {
@@ -259,6 +261,7 @@ export function validateAiFotoCardItemApproval(
     input.title,
     input.observation,
     input.interpretation,
+    ...(input.additionalText ?? []),
   ]);
 
   return {
@@ -357,7 +360,34 @@ function getDefaultObservation(cardType: AiFotoCardType, respondentCount: number
 }
 
 function hasEvidenceRefs(value: unknown) {
-  return Array.isArray(value) && value.length > 0;
+  return Array.isArray(value) && value.length > 0 && value.every((ref) =>
+    typeof ref === "object" && ref !== null &&
+    typeof ref.field === "string" && ref.field.trim().length > 0 &&
+    typeof ref.value === "string" && ref.value.trim().length > 0,
+  );
+}
+
+/** Multiple applications from one run must never satisfy a privacy threshold. */
+export function countAiFotoRespondents(
+  applications: Array<Pick<AiFotoApplicationSignalInput, "surveyRunId">>,
+) {
+  return new Set(applications.map((row) => row.surveyRunId).filter(Boolean)).size;
+}
+
+/** Only repeated, identical structured patterns are suitable for a preview.
+ * Callers must omit respondent identifiers and free text before grouping.
+ */
+export function getSupportedAiFotoPatterns<T>(patterns: T[], minCellSize: number): T[] {
+  const groups = new Map<string, { count: number; pattern: T }>();
+  for (const pattern of patterns) {
+    const key = JSON.stringify(pattern);
+    const group = groups.get(key) ?? { count: 0, pattern };
+    group.count += 1;
+    groups.set(key, group);
+  }
+  return [...groups.values()]
+    .filter((group) => group.count >= Math.max(5, minCellSize))
+    .map((group) => group.pattern);
 }
 
 function normalizeClusterPart(value: string) {

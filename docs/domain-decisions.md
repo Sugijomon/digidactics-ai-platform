@@ -1,5 +1,34 @@
 # Domain Decisions
 
+## 2026-10-23 - Controlled Pilot Privacy And Approval Integrity
+
+AI-Foto dashboard signals use completed primary applications (one per run).
+Individual task descriptions are never fetched for the dashboard. Candidate
+previews group identical structured patterns and suppress groups below the
+configured minimum; the controlled pilot uses a privacy floor of five distinct
+respondents. Card generation may use primary and secondary applications but
+counts distinct survey runs, not application rows. These changes affect
+AI-Foto presentation only, not SAI V8.1 scoring.
+
+Human-reviewed drafts are not regenerated. Editing a reviewed draft requires
+review again. Approval is a database-enforced transition from reviewed to
+approved, with same-org/same-wave completed source records, minimum distinct
+respondents, required interpretation, and neutral wording in all output fields.
+Approved items are immutable, including through direct Data API requests.
+Card mutations and their audit events commit in the same database transaction.
+
+This pilot workbench captures survey evidence only: evidence may be `gesteld`
+or `aannemelijk`. A checkbox alone is not independent triangulation evidence;
+`aangetoond` requires a future separately specified evidence workflow. Existing
+approved items are preserved; new approvals must satisfy these requirements.
+Export preparation derives method and wave metadata from stored selected items,
+requires one wave, and applies the same minimum-cell floor. The workbench shows
+the latest AI-Foto wave rather than combining approved items from different waves.
+
+Migration: `20261023100645_harden_ai_foto_pilot_integrity.sql`. Applied only to
+the verified non-default staging branch `gpptjkwxqxxdsjgwzhzl`; production was
+not mutated. Browser/API regression evidence is still required before release.
+
 ## 2026-08-05 - AI-Foto Fable Feedback Stays A Variant, Adds Analysis Plane
 
 The Fable design feedback is accepted as a refinement of the existing

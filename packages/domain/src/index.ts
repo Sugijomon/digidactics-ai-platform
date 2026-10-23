@@ -2,6 +2,8 @@ export {
   buildAiFotoAttentionCardDraft,
   buildAiFotoGeneratedCardDraft,
   clampAiFotoEvidenceLevel,
+  countAiFotoRespondents,
+  getSupportedAiFotoPatterns,
   findAiFotoLegalBlockedTerms,
   getAiFotoAttentionLevel,
   getAiFotoClusterKey,

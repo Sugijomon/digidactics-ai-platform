@@ -1,4 +1,4 @@
-import { getAiFotoAttentionLevel as deriveAiFotoAttentionLevel } from "@digidactics/domain";
+import { getAiFotoAttentionLevel as deriveAiFotoAttentionLevel, getSupportedAiFotoPatterns } from "@digidactics/domain";
 import { createClient } from "@/lib/supabase/server";
 import {
   aiVisibilityOptions,
@@ -811,13 +811,19 @@ export async function getAiFotoPreviewSummary(
   orgId: string,
 ): Promise<AiFotoPreviewSummary> {
   const supabase = await createClient();
+  const minCellResult = await getMinCellSizeQuery(orgId);
+  if (minCellResult.error) throw new Error(minCellResult.error.message);
+  const minCellSize = Math.max(5, getMinCellSize(minCellResult));
+  const latestWave = await supabase.from("scan_wave").select("id").eq("org_id", orgId)
+    .eq("product_code", "ai_foto").order("created_at", { ascending: false }).limit(1).maybeSingle();
+  if (latestWave.error) throw new Error(latestWave.error.message);
+  const currentWaveId = latestWave.data?.id ?? "00000000-0000-0000-0000-000000000000";
   const [applicationsResult, completedRunsResult, cardItemsResult] = await Promise.all([
     supabase
       .from("survey_application")
       .select(
         `
           id,
-          task_description_limited,
           account_environment_code,
           output_destination_code,
           output_control_code,
@@ -831,7 +837,7 @@ export async function getAiFotoPreviewSummary(
           shareability_code,
           value_evidence_code,
           escalation_route_awareness_code,
-          survey_run!inner(org_id, product_code_snapshot, completed_at),
+          survey_run!inner(org_id, product_code_snapshot, completed_at, wave_id),
           survey_tool(tool_name),
           survey_tool_use_case(use_case_code),
           survey_application_data_type(data_type_code),
@@ -844,17 +850,22 @@ export async function getAiFotoPreviewSummary(
       )
       .eq("survey_run.org_id", orgId)
       .eq("survey_run.product_code_snapshot", "ai_foto")
+      .eq("survey_run.wave_id", currentWaveId)
+      .not("survey_run.completed_at", "is", null)
+      .eq("depth_rank", "primary")
       .returns<AiFotoApplicationRow[]>(),
     supabase
       .from("survey_run")
       .select("id", { count: "exact", head: true })
       .eq("org_id", orgId)
       .eq("product_code_snapshot", "ai_foto")
+      .eq("wave_id", currentWaveId)
       .not("completed_at", "is", null),
     supabase
       .from("card_item")
       .select("status")
       .eq("org_id", orgId)
+      .eq("scan_wave_id", currentWaveId)
       .eq("analysis_version", "ai-foto-analysis-v1"),
   ]);
 
@@ -862,46 +873,48 @@ export async function getAiFotoPreviewSummary(
     applicationsResult.error || !applicationsResult.data
       ? []
       : applicationsResult.data;
+  if (applicationsResult.error) throw new Error(applicationsResult.error.message);
   const cardItemCounts = countAiFotoCardItemStatuses(
     cardItemsResult.error || !cardItemsResult.data
       ? []
       : (cardItemsResult.data as { status: string | null }[]),
   );
-  const valueSignals = toSignals(
+  const visibleSignals = (signals: AiFotoCardSignal[]) => signals.filter((signal) => signal.count >= minCellSize);
+  const valueSignals = visibleSignals(toSignals(
     countValues(
       applications.flatMap((row) =>
         extractCodes(row.survey_application_value_type, "value_type_code"),
       ),
     ),
     valueTypeOptions,
-  );
-  const valueBeneficiaries = toSignals(
+  ));
+  const valueBeneficiaries = visibleSignals(toSignals(
     countValues(applications.map((row) => row.beneficiary_code)),
     valueBeneficiaryOptions,
-  );
-  const conditionSignals = toSignals(
+  ));
+  const conditionSignals = visibleSignals(toSignals(
     countValues(
       applications.flatMap((row) =>
         extractCodes(row.survey_application_condition_need, "condition_need_code"),
       ),
     ),
     conditionNeedOptions,
-  );
-  const nearMissSignals = toSignals(
+  ));
+  const nearMissSignals = visibleSignals(toSignals(
     countValues(
       applications.flatMap((row) =>
         extractCodes(row.survey_application_near_miss_signal, "near_miss_signal_code"),
       ),
     ).filter(([code]) => code !== "none" && code !== "prefer_not_to_answer"),
     nearMissSignalOptions,
-  );
-  const outputDestinations = toSignals(
+  ));
+  const outputDestinations = visibleSignals(toSignals(
     countValues(applications.map((row) => row.output_destination_code)),
     outputDestinationOptions,
-  );
-  const skillSignals = buildSkillSignals(applications);
-  const topApplications = applications
-    .map(toAiFotoApplicationPreview)
+  ));
+  const skillSignals = visibleSignals(buildSkillSignals(applications));
+  const topApplications = getSupportedAiFotoPatterns(applications.map(toAiFotoApplicationPreview), minCellSize)
+    .map((pattern) => ({ ...pattern, id: JSON.stringify(pattern) }))
     .sort((a, b) => attentionRank(b.attentionLevel) - attentionRank(a.attentionLevel))
     .slice(0, 6);
   const attentionSignals = [
@@ -956,6 +969,7 @@ export async function getAiFotoPreviewSummary(
       escalationRouteAwarenessOptions,
     ),
   ]
+    .filter((signal) => signal.count >= minCellSize)
     .sort((a, b) => b.count - a.count)
     .slice(0, 8);
 
@@ -1081,21 +1095,23 @@ export async function getAiFotoWorkbenchData(
       .from("report_exports")
       .select("id, export_status, created_at")
       .eq("org_id", orgId)
-      .eq("export_type", "ai_foto_cards")
+      .eq("export_type", "ai_foto_pdf")
       .is("deleted_at", null)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle(),
   ]);
 
-  const cardItems = cardItemsResult.error || !cardItemsResult.data
-    ? []
-    : cardItemsResult.data;
-  const approvedItems =
-    approvedItemsResult.error || !approvedItemsResult.data
-      ? []
-      : approvedItemsResult.data;
+  for (const result of [cardItemsResult, approvedItemsResult, waveResult, organizationResult, exportResult]) {
+    if (result.error) throw new Error(result.error.message);
+  }
   const scanWaveId = waveResult.error ? null : (waveResult.data?.id ?? null);
+  const minCellResult = await getMinCellSizeQuery(orgId);
+  if (minCellResult.error) throw new Error(minCellResult.error.message);
+  const minCellSize = Math.max(5, getMinCellSize(minCellResult));
+  const inCurrentWave = (item: AiFotoCardItemRow) => item.scan_wave_id === scanWaveId && (item.respondent_count ?? 0) >= minCellSize;
+  const cardItems = (cardItemsResult.data ?? []).filter(inCurrentWave);
+  const approvedItems = (approvedItemsResult.data ?? []).filter(inCurrentWave);
   const methodVersion = waveResult.error
     ? "ai-foto-scan-v1"
     : (waveResult.data?.method_version ?? "ai-foto-scan-v1");
@@ -1105,7 +1121,7 @@ export async function getAiFotoWorkbenchData(
   const readiness =
     approvedItems.length === 0
       ? "no_approved_items"
-      : !scanWaveId || !methodVersion
+      : !scanWaveId || !methodVersion || new Set(approvedItems.map((item) => item.card_type)).size !== 3
         ? "incomplete_metadata"
         : "ready";
 
@@ -1655,15 +1671,15 @@ function toAiFotoApplicationPreview(
   const valueLabels = extractCodes(
     row.survey_application_value_type,
     "value_type_code",
-  ).map((code) => getOptionLabel(valueTypeOptions, code));
+  ).map((code) => getOptionLabel(valueTypeOptions, code)).sort();
   const conditionLabels = extractCodes(
     row.survey_application_condition_need,
     "condition_need_code",
-  ).map((code) => getOptionLabel(conditionNeedOptions, code));
+  ).map((code) => getOptionLabel(conditionNeedOptions, code)).sort();
   const dataLabels = extractCodes(
     row.survey_application_data_type,
     "data_type_code",
-  ).map((code) => getOptionLabel(dataTypeOptions, code));
+  ).map((code) => getOptionLabel(dataTypeOptions, code)).sort();
 
   return {
     attentionLevel: deriveAiFotoAttentionLevel({
@@ -1681,14 +1697,14 @@ function toAiFotoApplicationPreview(
     }),
     conditionLabels,
     dataLabels,
-    id: row.id,
+    id: "aggregate",
     netEffectLabel: getOptionLabel(netEffectOptions, row.net_effect_code),
     outputDestinationLabel: getOptionLabel(
       outputDestinationOptions,
       row.output_destination_code,
     ),
     peopleImpactLabel: getOptionLabel(peopleImpactOptions, row.people_impact_code),
-    taskDescription: row.task_description_limited ?? "Geen omschrijving",
+    taskDescription: "Geaggregeerd patroon uit afgeronde primaire praktijkvoorbeelden; individuele beschrijvingen worden niet getoond.",
     toolName: row.survey_tool?.tool_name ?? "Onbekende tool",
     useCaseLabel: getOptionLabel(
       useCaseOptions,

@@ -3,6 +3,7 @@
 import {
   buildAiFotoGeneratedCardDraft,
   clampAiFotoEvidenceLevel,
+  countAiFotoRespondents,
   getAiFotoClusterKey,
   validateAiFotoCardItemApproval,
   type AiFotoApplicationSignalInput,
@@ -16,6 +17,7 @@ import { createClient } from "@/lib/supabase/server";
 const ANALYSIS_VERSION = "ai-foto-analysis-v1";
 const CARD_TYPES: AiFotoCardType[] = ["waarde", "aandacht", "vaardigheid"];
 const EDITABLE_STATUSES = new Set(["draft", "ai_suggested", "consultant_reviewed"]);
+const REGENERATABLE_STATUSES = ["draft", "ai_suggested"];
 
 type ActionAccess = {
   orgId: string;
@@ -28,6 +30,7 @@ type AiFotoApplicationRow = {
   control_rework_code: string | null;
   escalation_route_awareness_code: string | null;
   id: string;
+  survey_run_id: string;
   output_control_code: string | null;
   people_impact_code: string | null;
   survey_application_condition_need:
@@ -67,7 +70,8 @@ export async function generateAiFotoCardItems() {
   const groupedApplications = groupApplicationsForCards(applications, minCellSize);
 
   for (const group of groupedApplications) {
-    if (group.applications.length < minCellSize) {
+    const respondentCount = countAiFotoRespondents(group.applications);
+    if (respondentCount < minCellSize) {
       continue;
     }
 
@@ -76,7 +80,7 @@ export async function generateAiFotoCardItems() {
         applications: group.applications,
         cardType,
         clusterKey: group.clusterKey,
-        respondentCount: group.applications.length,
+        respondentCount,
         valueEvidenceCodes: group.applications.map(
           (application) => application.valueEvidenceCode,
         ),
@@ -88,7 +92,7 @@ export async function generateAiFotoCardItems() {
         scanWaveId: group.scanWaveId,
       });
 
-      if (existing && !EDITABLE_STATUSES.has(existing.status)) {
+      if (existing && !REGENERATABLE_STATUSES.includes(existing.status)) {
         continue;
       }
 
@@ -100,24 +104,18 @@ export async function generateAiFotoCardItems() {
             evidence_refs: draft.evidenceRefs,
             observation: draft.observation,
             respondent_count: draft.respondentCount,
-            status: existing.status === "consultant_reviewed"
-              ? "consultant_reviewed"
-              : "ai_suggested",
+            status: "ai_suggested",
             title: draft.title,
           })
           .eq("id", existing.id)
-          .eq("org_id", access.orgId);
+          .eq("org_id", access.orgId)
+          .in("status", REGENERATABLE_STATUSES);
 
         if (error) throw new Error(error.message);
-        await recordAudit(supabase, access.orgId, "card_item.generated", existing.id, {
-          action: "updated_existing_draft",
-          card_type: cardType,
-          cluster_key: group.clusterKey,
-        });
         continue;
       }
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("card_item")
         .insert({
           analysis_version: draft.analysisVersion,
@@ -137,12 +135,8 @@ export async function generateAiFotoCardItems() {
         .select("id")
         .single();
 
+      if (error?.code === "23505") continue; // Concurrent generation already inserted this cluster.
       if (error) throw new Error(error.message);
-      await recordAudit(supabase, access.orgId, "card_item.generated", data.id, {
-        action: "inserted_ai_suggestion",
-        card_type: cardType,
-        cluster_key: group.clusterKey,
-      });
     }
   }
 
@@ -162,7 +156,7 @@ export async function updateAiFotoCardItem(formData: FormData) {
   const evidenceLevel = clampAiFotoEvidenceLevel(
     parseEvidenceLevel(getRequiredString(formData, "evidence_level")),
     valueEvidenceCode,
-    formData.get("allow_triangulated_evidence") === "on",
+    false, // This survey-only pilot cannot record independent triangulation evidence.
   );
   const openQuestions = parseLines(formData.get("open_questions"));
   const proposedOwnerRole = normalizeOptionalSelect(formData.get("proposed_owner_role"));
@@ -172,6 +166,7 @@ export async function updateAiFotoCardItem(formData: FormData) {
     .from("card_item")
     .update({
       evidence_level: evidenceLevel,
+      status: "draft",
       follow_up_direction: getOptionalString(formData, "follow_up_direction"),
       interpretation: getOptionalString(formData, "interpretation"),
       observation: getRequiredString(formData, "observation"),
@@ -182,22 +177,10 @@ export async function updateAiFotoCardItem(formData: FormData) {
       title: getRequiredString(formData, "title"),
     })
     .eq("id", cardItem.id)
-    .eq("org_id", access.orgId);
+    .eq("org_id", access.orgId)
+    .in("status", [...EDITABLE_STATUSES]).select("id").single();
 
   if (error) throw new Error(error.message);
-  await recordAudit(supabase, access.orgId, "card_item.updated", cardItem.id, {
-    fields: [
-      "title",
-      "observation",
-      "interpretation",
-      "open_questions",
-      "precaution",
-      "follow_up_direction",
-      "proposed_owner_role",
-      "review_date",
-      "evidence_level",
-    ],
-  });
 
   revalidatePath("/dashboard/ai-foto");
 }
@@ -207,7 +190,7 @@ export async function markAiFotoCardItemReviewed(formData: FormData) {
   const supabase = await createClient();
   const cardItem = await getCardItemForOrg(supabase, access.orgId, getRequiredString(formData, "card_item_id"));
 
-  if (cardItem.status === "approved") {
+  if (!EDITABLE_STATUSES.has(cardItem.status)) {
     throw new Error("Approved kaartitems zijn al geaccordeerd.");
   }
 
@@ -215,12 +198,10 @@ export async function markAiFotoCardItemReviewed(formData: FormData) {
     .from("card_item")
     .update({ status: "consultant_reviewed" })
     .eq("id", cardItem.id)
-    .eq("org_id", access.orgId);
+    .eq("org_id", access.orgId)
+    .in("status", [...EDITABLE_STATUSES]).select("id").single();
 
   if (error) throw new Error(error.message);
-  await recordAudit(supabase, access.orgId, "card_item.updated", cardItem.id, {
-    status: "consultant_reviewed",
-  });
 
   revalidatePath("/dashboard/ai-foto");
 }
@@ -229,6 +210,9 @@ export async function approveAiFotoCardItem(formData: FormData) {
   const access = await requireAiFotoDashboardAccess();
   const supabase = await createClient();
   const cardItem = await getCardItemForOrg(supabase, access.orgId, getRequiredString(formData, "card_item_id"));
+  if (cardItem.status !== "consultant_reviewed") {
+    throw new Error("Markeer het opgeslagen kaartitem eerst als review klaar.");
+  }
   const validation = validateAiFotoCardItemApproval({
     analysisVersion: cardItem.analysis_version,
     evidenceRefs: cardItem.evidence_refs,
@@ -252,13 +236,10 @@ export async function approveAiFotoCardItem(formData: FormData) {
       status: "approved",
     })
     .eq("id", cardItem.id)
-    .eq("org_id", access.orgId);
+    .eq("org_id", access.orgId)
+    .eq("status", "consultant_reviewed").select("id").single();
 
   if (error) throw new Error(error.message);
-  await recordAudit(supabase, access.orgId, "card_item.approved", cardItem.id, {
-    analysis_version: ANALYSIS_VERSION,
-    validation,
-  });
 
   revalidatePath("/dashboard/ai-foto");
 }
@@ -275,23 +256,28 @@ export async function recordAiFotoExportPreview(formData: FormData) {
     throw new Error("Er zijn nog geen approved kaartitems voor export-preview.");
   }
 
-  const { count, error: countError } = await supabase
+  const { data: selectedItems, error: countError } = await supabase
     .from("card_item")
-    .select("id", { count: "exact", head: true })
+    .select("id, scan_wave_id, respondent_count")
     .eq("org_id", access.orgId)
     .eq("analysis_version", ANALYSIS_VERSION)
     .eq("status", "approved")
     .in("id", itemIds);
 
   if (countError) throw new Error(countError.message);
-  if ((count ?? 0) !== itemIds.length) {
+  if ((selectedItems?.length ?? 0) !== itemIds.length) {
     throw new Error("Export-preview mag alleen approved kaartitems bevatten.");
   }
 
   const minCellSize = await getMinCellSize(supabase, access.orgId);
-  const scanWaveId = normalizeOptionalSelect(formData.get("scan_wave_id"));
-  const methodVersion =
-    normalizeOptionalSelect(formData.get("method_version")) ?? "ai-foto-scan-v1";
+  const scanWaveId = selectedItems?.[0]?.scan_wave_id;
+  if (!scanWaveId || selectedItems?.some((item) => item.scan_wave_id !== scanWaveId || item.respondent_count < minCellSize)) {
+    throw new Error("Selecteer voldoende onderbouwde kaartitems uit dezelfde scanronde.");
+  }
+  const { data: wave, error: waveError } = await supabase.from("scan_wave")
+    .select("method_version").eq("id", scanWaveId).eq("org_id", access.orgId).eq("product_code", "ai_foto").single();
+  if (waveError) throw new Error(waveError.message);
+  const methodVersion = wave.method_version;
   const { data, error } = await supabase
     .from("report_exports")
     .insert({
@@ -356,7 +342,8 @@ async function getMinCellSize(
     .limit(1)
     .maybeSingle();
 
-  return error || !data ? 5 : (data.dashboard_min_cell_size ?? 5);
+  if (error) throw new Error(error.message);
+  return Math.max(5, data?.dashboard_min_cell_size ?? 5);
 }
 
 async function getAiFotoApplications(
@@ -368,6 +355,7 @@ async function getAiFotoApplications(
     .select(
       `
         id,
+        survey_run_id,
         account_environment_code,
         output_control_code,
         people_impact_code,
@@ -431,6 +419,7 @@ function groupApplicationsForCards(
       outputControlCode: row.output_control_code,
       peopleImpactCode: row.people_impact_code,
       surveyApplicationId: row.id,
+      surveyRunId: row.survey_run_id,
       toolName: row.survey_tool?.tool_name,
       transparencyCode: row.transparency_code,
       useCaseCode: row.survey_tool_use_case?.use_case_code,
